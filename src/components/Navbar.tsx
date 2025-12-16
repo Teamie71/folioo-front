@@ -11,7 +11,8 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="w-[1056px] mx-auto bg-white">
+    <nav className="fixed top-0 left-0 right-0 w-full bg-white z-50">
+      <div className="w-[1056px] mx-auto">
         <div className="flex items-center justify-between h-[80px]">
           <div className="flex items-center gap-[60px]">
             {/* 로고 플레이스홀더 */}
@@ -52,6 +53,7 @@ export default function Navbar() {
             )}
           </div>
         </div>
+      </div>
     </nav>
   );
 }
