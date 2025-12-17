@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function ExperienceSettingsPage() {
   return (
     <div className='mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem]'>
@@ -205,6 +207,17 @@ export default function ExperienceSettingsPage() {
           </div>
         </button>
       </div>
+
+      {/* 시작하기 버튼 */}
+      <Link href='/experience/settings/chat'>
+        <button className='fixed bottom-[7.5rem] left-1/2 z-100 mx-auto flex -translate-x-1/2 cursor-pointer gap-[0.75rem] rounded-[6.25rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'>
+          {/* TODO: 아이콘 추가 */}
+          <div className='h-[1.5rem] w-[1.5rem] bg-[#FFFFFF]' />
+          <span className='text-[1rem] font-bold text-[#FFFFFF]'>
+            AI와 대화 시작하기
+          </span>
+        </button>
+      </Link>
     </div>
   );
 }
