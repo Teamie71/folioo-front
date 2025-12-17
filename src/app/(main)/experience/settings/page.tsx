@@ -45,7 +45,7 @@ export default function ExperienceSettingsPage() {
         </div>
 
         {/* 프로그레스 바 */}
-        <div className='flex flex-col gap-[0.75rem]'>
+        <div className='flex flex-col gap-[0.75rem] pb-[72px]'>
           {/* TODO: 프로그레스 바 애니메이션 */}
           <div className='h-[0.25rem] w-full rounded-[1.5rem] bg-[#E9EAEC]' />
 
