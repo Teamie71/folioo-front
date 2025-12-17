@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function ExperiencePage() {
   return (
-    <div>
+    <div className='flex flex-col gap-[4.5rem]'>
       {/* 경험정리 헤더 */}
       <div className='mx-auto flex h-[15.625rem] w-full min-w-[66rem] bg-[#F6F5FF]'>
         <div className='mx-auto flex min-w-[66rem] items-center justify-between'>
