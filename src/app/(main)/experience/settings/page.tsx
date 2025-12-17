@@ -1,6 +1,18 @@
-import Link from 'next/link';
+'use client';
+
+import { useRouter } from 'next/navigation';
 
 export default function ExperienceSettingsPage() {
+  const router = useRouter();
+
+  const handleStartChat = () => {
+    // TODO: 백엔드 연동 시 API 호출로 교체
+    // const response = await fetch('/api/chat', { method: 'POST' });
+    // const { id } = await response.json();
+    const id = crypto.randomUUID();
+    router.push(`/experience/settings/${id}/chat`);
+  };
+
   return (
     <div className='mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem]'>
       <div className='flex flex-col gap-[1.5rem]'>
@@ -217,15 +229,16 @@ export default function ExperienceSettingsPage() {
       </div>
 
       {/* 시작하기 버튼 */}
-      <Link href='/experience/settings/chat'>
-        <button className='fixed bottom-[7.5rem] left-1/2 z-100 mx-auto flex -translate-x-1/2 cursor-pointer gap-[0.75rem] rounded-[6.25rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'>
-          {/* TODO: 아이콘 추가 */}
-          <div className='h-[1.5rem] w-[1.5rem] bg-[#FFFFFF]' />
-          <span className='text-[1rem] font-bold text-[#FFFFFF]'>
-            AI와 대화 시작하기
-          </span>
-        </button>
-      </Link>
+      <button
+        onClick={handleStartChat}
+        className='fixed bottom-[7.5rem] left-1/2 z-100 mx-auto flex -translate-x-1/2 cursor-pointer gap-[0.75rem] rounded-[6.25rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
+      >
+        {/* TODO: 아이콘 추가 */}
+        <div className='h-[1.5rem] w-[1.5rem] bg-[#FFFFFF]' />
+        <span className='text-[1rem] font-bold text-[#FFFFFF]'>
+          AI와 대화 시작하기
+        </span>
+      </button>
     </div>
   );
 }
