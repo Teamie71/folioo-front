@@ -119,93 +119,99 @@ export default function ExperienceSettingsPage() {
         </div>
       </div>
 
-      {/* 경험명 입력 */}
-      <div className='flex flex-col gap-[1rem]'>
-        <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
-          <span>경험명</span>
-          <span className='text-[#DC0000]'>*</span>
-        </div>
-        <input
-          className='rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-[#74777D]'
-          placeholder='경험명을 입력해주세요.'
-        />
-      </div>
-
-      {/* 희망 직무 선택 */}
-      <div className='flex flex-col gap-[1rem]'>
-        <div className='flex flex-col text-[1.125rem]'>
-          <div className='flex items-center gap-[0.25rem] font-bold'>
-            <span>희망직무</span>
+      <div className='flex flex-col gap-[3.75rem]'>
+        {/* 경험명 입력 */}
+        <div className='flex flex-col gap-[1rem]'>
+          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+            <span>경험명</span>
             <span className='text-[#DC0000]'>*</span>
           </div>
-          <span className='font-regular text-[0.825rem] text-[#74777D]'>
-            희망 직무에 맞추어 경험을 체계적으로 정리하세요.
-          </span>
+          <input
+            className='rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-[#74777D]'
+            placeholder='경험명을 입력해주세요.'
+          />
         </div>
-        {/* 직무 목록 */}
-        <div className='flex items-center gap-[1.25rem]'>
-          <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
-            미정
-          </div>
-          <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
-            기획
-          </div>
-          <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
-            광고/마케팅
-          </div>
-          <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
-            디자인
-          </div>
-          <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
-            IT 개발
-          </div>
-          <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
-            영상/미디어
-          </div>
-          <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
-            데이터
-          </div>
-        </div>
-      </div>
 
-      {/* 파일 업로더 */}
-      <div className='flex flex-col gap-[1rem]'>
-        <div>
-          <div className='flex items-center gap-[1rem]'>
-            <span className='text-[1.125rem] font-bold'>관련 파일 업로드</span>
-            {/* TODO: 파일 사이즈 측정값 입력 */}
-            <span className='text-[0.875rem] text-[#1A1A1A]'>0 / 10240KB</span>
-          </div>
-          <span className='text-[0.875rem] text-[#74777D]'>
-            작업한 파일, 발표 대본, 프로젝트 결과물 등 참고할 자료를
-            업로드해주세요.
-          </span>
-        </div>
-        {/* TODO: 파일 업로드 기능 */}
-        <button className='w-[21.125rem] cursor-pointer rounded-[1rem] border border-[#74777D] bg-[#ffffff] px-[1.5rem] py-[2.25rem]'>
-          <div className='flex flex-col items-center gap-[0.875rem]'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              width='60'
-              height='60'
-              viewBox='0 0 60 60'
-              fill='none'
-            >
-              <path
-                d='M45 42.5C48.3152 42.5 51.4946 41.183 53.8388 38.8388C56.183 36.4946 57.5 33.3152 57.5 30C57.5 26.6848 56.183 23.5053 53.8388 21.1611C51.4946 18.8169 48.3152 17.5 45 17.5C44.337 13.1902 41.989 9.32034 38.4727 6.74172C34.9564 4.16309 30.5598 3.08693 26.25 3.74997C21.9402 4.41301 18.0704 6.76094 15.4917 10.2772C12.9131 13.7936 11.837 18.1902 12.5 22.5C9.84784 22.5 7.3043 23.5535 5.42893 25.4289C3.55357 27.3043 2.5 29.8478 2.5 32.5C2.5 35.1521 3.55357 37.6957 5.42893 39.571C7.3043 41.4464 9.84784 42.5 12.5 42.5H15M22.5 35L30 27.5M30 27.5L37.5 35M30 27.5V57.5'
-                stroke='#74777D'
-                strokeWidth='4'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              />
-            </svg>
-            <span className='font-[regular] text-[0.875rem] leading-[1.375rem] text-[#74777D]'>
-              클릭하여 파일을 업로드하세요.
-              <br />
-              (10MB 이하의 PDF, PNG, JPG 파일만 업로드 가능)
+        {/* 희망 직무 선택 */}
+        <div className='flex flex-col gap-[1rem]'>
+          <div className='flex flex-col text-[1.125rem]'>
+            <div className='flex items-center gap-[0.25rem] font-bold'>
+              <span>희망직무</span>
+              <span className='text-[#DC0000]'>*</span>
+            </div>
+            <span className='font-regular text-[0.825rem] text-[#74777D]'>
+              희망 직무에 맞추어 경험을 체계적으로 정리하세요.
             </span>
           </div>
-        </button>
+          {/* 직무 목록 */}
+          <div className='flex items-center gap-[1.25rem]'>
+            <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
+              미정
+            </div>
+            <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
+              기획
+            </div>
+            <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
+              광고/마케팅
+            </div>
+            <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
+              디자인
+            </div>
+            <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
+              IT 개발
+            </div>
+            <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
+              영상/미디어
+            </div>
+            <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
+              데이터
+            </div>
+          </div>
+        </div>
+
+        {/* 파일 업로더 */}
+        <div className='flex flex-col gap-[1rem]'>
+          <div>
+            <div className='flex items-center gap-[1rem]'>
+              <span className='text-[1.125rem] font-bold'>
+                관련 파일 업로드
+              </span>
+              {/* TODO: 파일 사이즈 측정값 입력 */}
+              <span className='text-[0.875rem] text-[#1A1A1A]'>
+                0 / 10240KB
+              </span>
+            </div>
+            <span className='text-[0.875rem] text-[#74777D]'>
+              작업한 파일, 발표 대본, 프로젝트 결과물 등 참고할 자료를
+              업로드해주세요.
+            </span>
+          </div>
+          {/* TODO: 파일 업로드 기능 */}
+          <button className='w-[21.125rem] cursor-pointer rounded-[1rem] border border-[#74777D] bg-[#ffffff] px-[1.5rem] py-[2.25rem]'>
+            <div className='flex flex-col items-center gap-[0.875rem]'>
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                width='60'
+                height='60'
+                viewBox='0 0 60 60'
+                fill='none'
+              >
+                <path
+                  d='M45 42.5C48.3152 42.5 51.4946 41.183 53.8388 38.8388C56.183 36.4946 57.5 33.3152 57.5 30C57.5 26.6848 56.183 23.5053 53.8388 21.1611C51.4946 18.8169 48.3152 17.5 45 17.5C44.337 13.1902 41.989 9.32034 38.4727 6.74172C34.9564 4.16309 30.5598 3.08693 26.25 3.74997C21.9402 4.41301 18.0704 6.76094 15.4917 10.2772C12.9131 13.7936 11.837 18.1902 12.5 22.5C9.84784 22.5 7.3043 23.5535 5.42893 25.4289C3.55357 27.3043 2.5 29.8478 2.5 32.5C2.5 35.1521 3.55357 37.6957 5.42893 39.571C7.3043 41.4464 9.84784 42.5 12.5 42.5H15M22.5 35L30 27.5M30 27.5L37.5 35M30 27.5V57.5'
+                  stroke='#74777D'
+                  strokeWidth='4'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                />
+              </svg>
+              <span className='font-[regular] text-[0.875rem] leading-[1.375rem] text-[#74777D]'>
+                클릭하여 파일을 업로드하세요.
+                <br />
+                (10MB 이하의 PDF, PNG, JPG 파일만 업로드 가능)
+              </span>
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* 시작하기 버튼 */}
