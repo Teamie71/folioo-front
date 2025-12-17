@@ -128,6 +128,43 @@ export default function ExperienceSettingsPage() {
           placeholder='경험명을 입력해주세요.'
         />
       </div>
+
+      {/* 희망 직무 선택 */}
+      <div className='flex flex-col gap-[1rem]'>
+        <div className='flex flex-col text-[1.125rem]'>
+          <div className='flex items-center gap-[0.25rem] font-bold'>
+            <span>희망직무</span>
+            <span className='text-[#DC0000]'>*</span>
+          </div>
+          <span className='font-regular text-[0.825rem] text-[#74777D]'>
+            희망 직무에 맞추어 경험을 체계적으로 정리하세요.
+          </span>
+        </div>
+        {/* 직무 목록 */}
+        <div className='flex items-center gap-[1.25rem]'>
+          <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
+            미정
+          </div>
+          <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
+            기획
+          </div>
+          <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
+            광고/마케팅
+          </div>
+          <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
+            디자인
+          </div>
+          <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
+            IT 개발
+          </div>
+          <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
+            영상/미디어
+          </div>
+          <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
+            데이터
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
