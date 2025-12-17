@@ -116,6 +116,18 @@ export default function ExperienceSettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* 경험명 입력 */}
+      <div className='flex flex-col gap-[1rem]'>
+        <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+          <span>경험명</span>
+          <span className='text-[#DC0000]'>*</span>
+        </div>
+        <input
+          className='rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-[#74777D]'
+          placeholder='경험명을 입력해주세요.'
+        />
+      </div>
     </div>
   );
 }
