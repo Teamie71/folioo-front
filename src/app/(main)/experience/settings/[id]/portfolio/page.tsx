@@ -91,6 +91,11 @@ export default function ExperienceSettingsPortfolioPage() {
             </svg>
           </button>
         </div>
+
+        {/* 직무 태그 */}
+        <div className='rounded-[3.75rem] border-[0.09375rem] border-[#5060C5] bg-[#F6F5FF] px-[1.75rem] py-[0.25rem] text-[1rem] font-semibold text-[#5060C5]'>
+          IT 개발
+        </div>
       </div>
     </div>
   );
