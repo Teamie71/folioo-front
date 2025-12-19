@@ -1,7 +1,7 @@
 export default function ExperienceSettingsPortfolioPage() {
   return (
     <div className='mx-auto w-[66rem] min-w-[66rem]'>
-      <div className='flex flex-col gap-[1.125rem]'>
+      <div className='flex flex-col gap-[1.125rem] pb-[4.5rem]'>
         {/* 헤더 */}
         <div className='flex w-full items-center justify-between'>
           <div className='flex items-center gap-[1.25rem]'>
