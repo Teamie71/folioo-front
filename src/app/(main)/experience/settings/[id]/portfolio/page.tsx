@@ -1,7 +1,7 @@
 export default function ExperienceSettingsPortfolioPage() {
   return (
     <div className='mx-auto w-[66rem] min-w-[66rem]'>
-      <div className='flex flex-col'>
+      <div className='flex flex-col gap-[1.125rem]'>
         {/* 헤더 */}
         <div className='flex w-full items-center justify-between'>
           <div className='flex items-center gap-[1.25rem]'>
@@ -64,6 +64,9 @@ export default function ExperienceSettingsPortfolioPage() {
             </button>
           </div>
         </div>
+
+        {/* 콘텐츠 구분선 */}
+        <div className='rounded-[2rem] border border-[#9EA4A9]' />
       </div>
     </div>
   );
