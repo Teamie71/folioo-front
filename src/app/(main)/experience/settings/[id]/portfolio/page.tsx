@@ -99,7 +99,7 @@ export default function ExperienceSettingsPortfolioPage() {
       </div>
 
       {/* 생성 내용 */}
-      <div className='flex flex-col gap-[3.75rem] pt-[3.7rem]'>
+      <div className='flex flex-col gap-[3.75rem] pt-[3.75rem] pb-[3.75rem]'>
         {/* 상세정보 */}
         <div className='flex flex-col gap-[1rem]'>
           <span className='text-[1.125rem] font-bold'>상세정보</span>
