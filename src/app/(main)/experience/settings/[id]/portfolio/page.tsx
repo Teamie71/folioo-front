@@ -97,6 +97,41 @@ export default function ExperienceSettingsPortfolioPage() {
           IT 개발
         </div>
       </div>
+
+      {/* 생성 내용 */}
+      <div className='flex flex-col gap-[3.75rem] pt-[3.7rem]'>
+        {/* 상세정보 */}
+        <div className='flex flex-col gap-[1rem]'>
+          <span className='text-[1.125rem] font-bold'>상세정보</span>
+          <div className='font-regular line-height-[160%] rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] text-[#1A1A1A]'>
+            내용
+          </div>
+        </div>
+
+        {/* 담당업무 */}
+        <div className='flex flex-col gap-[1rem]'>
+          <span className='text-[1.125rem] font-bold'>담당업무</span>
+          <div className='font-regular line-height-[160%] rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] text-[#1A1A1A]'>
+            내용
+          </div>
+        </div>
+
+        {/* 문제해결 */}
+        <div className='flex flex-col gap-[1rem]'>
+          <span className='text-[1.125rem] font-bold'>문제해결</span>
+          <div className='font-regular line-height-[160%] rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] text-[#1A1A1A]'>
+            내용
+          </div>
+        </div>
+
+        {/* 배운 점 */}
+        <div className='flex flex-col gap-[1rem]'>
+          <span className='text-[1.125rem] font-bold'>배운 점</span>
+          <div className='font-regular line-height-[160%] rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] text-[#1A1A1A]'>
+            내용
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
