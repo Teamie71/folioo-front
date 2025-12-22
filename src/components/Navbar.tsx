@@ -7,46 +7,61 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   const handleLogin = () => {
-    setIsLoggedIn(prev => !prev);
+    setIsLoggedIn((prev) => !prev);
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 w-full bg-white z-50">
-      <div className="w-[1056px] mx-auto">
-        <div className="flex items-center justify-between h-[80px]">
-          <div className="flex items-center gap-[60px]">
+    <nav className='fixed top-0 right-0 left-0 z-50 w-full bg-white'>
+      <div className='mx-auto w-[1056px]'>
+        <div className='flex h-[80px] items-center justify-between'>
+          <div className='flex items-center gap-[60px]'>
             {/* 로고 플레이스홀더 */}
-            <div className="flex items-center gap-[3px]">
-              <div className="w-[40px] h-[40px] bg-[#E0E0E0]"></div>
-              <div className="w-[77px] h-[40px] bg-[#E0E0E0]"></div>
+            <div className='flex items-center gap-[3px]'>
+              <div className='h-[40px] w-[40px] bg-[#E0E0E0]'></div>
+              <div className='h-[40px] w-[77px] bg-[#E0E0E0]'></div>
             </div>
-            
+
             {/* 네비게이션 링크 */}
-            <div className="flex items-center gap-[40px]">
-              <Link href="/" className="inline-block no-underline text-[#333333] font-[16px] py-[8px]">
+            <div className='flex items-center gap-[40px]'>
+              <Link
+                href='/'
+                className='inline-block py-[8px] font-[16px] text-[#333333] no-underline'
+              >
                 인사이트 로그
               </Link>
-              <Link href="/" className="inline-block no-underline text-[#333333] font-[16px] py-[8px]">
+              <Link
+                href='/experience'
+                className='inline-block py-[8px] font-[16px] text-[#333333] no-underline'
+              >
                 경험 정리
               </Link>
-              <Link href="/" className="inline-block no-underline text-[#333333] font-[16px] py-[8px]">
+              <Link
+                href='/'
+                className='inline-block py-[8px] font-[16px] text-[#333333] no-underline'
+              >
                 포트폴리오 첨삭
               </Link>
             </div>
           </div>
 
-          <div className="flex items-center">
+          <div className='flex items-center'>
             {isLoggedIn ? (
-              <div className="flex items-center gap-[40px]">
-                <Link href="/" className="inline-block no-underline text-[#333333] font-[16px] py-[8px]">
+              <div className='flex items-center gap-[40px]'>
+                <Link
+                  href='/'
+                  className='inline-block py-[8px] font-[16px] text-[#333333] no-underline'
+                >
                   크레딧 충전
                 </Link>
-                <button onClick={handleLogin} className="w-[40px] h-[40px] rounded-full bg-[#E0E0E0] border-none outline-none focus:outline-none cursor-pointer"></button>
+                <button
+                  onClick={handleLogin}
+                  className='h-[40px] w-[40px] cursor-pointer rounded-full border-none bg-[#E0E0E0] outline-none focus:outline-none'
+                ></button>
               </div>
             ) : (
               <button
                 onClick={handleLogin}
-                className="px-[28px] py-[8px] bg-[#5060C5] text-[#FFFFFF] font-bold text-[16px] rounded-[100px] border-none outline-none focus:outline-none cursor-pointer"
+                className='cursor-pointer rounded-[100px] border-none bg-[#5060C5] px-[28px] py-[8px] text-[16px] font-bold text-[#FFFFFF] outline-none focus:outline-none'
               >
                 로그인
               </button>
