@@ -338,6 +338,56 @@ export default function LogPage() {
               <span className='text-right'>0/250</span>
             </div>
           </div>
+
+          {/* 내용 - 레퍼런스 템플릿 */}
+          <div className='flex flex-col gap-[1.25rem]'>
+            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+              <span>내용</span>
+              <span className='text-[#DC0000]'>*</span>
+            </div>
+
+            <div className='flex flex-col gap-[0.5rem]'>
+              <div className='flex flex-col gap-[1.25rem]'>
+                {/* 출처 */}
+                <div className='flex items-center justify-between'>
+                  <span className='text-[1rem] text-[#1A1A1A]'>출처</span>
+                  <input
+                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+                    placeholder='어디서 얻은 레퍼런스인가요?'
+                  />
+                </div>
+
+                {/* 내용 */}
+                <div className='flex items-center justify-between'>
+                  <span className='text-[1rem] text-[#1A1A1A]'>내용</span>
+                  <input
+                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+                    placeholder='어떤 점이 인상 깊었나요?'
+                  />
+                </div>
+
+                {/* 나의 생각 */}
+                <div className='flex items-center justify-between'>
+                  <span className='text-[1rem] text-[#1A1A1A]'>나의 생각</span>
+                  <input
+                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+                    placeholder='이 레퍼런스를 보고 어떤 생각이 들었나요?'
+                  />
+                </div>
+
+                {/* 적용 계획 */}
+                <div className='flex items-center justify-between'>
+                  <span className='text-[1rem] text-[#1A1A1A]'>적용 계획</span>
+                  <input
+                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+                    placeholder='앞으로 어디에, 어떻게 적용해 볼 건가요?'
+                  />
+                </div>
+              </div>
+
+              <span className='text-right'>0/250</span>
+            </div>
+          </div>
         </div>
       </div>
 
