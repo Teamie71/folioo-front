@@ -245,6 +245,58 @@ export default function LogPage() {
               <span className='mt-[0.5rem] text-right'>0/250</span>
             </div>
           </div>
+
+          {/* 내용 - 대인관계 템플릿 */}
+          <div className='flex flex-col gap-[1.25rem]'>
+            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+              <span>내용</span>
+              <span className='text-[#DC0000]'>*</span>
+            </div>
+
+            <div className='flex flex-col gap-[0.5rem]'>
+              <div className='flex flex-col gap-[1.25rem]'>
+                {/* 상황/대상 */}
+                <div className='flex items-center justify-between'>
+                  <span className='text-[1rem] text-[#1A1A1A]'>상황/대상</span>
+                  <input
+                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+                    placeholder='누구와, 어떤 상황이 발생했나요?'
+                  />
+                </div>
+
+                {/* 대응 */}
+                <div className='flex items-center justify-between'>
+                  <span className='text-[1rem] text-[#1A1A1A]'>대응</span>
+                  <input
+                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+                    placeholder='나는 어떻게 대응했나요?'
+                  />
+                </div>
+
+                {/* 결과 */}
+                <div className='flex items-center justify-between'>
+                  <span className='text-[1rem] text-[#1A1A1A]'>결과</span>
+                  <input
+                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+                    placeholder='어떤 결과가 나타났나요?'
+                  />
+                </div>
+
+                {/* 배운 점/계획 */}
+                <div className='flex items-center justify-between'>
+                  <span className='text-[1rem] text-[#1A1A1A]'>
+                    배운 점/계획
+                  </span>
+                  <input
+                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+                    placeholder='무엇을 배웠고, 앞으로는 비슷한 상황에서 어떻게 대응할건가요?'
+                  />
+                </div>
+              </div>
+
+              <span className='text-right'>0/250</span>
+            </div>
+          </div>
         </div>
       </div>
 
