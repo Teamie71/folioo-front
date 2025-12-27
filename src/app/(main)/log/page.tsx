@@ -28,6 +28,20 @@ export default function LogPage() {
           </span>
         </div>
       </div>
+
+      {/* 새로운 로그 작성 영역 */}
+      <div className='mx-auto flex w-[66rem] flex-col rounded-[1.25rem] bg-[#ffffff] p-[2rem] shadow-[0px_4px_8px_0px_#00000033]'>
+        {/* 로그 작성 헤더 */}
+        <div className='flex w-full items-center justify-between px-[0.5rem]'>
+          <span className='text-[1.25rem] font-bold'>새로운 로그 작성</span>
+          <button className='text-bold cursor-pointer rounded-[6.25rem] bg-[#5060C5] px-[2.25rem] py-[0.75rem] text-[#ffffff]'>
+            로그 등록하기
+          </button>
+        </div>
+
+        {/* 구분선 */}
+        <div className='mt-[1.25rem] mb-[2.5rem] w-full border border-[#9EA4A9]' />
+      </div>
     </div>
   );
 }
