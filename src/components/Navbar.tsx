@@ -24,7 +24,7 @@ export default function Navbar() {
             {/* 네비게이션 링크 */}
             <div className='flex items-center gap-[40px]'>
               <Link
-                href='/'
+                href='/log'
                 className='inline-block py-[8px] font-[16px] text-[#333333] no-underline'
               >
                 인사이트 로그
