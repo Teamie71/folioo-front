@@ -297,6 +297,47 @@ export default function LogPage() {
               <span className='text-right'>0/250</span>
             </div>
           </div>
+
+          {/* 내용 - 학습 템플릿 */}
+          <div className='flex flex-col gap-[1.25rem]'>
+            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+              <span>내용</span>
+              <span className='text-[#DC0000]'>*</span>
+            </div>
+
+            <div className='flex flex-col gap-[0.5rem]'>
+              <div className='flex flex-col gap-[1.25rem]'>
+                {/* 학습 경로 */}
+                <div className='flex items-center justify-between'>
+                  <span className='text-[1rem] text-[#1A1A1A]'>학습 경로</span>
+                  <input
+                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+                    placeholder='어떤 매체를 통해, 무엇을 계기로 학습을 진행했나요?'
+                  />
+                </div>
+
+                {/* 배운 내용 */}
+                <div className='flex items-center justify-between'>
+                  <span className='text-[1rem] text-[#1A1A1A]'>배운 내용</span>
+                  <input
+                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+                    placeholder='어떤 지식 또는 스킬을 배웠나요?'
+                  />
+                </div>
+
+                {/* 적용 계획 */}
+                <div className='flex items-center justify-between'>
+                  <span className='text-[1rem] text-[#1A1A1A]'>적용 계획</span>
+                  <input
+                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+                    placeholder='앞으로 어디에 어떻게 적용해 볼 건가요?'
+                  />
+                </div>
+              </div>
+
+              <span className='text-right'>0/250</span>
+            </div>
+          </div>
         </div>
       </div>
 
