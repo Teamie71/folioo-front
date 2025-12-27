@@ -2,7 +2,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 
 export default function LogPage() {
   return (
-    <div className='flex flex-col gap-[4.5rem]'>
+    <div className='flex flex-col gap-[4.5rem] pb-[4.5rem]'>
       {/* 인사이트 로그 헤더 */}
       <div className='mx-auto flex h-[15.625rem] w-full min-w-[66rem] flex-col justify-center bg-[#F6F5FF]'>
         <div className='mx-auto flex min-w-[66rem] flex-col items-start gap-[1rem]'>
