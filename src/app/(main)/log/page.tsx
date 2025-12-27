@@ -230,7 +230,7 @@ export default function LogPage() {
             </div>
           </div>
 
-          {/* 내용 */}
+          {/* 내용 - 템플릿 미사용 */}
           <div className='flex flex-col gap-[0.5rem]'>
             <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
               <span>내용</span>
