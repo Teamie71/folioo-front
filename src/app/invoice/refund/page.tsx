@@ -104,6 +104,36 @@ export default function InvoiceRefundPage() {
         <span>환불 예정 금액</span>
         <span className='text-[#5060C5]'>00,000원</span>
       </div>
+
+      {/* 환불 신청 이유, 신청 */}
+      <div className='flex w-full justify-between'>
+        <div className='rounded-[0.75rem] border border-[#74777D] py-[1rem] pr-[1.125rem] pl-[1.25rem]'>
+          <button className='flex w-full cursor-pointer gap-[19.5rem] border-none bg-transparent'>
+            <span className='text-[1.125rem] text-[#74777D]'>
+              환불 신청 이유 선택
+            </span>
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              width='24'
+              height='24'
+              viewBox='0 0 24 24'
+              fill='none'
+            >
+              <path
+                d='M6 9L12 15L18 9'
+                stroke='#74777D'
+                strokeWidth='1.5'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+              />
+            </svg>
+          </button>
+        </div>
+
+        <div className='cursor-pointer rounded-[0.75rem] bg-[#5060C5] px-[12.875rem] py-[1.125rem] text-[1.125rem] font-bold text-[#ffffff]'>
+          환불 신청 하기
+        </div>
+      </div>
     </div>
   );
 }
