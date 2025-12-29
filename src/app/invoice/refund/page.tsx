@@ -105,6 +105,53 @@ export default function InvoiceRefundPage() {
         <span className='text-[#5060C5]'>00,000원</span>
       </div>
 
+      {/* 환급 계좌 정보 */}
+      <div className='flex flex-col gap-[2.5rem] rounded-[1.75rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[3rem] py-[2.25rem]'>
+        {/* 환급 계좌 정보 헤더 */}
+        <div className='flex flex-col gap-[0.5rem]'>
+          <span className='text-[1.25rem] font-bold'>환급 계좌 정보</span>
+          <span className='text-[1rem] text-[#74777D]'>
+            가상계좌 결제 건은 결제 취소 시 즉시 환불이 되지 않아서, 입금 받으실
+            본인 명의의 계좌 정보 입력이 필요해요.
+          </span>
+        </div>
+
+        {/* 은행명, 예금주 */}
+        <div className='flex w-full justify-between'>
+          {/* 은행명 */}
+          <div className='flex flex-col gap-[0.75rem]'>
+            <span className='text-[1.125rem] font-semibold text-[#1A1A1A]'>
+              은행명
+            </span>
+            <button className='w-[28.75rem] cursor-pointer rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-start text-[#74777D]'>
+              선택
+            </button>
+          </div>
+
+          {/* 예금주 */}
+          <div className='flex flex-col gap-[0.75rem]'>
+            <span className='text-[1.125rem] font-semibold text-[#1A1A1A]'>
+              예금주
+            </span>
+            <input
+              className='w-[28.75rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-start text-[#74777D]'
+              placeholder='실명 입력'
+            />
+          </div>
+        </div>
+
+        {/* 계좌번호 */}
+        <div className='flex flex-col gap-[0.75rem]'>
+          <span className='text-[1.125rem] font-semibold text-[#1A1A1A]'>
+            계좌번호
+          </span>
+          <input
+            className='w-full rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-start text-[#74777D]'
+            placeholder='- 없이 숫자만 입력해주세요.'
+          />
+        </div>
+      </div>
+
       {/* 환불 신청 이유, 신청 */}
       <div className='flex w-full justify-between'>
         <div className='rounded-[0.75rem] border border-[#74777D] py-[1rem] pr-[1.125rem] pl-[1.25rem]'>
