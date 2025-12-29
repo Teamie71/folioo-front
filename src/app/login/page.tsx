@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function Login() {
   return (
     <div className='mx-auto flex min-h-screen w-full flex-col items-center justify-center gap-[5.5rem]'>
@@ -37,9 +39,12 @@ export default function Login() {
 
       {/* 약관, 개인정보 처리방침, 마케팅 수신 */}
       <div className='flex items-center gap-[6.25rem]'>
-        <button className='cursor-pointer text-[1rem] text-[#000000]'>
+        <Link
+          href='/login/tos'
+          className='cursor-pointer text-[1rem] text-[#000000]'
+        >
           서비스 이용 약관
-        </button>
+        </Link>
         <button className='cursor-pointer text-[1rem] text-[#000000]'>
           개인정보 처리방침
         </button>
