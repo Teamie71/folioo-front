@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function InvoicePage() {
   return (
     <div className='mx-auto flex w-[66rem] min-w-[66rem] flex-col gap-[3.75rem] pt-[3.75rem]'>
@@ -77,9 +79,11 @@ export default function InvoicePage() {
                 <div className='px-[3rem]'>₩ 9,100</div>
                 <div className='px-[3.875rem]'>700</div>
                 <div className='px-[1.575rem]'>
-                  <button className='cursor-pointer rounded-[0.25rem] border-[0.09375rem] border-[#5060C5] bg-[#F6F5FF] px-[0.75rem] py-[0.25rem] text-[0.875rem] text-[#5060C5]'>
-                    환불 신청
-                  </button>
+                  <Link href='/invoice/refund'>
+                    <button className='cursor-pointer rounded-[0.25rem] border-[0.09375rem] border-[#5060C5] bg-[#F6F5FF] px-[0.75rem] py-[0.25rem] text-[0.875rem] text-[#5060C5]'>
+                      환불 신청
+                    </button>
+                  </Link>
                 </div>
               </div>
               <div className='w-full border border-[#CDD0D5]' />
