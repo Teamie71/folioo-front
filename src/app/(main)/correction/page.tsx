@@ -33,7 +33,7 @@ export default function CorrectionPage() {
           </div>
 
           {/* 새로운 포트폴리오 첨삭 시작하기 버튼 */}
-          <Link href='/experience/settings' className='no-underline'>
+          <Link href='/correction/settings' className='no-underline'>
             <button className='flex cursor-pointer items-center gap-[0.5rem] rounded-[6.25rem] border border-[#FFFFFF] bg-[#FFFFFF] px-[2rem] py-[1.25rem] text-[1.125rem] text-[#1A1A1A] shadow-[0_0_0.5rem_0_#00000026]'>
               <svg
                 xmlns='http://www.w3.org/2000/svg'
