@@ -36,7 +36,7 @@ export default function Navbar() {
                 경험 정리
               </Link>
               <Link
-                href='/'
+                href='/correction'
                 className='inline-block py-[8px] font-[16px] text-[#333333] no-underline'
               >
                 포트폴리오 첨삭
