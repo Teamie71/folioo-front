@@ -27,6 +27,18 @@ export default function CorrectionSettingsPage() {
   const [resultTab, setResultTab] = useState<'지원 정보' | '활동 A' | '활동 B'>(
     '지원 정보',
   );
+  const [detailInfoButton, setDetailInfoButton] = useState<
+    '축소 또는 제외' | '구체화하여 강조'
+  >('축소 또는 제외');
+  const [responsibilityButton, setResponsibilityButton] = useState<
+    '축소 또는 제외' | '구체화하여 강조'
+  >('축소 또는 제외');
+  const [problemSolvingButton, setProblemSolvingButton] = useState<
+    '축소 또는 제외' | '구체화하여 강조'
+  >('축소 또는 제외');
+  const [lessonsButton, setLessonsButton] = useState<
+    '축소 또는 제외' | '구체화하여 강조'
+  >('축소 또는 제외');
 
   const handleNextStep = () => {
     if (step === 'information') {
@@ -1126,12 +1138,220 @@ export default function CorrectionSettingsPage() {
                       </div>
                     )}
 
-                    {/* 활동 A, B 탭 내용 (추후 구현) */}
+                    {/* 활동 A, B 탭 내용 */}
                     {(resultTab === '활동 A' || resultTab === '활동 B') && (
-                      <div className='flex items-center justify-center py-[10rem]'>
-                        <span className='text-[1.25rem] font-bold'>
-                          {resultTab} 내용
-                        </span>
+                      <div className='flex flex-col gap-[3rem]'>
+                        {/* 총평 */}
+                        <div className='flex flex-col gap-[1rem]'>
+                          <div className='text-[1.125rem] font-bold'>총평</div>
+                          <div className='rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem]'>
+                            일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십
+                          </div>
+                        </div>
+
+                        {/* 상세정보 */}
+                        <div className='flex flex-col gap-[1rem]'>
+                          <div className='text-[1.125rem] font-bold'>
+                            상세정보
+                          </div>
+                          <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
+                            <div className='min-w-0 flex-1 overflow-auto'>
+                              -내용내용내용내용내용내용내용내용내용내용내용내용
+                              <span className='bg-[#FFF2F2]'>
+                                내용내용내용내용내용내용내용내용내용내용내용내용내용
+                              </span>
+                              내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
+                            </div>
+                            <div className='w-[1px] flex-shrink-0 bg-[#9EA4A9]' />
+                            <div className='flex min-w-0 flex-1 flex-col gap-[2.5rem] overflow-auto'>
+                              <div className='flex gap-[0.25rem] rounded-[6.25rem] bg-[#E9EAEC] p-[0.25rem]'>
+                                <button
+                                  onClick={() =>
+                                    setDetailInfoButton('축소 또는 제외')
+                                  }
+                                  className={`h-[40px] w-[211px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${
+                                    detailInfoButton === '축소 또는 제외'
+                                      ? 'border border-[#CDD0D5] bg-[#FFFFFF] text-[#5060C5]'
+                                      : 'border border-[#E9EAEC] bg-[#E9EAEC] text-[#74777D]'
+                                  }`}
+                                >
+                                  축소 또는 제외
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    setDetailInfoButton('구체화하여 강조')
+                                  }
+                                  className={`h-[40px] w-[212px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${
+                                    detailInfoButton === '구체화하여 강조'
+                                      ? 'border border-[#CDD0D5] bg-[#FFFFFF] text-[#5060C5]'
+                                      : 'border border-[#E9EAEC] bg-[#E9EAEC] text-[#74777D]'
+                                  }`}
+                                >
+                                  구체화하여 강조
+                                </button>
+                              </div>
+                              <ol className='ml-[1.5rem] flex list-decimal flex-col gap-[0.5rem]'>
+                                <li className='text-[1rem] text-[#1A1A1A]'>
+                                  내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
+                                </li>
+                                <li className='text-[1rem] text-[#1A1A1A]'>
+                                  내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
+                                </li>
+                              </ol>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 담당업무 */}
+                        <div className='flex flex-col gap-[1rem]'>
+                          <div className='text-[1.125rem] font-bold'>
+                            담당업무
+                          </div>
+                          <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
+                            <div className='min-h-[8rem] min-w-0 flex-1 overflow-auto'>
+                              -
+                              <span className='bg-[#F1FEF0]'>
+                                내용내용내용내용내용내용내용내용내용내용내용내용
+                              </span>
+                              내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
+                            </div>
+                            <div className='w-[1px] flex-shrink-0 bg-[#9EA4A9]' />
+                            <div className='flex min-w-0 flex-1 flex-col gap-[2.5rem] overflow-auto'>
+                              <div className='flex gap-[0.25rem] rounded-[6.25rem] bg-[#E9EAEC] p-[0.25rem]'>
+                                <button
+                                  onClick={() =>
+                                    setResponsibilityButton('축소 또는 제외')
+                                  }
+                                  className={`h-[40px] w-[211px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${
+                                    responsibilityButton === '축소 또는 제외'
+                                      ? 'border border-[#CDD0D5] bg-[#FFFFFF] text-[#5060C5]'
+                                      : 'border border-[#E9EAEC] bg-[#E9EAEC] text-[#74777D]'
+                                  }`}
+                                >
+                                  축소 또는 제외
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    setResponsibilityButton('구체화하여 강조')
+                                  }
+                                  className={`h-[40px] w-[212px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${
+                                    responsibilityButton === '구체화하여 강조'
+                                      ? 'border border-[#CDD0D5] bg-[#FFFFFF] text-[#5060C5]'
+                                      : 'border border-[#E9EAEC] bg-[#E9EAEC] text-[#74777D]'
+                                  }`}
+                                >
+                                  구체화하여 강조
+                                </button>
+                              </div>
+                              <ol className='ml-[1.5rem] flex list-decimal flex-col gap-[0.5rem]'>
+                                <li className='text-[1rem] text-[#1A1A1A]'>
+                                  내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
+                                </li>
+                                <li className='text-[1rem] text-[#1A1A1A]'>
+                                  내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
+                                </li>
+                              </ol>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 문제 해결 */}
+                        <div className='flex flex-col gap-[1rem]'>
+                          <div className='text-[1.125rem] font-bold'>
+                            문제 해결
+                          </div>
+                          <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
+                            <div className='min-h-[8rem] min-w-0 flex-1 overflow-auto'>
+                              -내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
+                            </div>
+                            <div className='w-[1px] flex-shrink-0 bg-[#9EA4A9]' />
+                            <div className='flex min-w-0 flex-1 flex-col gap-[2.5rem] overflow-auto'>
+                              <div className='flex gap-[0.25rem] rounded-[6.25rem] bg-[#E9EAEC] p-[0.25rem]'>
+                                <button
+                                  onClick={() =>
+                                    setProblemSolvingButton('축소 또는 제외')
+                                  }
+                                  className={`h-[40px] w-[211px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${
+                                    problemSolvingButton === '축소 또는 제외'
+                                      ? 'border border-[#CDD0D5] bg-[#FFFFFF] text-[#5060C5]'
+                                      : 'border border-[#E9EAEC] bg-[#E9EAEC] text-[#74777D]'
+                                  }`}
+                                >
+                                  축소 또는 제외
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    setProblemSolvingButton('구체화하여 강조')
+                                  }
+                                  className={`h-[40px] w-[212px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${
+                                    problemSolvingButton === '구체화하여 강조'
+                                      ? 'border border-[#CDD0D5] bg-[#FFFFFF] text-[#5060C5]'
+                                      : 'border border-[#E9EAEC] bg-[#E9EAEC] text-[#74777D]'
+                                  }`}
+                                >
+                                  구체화하여 강조
+                                </button>
+                              </div>
+                              <ol className='ml-[1.5rem] flex list-decimal flex-col gap-[0.5rem]'>
+                                <li className='text-[1rem] text-[#1A1A1A]'>
+                                  내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
+                                </li>
+                                <li className='text-[1rem] text-[#1A1A1A]'>
+                                  내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
+                                </li>
+                              </ol>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 배운 점 */}
+                        <div className='flex flex-col gap-[1rem]'>
+                          <div className='text-[1.125rem] font-bold'>
+                            배운 점
+                          </div>
+                          <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
+                            <div className='min-h-[8rem] min-w-0 flex-1 overflow-auto'>
+                              -내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
+                            </div>
+                            <div className='w-[1px] flex-shrink-0 bg-[#9EA4A9]' />
+                            <div className='flex min-w-0 flex-1 flex-col gap-[2.5rem] overflow-auto'>
+                              <div className='flex gap-[0.25rem] rounded-[6.25rem] bg-[#E9EAEC] p-[0.25rem]'>
+                                <button
+                                  onClick={() =>
+                                    setLessonsButton('축소 또는 제외')
+                                  }
+                                  className={`h-[40px] w-[211px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${
+                                    lessonsButton === '축소 또는 제외'
+                                      ? 'border border-[#CDD0D5] bg-[#FFFFFF] text-[#5060C5]'
+                                      : 'border border-[#E9EAEC] bg-[#E9EAEC] text-[#74777D]'
+                                  }`}
+                                >
+                                  축소 또는 제외
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    setLessonsButton('구체화하여 강조')
+                                  }
+                                  className={`h-[40px] w-[212px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${
+                                    lessonsButton === '구체화하여 강조'
+                                      ? 'border border-[#CDD0D5] bg-[#FFFFFF] text-[#5060C5]'
+                                      : 'border border-[#E9EAEC] bg-[#E9EAEC] text-[#74777D]'
+                                  }`}
+                                >
+                                  구체화하여 강조
+                                </button>
+                              </div>
+                              <ol className='ml-[1.5rem] flex list-decimal flex-col gap-[0.5rem]'>
+                                <li className='text-[1rem] text-[#1A1A1A]'>
+                                  내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
+                                </li>
+                                <li className='text-[1rem] text-[#1A1A1A]'>
+                                  내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
+                                </li>
+                              </ol>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
