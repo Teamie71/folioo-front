@@ -20,6 +20,10 @@ export default function CorrectionSettingsPage() {
   const [selectedTab, setSelectedTab] = useState<
     '상세정보' | '담당업무' | '문제해결' | '배운 점'
   >('상세정보');
+  const [isUnclassifiedOpen, setIsUnclassifiedOpen] = useState(false);
+  const [selectedUnclassifiedTab, setSelectedUnclassifiedTab] = useState<
+    '상세정보' | '담당업무' | '문제해결' | '배운 점'
+  >('상세정보');
 
   const handleNextStep = () => {
     if (step === 'information') {
@@ -796,6 +800,140 @@ export default function CorrectionSettingsPage() {
                       </div>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* 미분류 텍스트 섹션 */}
+              {selectedPortfolioType === 'pdf' && (
+                <div className='mt-[3.75rem] flex flex-col'>
+                  <div className='mb-[0.5rem] flex items-center gap-[0.5rem] text-[1.125rem] font-bold'>
+                    <button
+                      onClick={() => setIsUnclassifiedOpen(!isUnclassifiedOpen)}
+                      className='flex cursor-pointer items-center justify-center border-none bg-transparent transition-transform'
+                      style={{
+                        transform: isUnclassifiedOpen
+                          ? 'scaleY(-1)'
+                          : 'scaleY(1)',
+                      }}
+                    >
+                      <svg
+                        width='24'
+                        height='24'
+                        viewBox='0 0 24 24'
+                        fill='none'
+                        xmlns='http://www.w3.org/2000/svg'
+                      >
+                        <path
+                          d='M11.55 16.7845L4.18674 8.25729C4.09769 8.15442 4.037 8.02328 4.01234 7.88045C3.98768 7.73762 4.00016 7.58953 4.04821 7.45492C4.09625 7.32031 4.1777 7.20523 4.28225 7.12425C4.38679 7.04327 4.50973 7.00003 4.6355 7H19.3645C19.4903 7.00003 19.6132 7.04327 19.7178 7.12425C19.8223 7.20523 19.9037 7.32031 19.9518 7.45492C19.9998 7.58953 20.0123 7.73762 19.9877 7.88045C19.963 8.02328 19.9023 8.15442 19.8133 8.25729L12.4488 16.7845C12.3296 16.9225 12.1679 17 11.9994 17C11.8308 17 11.6692 16.9225 11.55 16.7845Z'
+                          fill='black'
+                        />
+                      </svg>
+                    </button>
+                    <span>미분류 텍스트</span>
+                  </div>
+
+                  {isUnclassifiedOpen && (
+                    <>
+                      <div className='mb-[2rem] flex flex-col'>
+                        <span className='text-[0.875rem] text-[#74777D]'>
+                          항목에 딱 맞지 않지만, 놓치기 아쉬운 내용을 따로
+                          모았어요. 필요한 내용은 화살표를 눌러 위의 텍스트
+                          정리로 옮겨주세요.
+                        </span>
+                        <span className='text-[0.875rem] text-[#74777D]'>
+                          이곳에 남은 텍스트는 저장되지 않고, 첨삭에 포함되지
+                          않으니 꼼꼼히 확인해주세요.
+                        </span>
+                      </div>
+
+                      {/* 라디오버튼 및 내용 영역 */}
+                      <div className='relative z-20 flex min-h-[397px] flex-col rounded-[1.25rem] border border-[#E9EAEC] bg-[#FFFFFF] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
+                        {/* 활동 탭 */}
+                        <div className='flex border-b border-b-[#CDD0D5]'>
+                          <button
+                            className={`cursor-pointer border-none px-[2.5rem] py-[1rem] text-[1rem] font-medium transition-all`}
+                          >
+                            활동 A로 이동
+                          </button>
+                        </div>
+
+                        {/* 라디오버튼 및 내용 영역 */}
+                        <div className='flex flex-1'>
+                          {/* 라디오버튼 네비게이션 */}
+                          <div className='flex flex-col border-r border-r-[#CDD0D5]'>
+                            <label className='flex cursor-pointer items-center gap-[0.5rem] px-[1.5rem] pt-[1.5rem]'>
+                              <input
+                                type='radio'
+                                name='unclassifiedTab'
+                                checked={selectedUnclassifiedTab === '상세정보'}
+                                onChange={() =>
+                                  setSelectedUnclassifiedTab('상세정보')
+                                }
+                                className='h-[1rem] w-[1rem] cursor-pointer accent-[#5060C5]'
+                              />
+                              <span className='text-[1rem]'>상세정보</span>
+                            </label>
+                            <label className='flex cursor-pointer items-center gap-[0.5rem] px-[1.5rem] pt-[1.75rem]'>
+                              <input
+                                type='radio'
+                                name='unclassifiedTab'
+                                checked={selectedUnclassifiedTab === '담당업무'}
+                                onChange={() =>
+                                  setSelectedUnclassifiedTab('담당업무')
+                                }
+                                className='h-[1rem] w-[1rem] cursor-pointer accent-[#5060C5]'
+                              />
+                              <span className='text-[1rem]'>담당업무</span>
+                            </label>
+                            <label className='flex cursor-pointer items-center gap-[0.5rem] px-[1.5rem] pt-[1.75rem]'>
+                              <input
+                                type='radio'
+                                name='unclassifiedTab'
+                                checked={selectedUnclassifiedTab === '문제해결'}
+                                onChange={() =>
+                                  setSelectedUnclassifiedTab('문제해결')
+                                }
+                                className='h-[1rem] w-[1rem] cursor-pointer accent-[#5060C5]'
+                              />
+                              <span className='text-[1rem]'>문제해결</span>
+                            </label>
+                            <label className='flex cursor-pointer items-center gap-[0.5rem] px-[1.5rem] pt-[1.75rem]'>
+                              <input
+                                type='radio'
+                                name='unclassifiedTab'
+                                checked={selectedUnclassifiedTab === '배운 점'}
+                                onChange={() =>
+                                  setSelectedUnclassifiedTab('배운 점')
+                                }
+                                className='h-[1rem] w-[1rem] cursor-pointer accent-[#5060C5]'
+                              />
+                              <span className='text-[1rem]'>배운 점</span>
+                            </label>
+                          </div>
+
+                          {/* 내용 영역 */}
+                          <div className='flex-1 rounded-tr-[1.25rem] rounded-br-[1.25rem] bg-[#FFFFFF] px-[2.5rem] py-[1.5rem]'>
+                            <div className='flex flex-col gap-[1rem] text-[1rem] text-[#1A1A1A]'>
+                              <span>
+                                →
+                                내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
+                                내용내용내용내용내용내용내용
+                                내용내용내용내용내용내용내용
+                              </span>
+                              <span>
+                                →
+                                내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
+                              </span>
+                              <span>
+                                →
+                                내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </div>
