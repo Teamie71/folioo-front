@@ -29,7 +29,14 @@ export default function CorrectionSettingsPage() {
     if (step === 'information') {
       setStep('portfolio');
     } else if (step === 'portfolio') {
-      setStep('analysis');
+      // 포트폴리오 선택 후 바로 첨삭 결과 페이지로 이동하고 분석 시작
+      setStep('result');
+      setStatus('ANALYZING');
+      // TODO: 백엔드 연동 시 API 호출
+      // 분석 완료 후
+      setTimeout(() => {
+        setStatus('DONE');
+      }, 2000);
     } else if (step === 'analysis') {
       // TODO: 백엔드 연동 시 API 호출
       setStatus('ANALYZING');
@@ -957,11 +964,50 @@ export default function CorrectionSettingsPage() {
           </>
         ) : step === 'analysis' ? (
           <>
-            <div className='flex items-center justify-center py-[10rem]'>
-              <span className='text-[1.25rem] font-bold'>기업 분석 단계</span>
+            <div className='flex flex-col gap-[5rem]'>
+              {/* 기업 분석 정보 섹션 */}
+              <div className='flex flex-col gap-[0.375rem]'>
+                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                  <span>기업 분석 정보</span>
+                  <span className='text-[#DC0000]'>*</span>
+                </div>
+                <div className='flex flex-col'>
+                  <div className='mb-[1rem] flex items-center justify-between'>
+                    <div className='flex flex-col'>
+                      <span className='text-[0.875rem] text-[#74777D]'>
+                        지원 정보를 바탕으로 AI 컨설턴트가 기업 분석 정보를
+                        생성했어요.
+                      </span>
+                      <span className='text-[0.875rem] text-[#74777D]'>
+                        추가하고 싶은 내용이 있으시면, 수정 후 첨삭을
+                        의뢰해주세요.
+                      </span>
+                    </div>
+                    <button className='h-fit cursor-pointer rounded-[3.75rem] border border-[#5060C5] bg-[#F6F5FF] px-[2.25rem] py-[0.5rem] text-[1rem] font-bold whitespace-nowrap text-[#5060C5]'>
+                      3크레딧으로 다시 생성
+                    </button>
+                  </div>
+                  <textarea className='min-h-[17.125rem] rounded-[1.25rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-[#74777D]' />
+                </div>
+              </div>
+
+              {/* 강조 포인트 섹션 */}
+              <div className='flex flex-col gap-[0.375rem]'>
+                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                  <span>강조 포인트</span>
+                </div>
+                <div className='flex flex-col'>
+                  <span className='mb-[1rem] text-[0.875rem] text-[#74777D]'>
+                    기업 분석 정보를 바탕으로, 이번 서류에서 강조하고 싶은
+                    역량이나 기술 등이 있다면 작성해주세요.
+                  </span>
+                  <textarea className='min-h-[10.625rem] rounded-[1.25rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-[#74777D]' />
+                </div>
+              </div>
             </div>
-            {/* 첨삭 의뢰하기 버튼 (이모지 없음) */}
-            <div className='flex justify-center pb-[7rem]'>
+
+            {/* 첨삭 의뢰하기 버튼 */}
+            <div className='flex justify-center pt-[1.25rem] pb-[7rem]'>
               <button
                 onClick={handleNextStep}
                 className='flex cursor-pointer items-center justify-center rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
@@ -974,20 +1020,31 @@ export default function CorrectionSettingsPage() {
           </>
         ) : (
           <>
-            <div className='flex items-center justify-center py-[10rem]'>
-              <span className='text-[1.25rem] font-bold'>첨삭 결과 단계</span>
-            </div>
-            {/* 새로운 경험 정리 시작하기 버튼 */}
-            <div className='flex justify-center pb-[7rem]'>
-              <button
-                onClick={handleStartNewExperience}
-                className='flex cursor-pointer items-center justify-center rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
-              >
-                <span className='text-[1rem] font-bold text-[#FFFFFF]'>
-                  새로운 경험 정리 시작하기
-                </span>
-              </button>
-            </div>
+            {/* status가 ANALYZING 상태일 때는 DRAFT, DONE이 아닌 값을 미리 체크 */}
+            {status !== 'DRAFT' && status !== 'DONE' ? (
+              <div className='flex items-center justify-center py-[10rem]'>
+                <span className='text-[1.25rem] font-bold'>분석 중...</span>
+              </div>
+            ) : (
+              <>
+                <div className='flex items-center justify-center py-[10rem]'>
+                  <span className='text-[1.25rem] font-bold'>
+                    첨삭 결과 단계
+                  </span>
+                </div>
+                {/* 새로운 경험 정리 시작하기 버튼 */}
+                <div className='flex justify-center pb-[7rem]'>
+                  <button
+                    onClick={handleStartNewExperience}
+                    className='flex cursor-pointer items-center justify-center rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
+                  >
+                    <span className='text-[1rem] font-bold text-[#FFFFFF]'>
+                      새로운 경험 정리 시작하기
+                    </span>
+                  </button>
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
