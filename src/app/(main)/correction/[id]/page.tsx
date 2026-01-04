@@ -44,14 +44,7 @@ export default function CorrectionSettingsPage() {
     if (step === 'information') {
       setStep('portfolio');
     } else if (step === 'portfolio') {
-      // 포트폴리오 선택 후 바로 첨삭 결과 페이지로 이동하고 분석 시작
-      setStep('result');
-      setStatus('ANALYZING');
-      // TODO: 백엔드 연동 시 API 호출
-      // 분석 완료 후
-      setTimeout(() => {
-        setStatus('DONE');
-      }, 2000);
+      setStep('analysis');
     } else if (step === 'analysis') {
       // TODO: 백엔드 연동 시 API 호출
       setStatus('ANALYZING');
