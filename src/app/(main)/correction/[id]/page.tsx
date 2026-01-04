@@ -14,6 +14,12 @@ export default function CorrectionSettingsPage() {
   const [jdMode, setJdMode] = useState<'text' | 'image'>('text');
   const [selectedPortfolioType, setSelectedPortfolioType] =
     useState<PortfolioType | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<'A' | 'B' | 'C'>(
+    'A',
+  );
+  const [selectedTab, setSelectedTab] = useState<
+    '상세정보' | '담당업무' | '문제해결' | '배운 점'
+  >('상세정보');
 
   const handleNextStep = () => {
     if (step === 'information') {
@@ -656,6 +662,136 @@ export default function CorrectionSettingsPage() {
                         </svg>
                         <span className='text-center text-[0.875rem] text-[#74777D]'>
                           클릭하여 파일을 업로드하세요.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* PDF 포트폴리오 텍스트 정리 섹션 */}
+              {selectedPortfolioType === 'pdf' && (
+                <div className='mt-[3.75rem] flex flex-col'>
+                  <div className='mb-[0.5rem] flex items-center text-[1.125rem] font-bold'>
+                    <span>PDF 포트폴리오 텍스트 정리</span>
+                  </div>
+                  <div className='mb-[2.5rem] flex flex-col'>
+                    <span className='text-[0.875rem] text-[#74777D]'>
+                      업로드하신 파일을 AI가 구조화하여 정리했어요. 잘못된
+                      부분이나 추가하실 부분이 있다면 수정해주세요.
+                    </span>
+                    <span className='text-[0.875rem] text-[#74777D]'>
+                      삭제한 영역은 복원되지 않고, 자기소개 페이지는 첨삭되지
+                      않아요.
+                    </span>
+                  </div>
+
+                  {/* 활동 탭 */}
+                  <div className='flex'>
+                    <button
+                      onClick={() => setSelectedActivity('A')}
+                      className={`cursor-pointer border-none px-[2.5rem] py-[1rem] text-[1rem] font-medium transition-all ${
+                        selectedActivity === 'A'
+                          ? 'relative z-10 rounded-t-[1.25rem] bg-[#FFFFFF] text-[#5060C5] shadow-[0_0.25rem_0.5rem_0_#00000033]'
+                          : 'rounded-t-[1.25rem] bg-[#F6F8FA] text-[#9EA4A9]'
+                      }`}
+                    >
+                      활동 A
+                    </button>
+                    <button
+                      onClick={() => setSelectedActivity('B')}
+                      className={`cursor-pointer border-none px-[2.5rem] py-[1rem] text-[1rem] font-medium transition-all ${
+                        selectedActivity === 'B'
+                          ? 'relative z-10 rounded-t-[1.25rem] bg-[#FFFFFF] text-[#5060C5] shadow-[0_0.25rem_0.5rem_0_#00000033]'
+                          : 'rounded-t-[1.25rem] bg-[#F6F8FA] text-[#9EA4A9]'
+                      }`}
+                    >
+                      활동 B
+                    </button>
+                    <button
+                      onClick={() => setSelectedActivity('C')}
+                      className={`cursor-pointer border-none px-[2.5rem] py-[1rem] text-[1rem] font-medium transition-all ${
+                        selectedActivity === 'C'
+                          ? 'relative z-10 rounded-t-[1.25rem] bg-[#FFFFFF] text-[#5060C5] shadow-[0_0.25rem_0.5rem_0_#00000033]'
+                          : 'rounded-t-[1.25rem] bg-[#F6F8FA] text-[#9EA4A9]'
+                      }`}
+                    >
+                      활동 C
+                    </button>
+                    <button className='cursor-pointer rounded-t-[1.25rem] border-none bg-[#F6F8FA] px-[3rem] py-[1rem] text-[0.875rem] font-medium text-[#9EA4A9] transition-all'>
+                      <svg
+                        xmlns='http://www.w3.org/2000/svg'
+                        width='24'
+                        height='24'
+                        viewBox='0 0 16 16'
+                        fill='#5060C5'
+                      >
+                        <path
+                          d='M8 3.33333V12.6667M3.33333 8H12.6667'
+                          stroke='#5060C5'
+                          strokeWidth='1.5'
+                          strokeLinecap='round'
+                        />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* 사이드바 및 내용 영역 */}
+                  <div className='relative z-20 flex min-h-[397px] rounded-tr-[1.25rem] rounded-br-[1.25rem] rounded-bl-[1.25rem] border border-[#E9EAEC] bg-[#FFFFFF] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
+                    {/* 사이드바 네비게이션 */}
+                    <div className='flex flex-col'>
+                      <button
+                        onClick={() => setSelectedTab('상세정보')}
+                        className={`cursor-pointer border-b border-b-[#CDD0D5] px-[2rem] py-[0.75rem] text-center text-[1rem] transition-all ${
+                          selectedTab === '상세정보'
+                            ? 'bg-[#5060C5] font-bold text-[#FFFFFF]'
+                            : 'bg-[#F6F8FA] font-medium text-[#9EA4A9]'
+                        }`}
+                      >
+                        상세정보
+                      </button>
+                      <button
+                        onClick={() => setSelectedTab('담당업무')}
+                        className={`cursor-pointer border-b border-b-[#CDD0D5] px-[2rem] py-[0.75rem] text-center text-[1rem] font-medium transition-all ${
+                          selectedTab === '담당업무'
+                            ? 'bg-[#5060C5] font-bold text-[#FFFFFF]'
+                            : 'bg-[#F6F8FA] font-medium text-[#9EA4A9]'
+                        }`}
+                      >
+                        담당업무
+                      </button>
+                      <button
+                        onClick={() => setSelectedTab('문제해결')}
+                        className={`cursor-pointer border-b border-b-[#CDD0D5] px-[2rem] py-[0.75rem] text-center text-[1rem] font-medium transition-all ${
+                          selectedTab === '문제해결'
+                            ? 'bg-[#5060C5] font-bold text-[#FFFFFF]'
+                            : 'bg-[#F6F8FA] font-medium text-[#9EA4A9]'
+                        }`}
+                      >
+                        문제해결
+                      </button>
+                      <button
+                        onClick={() => setSelectedTab('배운 점')}
+                        className={`cursor-pointer border-b border-b-[#CDD0D5] px-[2rem] py-[0.75rem] text-center text-[1rem] font-medium transition-all ${
+                          selectedTab === '배운 점'
+                            ? 'bg-[#5060C5] font-bold text-[#FFFFFF]'
+                            : 'bg-[#F6F8FA] font-medium text-[#9EA4A9]'
+                        }`}
+                      >
+                        배운 점
+                      </button>
+                    </div>
+
+                    {/* 구분선 */}
+                    <div className='w-[1px] bg-[#CDD0D5]' />
+
+                    {/* 내용 영역 */}
+                    <div className='flex-1 rounded-tr-[1.25rem] rounded-br-[1.25rem] bg-[#FFFFFF] px-[2.25rem] py-[1.5rem]'>
+                      <div className='flex flex-col gap-[0.5rem] text-[0.875rem] text-[#1A1A1A]'>
+                        <span>
+                          내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
+                          내용내용내용내용내용내용내용
+                          내용내용내용내용내용내용내용
                         </span>
                       </div>
                     </div>
