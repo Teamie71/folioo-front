@@ -1,6 +1,18 @@
-import Link from 'next/link';
+'use client';
+
+import { useRouter } from 'next/navigation';
 
 export default function CorrectionPage() {
+  const router = useRouter();
+
+  const handleCreateNewCorrection = async () => {
+    // TODO: 백엔드 연동 시 API 호출로 교체
+    // const response = await fetch('/api/correction', { method: 'POST' });
+    // const { id } = await response.json();
+    const id = crypto.randomUUID();
+    router.push(`/correction/${id}`);
+  };
+
   return (
     <div className='flex flex-col gap-[4.5rem]'>
       {/* 첨삭 헤더 */}
@@ -33,23 +45,24 @@ export default function CorrectionPage() {
           </div>
 
           {/* 새로운 포트폴리오 첨삭 시작하기 버튼 */}
-          <Link href='/correction/settings' className='no-underline'>
-            <button className='flex cursor-pointer items-center gap-[0.5rem] rounded-[6.25rem] border border-[#FFFFFF] bg-[#FFFFFF] px-[2rem] py-[1.25rem] text-[1.125rem] text-[#1A1A1A] shadow-[0_0_0.5rem_0_#00000026]'>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='1.5rem'
-                height='1.5rem'
-                viewBox='0 0 24 24'
-                fill='none'
-              >
-                <path
-                  d='M18.8571 13.1429H13.1429V18.8571C13.1429 19.1602 13.0224 19.4509 12.8081 19.6653C12.5938 19.8796 12.3031 20 12 20C11.6969 20 11.4062 19.8796 11.1919 19.6653C10.9776 19.4509 10.8571 19.1602 10.8571 18.8571V13.1429H5.14286C4.83975 13.1429 4.54906 13.0224 4.33474 12.8081C4.12041 12.5938 4 12.3031 4 12C4 11.6969 4.12041 11.4062 4.33474 11.1919C4.54906 10.9776 4.83975 10.8571 5.14286 10.8571H10.8571V5.14286C10.8571 4.83975 10.9776 4.54906 11.1919 4.33473C11.4062 4.12041 11.6969 4 12 4C12.3031 4 12.5938 4.12041 12.8081 4.33473C13.0224 4.54906 13.1429 4.83975 13.1429 5.14286V10.8571H18.8571C19.1602 10.8571 19.4509 10.9776 19.6653 11.1919C19.8796 11.4062 20 11.6969 20 12C20 12.3031 19.8796 12.5938 19.6653 12.8081C19.4509 13.0224 19.1602 13.1429 18.8571 13.1429Z'
-                  fill='#5060C5'
-                />
-              </svg>
-              새로운 포트폴리오 첨삭 시작하기
-            </button>
-          </Link>
+          <button
+            onClick={handleCreateNewCorrection}
+            className='flex cursor-pointer items-center gap-[0.5rem] rounded-[6.25rem] border border-[#FFFFFF] bg-[#FFFFFF] px-[2rem] py-[1.25rem] text-[1.125rem] text-[#1A1A1A] shadow-[0_0_0.5rem_0_#00000026]'
+          >
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              width='1.5rem'
+              height='1.5rem'
+              viewBox='0 0 24 24'
+              fill='none'
+            >
+              <path
+                d='M18.8571 13.1429H13.1429V18.8571C13.1429 19.1602 13.0224 19.4509 12.8081 19.6653C12.5938 19.8796 12.3031 20 12 20C11.6969 20 11.4062 19.8796 11.1919 19.6653C10.9776 19.4509 10.8571 19.1602 10.8571 18.8571V13.1429H5.14286C4.83975 13.1429 4.54906 13.0224 4.33474 12.8081C4.12041 12.5938 4 12.3031 4 12C4 11.6969 4.12041 11.4062 4.33474 11.1919C4.54906 10.9776 4.83975 10.8571 5.14286 10.8571H10.8571V5.14286C10.8571 4.83975 10.9776 4.54906 11.1919 4.33473C11.4062 4.12041 11.6969 4 12 4C12.3031 4 12.5938 4.12041 12.8081 4.33473C13.0224 4.54906 13.1429 4.83975 13.1429 5.14286V10.8571H18.8571C19.1602 10.8571 19.4509 10.9776 19.6653 11.1919C19.8796 11.4062 20 11.6969 20 12C20 12.3031 19.8796 12.5938 19.6653 12.8081C19.4509 13.0224 19.1602 13.1429 18.8571 13.1429Z'
+                fill='#5060C5'
+              />
+            </svg>
+            새로운 포트폴리오 첨삭 시작하기
+          </button>
         </div>
       </div>
 
