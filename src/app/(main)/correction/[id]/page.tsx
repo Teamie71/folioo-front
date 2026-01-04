@@ -24,6 +24,9 @@ export default function CorrectionSettingsPage() {
   const [selectedUnclassifiedTab, setSelectedUnclassifiedTab] = useState<
     '상세정보' | '담당업무' | '문제해결' | '배운 점'
   >('상세정보');
+  const [resultTab, setResultTab] = useState<'지원 정보' | '활동 A' | '활동 B'>(
+    '지원 정보',
+  );
 
   const handleNextStep = () => {
     if (step === 'information') {
@@ -136,193 +139,176 @@ export default function CorrectionSettingsPage() {
               className='h-full rounded-[1.25rem] transition-all duration-300'
               style={{
                 width:
-                  step === 'information'
-                    ? '25%'
-                    : step === 'portfolio'
-                      ? '50%'
-                      : step === 'analysis'
-                        ? '75%'
-                        : '100%',
+                  step === 'result'
+                    ? '0%'
+                    : step === 'information'
+                      ? '25%'
+                      : step === 'portfolio'
+                        ? '50%'
+                        : step === 'analysis'
+                          ? '75%'
+                          : '100%',
                 background: 'linear-gradient(to bottom, #93B3F4, #5060C5)',
               }}
             />
           </div>
 
-          <div className='grid grid-cols-4 items-center'>
-            {/* 지원 정보 */}
-            <div className='flex items-center gap-[0.5rem]'>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='20'
-                height='20'
-                viewBox='0 0 20 20'
-                fill='none'
-              >
-                <circle
-                  cx='10'
-                  cy='10'
-                  r='10'
-                  fill={
+          {step !== 'result' && (
+            <div className='grid grid-cols-4 items-center'>
+              {/* 지원 정보 */}
+              <div className='flex items-center gap-[0.5rem]'>
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  width='20'
+                  height='20'
+                  viewBox='0 0 20 20'
+                  fill='none'
+                >
+                  <circle
+                    cx='10'
+                    cy='10'
+                    r='10'
+                    fill={
+                      step === 'information' ||
+                      step === 'portfolio' ||
+                      step === 'analysis'
+                        ? '#5060C5'
+                        : '#CDD0D5'
+                    }
+                  />
+                  <text
+                    x='10'
+                    y='14.5'
+                    textAnchor='middle'
+                    fontSize='14'
+                    fontWeight='bold'
+                    fill='white'
+                    fontFamily='Arial, sans-serif'
+                  >
+                    1
+                  </text>
+                </svg>
+                <span
+                  className={`text-[1rem] ${
                     step === 'information' ||
                     step === 'portfolio' ||
-                    step === 'analysis' ||
-                    step === 'result'
-                      ? '#5060C5'
-                      : '#CDD0D5'
-                  }
-                />
-                <text
-                  x='10'
-                  y='14.5'
-                  textAnchor='middle'
-                  fontSize='14'
-                  fontWeight='bold'
-                  fill='white'
-                  fontFamily='Arial, sans-serif'
+                    step === 'analysis'
+                      ? 'font-bold text-[#5060C5]'
+                      : 'font-regular text-[#9EA4A9]'
+                  }`}
                 >
-                  1
-                </text>
-              </svg>
-              <span
-                className={`text-[1rem] ${
-                  step === 'information' ||
-                  step === 'portfolio' ||
-                  step === 'analysis' ||
-                  step === 'result'
-                    ? 'font-bold text-[#5060C5]'
-                    : 'font-regular text-[#9EA4A9]'
-                }`}
-              >
-                지원 정보
-              </span>
-            </div>
+                  지원 정보
+                </span>
+              </div>
 
-            {/* 포트폴리오 선택 */}
-            <div className='flex items-center gap-[0.5rem]'>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='20'
-                height='20'
-                viewBox='0 0 20 20'
-                fill='none'
-              >
-                <circle
-                  cx='10'
-                  cy='10'
-                  r='10'
-                  fill={
-                    step === 'portfolio' ||
-                    step === 'analysis' ||
-                    step === 'result'
-                      ? '#5060C5'
-                      : '#CDD0D5'
-                  }
-                />
-                <text
-                  x='10'
-                  y='14.5'
-                  textAnchor='middle'
-                  fontSize='14'
-                  fontWeight='bold'
-                  fill='white'
-                  fontFamily='Arial, sans-serif'
+              {/* 포트폴리오 선택 */}
+              <div className='flex items-center gap-[0.5rem]'>
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  width='20'
+                  height='20'
+                  viewBox='0 0 20 20'
+                  fill='none'
                 >
-                  2
-                </text>
-              </svg>
-              <span
-                className={`text-[1rem] ${
-                  step === 'portfolio' ||
-                  step === 'analysis' ||
-                  step === 'result'
-                    ? 'font-bold text-[#5060C5]'
-                    : 'font-regular text-[#9EA4A9]'
-                }`}
-              >
-                포트폴리오 선택
-              </span>
-            </div>
+                  <circle
+                    cx='10'
+                    cy='10'
+                    r='10'
+                    fill={
+                      step === 'portfolio' || step === 'analysis'
+                        ? '#5060C5'
+                        : '#CDD0D5'
+                    }
+                  />
+                  <text
+                    x='10'
+                    y='14.5'
+                    textAnchor='middle'
+                    fontSize='14'
+                    fontWeight='bold'
+                    fill='white'
+                    fontFamily='Arial, sans-serif'
+                  >
+                    2
+                  </text>
+                </svg>
+                <span
+                  className={`text-[1rem] ${
+                    step === 'portfolio' || step === 'analysis'
+                      ? 'font-bold text-[#5060C5]'
+                      : 'font-regular text-[#9EA4A9]'
+                  }`}
+                >
+                  포트폴리오 선택
+                </span>
+              </div>
 
-            {/* 기업 분석 */}
-            <div className='flex items-center gap-[0.5rem]'>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='20'
-                height='20'
-                viewBox='0 0 20 20'
-                fill='none'
-              >
-                <circle
-                  cx='10'
-                  cy='10'
-                  r='10'
-                  fill={
-                    step === 'analysis' || step === 'result'
-                      ? '#5060C5'
-                      : '#CDD0D5'
-                  }
-                />
-                <text
-                  x='10'
-                  y='14.5'
-                  textAnchor='middle'
-                  fontSize='14'
-                  fontWeight='bold'
-                  fill='white'
-                  fontFamily='Arial, sans-serif'
+              {/* 기업 분석 */}
+              <div className='flex items-center gap-[0.5rem]'>
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  width='20'
+                  height='20'
+                  viewBox='0 0 20 20'
+                  fill='none'
                 >
-                  3
-                </text>
-              </svg>
-              <span
-                className={`text-[1rem] ${
-                  step === 'analysis' || step === 'result'
-                    ? 'font-bold text-[#5060C5]'
-                    : 'font-regular text-[#9EA4A9]'
-                }`}
-              >
-                기업 분석
-              </span>
-            </div>
+                  <circle
+                    cx='10'
+                    cy='10'
+                    r='10'
+                    fill={step === 'analysis' ? '#5060C5' : '#CDD0D5'}
+                  />
+                  <text
+                    x='10'
+                    y='14.5'
+                    textAnchor='middle'
+                    fontSize='14'
+                    fontWeight='bold'
+                    fill='white'
+                    fontFamily='Arial, sans-serif'
+                  >
+                    3
+                  </text>
+                </svg>
+                <span
+                  className={`text-[1rem] ${
+                    step === 'analysis'
+                      ? 'font-bold text-[#5060C5]'
+                      : 'font-regular text-[#9EA4A9]'
+                  }`}
+                >
+                  기업 분석
+                </span>
+              </div>
 
-            {/* 첨삭 결과 */}
-            <div className='flex items-center gap-[0.5rem]'>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='20'
-                height='20'
-                viewBox='0 0 20 20'
-                fill='none'
-              >
-                <circle
-                  cx='10'
-                  cy='10'
-                  r='10'
-                  fill={step === 'result' ? '#5060C5' : '#CDD0D5'}
-                />
-                <text
-                  x='10'
-                  y='14.5'
-                  textAnchor='middle'
-                  fontSize='14'
-                  fontWeight='bold'
-                  fill='white'
-                  fontFamily='Arial, sans-serif'
+              {/* 첨삭 결과 */}
+              <div className='flex items-center gap-[0.5rem]'>
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  width='20'
+                  height='20'
+                  viewBox='0 0 20 20'
+                  fill='none'
                 >
-                  4
-                </text>
-              </svg>
-              <span
-                className={`text-[1rem] ${
-                  step === 'result'
-                    ? 'font-bold text-[#5060C5]'
-                    : 'font-regular text-[#9EA4A9]'
-                }`}
-              >
-                첨삭 결과
-              </span>
+                  <circle cx='10' cy='10' r='10' fill='#CDD0D5' />
+                  <text
+                    x='10'
+                    y='14.5'
+                    textAnchor='middle'
+                    fontSize='14'
+                    fontWeight='bold'
+                    fill='white'
+                    fontFamily='Arial, sans-serif'
+                  >
+                    4
+                  </text>
+                </svg>
+                <span className='font-regular text-[1rem] text-[#9EA4A9]'>
+                  첨삭 결과
+                </span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -1027,17 +1013,156 @@ export default function CorrectionSettingsPage() {
               </div>
             ) : (
               <>
-                <div className='flex items-center justify-center py-[10rem]'>
-                  <span className='text-[1.25rem] font-bold'>
-                    첨삭 결과 단계
-                  </span>
+                <div className='flex flex-col'>
+                  {/* 탭 */}
+                  <div className='flex'>
+                    <button
+                      onClick={() => setResultTab('지원 정보')}
+                      className={`cursor-pointer rounded-t-[0.5rem] border-none px-[2.5rem] py-[0.875rem] text-[1rem] font-bold transition-all ${
+                        resultTab === '지원 정보'
+                          ? 'relative z-10 bg-[#FFFFFF] text-[#5060C5]'
+                          : 'bg-[#F6F8FA] text-[#9EA4A9]'
+                      }`}
+                      style={
+                        resultTab === '지원 정보'
+                          ? {
+                              boxShadow: '0 -0.15rem 0.5rem 0 rgba(0,0,0,0.2)',
+                            }
+                          : undefined
+                      }
+                    >
+                      지원 정보
+                    </button>
+                    <button
+                      onClick={() => setResultTab('활동 A')}
+                      className={`cursor-pointer rounded-t-[0.5rem] border-none px-[2.5rem] py-[0.875rem] text-[1rem] font-bold transition-all ${
+                        resultTab === '활동 A'
+                          ? 'relative z-10 bg-[#FFFFFF] text-[#5060C5]'
+                          : 'bg-[#F6F8FA] text-[#9EA4A9]'
+                      }`}
+                      style={
+                        resultTab === '활동 A'
+                          ? {
+                              boxShadow: '0 -0.15rem 0.5rem 0 rgba(0,0,0,0.2)',
+                            }
+                          : undefined
+                      }
+                    >
+                      활동 A
+                    </button>
+                    <button
+                      onClick={() => setResultTab('활동 B')}
+                      className={`cursor-pointer rounded-t-[0.5rem] border-none px-[2.5rem] py-[0.875rem] text-[1rem] font-bold transition-all ${
+                        resultTab === '활동 B'
+                          ? 'relative z-10 bg-[#FFFFFF] text-[#5060C5]'
+                          : 'bg-[#F6F8FA] text-[#9EA4A9]'
+                      }`}
+                      style={
+                        resultTab === '활동 B'
+                          ? {
+                              boxShadow: '0 -0.15rem 0.5rem 0 rgba(0,0,0,0.2)',
+                            }
+                          : undefined
+                      }
+                    >
+                      활동 B
+                    </button>
+                  </div>
+
+                  {/* 내용 영역 */}
+                  <div className='relative z-20 rounded-tr-[1.25rem] rounded-br-[1.25rem] rounded-bl-[1.25rem] border border-t-0 border-[#E9EAEC] bg-[#FFFFFF] px-[2.5rem] py-[3rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
+                    {/* 지원 정보 탭 내용 */}
+                    {resultTab === '지원 정보' && (
+                      <div className='flex flex-col gap-[3.75rem]'>
+                        {/* 지원 기업명 및 지원 직무명 */}
+                        <div className='grid grid-cols-2 gap-[1.5rem]'>
+                          <div className='flex flex-col gap-[1rem]'>
+                            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                              <span>지원 기업명</span>
+                            </div>
+                            <div className='rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'>
+                              삼성 SDI
+                            </div>
+                          </div>
+                          <div className='flex flex-col gap-[1rem]'>
+                            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                              <span>지원 직무명</span>
+                            </div>
+                            <div className='rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'>
+                              품질관리
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Job Description */}
+                        <div className='flex flex-col gap-[1rem]'>
+                          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                            <span>Job Description</span>
+                          </div>
+                          <div className='rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem]'>
+                            일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사
+                          </div>
+                        </div>
+
+                        {/* 기업 분석 정보 */}
+                        <div className='flex flex-col gap-[1rem]'>
+                          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                            <span>기업 분석 정보</span>
+                          </div>
+                          <div className='rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem]'>
+                            일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사
+                          </div>
+                        </div>
+
+                        {/* 강조 포인트 */}
+                        <div className='flex flex-col gap-[1rem]'>
+                          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                            <span>강조 포인트</span>
+                          </div>
+                          <div className='rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem]'>
+                            일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 활동 A, B 탭 내용 (추후 구현) */}
+                    {(resultTab === '활동 A' || resultTab === '활동 B') && (
+                      <div className='flex items-center justify-center py-[10rem]'>
+                        <span className='text-[1.25rem] font-bold'>
+                          {resultTab} 내용
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
+
                 {/* 새로운 경험 정리 시작하기 버튼 */}
-                <div className='flex justify-center pb-[7rem]'>
+                <div className='flex justify-center pt-[1.25rem] pb-[7rem]'>
                   <button
                     onClick={handleStartNewExperience}
-                    className='flex cursor-pointer items-center justify-center rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
+                    className='flex cursor-pointer items-center justify-center gap-[0.75rem] rounded-[3.75rem] border-none bg-[#5060C5] px-[2rem] py-[0.625rem]'
                   >
+                    <svg
+                      width='20'
+                      height='20'
+                      viewBox='0 0 20 20'
+                      fill='none'
+                      xmlns='http://www.w3.org/2000/svg'
+                    >
+                      <path
+                        d='M15 0H1.66667C0.746192 0 0 0.746192 0 1.66667V3.33333C0 4.25381 0.746192 5 1.66667 5H15C15.9205 5 16.6667 4.25381 16.6667 3.33333V1.66667C16.6667 0.746192 15.9205 0 15 0Z'
+                        fill='white'
+                      />
+                      <path
+                        d='M18.332 6.66675H4.9987C4.07822 6.66675 3.33203 7.41294 3.33203 8.33341V10.0001C3.33203 10.9206 4.07822 11.6667 4.9987 11.6667H18.332C19.2525 11.6667 19.9987 10.9206 19.9987 10.0001V8.33341C19.9987 7.41294 19.2525 6.66675 18.332 6.66675Z'
+                        fill='white'
+                      />
+                      <path
+                        d='M15 13.3333H1.66667C0.746192 13.3333 0 14.0794 0 14.9999V16.6666C0 17.5871 0.746192 18.3333 1.66667 18.3333H15C15.9205 18.3333 16.6667 17.5871 16.6667 16.6666V14.9999C16.6667 14.0794 15.9205 13.3333 15 13.3333Z'
+                        fill='white'
+                      />
+                    </svg>
                     <span className='text-[1rem] font-bold text-[#FFFFFF]'>
                       새로운 경험 정리 시작하기
                     </span>
