@@ -389,10 +389,9 @@ export default function CorrectionSettingsPage() {
               </div>
               <div className='flex flex-col gap-[0.75rem]'>
                 {jdMode === 'text' ? (
-                  <textarea
-                    className='min-h-[23.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-[#74777D]'
-                    placeholder='채용공고의 JD를 복사 후 붙여넣기 해주세요.'
-                  />
+                  <div className='min-h-[23.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.625rem] py-[1.25rem] text-[#74777D]'>
+                    채용공고의 JD를 복사 후 붙여넣기 해주세요. 
+                  </div>
                 ) : (
                   <div className='flex gap-[1.5rem]'>
                     {/* 왼쪽: 파일 업로드 옵션들 (회색 배경 섹션) */}
