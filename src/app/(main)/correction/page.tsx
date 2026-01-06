@@ -1,0 +1,137 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
+
+export default function CorrectionPage() {
+  const router = useRouter();
+
+  const handleCreateNewCorrection = async () => {
+    // TODO: 백엔드 연동 시 API 호출로 교체
+    // const response = await fetch('/api/correction', { method: 'POST' });
+    // const { id } = await response.json();
+    const id = crypto.randomUUID();
+    router.push(`/correction/${id}`);
+  };
+
+  return (
+    <div className='flex flex-col gap-[4.5rem]'>
+      {/* 첨삭 헤더 */}
+      <div className='mx-auto flex h-[15.625rem] w-full min-w-[66rem] bg-[#F6F5FF]'>
+        <div className='mx-auto flex min-w-[66rem] items-center justify-between'>
+          {/* 첨삭 타이틀 */}
+          <div>
+            <div className='flex flex-col gap-[1.25rem]'>
+              <div className='flex items-center gap-[1.125rem]'>
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  width='1.75rem'
+                  height='1.75rem'
+                  viewBox='0 0 27 24'
+                  fill='none'
+                >
+                  <path
+                    d='M2.66667 24C1.93333 24 1.30578 23.7391 0.784 23.2173C0.262222 22.6956 0.000888889 22.0676 0 21.3333V2.66667C0 1.93333 0.261333 1.30578 0.784 0.784C1.30667 0.262222 1.93422 0.000888889 2.66667 0H24C24.7333 0 25.3613 0.261333 25.884 0.784C26.4067 1.30667 26.6676 1.93422 26.6667 2.66667V21.3333C26.6667 22.0667 26.4058 22.6947 25.884 23.2173C25.3622 23.74 24.7342 24.0009 24 24H2.66667ZM9.33333 18.6667C9.71111 18.6667 10.028 18.5387 10.284 18.2827C10.54 18.0267 10.6676 17.7102 10.6667 17.3333C10.6658 16.9564 10.5378 16.64 10.2827 16.384C10.0276 16.128 9.71111 16 9.33333 16H5.33333C4.95556 16 4.63911 16.128 4.384 16.384C4.12889 16.64 4.00089 16.9564 4 17.3333C3.99911 17.7102 4.12711 18.0271 4.384 18.284C4.64089 18.5409 4.95733 18.6684 5.33333 18.6667H9.33333ZM16.7333 12.2333L15.7667 11.2667C15.5 11 15.1889 10.8724 14.8333 10.884C14.4778 10.8956 14.1667 11.0342 13.9 11.3C13.6556 11.5667 13.5276 11.8778 13.516 12.2333C13.5044 12.5889 13.6324 12.9 13.9 13.1667L15.8 15.0667C16.0667 15.3333 16.3778 15.4667 16.7333 15.4667C17.0889 15.4667 17.4 15.3333 17.6667 15.0667L22.4 10.3333C22.6667 10.0667 22.8 9.75556 22.8 9.4C22.8 9.04444 22.6667 8.73333 22.4 8.46667C22.1333 8.2 21.8169 8.06667 21.4507 8.06667C21.0844 8.06667 20.7676 8.2 20.5 8.46667L16.7333 12.2333ZM9.33333 13.3333C9.71111 13.3333 10.028 13.2053 10.284 12.9493C10.54 12.6933 10.6676 12.3769 10.6667 12C10.6658 11.6231 10.5378 11.3067 10.2827 11.0507C10.0276 10.7947 9.71111 10.6667 9.33333 10.6667H5.33333C4.95556 10.6667 4.63911 10.7947 4.384 11.0507C4.12889 11.3067 4.00089 11.6231 4 12C3.99911 12.3769 4.12711 12.6938 4.384 12.9507C4.64089 13.2076 4.95733 13.3351 5.33333 13.3333H9.33333ZM9.33333 8C9.71111 8 10.028 7.872 10.284 7.616C10.54 7.36 10.6676 7.04356 10.6667 6.66667C10.6658 6.28978 10.5378 5.97333 10.2827 5.71733C10.0276 5.46133 9.71111 5.33333 9.33333 5.33333H5.33333C4.95556 5.33333 4.63911 5.46133 4.384 5.71733C4.12889 5.97333 4.00089 6.28978 4 6.66667C3.99911 7.04356 4.12711 7.36044 4.384 7.61733C4.64089 7.87422 4.95733 8.00178 5.33333 8H9.33333Z'
+                    fill='black'
+                  />
+                </svg>
+                <span className='text-[1.5rem] font-bold'>포트폴리오 첨삭</span>
+              </div>
+              <span className='text-[1.125rem] leading-[150%] text-[#464B53]'>
+                지원하는 포지션에 딱 맞는 서류를 만들 수 있도록,
+                <br />
+                AI 컨설턴트가 포트폴리오를 첨삭해드려요.
+              </span>
+            </div>
+          </div>
+
+          {/* 새로운 포트폴리오 첨삭 시작하기 버튼 */}
+          <button
+            onClick={handleCreateNewCorrection}
+            className='flex cursor-pointer items-center gap-[0.5rem] rounded-[6.25rem] border border-[#FFFFFF] bg-[#FFFFFF] px-[2rem] py-[1.25rem] text-[1.125rem] text-[#1A1A1A] shadow-[0_0_0.5rem_0_#00000026]'
+          >
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              width='1.5rem'
+              height='1.5rem'
+              viewBox='0 0 24 24'
+              fill='none'
+            >
+              <path
+                d='M18.8571 13.1429H13.1429V18.8571C13.1429 19.1602 13.0224 19.4509 12.8081 19.6653C12.5938 19.8796 12.3031 20 12 20C11.6969 20 11.4062 19.8796 11.1919 19.6653C10.9776 19.4509 10.8571 19.1602 10.8571 18.8571V13.1429H5.14286C4.83975 13.1429 4.54906 13.0224 4.33474 12.8081C4.12041 12.5938 4 12.3031 4 12C4 11.6969 4.12041 11.4062 4.33474 11.1919C4.54906 10.9776 4.83975 10.8571 5.14286 10.8571H10.8571V5.14286C10.8571 4.83975 10.9776 4.54906 11.1919 4.33473C11.4062 4.12041 11.6969 4 12 4C12.3031 4 12.5938 4.12041 12.8081 4.33473C13.0224 4.54906 13.1429 4.83975 13.1429 5.14286V10.8571H18.8571C19.1602 10.8571 19.4509 10.9776 19.6653 11.1919C19.8796 11.4062 20 11.6969 20 12C20 12.3031 19.8796 12.5938 19.6653 12.8081C19.4509 13.0224 19.1602 13.1429 18.8571 13.1429Z'
+                fill='#5060C5'
+              />
+            </svg>
+            새로운 포트폴리오 첨삭 시작하기
+          </button>
+        </div>
+      </div>
+
+      {/* 나의 첨삭 */}
+      <div className='mx-auto flex w-[66rem] flex-col gap-[3rem]'>
+        <div className='flex flex-col gap-[2rem]'>
+          <span className='text-[1.25rem] font-bold'>나의 첨삭</span>
+
+          {/* 나의 첨삭 검색 */}
+          <div className='relative flex items-center'>
+            <input
+              className='w-full rounded-[6.25rem] border border-[#74777D] bg-white px-[1.25rem] py-[0.75rem] text-[1rem]'
+              placeholder='검색어를 입력하세요.'
+            />
+            <svg
+              className='absolute right-[1.25rem] cursor-pointer'
+              xmlns='http://www.w3.org/2000/svg'
+              width='24'
+              height='24'
+              viewBox='0 0 24 24'
+              fill='none'
+            >
+              <path
+                d='M21.4073 19.7527L16.9969 15.3422C18.0588 13.9286 18.632 12.208 18.63 10.44C18.63 5.92406 14.9559 2.25 10.44 2.25C5.92406 2.25 2.25 5.92406 2.25 10.44C2.25 14.9559 5.92406 18.63 10.44 18.63C12.208 18.632 13.9286 18.0588 15.3422 16.9969L19.7527 21.4073C19.9759 21.6069 20.2671 21.7135 20.5664 21.7051C20.8658 21.6967 21.1506 21.574 21.3623 21.3623C21.574 21.1506 21.6967 20.8658 21.7051 20.5664C21.7135 20.2671 21.6069 19.9759 21.4073 19.7527ZM4.59 10.44C4.59 9.28298 4.9331 8.15194 5.5759 7.18992C6.21871 6.22789 7.13235 5.47808 8.2013 5.03531C9.27025 4.59253 10.4465 4.47668 11.5813 4.70241C12.7161 4.92813 13.7584 5.48529 14.5766 6.30343C15.3947 7.12156 15.9519 8.16393 16.1776 9.29872C16.4033 10.4335 16.2875 11.6098 15.8447 12.6787C15.4019 13.7476 14.6521 14.6613 13.6901 15.3041C12.7281 15.9469 11.597 16.29 10.44 16.29C8.88906 16.2881 7.40217 15.6712 6.30548 14.5745C5.2088 13.4778 4.59186 11.9909 4.59 10.44Z'
+                fill='black'
+              />
+            </svg>
+          </div>
+        </div>
+
+        {/* 나의 첨삭 카드 
+        TODO: 첨삭 카드 없을 때, 검색 결과 없을 때 문구
+        */}
+        <div className='grid grid-cols-2 gap-[1.5rem]'>
+          <div className='rounded-[1rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.75rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
+            <div className='flex flex-col gap-[1.25rem]'>
+              <span className='text-[1.125rem]'>삼성SDI 포트폴리오</span>
+              <div className='flex items-end justify-between'>
+                <div className='rounded-[6.25rem] border border-[#CDD0D5] px-[0.75rem] py-[0.25rem] text-[0.875rem]'>
+                  영업 마케팅
+                </div>
+                <span className='text-[1rem] text-[#74777D]'>2000-00-00</span>
+              </div>
+            </div>
+          </div>
+          <div className='rounded-[1rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.75rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
+            <div className='flex flex-col gap-[1.25rem]'>
+              <span className='text-[1.125rem]'>새로운 포트폴리오 첨삭</span>
+              <div className='flex items-end justify-between'>
+                <div className='rounded-[6.25rem] border border-[#CDD0D5] px-[0.75rem] py-[0.25rem] text-[0.875rem]'>
+                  디자인
+                </div>
+                <span className='text-[1rem] text-[#74777D]'>2000-00-00</span>
+              </div>
+            </div>
+          </div>
+          <div className='rounded-[1rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.75rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
+            <div className='flex flex-col gap-[1.25rem]'>
+              <span className='text-[1.125rem]'>2023 삼성SDI 포트폴리오</span>
+              <div className='flex items-end justify-between'>
+                <div className='rounded-[6.25rem] border border-[#CDD0D5] px-[0.75rem] py-[0.25rem] text-[0.875rem]'>
+                  품질
+                </div>
+                <span className='text-[1rem] text-[#74777D]'>2000-00-00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
