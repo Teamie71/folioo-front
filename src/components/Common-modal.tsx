@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { cn } from '@/utils/utils';
 import {
   Dialog,
@@ -53,13 +54,50 @@ export function CommonModal({
   className,
   overlayClassName,
 }: CommonModalProps) {
+  // 버튼이 없는지 확인 (secondaryBtnText, primaryBtnText, cancelBtnText가 모두 없을 때)
+  const hasNoButtons = !primaryBtnText && !secondaryBtnText && !cancelBtnText;
+
+  // 버튼이 전부 없을 때, 2초 후 자동으로 닫기
+  useEffect(() => {
+    if (open && hasNoButtons) {
+      const timer = setTimeout(() => {
+        onOpenChange(false);
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [open, hasNoButtons, onOpenChange]);
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={
+        hasNoButtons
+          ? () => {
+              // 버튼이 전부 없는 경우 수동 닫기 방지
+            }
+          : onOpenChange
+      }
+    >
       {/* 이미지들이 대체로 중앙 정렬되어 있으므로 text-center 적용 */}
       <DialogContent
         overlayClassName={overlayClassName}
+        onInteractOutside={(e) => {
+          // 버튼이 전부 없는 경우 오버레이 클릭으로 닫기 방지
+          if (hasNoButtons) {
+            e.preventDefault();
+          }
+        }}
+        onEscapeKeyDown={(e) => {
+          // 버튼이 전부 없는 경우 ESC 키로 닫기 방지
+          if (hasNoButtons) {
+            e.preventDefault();
+          }
+        }}
         className={cn(
           'items-center gap-[1.75rem] px-[5rem] py-[3.75rem] text-center',
+          // 버튼이 전부 없는 경우 닫기 버튼 숨기기
+          hasNoButtons && '[&>button:last-child]:hidden',
           className,
         )}
       >
