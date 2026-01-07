@@ -1,9 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { CommonModal } from '@/components/Common-modal';
 
 export default function ExperienceSettingsPage() {
   const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleStartChat = () => {
     // TODO: 백엔드 연동 시 API 호출로 교체
@@ -18,8 +21,10 @@ export default function ExperienceSettingsPage() {
       <div className='flex flex-col gap-[1.5rem]'>
         {/* 헤더 */}
         <div className='flex items-center gap-[1.25rem]'>
-          {/* TODO: 클릭 시 모달 */}
-          <button className='cursor-pointer border-none bg-transparent'>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className='cursor-pointer border-none bg-transparent'
+          >
             <svg
               xmlns='http://www.w3.org/2000/svg'
               width='28'
@@ -231,7 +236,7 @@ export default function ExperienceSettingsPage() {
       {/* 시작하기 버튼 */}
       <button
         onClick={handleStartChat}
-        className='fixed bottom-[7.5rem] left-1/2 z-100 mx-auto flex -translate-x-1/2 cursor-pointer gap-[0.75rem] rounded-[6.25rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
+        className='fixed bottom-[7.5rem] left-1/2 mx-auto flex -translate-x-1/2 cursor-pointer gap-[0.75rem] rounded-[6.25rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
       >
         {/* TODO: 아이콘 추가 */}
         <div className='h-[1.5rem] w-[1.5rem] bg-[#FFFFFF]' />
@@ -239,6 +244,20 @@ export default function ExperienceSettingsPage() {
           AI와 대화 시작하기
         </span>
       </button>
+
+      {/* 모달 */}
+      <CommonModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        title='이 경험 정리를 정말 그만두시겠습니까?'
+        description='지금 돌아가면, 작성하신 내용이 저장되지 않아요.'
+        secondaryBtnText='그만두기'
+        primaryBtnVariant='outline'
+        cancelBtnText='취소'
+        onSecondaryClick={() => {
+          router.back();
+        }}
+      />
     </div>
   );
 }
