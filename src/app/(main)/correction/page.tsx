@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { PortfolioCard } from '@/components/PortfolioCard';
 
 export default function CorrectionPage() {
   const router = useRouter();
@@ -95,41 +96,27 @@ export default function CorrectionPage() {
 
         {/* 나의 첨삭 카드 
         TODO: 첨삭 카드 없을 때, 검색 결과 없을 때 문구
+        TODO: href에 실제 첨삭 ID 연결
         */}
         <div className='grid grid-cols-2 gap-[1.5rem]'>
-          <div className='rounded-[1rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.75rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
-            <div className='flex flex-col gap-[1.25rem]'>
-              <span className='text-[1.125rem]'>삼성SDI 포트폴리오</span>
-              <div className='flex items-end justify-between'>
-                <div className='rounded-[6.25rem] border border-[#CDD0D5] px-[0.75rem] py-[0.25rem] text-[0.875rem]'>
-                  영업 마케팅
-                </div>
-                <span className='text-[1rem] text-[#74777D]'>2000-00-00</span>
-              </div>
-            </div>
-          </div>
-          <div className='rounded-[1rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.75rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
-            <div className='flex flex-col gap-[1.25rem]'>
-              <span className='text-[1.125rem]'>새로운 포트폴리오 첨삭</span>
-              <div className='flex items-end justify-between'>
-                <div className='rounded-[6.25rem] border border-[#CDD0D5] px-[0.75rem] py-[0.25rem] text-[0.875rem]'>
-                  디자인
-                </div>
-                <span className='text-[1rem] text-[#74777D]'>2000-00-00</span>
-              </div>
-            </div>
-          </div>
-          <div className='rounded-[1rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.75rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
-            <div className='flex flex-col gap-[1.25rem]'>
-              <span className='text-[1.125rem]'>2023 삼성SDI 포트폴리오</span>
-              <div className='flex items-end justify-between'>
-                <div className='rounded-[6.25rem] border border-[#CDD0D5] px-[0.75rem] py-[0.25rem] text-[0.875rem]'>
-                  품질
-                </div>
-                <span className='text-[1rem] text-[#74777D]'>2000-00-00</span>
-              </div>
-            </div>
-          </div>
+          <PortfolioCard
+            title='삼성SDI 포트폴리오'
+            tag='영업 마케팅'
+            date='2000-00-00'
+            href='/correction'
+          />
+          <PortfolioCard
+            title='새로운 포트폴리오 첨삭'
+            tag='디자인'
+            date='2000-00-00'
+            href='/correction'
+          />
+          <PortfolioCard
+            title='2023 삼성SDI 포트폴리오'
+            tag='품질'
+            date='2000-00-00'
+            href='/correction'
+          />
         </div>
       </div>
     </div>
