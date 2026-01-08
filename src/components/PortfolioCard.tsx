@@ -11,6 +11,8 @@ interface PortfolioCardProps {
   onClick?: () => void;
   href?: string;
   selected?: boolean;
+  variant?: 'default' | 'white';
+  rounded?: '1rem' | '1.25rem' | '1.75rem';
   className?: string;
 }
 
@@ -21,6 +23,8 @@ export function PortfolioCard({
   onClick,
   href,
   selected = false,
+  variant = 'default',
+  rounded = '1rem',
   className,
 }: PortfolioCardProps) {
   const cardClassName = cn(
@@ -34,7 +38,12 @@ export function PortfolioCard({
   );
 
   const cardContent = (
-    <Card className={cardClassName} onClick={onClick}>
+    <Card
+      variant={variant}
+      rounded={rounded}
+      className={cardClassName}
+      onClick={onClick}
+    >
       <CardContent>
         <CardTitle>{title}</CardTitle>
         <CardFooter>

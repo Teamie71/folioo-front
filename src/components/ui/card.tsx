@@ -3,19 +3,34 @@
 import * as React from 'react';
 import { cn } from '@/utils/utils';
 
-const Card = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      'rounded-[1rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.75rem] shadow-[0_0.25rem_0.5rem_0_#00000033]',
-      className,
-    )}
-    {...props}
-  />
-));
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: 'default' | 'white';
+  rounded?: '1rem' | '1.25rem' | '1.75rem';
+}
+
+const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, variant = 'default', rounded = '1rem', ...props }, ref) => {
+    const roundedClassMap = {
+      '1rem': 'rounded-[1rem]',
+      '1.25rem': 'rounded-[1.25rem]',
+      '1.75rem': 'rounded-[1.75rem]',
+    };
+
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          'border border-[#CDD0D5] px-[2rem] py-[1.75rem] shadow-[0_0.25rem_0.5rem_0_#00000033]',
+          roundedClassMap[rounded],
+          variant === 'default' && 'bg-[#FDFDFD]',
+          variant === 'white' && 'bg-[#FFFFFF]',
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
+);
 Card.displayName = 'Card';
 
 const CardContent = React.forwardRef<
