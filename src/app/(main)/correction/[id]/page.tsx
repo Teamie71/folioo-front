@@ -86,6 +86,8 @@ export default function CorrectionSettingsPage() {
 
   const handlePortfolioSelect = (type: PortfolioType) => {
     setSelectedPortfolioType(type);
+    // 포트폴리오 타입 전환 시 텍스트형 선택 상태 초기화
+    setSelectedTextPortfolioIds([]);
   };
 
   return (
