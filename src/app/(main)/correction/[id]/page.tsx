@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PortfolioCard } from '@/components/PortfolioCard';
+import { PortfolioTypeCard } from '@/components/PortfolioTypeCard';
 
 type Step = 'information' | 'portfolio' | 'analysis' | 'result';
 type Status = 'DRAFT' | 'ANALYZING' | 'DONE';
@@ -518,15 +519,8 @@ export default function CorrectionSettingsPage() {
 
               <div className='grid grid-cols-2 gap-[1.5rem]'>
                 {/* 텍스트형 포트폴리오 */}
-                <button
-                  onClick={() => handlePortfolioSelect('text')}
-                  className={`flex cursor-pointer flex-col items-center gap-[0.25rem] rounded-[1.25rem] border-2 p-[2.25rem] shadow-[0_0.25rem_0.5rem_0_#00000033] transition-all ${
-                    selectedPortfolioType === 'text'
-                      ? 'border-[#5060C5] bg-[#F6F5FF]'
-                      : 'border-[#E9EAEC] bg-[#FFFFFF] hover:border-[#CDD0D5]'
-                  }`}
-                >
-                  <div className='flex h-[80px] w-[80px] items-center justify-center'>
+                <PortfolioTypeCard
+                  icon={
                     <svg
                       width='52'
                       height='52'
@@ -541,28 +535,16 @@ export default function CorrectionSettingsPage() {
                         fill='#5060C5'
                       />
                     </svg>
-                  </div>
-                  <div className='flex flex-col items-center gap-[0.5rem] text-center'>
-                    <span className='text-[1.125rem] font-bold text-[#1A1A1A]'>
-                      텍스트형 포트폴리오
-                    </span>
-                    <span className='pb-[0.5rem] text-[0.875rem] text-[#74777D]'>
-                      경험 정리를 바탕으로 생성된 텍스트형 포트폴리오를
-                      첨삭해요.
-                    </span>
-                  </div>
-                </button>
+                  }
+                  title='텍스트형 포트폴리오'
+                  description='경험 정리를 바탕으로 생성된 텍스트형 포트폴리오를 첨삭해요.'
+                  selected={selectedPortfolioType === 'text'}
+                  onClick={() => handlePortfolioSelect('text')}
+                />
 
                 {/* PDF 포트폴리오 */}
-                <button
-                  onClick={() => handlePortfolioSelect('pdf')}
-                  className={`flex cursor-pointer flex-col items-center gap-[0.25rem] rounded-[1.25rem] border-2 p-[2.25rem] shadow-[0_0.25rem_0.5rem_0_#00000033] transition-all ${
-                    selectedPortfolioType === 'pdf'
-                      ? 'border-[#5060C5] bg-[#F6F5FF]'
-                      : 'border-[#E9EAEC] bg-[#FFFFFF] hover:border-[#CDD0D5]'
-                  }`}
-                >
-                  <div className='flex h-[80px] w-[80px] items-center justify-center'>
+                <PortfolioTypeCard
+                  icon={
                     <svg
                       width='52'
                       height='52'
@@ -577,16 +559,12 @@ export default function CorrectionSettingsPage() {
                         fill='#5060C5'
                       />
                     </svg>
-                  </div>
-                  <div className='flex flex-col items-center gap-[0.5rem] text-center'>
-                    <span className='text-[1.125rem] font-bold text-[#1A1A1A]'>
-                      PDF 포트폴리오
-                    </span>
-                    <span className='pb-[0.5rem] text-[0.875rem] text-[#74777D]'>
-                      업로드한 PDF 포트폴리오의 텍스트를 첨삭해요.
-                    </span>
-                  </div>
-                </button>
+                  }
+                  title='PDF 포트폴리오'
+                  description='업로드한 PDF 포트폴리오의 텍스트를 첨삭해요.'
+                  selected={selectedPortfolioType === 'pdf'}
+                  onClick={() => handlePortfolioSelect('pdf')}
+                />
               </div>
 
               {/* 텍스트형 포트폴리오 선택 리스트 */}
