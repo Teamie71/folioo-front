@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PortfolioCard } from '@/components/PortfolioCard';
 import { PortfolioTypeCard } from '@/components/PortfolioTypeCard';
+import { BackButton } from '@/components/BackButton';
 
 type Step = 'information' | 'portfolio' | 'analysis' | 'result';
 type Status = 'DRAFT' | 'ANALYZING' | 'DONE';
@@ -98,26 +99,7 @@ export default function CorrectionSettingsPage() {
         <div className='flex items-center justify-between'>
           <div className='flex items-center gap-[1.25rem]'>
             {/* TODO: 클릭 시 모달 */}
-            <button
-              onClick={() => router.push('/correction')}
-              className='cursor-pointer border-none bg-transparent'
-            >
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='28'
-                height='28'
-                viewBox='0 0 28 28'
-                fill='none'
-              >
-                <path
-                  d='M18 23L9 14L18 5.00001'
-                  stroke='black'
-                  strokeWidth='2.5'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                />
-              </svg>
-            </button>
+            <BackButton href='/correction' />
             <div className='flex items-center gap-[0.75rem]'>
               <span className='text-[1.25rem] font-bold'>
                 새로운 포트폴리오 첨삭
