@@ -389,19 +389,19 @@ export default function CorrectionSettingsPage() {
               </div>
               <div className='flex flex-col gap-[0.75rem]'>
                 {jdMode === 'text' ? (
-                  <textarea
-                    className='min-h-[23.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-[#74777D]'
-                    placeholder='채용공고의 JD를 복사 후 붙여넣기 해주세요.'
-                  />
+                  <div className='min-h-[23.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.625rem] py-[1.25rem] text-[#74777D]'>
+                    채용공고의 JD를 복사 후 붙여넣기 해주세요. 
+                  </div>
                 ) : (
-                  <div className='relative rounded-[1.25rem] bg-[#F6F8FA] p-[1.75rem]'>
-                    <div className='grid h-full grid-cols-2 gap-[4rem]'>
-                      {/* 왼쪽: 파일 업로드 */}
-                      <div className='flex flex-col items-center justify-center gap-[1rem] rounded-[1rem] border border-[#E9EAEC] bg-[#FFFFFF] p-[2.5rem]'>
+                  <div className='flex gap-[1.5rem]'>
+                    {/* 왼쪽: 파일 업로드 옵션들 (회색 배경 섹션) */}
+                    <div className='flex flex-1 flex-col gap-[1rem] rounded-[1.25rem] bg-[#F6F8FA] p-[1.75rem]'>
+                      {/* 첫 번째: JD 파일 업로드 */}
+                      <div className='flex items-center gap-[3.625rem] rounded-[1rem] border border-[#E9EAEC] bg-[#FFFFFF] px-[4.75rem] py-[2.25rem] shadow-sm'>
                         <svg
                           xmlns='http://www.w3.org/2000/svg'
-                          width='60'
-                          height='60'
+                          width='40'
+                          height='40'
                           viewBox='0 0 60 60'
                           fill='none'
                         >
@@ -413,23 +413,29 @@ export default function CorrectionSettingsPage() {
                             strokeLinejoin='round'
                           />
                         </svg>
-                        <div>
-                          <div className='flex flex-col items-center text-center'>
-                            <span className='text-[0.875rem] text-[#1A1A1A]'>
-                              클릭하여 JD 파일을 업로드 하세요.
-                            </span>
-                            <span className='text-[0.75rem] text-[#74777D]'>
-                              (JPG, PNG 파일만 업로드 가능)
-                            </span>
-                          </div>
+                        <div className='flex flex-col'>
+                          <span className='text-[0.875rem] text-[#1A1A1A]'>
+                            클릭하여 JD 파일을 업로드 하세요.
+                          </span>
+                          <span className='text-[0.75rem] text-[#74777D]'>
+                            (JPG, PNG 파일만 업로드 가능)
+                          </span>
                         </div>
                       </div>
 
-                      {/* 오른쪽: 이미지 업로드 */}
-                      <div className='flex flex-col items-center justify-center gap-[1rem] rounded-[1rem] border border-[#E9EAEC] bg-[#FFFFFF]'>
+                      {/* 구분선 */}
+                      <div className='relative flex w-full items-center px-[1rem] py-[0.5rem]'>
+                        <div className='h-[1px] w-full bg-[#CDD0D5]' />
+                        <div className='absolute left-1/2 flex h-[2.75rem] w-[3.75rem] -translate-x-1/2 items-center justify-center bg-[#F6F8FA] text-center text-[0.875rem] text-[#1A1A1A]'>
+                          또는
+                        </div>
+                      </div>
+
+                      {/* 두 번째: 복사한 JD 이미지 업로드 */}
+                      <div className='flex items-center gap-[2rem] rounded-[1rem] border border-[#E9EAEC] bg-[#FFFFFF] px-[4.75rem] py-[2.25rem] shadow-sm'>
                         <svg
-                          width='60'
-                          height='60'
+                          width='40'
+                          height='40'
                           viewBox='0 0 60 60'
                           fill='none'
                           xmlns='http://www.w3.org/2000/svg'
@@ -443,20 +449,19 @@ export default function CorrectionSettingsPage() {
                             fill='#9EA4A9'
                           />
                         </svg>
-
-                        <span className='text-center text-[0.875rem] text-[#1A1A1A]'>
+                        <span className='text-[0.875rem] text-[#1A1A1A]'>
                           클릭하여 복사한 JD 이미지를 업로드 하세요.
                         </span>
                       </div>
                     </div>
 
-                    {/* 중앙 구분선 */}
-                    <div className='absolute top-0 left-1/2 flex h-full items-center'>
-                      <div className='h-[78%] w-[1px] bg-[#9EA4A9]' />
-                      <div className='absolute top-1/2 left-1/2 flex h-[2.75rem] w-[3.75rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-[#F6F8FA] text-center text-[0.875rem] text-[#1A1A1A]'>
-                        또는
-                      </div>
-                    </div>
+                    {/* 오른쪽: 드롭존/미리보기 영역 (섹션 밖) */}
+                    <div
+                      className='flex flex-1 items-center justify-center rounded-[1rem] border-2 border-dashed bg-[#FDFDFD]'
+                      style={{
+                        borderColor: '#CDD0D5',
+                      }}
+                    ></div>
                   </div>
                 )}
               </div>
