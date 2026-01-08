@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { PortfolioCard } from '@/components/PortfolioCard';
+import { PortfolioTypeCard } from '@/components/PortfolioTypeCard';
 
 type Step = 'information' | 'portfolio' | 'analysis' | 'result';
 type Status = 'DRAFT' | 'ANALYZING' | 'DONE';
@@ -24,6 +26,29 @@ export default function CorrectionSettingsPage() {
   const [selectedUnclassifiedTab, setSelectedUnclassifiedTab] = useState<
     '상세정보' | '담당업무' | '문제해결' | '배운 점'
   >('상세정보');
+  const [selectedTextPortfolioIds, setSelectedTextPortfolioIds] = useState<
+    string[]
+  >([]);
+  const textPortfolios = [
+    {
+      id: 'text-1',
+      title: '데이터 통계 경진대회',
+      tag: '데이터',
+      date: '2000-00-00',
+    },
+    {
+      id: 'text-2',
+      title: '공공 디자인 공모전',
+      tag: '디자인',
+      date: '2000-00-00',
+    },
+    {
+      id: 'text-3',
+      title: '00기업 서포터즈 활동',
+      tag: '미정',
+      date: '2000-00-00',
+    },
+  ];
   const [resultTab, setResultTab] = useState<'지원 정보' | '활동 A' | '활동 B'>(
     '지원 정보',
   );
@@ -62,6 +87,8 @@ export default function CorrectionSettingsPage() {
 
   const handlePortfolioSelect = (type: PortfolioType) => {
     setSelectedPortfolioType(type);
+    // 포트폴리오 타입 전환 시 텍스트형 선택 상태 초기화
+    setSelectedTextPortfolioIds([]);
   };
 
   return (
@@ -492,15 +519,8 @@ export default function CorrectionSettingsPage() {
 
               <div className='grid grid-cols-2 gap-[1.5rem]'>
                 {/* 텍스트형 포트폴리오 */}
-                <button
-                  onClick={() => handlePortfolioSelect('text')}
-                  className={`flex cursor-pointer flex-col items-center gap-[0.25rem] rounded-[1.25rem] border-2 p-[2.25rem] shadow-[0_0.25rem_0.5rem_0_#00000033] transition-all ${
-                    selectedPortfolioType === 'text'
-                      ? 'border-[#5060C5] bg-[#F6F5FF]'
-                      : 'border-[#E9EAEC] bg-[#FFFFFF] hover:border-[#CDD0D5]'
-                  }`}
-                >
-                  <div className='flex h-[80px] w-[80px] items-center justify-center'>
+                <PortfolioTypeCard
+                  icon={
                     <svg
                       width='52'
                       height='52'
@@ -515,28 +535,16 @@ export default function CorrectionSettingsPage() {
                         fill='#5060C5'
                       />
                     </svg>
-                  </div>
-                  <div className='flex flex-col items-center gap-[0.5rem] text-center'>
-                    <span className='text-[1.125rem] font-bold text-[#1A1A1A]'>
-                      텍스트형 포트폴리오
-                    </span>
-                    <span className='pb-[0.5rem] text-[0.875rem] text-[#74777D]'>
-                      경험 정리를 바탕으로 생성된 텍스트형 포트폴리오를
-                      첨삭해요.
-                    </span>
-                  </div>
-                </button>
+                  }
+                  title='텍스트형 포트폴리오'
+                  description='경험 정리를 바탕으로 생성된 텍스트형 포트폴리오를 첨삭해요.'
+                  selected={selectedPortfolioType === 'text'}
+                  onClick={() => handlePortfolioSelect('text')}
+                />
 
                 {/* PDF 포트폴리오 */}
-                <button
-                  onClick={() => handlePortfolioSelect('pdf')}
-                  className={`flex cursor-pointer flex-col items-center gap-[0.25rem] rounded-[1.25rem] border-2 p-[2.25rem] shadow-[0_0.25rem_0.5rem_0_#00000033] transition-all ${
-                    selectedPortfolioType === 'pdf'
-                      ? 'border-[#5060C5] bg-[#F6F5FF]'
-                      : 'border-[#E9EAEC] bg-[#FFFFFF] hover:border-[#CDD0D5]'
-                  }`}
-                >
-                  <div className='flex h-[80px] w-[80px] items-center justify-center'>
+                <PortfolioTypeCard
+                  icon={
                     <svg
                       width='52'
                       height='52'
@@ -551,20 +559,18 @@ export default function CorrectionSettingsPage() {
                         fill='#5060C5'
                       />
                     </svg>
-                  </div>
-                  <div className='flex flex-col items-center gap-[0.5rem] text-center'>
-                    <span className='text-[1.125rem] font-bold text-[#1A1A1A]'>
-                      PDF 포트폴리오
-                    </span>
-                    <span className='pb-[0.5rem] text-[0.875rem] text-[#74777D]'>
-                      업로드한 PDF 포트폴리오의 텍스트를 첨삭해요.
-                    </span>
-                  </div>
-                </button>
+                  }
+                  title='PDF 포트폴리오'
+                  description='업로드한 PDF 포트폴리오의 텍스트를 첨삭해요.'
+                  selected={selectedPortfolioType === 'pdf'}
+                  onClick={() => handlePortfolioSelect('pdf')}
+                />
               </div>
 
               {/* 텍스트형 포트폴리오 선택 리스트 */}
               {selectedPortfolioType === 'text' && (
+                // TODO: 실제 데이터 연동 시 textPortfolios를 API 데이터로 교체
+                // TODO: 선택된 포트폴리오 ID를 다음 단계 API에 전달
                 <div className='mt-[4.75rem] flex flex-col'>
                   <div className='flex items-center text-[1.125rem] font-bold'>
                     <span>텍스트형 포트폴리오 선택</span>
@@ -574,51 +580,28 @@ export default function CorrectionSettingsPage() {
                     포트폴리오를 클릭하여 선택해주세요.
                   </span>
                   <div className='grid grid-cols-2 gap-[1.5rem]'>
-                    <div className='rounded-[1rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.75rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
-                      <div className='flex flex-col gap-[1.25rem]'>
-                        <span className='text-[1.125rem]'>
-                          데이터 통계 경진대회
-                        </span>
-                        <div className='flex items-end justify-between'>
-                          <div className='rounded-[6.25rem] border border-[#CDD0D5] px-[0.75rem] py-[0.25rem] text-[0.875rem]'>
-                            데이터
-                          </div>
-                          <span className='text-[1rem] text-[#74777D]'>
-                            2000-00-00
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className='rounded-[1rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.75rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
-                      <div className='flex flex-col gap-[1.25rem]'>
-                        <span className='text-[1.125rem]'>
-                          공공 디자인 공모전
-                        </span>
-                        <div className='flex items-end justify-between'>
-                          <div className='rounded-[6.25rem] border border-[#CDD0D5] px-[0.75rem] py-[0.25rem] text-[0.875rem]'>
-                            디자인
-                          </div>
-                          <span className='text-[1rem] text-[#74777D]'>
-                            2000-00-00
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className='rounded-[1rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.75rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
-                      <div className='flex flex-col gap-[1.25rem]'>
-                        <span className='text-[1.125rem]'>
-                          00기업 서포터즈 활동
-                        </span>
-                        <div className='flex items-end justify-between'>
-                          <div className='rounded-[6.25rem] border border-[#CDD0D5] px-[0.75rem] py-[0.25rem] text-[0.875rem]'>
-                            미정
-                          </div>
-                          <span className='text-[1rem] text-[#74777D]'>
-                            2000-00-00
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                    {textPortfolios.map((portfolio) => (
+                      <PortfolioCard
+                        key={portfolio.id}
+                        title={portfolio.title}
+                        tag={portfolio.tag}
+                        date={portfolio.date}
+                        selected={selectedTextPortfolioIds.includes(
+                          portfolio.id,
+                        )}
+                        onClick={() => {
+                          setSelectedTextPortfolioIds((prev) => {
+                            if (prev.includes(portfolio.id)) {
+                              // 이미 선택되어 있으면 제거
+                              return prev.filter((id) => id !== portfolio.id);
+                            } else {
+                              // 선택되어 있지 않으면 추가
+                              return [...prev, portfolio.id];
+                            }
+                          });
+                        }}
+                      />
+                    ))}
                   </div>
                 </div>
               )}
