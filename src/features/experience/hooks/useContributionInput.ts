@@ -46,23 +46,15 @@ export function useContributionInput(
 
   // 입력 필드에서 키보드 입력 시 호출
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      // Enter: 입력 완료 및 편집 종료
-      handleInputSubmit();
-    } else if (e.key === 'Escape') {
-      // Escape: 변경 취소하고 원래 값으로 복구
+    if (e.key === 'Escape') {
       setInputValue(String(Math.round(currentValue)));
-      setIsEditing(false);
     }
   };
 
-  // currentValue가 변경되면 inputValue도 동기화
+  // 드래그나 클릭으로 값이 변경되면 입력 필드도 업데이트
   useEffect(() => {
-    if (!isEditing) {
-      // 드래그나 클릭으로 값이 변경되면 입력 필드 업데이트
-      setInputValue(String(Math.round(currentValue)));
-    }
-  }, [currentValue, isEditing]);
+    setInputValue(String(Math.round(currentValue)));
+  }, [currentValue]);
 
   return {
     isEditing, // 편집 모드 여부

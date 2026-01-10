@@ -46,6 +46,22 @@ export function ContributionSection({
   const effectiveDuration = isDragging ? 0 : duration;
   const animatedValue = useAnimatedNumber(safeValue, effectiveDuration);
 
+  // 편집 모드일 때 Enter 키로 저장
+  React.useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (isEditing && e.key === 'Enter') {
+        handleInputSubmit();
+      }
+    };
+
+    if (isEditing) {
+      document.addEventListener('keydown', handleGlobalKeyDown);
+      return () => {
+        document.removeEventListener('keydown', handleGlobalKeyDown);
+      };
+    }
+  }, [isEditing, handleInputSubmit]);
+
   return (
     <div className={cn('flex w-auto items-center gap-[1.5rem]', className)}>
       <p className='text-[1.125rem] font-bold text-[#1A1A1A]'>기여도</p>
@@ -97,7 +113,6 @@ export function ContributionSection({
           type='text'
           value={inputValue}
           onChange={handleInputChange}
-          onBlur={handleInputSubmit}
           onKeyDown={handleKeyDown}
           autoFocus
           className='h-[2rem] w-[2.875rem] rounded border border-[#000000] px-1 text-center text-[1rem] font-bold text-[#1A1A1A] outline-none'
