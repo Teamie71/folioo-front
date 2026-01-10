@@ -52,10 +52,11 @@ export function ContributionSection({
 
       <div
         ref={progressRef}
-        onClick={handleProgressClick}
-        onMouseDown={handleMouseDown}
+        onClick={isEditing ? handleProgressClick : undefined}
+        onMouseDown={isEditing ? handleMouseDown : undefined}
         className={cn(
-          'relative cursor-pointer select-none',
+          'relative select-none',
+          isEditing && 'cursor-pointer',
           isDragging && 'cursor-grabbing',
         )}
       >
@@ -73,8 +74,8 @@ export function ContributionSection({
           )}
         />
 
-        {/* 드래그 중 Indicator */}
-        {isDragging && (
+        {/* 편집 모드일 때 Indicator 핸들 */}
+        {isEditing && (
           <div
             className='absolute top-1/2 flex -translate-y-1/2 items-center justify-center'
             style={{
