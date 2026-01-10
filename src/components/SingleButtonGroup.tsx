@@ -55,7 +55,7 @@ export function SingleButtonGroup({
               value={option.label}
               className={cn(
                 // 기본 스타일링
-                'font-regular flex cursor-pointer items-center gap-[1rem] rounded-[3.75rem] border-[0.0625rem] border-[#9EA4A9] bg-[#FDFDFD] px-[1.5rem] py-[0.625rem] text-[1rem] text-[#1A1A1A]',
+                'font-regular flex cursor-pointer items-center gap-[1rem] rounded-[3.75rem] border-[0.0625rem] border-[#9EA4A9] bg-[#FDFDFD] px-[1.5rem] py-[1.125rem] text-[1rem] text-[#1A1A1A]',
 
                 // 선택된 상태 효과 - border가 0.0625rem 두꺼워지므로 padding을 0.0625rem씩 줄여서 크기 유지
                 'data-[state=on]:border-[0.125rem] data-[state=on]:border-[#5060C5] data-[state=on]:bg-[#F6F5FF] data-[state=on]:px-[1.43125rem] data-[state=on]:py-[0.3125rem] data-[state=on]:text-[#5060C5]',
