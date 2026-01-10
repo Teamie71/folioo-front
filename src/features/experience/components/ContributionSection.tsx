@@ -22,14 +22,16 @@ export function ContributionSection({
   className,
   duration = 1000,
 }: ContributionSectionProps) {
-  const [value, setValue] = React.useState(initialValue);
+  const [value, setValue] = React.useState(initialValue); // 실제 저장된 값
+  const [tempValue, setTempValue] = React.useState(initialValue); // 미리보기용 임시 값
   const safeValue = Math.min(100, Math.max(0, value));
+  const safeTempValue = Math.min(100, Math.max(0, tempValue));
   const progressRef = React.useRef<HTMLDivElement>(null);
 
   // 드래그 관련 로직: useProgressDrag hook
   const { isDragging, handleProgressClick, handleMouseDown } = useProgressDrag(
     progressRef,
-    setValue,
+    setTempValue, // 미리보기용 값만 변경
   );
 
   // 입력 편집 관련 로직: useContributionInput hook
@@ -40,11 +42,20 @@ export function ContributionSection({
     handleInputChange,
     handleInputSubmit,
     handleKeyDown,
-  } = useContributionInput(safeValue, setValue);
+    handleInputBlur,
+  } = useContributionInput(safeTempValue, setTempValue, setValue);
+
+  // 편집 모드가 시작되면 tempValue를 value로 초기화
+  React.useEffect(() => {
+    if (isEditing) {
+      setTempValue(value);
+    }
+  }, [isEditing, value]);
 
   // 드래그 중일 때는 애니메이션 없이 즉시 반응: useAnimatedNumber hook
   const effectiveDuration = isDragging ? 0 : duration;
-  const animatedValue = useAnimatedNumber(safeValue, effectiveDuration);
+  const displayValue = isEditing ? safeTempValue : safeValue; // 편집 중에는 tempValue, 아니면 실제 값
+  const animatedValue = useAnimatedNumber(displayValue, effectiveDuration);
 
   // 편집 모드일 때 Enter 키로 저장
   React.useEffect(() => {
@@ -77,7 +88,7 @@ export function ContributionSection({
         )}
       >
         <Progress
-          value={safeValue}
+          value={displayValue}
           className={cn(
             // Track
             'h-[0.625rem] w-[21.25rem] rounded-[1.25rem] bg-[#E9EAEC]',
@@ -95,7 +106,7 @@ export function ContributionSection({
           <div
             className='absolute top-1/2 flex -translate-y-1/2 items-center justify-center'
             style={{
-              left: `calc(${safeValue}% - 0.75rem)`,
+              left: `calc(${displayValue}% - 0.75rem)`,
             }}
           >
             {/* 외부 원 */}
@@ -113,6 +124,7 @@ export function ContributionSection({
           type='text'
           value={inputValue}
           onChange={handleInputChange}
+          onBlur={handleInputBlur}
           onKeyDown={handleKeyDown}
           autoFocus
           className='h-[2rem] w-[2.875rem] rounded border border-[#000000] px-1 text-center text-[1rem] font-bold text-[#1A1A1A] outline-none'
@@ -124,7 +136,7 @@ export function ContributionSection({
           )}
         >
           {/* 드래그 중에는 실제 값을, 아닐 때는 애니메이션 값을 표시 */}
-          {Math.round(isDragging ? safeValue : animatedValue)}%
+          {Math.round(isDragging ? displayValue : animatedValue)}%
         </span>
       )}
 

@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 
 // 기여도 입력 편집을 위한 훅
-// currentValue - 현재 기여도 값
-// onValueChange - 값 변경 시 호출되는 콜백
+// currentValue - 현재 기여도 값 (미리보기용)
+// onTempChange - 임시 값 변경 시 호출되는 콜백 (미리보기)
+// onSave - 실제 저장 시 호출되는 콜백
 // return - 입력 편집 관련 상태와 핸들러들
 export function useContributionInput(
   currentValue: number,
-  onValueChange: (value: number) => void,
+  onTempChange: (value: number) => void,
+  onSave: (value: number) => void,
 ) {
   // 현재 편집 모드인지 여부
   const [isEditing, setIsEditing] = useState(false);
@@ -24,7 +26,22 @@ export function useContributionInput(
     }
   };
 
-  // 입력 완료 시 호출: Enter 키 또는 포커스 아웃
+  // 포커스 아웃 시 호출: 미리보기만 업데이트
+  const handleInputBlur = () => {
+    // 입력값을 숫자로 변환
+    const numValue = parseInt(inputValue, 10);
+    // 유효한 숫자인 경우 미리보기 업데이트
+    if (!isNaN(numValue)) {
+      const clampedValue = Math.min(100, Math.max(0, numValue));
+      onTempChange(clampedValue);
+      setInputValue(String(clampedValue));
+    } else {
+      // 잘못된 입력이면 원래 값으로 복구
+      setInputValue(String(Math.round(currentValue)));
+    }
+  };
+
+  // 입력 완료 및 저장: Enter 키 또는 CheckCircle 클릭
   const handleInputSubmit = () => {
     // 입력값을 숫자로 변환
     const numValue = parseInt(inputValue, 10);
@@ -32,8 +49,10 @@ export function useContributionInput(
     if (!isNaN(numValue)) {
       // 0-100 범위로 제한
       const clampedValue = Math.min(100, Math.max(0, numValue));
-      // 부모 컴포넌트에 값 변경 알림
-      onValueChange(clampedValue);
+      // 실제 저장
+      onSave(clampedValue);
+      // 미리보기도 업데이트
+      onTempChange(clampedValue);
       // 입력값을 보정된 값으로 업데이트
       setInputValue(String(clampedValue));
     } else {
@@ -61,7 +80,8 @@ export function useContributionInput(
     setIsEditing, // 편집 모드 전환 함수
     inputValue, // 입력 필드의 현재 값
     handleInputChange, // 입력값 변경 핸들러
-    handleInputSubmit, // 입력 완료 핸들러
+    handleInputSubmit, // 입력 완료 및 저장 핸들러
     handleKeyDown, // 키보드 이벤트 핸들러
+    handleInputBlur, // 포커스 아웃 핸들러 (미리보기)
   };
 }
