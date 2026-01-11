@@ -6,6 +6,7 @@ import ProblemSolveIcon from '@/components/icons/ProblemSolveIcon';
 import ReferenceIcon from '@/components/icons/ReferenceIcon';
 import { SingleButtonGroup } from '@/components/SingleButtonGroup';
 import { Checkbox } from '@/components/ui/checkbox';
+import { ActivitySelect } from '@/features/log/components/ActivitySelect';
 import { InsightTemplateSelector } from '@/features/log/components/CategorySector';
 
 export default function LogPage() {
@@ -56,35 +57,8 @@ export default function LogPage() {
               />
             </div>
 
-            <div className='flex flex-col gap-[0.5rem]'>
-              <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
-                <span>활동명</span>
-                <span className='text-[#DC0000]'>*</span>
-              </div>
-              <div className='relative flex items-center'>
-                <input
-                  className='w-[28.5rem] rounded-[0.5rem] border-[0.1rem] border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                  placeholder='활동명 입력 또는 선택'
-                />
-                <button className='absolute right-[1rem] cursor-pointer border-none bg-transparent'>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    width='24'
-                    height='24'
-                    viewBox='0 0 24 24'
-                    fill='none'
-                  >
-                    <path
-                      d='M6 9L12 15L18 9'
-                      stroke='black'
-                      strokeWidth='2'
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
+            {/* 활동명 선택 */}
+            <ActivitySelect />
           </div>
 
           {/* 카테고리 선택 */}
