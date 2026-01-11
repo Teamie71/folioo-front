@@ -13,11 +13,15 @@ interface Option {
 interface SingleButtonGroupProps {
   options: Option[];
   className?: string;
+  onValueChange?: (value: string) => void;
+  defaultValue?: string;
 }
 
 export function SingleButtonGroup({
   options,
   className,
+  onValueChange,
+  defaultValue,
 }: SingleButtonGroupProps) {
   return (
     <>
@@ -47,6 +51,8 @@ export function SingleButtonGroup({
       <ToggleGroup
         type='single' // 하나만 선택 가능
         className={cn('flex items-center gap-[1.25rem]', className)}
+        onValueChange={onValueChange}
+        defaultValue={defaultValue}
       >
         {options.map((option) => {
           return (
