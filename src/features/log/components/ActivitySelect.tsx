@@ -14,9 +14,14 @@ export function ActivitySelect() {
       label: '활동 B',
     },
   ]);
+  const [selectedActivityId, setSelectedActivityId] = useState('');
 
   const handleDelete = (id: string) => {
     setActivities((prev) => prev.filter((activity) => activity.id !== id));
+    // 삭제된 항목이 선택된 항목이면 선택 해제
+    if (selectedActivityId === id) {
+      setSelectedActivityId('');
+    }
   };
 
   const activitiesWithHandlers = activities.map((activity) => ({
@@ -30,7 +35,12 @@ export function ActivitySelect() {
         <span>활동명</span>
         <span className='text-[#DC0000]'>*</span>
       </div>
-      <Dropdown items={activitiesWithHandlers} />
+      <Dropdown
+        items={activitiesWithHandlers}
+        value={selectedActivityId}
+        onChange={setSelectedActivityId}
+        placeholder='활동을 선택하세요'
+      />
     </div>
   );
 }
