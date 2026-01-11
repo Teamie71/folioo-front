@@ -1,3 +1,4 @@
+import { CommonButton } from '@/components/Common-Button';
 import EtcIcon from '@/components/icons/EtcIcon';
 import { InsightLogIcon } from '@/components/icons/InsightLogIcon';
 import InterpersonIcon from '@/components/icons/InterpersonIcon';
@@ -34,9 +35,9 @@ export default function LogPage() {
         {/* 로그 작성 헤더 */}
         <div className='flex w-full items-center justify-between px-[0.5rem]'>
           <span className='text-[1.25rem] font-bold'>새로운 로그 작성</span>
-          <button className='text-bold cursor-pointer rounded-[6.25rem] bg-[#5060C5] px-[2.25rem] py-[0.75rem] text-[#ffffff]'>
+          <CommonButton variantType='Primary' px='2.25rem' py='0.75rem'>
             로그 등록하기
-          </button>
+          </CommonButton>
         </div>
 
         {/* 구분선 */}
