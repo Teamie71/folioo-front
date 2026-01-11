@@ -6,6 +6,7 @@ import ProblemSolveIcon from '@/components/icons/ProblemSolveIcon';
 import ReferenceIcon from '@/components/icons/ReferenceIcon';
 import { SingleButtonGroup } from '@/components/SingleButtonGroup';
 import { Checkbox } from '@/components/ui/checkbox';
+import { InsightTemplateSelector } from '@/features/experience/components/CategorySector';
 
 export default function LogPage() {
   return (
@@ -87,193 +88,15 @@ export default function LogPage() {
           </div>
 
           {/* 카테고리 선택 */}
-          <div className='flex flex-col gap-[1rem]'>
+          <div className='flex flex-col gap-[0.625rem]'>
             <div className='flex flex-col gap-[0.75rem]'>
               <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
                 <span>카테고리</span>
                 <span className='text-[#DC0000]'>*</span>
               </div>
-
-              <div className='flex flex-col gap-[0.5rem]'>
-                <div className='flex items-center gap-[0.75rem]'>
-                  <Checkbox />
-                  <span>템플릿 사용</span>
-                </div>
-                <span className='text-[0.875rem] text-[#74777D]'>
-                  카테고리 맞춤 템플릿을 사용하여 인사이트를 체계적으로
-                  기록하세요.
-                </span>
-              </div>
             </div>
 
-            <SingleButtonGroup
-              options={[
-                { label: '대인관계', icon: <InterpersonIcon /> },
-                { label: '문제해결', icon: <ProblemSolveIcon /> },
-                { label: '학습', icon: <LearningIcon /> },
-                { label: '레퍼런스', icon: <ReferenceIcon /> },
-                { label: '기타', icon: <EtcIcon /> },
-              ]}
-            />
-          </div>
-
-          {/* 내용 - 템플릿 미사용 */}
-          <div className='flex flex-col gap-[0.5rem]'>
-            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
-              <span>내용</span>
-              <span className='text-[#DC0000]'>*</span>
-            </div>
-
-            <div className='flex flex-col'>
-              <textarea
-                className='line-height-[160%] h-full rounded-[0.5rem] border border-[#74777D] px-[1.75rem] py-[1.25rem]'
-                placeholder='오늘은 어떤 인사이트를 얻으셨나요?'
-              />
-              <span className='mt-[0.5rem] text-right'>0/250</span>
-            </div>
-          </div>
-
-          {/* 내용 - 대인관계 템플릿 */}
-          <div className='flex flex-col gap-[1.25rem]'>
-            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
-              <span>내용</span>
-              <span className='text-[#DC0000]'>*</span>
-            </div>
-
-            <div className='flex flex-col gap-[0.5rem]'>
-              <div className='flex flex-col gap-[1.25rem]'>
-                {/* 상황/대상 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>상황/대상</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='누구와, 어떤 상황이 발생했나요?'
-                  />
-                </div>
-
-                {/* 대응 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>대응</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='나는 어떻게 대응했나요?'
-                  />
-                </div>
-
-                {/* 결과 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>결과</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='어떤 결과가 나타났나요?'
-                  />
-                </div>
-
-                {/* 배운 점/계획 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>
-                    배운 점/계획
-                  </span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='무엇을 배웠고, 앞으로는 비슷한 상황에서 어떻게 대응할건가요?'
-                  />
-                </div>
-              </div>
-
-              <span className='text-right'>0/250</span>
-            </div>
-          </div>
-
-          {/* 내용 - 학습 템플릿 */}
-          <div className='flex flex-col gap-[1.25rem]'>
-            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
-              <span>내용</span>
-              <span className='text-[#DC0000]'>*</span>
-            </div>
-
-            <div className='flex flex-col gap-[0.5rem]'>
-              <div className='flex flex-col gap-[1.25rem]'>
-                {/* 학습 경로 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>학습 경로</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='어떤 매체를 통해, 무엇을 계기로 학습을 진행했나요?'
-                  />
-                </div>
-
-                {/* 배운 내용 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>배운 내용</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='어떤 지식 또는 스킬을 배웠나요?'
-                  />
-                </div>
-
-                {/* 적용 계획 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>적용 계획</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='앞으로 어디에 어떻게 적용해 볼 건가요?'
-                  />
-                </div>
-              </div>
-
-              <span className='text-right'>0/250</span>
-            </div>
-          </div>
-
-          {/* 내용 - 레퍼런스 템플릿 */}
-          <div className='flex flex-col gap-[1.25rem]'>
-            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
-              <span>내용</span>
-              <span className='text-[#DC0000]'>*</span>
-            </div>
-
-            <div className='flex flex-col gap-[0.5rem]'>
-              <div className='flex flex-col gap-[1.25rem]'>
-                {/* 출처 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>출처</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='어디서 얻은 레퍼런스인가요?'
-                  />
-                </div>
-
-                {/* 내용 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>내용</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='어떤 점이 인상 깊었나요?'
-                  />
-                </div>
-
-                {/* 나의 생각 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>나의 생각</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='이 레퍼런스를 보고 어떤 생각이 들었나요?'
-                  />
-                </div>
-
-                {/* 적용 계획 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>적용 계획</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='앞으로 어디에, 어떻게 적용해 볼 건가요?'
-                  />
-                </div>
-              </div>
-
-              <span className='text-right'>0/250</span>
-            </div>
+            <InsightTemplateSelector />
           </div>
         </div>
       </div>
