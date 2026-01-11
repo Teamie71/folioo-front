@@ -6,7 +6,7 @@ import ProblemSolveIcon from '@/components/icons/ProblemSolveIcon';
 import ReferenceIcon from '@/components/icons/ReferenceIcon';
 import { SingleButtonGroup } from '@/components/SingleButtonGroup';
 import { Checkbox } from '@/components/ui/checkbox';
-import { InsightTemplateSelector } from '@/features/experience/components/CategorySector';
+import { InsightTemplateSelector } from '@/features/log/components/CategorySector';
 
 export default function LogPage() {
   return (
