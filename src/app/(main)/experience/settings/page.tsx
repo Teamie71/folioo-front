@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CommonModal } from '@/components/Common-modal';
 import { StepProgressBar } from '@/components/Step-progress-bar';
+import { SingleButtonGroup } from '@/components/SingleButtonGroup';
 
 export default function ExperienceSettingsPage() {
   const router = useRouter();
@@ -96,29 +97,17 @@ export default function ExperienceSettingsPage() {
             </span>
           </div>
           {/* 직무 목록 */}
-          <div className='flex items-center gap-[1.25rem]'>
-            <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
-              미정
-            </div>
-            <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
-              기획
-            </div>
-            <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
-              광고/마케팅
-            </div>
-            <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
-              디자인
-            </div>
-            <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
-              IT 개발
-            </div>
-            <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
-              영상/미디어
-            </div>
-            <div className='font-regular cursor-pointer rounded-[3.75rem] border border-[#74777D] px-[1.75rem] py-[0.5rem] text-[1rem] text-[#1A1A1A]'>
-              데이터
-            </div>
-          </div>
+          <SingleButtonGroup
+            options={[
+              { label: '미정' },
+              { label: '기획' },
+              { label: '광고/마케팅' },
+              { label: '디자인' },
+              { label: 'IT 개발' },
+              { label: '영상/미디어' },
+              { label: '데이터' },
+            ]}
+          />
         </div>
 
         {/* 파일 업로더 */}
