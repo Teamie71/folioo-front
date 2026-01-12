@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Toggle, ToggleProps } from './ui/toggle';
+import { Toggle, ToggleProps } from './ui/CustomToggle';
 
 export function ToggleSmall<T extends string>({
   options,

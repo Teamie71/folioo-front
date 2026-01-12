@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@/utils/utils';
-import { Toggle, ToggleProps } from './ui/toggle';
+import { Toggle, ToggleProps } from './ui/CustomToggle';
 
 export function ToggleLarge<T extends string>({
   options,
