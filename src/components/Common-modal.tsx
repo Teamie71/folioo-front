@@ -15,11 +15,11 @@ interface CommonModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 
-  // 1. 텍스트 관련
-  title?: React.ReactNode; // 굵은 제목
-  description?: React.ReactNode; // 회색 설명
+  // 텍스트 관련
+  title?: React.ReactNode; // 제목
+  description?: React.ReactNode; // 설명
 
-  // 2. 버튼 관련
+  // 버튼 관련
   primaryBtnText?: string; // "진행", "결제", "사용" 등 메인 색상 버튼
   secondaryBtnText?: string; // "그만두기" 등 색상 없는 서브 버튼
   cancelBtnText?: string; // "취소" 등 취소 버튼
@@ -28,11 +28,11 @@ interface CommonModalProps {
   onCancelClick?: () => void; // 취소 버튼 클릭 시 동작
   primaryBtnVariant?: 'default' | 'destructive' | 'outline' | 'secondary'; // 버튼 색상 조절
 
-  // 3. 커스텀 (복잡한 버튼 배치가 필요할 때 사용 - 이미지 2번 같은 경우)
+  // 버튼 배치 커스텀
   footer?: React.ReactNode;
   children?: React.ReactNode; // 본문에 추가 내용이 필요할 경우
 
-  // 4. 스타일
+  // 스타일
   className?: string; // 모달 크기 조절 등
   overlayClassName?: string; // 배경 오버레이 색상 조절
 }
@@ -79,7 +79,6 @@ export function CommonModal({
           : onOpenChange
       }
     >
-      {/* 이미지들이 대체로 중앙 정렬되어 있으므로 text-center 적용 */}
       <DialogContent
         overlayClassName={overlayClassName}
         onInteractOutside={(e) => {

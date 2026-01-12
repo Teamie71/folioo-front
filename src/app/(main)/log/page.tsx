@@ -1,10 +1,14 @@
+import { CommonButton } from '@/components/Common-Button';
 import EtcIcon from '@/components/icons/EtcIcon';
+import { InsightLogIcon } from '@/components/icons/InsightLogIcon';
 import InterpersonIcon from '@/components/icons/InterpersonIcon';
 import LearningIcon from '@/components/icons/LearningIcon';
 import ProblemSolveIcon from '@/components/icons/ProblemSolveIcon';
 import ReferenceIcon from '@/components/icons/ReferenceIcon';
 import { SingleButtonGroup } from '@/components/SingleButtonGroup';
 import { Checkbox } from '@/components/ui/checkbox';
+import { ActivitySelect } from '@/features/log/components/ActivitySelect';
+import { InsightTemplateSelector } from '@/features/log/components/CategorySector';
 
 export default function LogPage() {
   return (
@@ -13,18 +17,7 @@ export default function LogPage() {
       <div className='mx-auto flex h-[15.625rem] w-full min-w-[66rem] flex-col justify-center bg-[#F6F5FF]'>
         <div className='mx-auto flex min-w-[66rem] flex-col items-start gap-[1rem]'>
           <div className='flex items-center gap-[1rem]'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              width='32'
-              height='32'
-              viewBox='0 0 32 32'
-              fill='none'
-            >
-              <path
-                d='M29.0511 1.97333L29.8378 2.75999C30.9218 3.84533 30.7578 5.76933 29.4684 7.05733L13.2458 23.28L7.98976 25.2027C7.32976 25.4453 6.68709 25.1307 6.55643 24.5027C6.51241 24.2748 6.5332 24.0392 6.61643 23.8227L8.57643 18.5213L24.7538 2.34266C26.0431 1.05466 27.9671 0.887993 29.0511 1.97333ZM12.5378 3.58666C12.7129 3.58666 12.8862 3.62115 13.048 3.68815C13.2098 3.75516 13.3568 3.85337 13.4806 3.97718C13.6044 4.101 13.7026 4.24798 13.7696 4.40975C13.8366 4.57152 13.8711 4.7449 13.8711 4.91999C13.8711 5.09509 13.8366 5.26847 13.7696 5.43024C13.7026 5.59201 13.6044 5.73899 13.4806 5.8628C13.3568 5.98661 13.2098 6.08483 13.048 6.15183C12.8862 6.21884 12.7129 6.25333 12.5378 6.25333H7.20443C6.49718 6.25333 5.81891 6.53428 5.31881 7.03438C4.81871 7.53447 4.53776 8.21275 4.53776 8.91999V24.92C4.53776 25.6272 4.81871 26.3055 5.31881 26.8056C5.81891 27.3057 6.49718 27.5867 7.20443 27.5867H23.2044C23.9117 27.5867 24.59 27.3057 25.09 26.8056C25.5901 26.3055 25.8711 25.6272 25.8711 24.92V19.5867C25.8711 19.233 26.0116 18.8939 26.2616 18.6439C26.5117 18.3938 26.8508 18.2533 27.2044 18.2533C27.5581 18.2533 27.8972 18.3938 28.1472 18.6439C28.3973 18.8939 28.5378 19.233 28.5378 19.5867V24.92C28.5378 26.3345 27.9759 27.691 26.9757 28.6912C25.9755 29.6914 24.6189 30.2533 23.2044 30.2533H7.20443C5.78994 30.2533 4.43339 29.6914 3.43319 28.6912C2.433 27.691 1.87109 26.3345 1.87109 24.92V8.91999C1.87109 7.50551 2.433 6.14895 3.43319 5.14876C4.43339 4.14856 5.78994 3.58666 7.20443 3.58666H12.5378Z'
-                fill='#1A1A1A'
-              />
-            </svg>
+            <InsightLogIcon />
             <span className='text-[1.5rem] font-bold text-[#1A1A1A]'>
               인사이트 로그
             </span>
@@ -42,9 +35,9 @@ export default function LogPage() {
         {/* 로그 작성 헤더 */}
         <div className='flex w-full items-center justify-between px-[0.5rem]'>
           <span className='text-[1.25rem] font-bold'>새로운 로그 작성</span>
-          <button className='text-bold cursor-pointer rounded-[6.25rem] bg-[#5060C5] px-[2.25rem] py-[0.75rem] text-[#ffffff]'>
+          <CommonButton variantType='Primary' px='2.25rem' py='0.75rem'>
             로그 등록하기
-          </button>
+          </CommonButton>
         </div>
 
         {/* 구분선 */}
@@ -65,225 +58,20 @@ export default function LogPage() {
               />
             </div>
 
-            <div className='flex flex-col gap-[0.5rem]'>
-              <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
-                <span>활동명</span>
-                <span className='text-[#DC0000]'>*</span>
-              </div>
-              <div className='relative flex items-center'>
-                <input
-                  className='w-[28.5rem] rounded-[0.5rem] border-[0.1rem] border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                  placeholder='활동명 입력 또는 선택'
-                />
-                <button className='absolute right-[1rem] cursor-pointer border-none bg-transparent'>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    width='24'
-                    height='24'
-                    viewBox='0 0 24 24'
-                    fill='none'
-                  >
-                    <path
-                      d='M6 9L12 15L18 9'
-                      stroke='black'
-                      strokeWidth='2'
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
+            {/* 활동명 선택 */}
+            <ActivitySelect />
           </div>
 
           {/* 카테고리 선택 */}
-          <div className='flex flex-col gap-[1rem]'>
+          <div className='flex flex-col gap-[0.625rem]'>
             <div className='flex flex-col gap-[0.75rem]'>
               <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
                 <span>카테고리</span>
                 <span className='text-[#DC0000]'>*</span>
               </div>
-
-              <div className='flex flex-col gap-[0.5rem]'>
-                <div className='flex items-center gap-[0.75rem]'>
-                  <Checkbox />
-                  <span>템플릿 사용</span>
-                </div>
-                <span className='text-[0.875rem] text-[#74777D]'>
-                  카테고리 맞춤 템플릿을 사용하여 인사이트를 체계적으로
-                  기록하세요.
-                </span>
-              </div>
             </div>
 
-            <SingleButtonGroup
-              options={[
-                { label: '대인관계', icon: <InterpersonIcon /> },
-                { label: '문제해결', icon: <ProblemSolveIcon /> },
-                { label: '학습', icon: <LearningIcon /> },
-                { label: '레퍼런스', icon: <ReferenceIcon /> },
-                { label: '기타', icon: <EtcIcon /> },
-              ]}
-            />
-          </div>
-
-          {/* 내용 - 템플릿 미사용 */}
-          <div className='flex flex-col gap-[0.5rem]'>
-            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
-              <span>내용</span>
-              <span className='text-[#DC0000]'>*</span>
-            </div>
-
-            <div className='flex flex-col'>
-              <textarea
-                className='line-height-[160%] h-full rounded-[0.5rem] border border-[#74777D] px-[1.75rem] py-[1.25rem]'
-                placeholder='오늘은 어떤 인사이트를 얻으셨나요?'
-              />
-              <span className='mt-[0.5rem] text-right'>0/250</span>
-            </div>
-          </div>
-
-          {/* 내용 - 대인관계 템플릿 */}
-          <div className='flex flex-col gap-[1.25rem]'>
-            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
-              <span>내용</span>
-              <span className='text-[#DC0000]'>*</span>
-            </div>
-
-            <div className='flex flex-col gap-[0.5rem]'>
-              <div className='flex flex-col gap-[1.25rem]'>
-                {/* 상황/대상 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>상황/대상</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='누구와, 어떤 상황이 발생했나요?'
-                  />
-                </div>
-
-                {/* 대응 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>대응</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='나는 어떻게 대응했나요?'
-                  />
-                </div>
-
-                {/* 결과 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>결과</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='어떤 결과가 나타났나요?'
-                  />
-                </div>
-
-                {/* 배운 점/계획 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>
-                    배운 점/계획
-                  </span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='무엇을 배웠고, 앞으로는 비슷한 상황에서 어떻게 대응할건가요?'
-                  />
-                </div>
-              </div>
-
-              <span className='text-right'>0/250</span>
-            </div>
-          </div>
-
-          {/* 내용 - 학습 템플릿 */}
-          <div className='flex flex-col gap-[1.25rem]'>
-            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
-              <span>내용</span>
-              <span className='text-[#DC0000]'>*</span>
-            </div>
-
-            <div className='flex flex-col gap-[0.5rem]'>
-              <div className='flex flex-col gap-[1.25rem]'>
-                {/* 학습 경로 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>학습 경로</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='어떤 매체를 통해, 무엇을 계기로 학습을 진행했나요?'
-                  />
-                </div>
-
-                {/* 배운 내용 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>배운 내용</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='어떤 지식 또는 스킬을 배웠나요?'
-                  />
-                </div>
-
-                {/* 적용 계획 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>적용 계획</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='앞으로 어디에 어떻게 적용해 볼 건가요?'
-                  />
-                </div>
-              </div>
-
-              <span className='text-right'>0/250</span>
-            </div>
-          </div>
-
-          {/* 내용 - 레퍼런스 템플릿 */}
-          <div className='flex flex-col gap-[1.25rem]'>
-            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
-              <span>내용</span>
-              <span className='text-[#DC0000]'>*</span>
-            </div>
-
-            <div className='flex flex-col gap-[0.5rem]'>
-              <div className='flex flex-col gap-[1.25rem]'>
-                {/* 출처 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>출처</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='어디서 얻은 레퍼런스인가요?'
-                  />
-                </div>
-
-                {/* 내용 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>내용</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='어떤 점이 인상 깊었나요?'
-                  />
-                </div>
-
-                {/* 나의 생각 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>나의 생각</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='이 레퍼런스를 보고 어떤 생각이 들었나요?'
-                  />
-                </div>
-
-                {/* 적용 계획 */}
-                <div className='flex items-center justify-between'>
-                  <span className='text-[1rem] text-[#1A1A1A]'>적용 계획</span>
-                  <input
-                    className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                    placeholder='앞으로 어디에, 어떻게 적용해 볼 건가요?'
-                  />
-                </div>
-              </div>
-
-              <span className='text-right'>0/250</span>
-            </div>
+            <InsightTemplateSelector />
           </div>
         </div>
       </div>
