@@ -7,6 +7,8 @@ import { PortfolioTypeCard } from '@/components/PortfolioTypeCard';
 import { BackButton } from '@/components/BackButton';
 import { DeleteButton } from '@/components/DeleteButton';
 import { InlineEdit } from '@/components/InlineEdit';
+import { ToggleSmall } from '@/components/ToggleSmall';
+import { ToggleLarge } from '@/components/ToggleLarge';
 
 type Step = 'information' | 'portfolio' | 'analysis' | 'result';
 type Status = 'DRAFT' | 'ANALYZING' | 'DONE';
@@ -352,28 +354,14 @@ export default function CorrectionSettingsPage() {
                     JD는 채용공고에 명시된 직무 설명서로, 주로 담당할 업무,
                     자격요건, 우대사항 등이 포함돼요.
                   </span>
-                  <div className='flex items-center'>
-                    <button
-                      onClick={() => setJdMode('text')}
-                      className={`h-[29px] w-[77px] cursor-pointer rounded-[0.25rem] text-[0.875rem] font-medium ${
-                        jdMode === 'text'
-                          ? 'border-[#5060C5] bg-[#5060C5] text-[#FFFFFF]'
-                          : 'border-[#CDD0D5] bg-[#E9EAEC] text-[#74777D]'
-                      }`}
-                    >
-                      텍스트
-                    </button>
-                    <button
-                      onClick={() => setJdMode('image')}
-                      className={`h-[29px] w-[77px] cursor-pointer rounded-[0.25rem] text-[0.875rem] font-medium ${
-                        jdMode === 'image'
-                          ? 'border-[#5060C5] bg-[#5060C5] text-[#FFFFFF]'
-                          : 'border-[#CDD0D5] bg-[#E9EAEC] text-[#74777D]'
-                      }`}
-                    >
-                      이미지
-                    </button>
-                  </div>
+                  <ToggleSmall
+                    options={[
+                      { value: 'text', label: '텍스트' },
+                      { value: 'image', label: '이미지' },
+                    ]}
+                    value={jdMode}
+                    onChange={(value) => setJdMode(value as 'text' | 'image')}
+                  />
                 </div>
               </div>
               <div className='flex flex-col gap-[0.75rem]'>
@@ -1209,32 +1197,18 @@ export default function CorrectionSettingsPage() {
                             </div>
                             <div className='w-[1px] flex-shrink-0 bg-[#9EA4A9]' />
                             <div className='flex min-w-0 flex-1 flex-col gap-[2.5rem] overflow-auto'>
-                              <div className='flex gap-[0.25rem] rounded-[6.25rem] bg-[#E9EAEC] p-[0.25rem]'>
-                                <button
-                                  onClick={() =>
-                                    setProblemSolvingButton('축소 또는 제외')
-                                  }
-                                  className={`h-[40px] w-[211px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${
-                                    problemSolvingButton === '축소 또는 제외'
-                                      ? 'border border-[#CDD0D5] bg-[#FFFFFF] text-[#5060C5]'
-                                      : 'border border-[#E9EAEC] bg-[#E9EAEC] text-[#74777D]'
-                                  }`}
-                                >
-                                  축소 또는 제외
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    setProblemSolvingButton('구체화하여 강조')
-                                  }
-                                  className={`h-[40px] w-[212px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${
-                                    problemSolvingButton === '구체화하여 강조'
-                                      ? 'border border-[#CDD0D5] bg-[#FFFFFF] text-[#5060C5]'
-                                      : 'border border-[#E9EAEC] bg-[#E9EAEC] text-[#74777D]'
-                                  }`}
-                                >
-                                  구체화하여 강조
-                                </button>
-                              </div>
+                              <ToggleLarge
+                                options={[
+                                  { value: '축소 또는 제외', label: '축소 또는 제외' },
+                                  { value: '구체화하여 강조', label: '구체화하여 강조' },
+                                ]}
+                                value={problemSolvingButton}
+                                onChange={(value) =>
+                                  setProblemSolvingButton(
+                                    value as '축소 또는 제외' | '구체화하여 강조',
+                                  )
+                                }
+                              />
                               <ol className='ml-[1.5rem] flex list-decimal flex-col gap-[0.5rem]'>
                                 <li className='text-[1rem] text-[#1A1A1A]'>
                                   내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
