@@ -6,6 +6,7 @@ import { cn } from '@/utils/utils';
 interface DropdownItem {
   id: string;
   label: string;
+  icon?: React.ReactNode;
   onDelete?: (id: string) => void;
 }
 
@@ -16,6 +17,9 @@ interface DropdownProps {
   onChange?: (value: string) => void;
   className?: string;
   inputClassName?: string;
+  allowInput?: boolean;
+  onAddItem?: (label: string) => void;
+  width?: string;
 }
 
 export function Dropdown({
@@ -25,10 +29,15 @@ export function Dropdown({
   onChange,
   className,
   inputClassName,
+  allowInput = false,
+  onAddItem,
+  width = '28.5rem',
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
+  const [inputValue, setInputValue] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -54,31 +63,102 @@ export function Dropdown({
   const handleItemClick = (itemId: string) => {
     onChange?.(itemId);
     setIsOpen(false);
+    if (allowInput) {
+      setInputValue('');
+    }
   };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (allowInput) {
+      setInputValue(e.target.value);
+      if (!isOpen) {
+        setIsOpen(true);
+      }
+    }
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (allowInput && e.key === 'Enter' && inputValue.trim() && onAddItem) {
+      e.preventDefault();
+      onAddItem(inputValue.trim());
+      setInputValue('');
+      if (inputRef.current) {
+        inputRef.current.blur();
+      }
+    }
+  };
+
+  const handleAddClick = () => {
+    if (allowInput && inputValue.trim() && onAddItem) {
+      onAddItem(inputValue.trim());
+      setInputValue('');
+      if (inputRef.current) {
+        inputRef.current.blur();
+      }
+    }
+  };
+
+  const displayValue = allowInput
+    ? inputValue
+    : selectedItem?.label || '';
 
   return (
     <div className={cn('relative', className)} ref={dropdownRef}>
       {/* Input */}
       <div
         className={cn(
-          'flex w-[28.5rem] items-center rounded-[0.5rem] border-[0.1rem] border-[#74777D] px-[1.25rem] py-[0.75rem]',
+          'flex items-center rounded-[0.5rem] border-[0.1rem] border-[#74777D] px-[1.25rem] py-[0.75rem]',
           inputClassName,
         )}
-        onClick={() => setIsOpen(!isOpen)}
+        style={{ width }}
+        onClick={() => !allowInput && setIsOpen(!isOpen)}
       >
         <input
+          ref={inputRef}
           type='text'
-          readOnly
-          value={selectedItem?.label || ''}
+          readOnly={!allowInput}
+          value={displayValue}
           placeholder={placeholder}
-          className='flex-1 cursor-pointer border-none bg-transparent outline-none'
+          onChange={handleInputChange}
+          onKeyDown={handleInputKeyDown}
+          onFocus={() => allowInput && setIsOpen(true)}
+          className={cn(
+            'flex-1 border-none bg-transparent outline-none',
+            allowInput ? 'cursor-text' : 'cursor-pointer',
+          )}
         />
+        {allowInput && inputValue.trim() && onAddItem && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAddClick();
+            }}
+            className='mr-[0.5rem] flex-shrink-0 cursor-pointer border-none bg-transparent text-[#74777D] hover:text-[#1A1A1A] transition-colors'
+            type='button'
+          >
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              width='20'
+              height='20'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='2'
+              strokeLinecap='round'
+              strokeLinejoin='round'
+            >
+              <path d='M12 5v14' />
+              <path d='M5 12h14' />
+            </svg>
+          </button>
+        )}
         <button
           onClick={(e) => {
             e.stopPropagation();
             setIsOpen(!isOpen);
           }}
           className='ml-[0.5rem] flex-shrink-0 cursor-pointer border-none bg-transparent'
+          type='button'
         >
           <svg
             xmlns='http://www.w3.org/2000/svg'
@@ -101,7 +181,10 @@ export function Dropdown({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className='absolute top-full z-50 mt-[1.25rem] w-[28.5rem] overflow-hidden rounded-[0.5rem] border border-[#CDD0D5] bg-[#FFFFFF] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
+        <div
+          className='absolute top-full z-50 mt-[1.25rem] overflow-hidden rounded-[0.5rem] border border-[#CDD0D5] bg-[#FFFFFF] shadow-[0_0.25rem_0.5rem_0_#00000033]'
+          style={{ width }}
+        >
           <div className='flex flex-col'>
             {items.map((item, index) => {
               const isHovered = hoveredItemId === item.id;
@@ -122,9 +205,14 @@ export function Dropdown({
                   onMouseLeave={() => setHoveredItemId(null)}
                   onClick={() => handleItemClick(item.id)}
                 >
-                  <span className='text-[1rem] text-[#1A1A1A]'>
-                    {item.label}
-                  </span>
+                  <div className='flex items-center gap-[0.75rem]'>
+                    {item.icon && (
+                      <div className='flex-shrink-0'>{item.icon}</div>
+                    )}
+                    <span className='text-[1rem] text-[#1A1A1A]'>
+                      {item.label}
+                    </span>
+                  </div>
                   <div className='flex h-[28px] w-[28px] flex-shrink-0 items-center justify-center'>
                     {hasDelete && isHovered && (
                       <button
@@ -133,6 +221,7 @@ export function Dropdown({
                           item.onDelete?.(item.id);
                         }}
                         className='cursor-pointer border-none bg-transparent text-[#1A1A1A] hover:opacity-80'
+                        type='button'
                       >
                         <svg
                           xmlns='http://www.w3.org/2000/svg'
