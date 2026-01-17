@@ -9,8 +9,12 @@ export function ToggleSmall<T extends string>({
   onChange,
   className,
 }: ToggleProps<T>) {
+  const handleChange = (newValue: string) => {
+    onChange(newValue as T);
+  };
+
   return (
-    <Toggle.Root value={value} onChange={onChange} className={className}>
+    <Toggle.Root value={value} onChange={handleChange} className={className}>
       {options.map((option) => (
         <Toggle.Item
           key={option.value}

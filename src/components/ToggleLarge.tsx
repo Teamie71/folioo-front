@@ -10,6 +10,10 @@ export function ToggleLarge<T extends string>({
   onChange,
   className,
 }: ToggleProps<T>) {
+  const handleChange = (newValue: string) => {
+    onChange(newValue as T);
+  };
+
   return (
     <div
       className={cn(
@@ -17,7 +21,7 @@ export function ToggleLarge<T extends string>({
         className,
       )}
     >
-      <Toggle.Root value={value} onChange={onChange} className="flex gap-[0.25rem]">
+      <Toggle.Root value={value} onChange={handleChange} className="flex gap-[0.25rem]">
         {options.map((option, index) => (
           <Toggle.Item
             key={option.value}
