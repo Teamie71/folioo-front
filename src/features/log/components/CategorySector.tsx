@@ -14,7 +14,7 @@ import {
   LearningTemplateForm,
   ReferenceTemplateForm,
 } from './CategoryTemplates';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Checkbox } from '@/components/ui/CheckBox';
 
 type TemplateType =
   | 'none'

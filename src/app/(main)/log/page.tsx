@@ -1,4 +1,4 @@
-import { CommonButton } from '@/components/Common-Button';
+import { CommonButton } from '@/components/CommonButton';
 import EtcIcon from '@/components/icons/EtcIcon';
 import { InsightLogIcon } from '@/components/icons/InsightLogIcon';
 import InterpersonIcon from '@/components/icons/InterpersonIcon';
@@ -6,7 +6,7 @@ import LearningIcon from '@/components/icons/LearningIcon';
 import ProblemSolveIcon from '@/components/icons/ProblemSolveIcon';
 import ReferenceIcon from '@/components/icons/ReferenceIcon';
 import { SingleButtonGroup } from '@/components/SingleButtonGroup';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Checkbox } from '@/components/ui/CheckBox';
 import { ActivitySelect } from '@/features/log/components/ActivitySelect';
 import { InsightTemplateSelector } from '@/features/log/components/CategorySector';
 

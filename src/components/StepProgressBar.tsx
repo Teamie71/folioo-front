@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Progress } from '@/components/ui/progress';
+import { Progress } from '@/components/ui/Progress';
 import { cn } from '@/utils/utils';
 
 interface StepProgressBarProps {

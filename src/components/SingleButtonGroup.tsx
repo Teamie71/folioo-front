@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/ToggleGroup';
 import { cn } from '@/utils/utils';
 
 interface Option {

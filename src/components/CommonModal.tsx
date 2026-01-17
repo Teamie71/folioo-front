@@ -9,7 +9,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from './ui/dialog';
+} from './ui/Dialog';
 
 interface CommonModalProps {
   open: boolean;

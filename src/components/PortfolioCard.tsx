@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { cn } from '@/utils/utils';
-import { Card, CardContent, CardTitle, CardFooter } from './ui/card';
+import { Card, CardContent, CardTitle, CardFooter } from './ui/Card';
 
 interface PortfolioCardProps {
   title: string;

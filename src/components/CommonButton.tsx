@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Button, ButtonProps } from '@/components/ui/button';
+import { Button, ButtonProps } from '@/components/ui/Button';
 import { cn } from '@/utils/utils';
 import { PlusIcon } from '@/components/icons/PlusIcon';
 

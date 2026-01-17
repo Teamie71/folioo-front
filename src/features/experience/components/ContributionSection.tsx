@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Progress } from '@/components/ui/progress';
+import { Progress } from '@/components/ui/Progress';
 import { cn } from '@/utils/utils';
 import { ModifyIcon } from '@/components/icons/ModifyIcon';
 import { CheckCircleIcon } from '@/components/icons/CheckCircleIcon';

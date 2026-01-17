@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CommonModal } from '@/components/Common-modal';
-import { StepProgressBar } from '@/components/Step-progress-bar';
+import { CommonModal } from '@/components/CommonModal';
+import { StepProgressBar } from '@/components/StepProgressBar';
 import { SingleButtonGroup } from '@/components/SingleButtonGroup';
 
 export default function ExperienceSettingsPage() {

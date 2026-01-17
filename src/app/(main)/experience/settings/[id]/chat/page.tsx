@@ -1,4 +1,4 @@
-import { StepProgressBar } from '@/components/Step-progress-bar';
+import { StepProgressBar } from '@/components/StepProgressBar';
 
 export default function ExperienceSettingsChatPage() {
   return (

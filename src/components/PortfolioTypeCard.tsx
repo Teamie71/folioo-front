@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/utils/utils';
-import { Card } from './ui/card';
+import { Card } from './ui/Card';
 
 interface PortfolioTypeCardProps {
   icon: React.ReactNode;

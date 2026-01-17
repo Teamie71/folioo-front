@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Dropdown } from '@/components/Dropdown';
-import { CommonModal } from '@/components/Common-modal';
+import { CommonModal } from '@/components/CommonModal';
 
 export function ActivitySelect() {
   const [activities, setActivities] = useState([
