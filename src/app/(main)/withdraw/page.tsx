@@ -7,11 +7,14 @@ import { BackButton } from '@/components/BackButton';
 import { CommonButton } from '@/components/CommonButton';
 import { Checkbox } from '@/components/ui/CheckBox';
 import { Dropdown } from '@/components/Dropdown';
+import { CommonModal } from '@/components/CommonModal';
 
 export default function WithdrawPage() {
   const router = useRouter();
   const [isAgreed, setIsAgreed] = useState(false);
   const [withdrawReason, setWithdrawReason] = useState<string>('');
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   // TODO: 실제 사용자 이름으로 교체 필요
   const userName = '○○○';
 
@@ -23,10 +26,16 @@ export default function WithdrawPage() {
   ];
 
   const handleWithdraw = () => {
-    if (!isAgreed) return;
+    if (!isAgreed || !withdrawReason) return;
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmWithdraw = () => {
+    setIsConfirmModalOpen(false);
     // TODO: 탈퇴 API 호출
     // 회원 탈퇴 로직 구현
     console.log('회원 탈퇴 처리');
+    setIsCompleteModalOpen(true);
   };
 
   return (
@@ -298,6 +307,25 @@ export default function WithdrawPage() {
           </div>
         </div>
       </div>
+
+      {/* 탈퇴 확인 모달 */}
+      <CommonModal
+        open={isConfirmModalOpen}
+        onOpenChange={setIsConfirmModalOpen}
+        title='정말 탈퇴하시겠습니까?'
+        cancelBtnText='취소'
+        secondaryBtnText='탈퇴'
+        onCancelClick={() => setIsConfirmModalOpen(false)}
+        onSecondaryClick={handleConfirmWithdraw}
+      />
+
+      {/* 탈퇴 완료 모달 */}
+      <CommonModal
+        open={isCompleteModalOpen}
+        onOpenChange={setIsCompleteModalOpen}
+        title='탈퇴가 완료되었습니다.'
+        description='Folioo가 당신의 커리어를 응원해요!'
+      />
     </div>
   );
 }
