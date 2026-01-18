@@ -48,7 +48,7 @@ export default function Navbar() {
             {isLoggedIn ? (
               <div className='flex items-center gap-[40px]'>
                 <Link
-                  href='/'
+                  href='/topup'
                   className='inline-block py-[8px] font-[16px] text-[#333333] no-underline'
                 >
                   크레딧 충전
