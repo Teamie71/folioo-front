@@ -61,7 +61,7 @@ export function Dropdown({
       {/* Input */}
       <div
         className={cn(
-          'flex w-[28.5rem] items-center rounded-[0.5rem] border-[0.1rem] border-[#74777D] px-[1.25rem] py-[0.75rem]',
+          'flex w-[28.5rem] items-center rounded-[0.5rem] border-[1px] border-[#74777D] px-[1.25rem] py-[0.75rem]',
           inputClassName,
         )}
         onClick={() => setIsOpen(!isOpen)}
@@ -90,8 +90,8 @@ export function Dropdown({
           >
             <path
               d='M6 9L12 15L18 9'
-              stroke='black'
-              strokeWidth='2'
+              stroke='#74777D'
+              strokeWidth='1.5'
               strokeLinecap='round'
               strokeLinejoin='round'
             />
