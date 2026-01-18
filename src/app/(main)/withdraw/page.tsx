@@ -6,12 +6,21 @@ import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import { BackButton } from '@/components/BackButton';
 import { CommonButton } from '@/components/CommonButton';
 import { Checkbox } from '@/components/ui/CheckBox';
+import { Dropdown } from '@/components/Dropdown';
 
 export default function WithdrawPage() {
   const router = useRouter();
   const [isAgreed, setIsAgreed] = useState(false);
+  const [withdrawReason, setWithdrawReason] = useState<string>('');
   // TODO: 실제 사용자 이름으로 교체 필요
   const userName = '○○○';
+
+  const withdrawReasons = [
+    { id: '1', label: '이미 취업에 성공했어요.' },
+    { id: '2', label: '크레딧 금액이 너무 비싸요.' },
+    { id: '3', label: '생성된 결과물이 마음에 들지 않아요.' },
+    { id: '4', label: '기타' },
+  ];
 
   const handleWithdraw = () => {
     if (!isAgreed) return;
@@ -171,6 +180,38 @@ export default function WithdrawPage() {
             회원 탈퇴 유의사항을 확인하였으며, 이에 동의합니다.
           </label>
         </div>
+        <div className='mt-[4.5rem] pl-[1.75rem]'>
+            <h2 className='text-[1.5rem] font-bold text-[#000000]'>
+              {userName}님께서 탈퇴하시려는 이유를 알려주세요.
+            </h2>
+        </div>
+        <div className='mt-[0.75rem] h-[1.5rem] text-[1rem] text-[#74777D] pl-[1.75rem] leading-[1.5rem]'>
+          전해주신 의견을 참고하여 더 나은 Folioo를 만들게요.
+        </div>
+        {/* 탈퇴 이유 선택 드롭다운 */}
+        <div className='mt-[1.25rem] pl-[1.75rem]'>
+          <Dropdown
+            items={withdrawReasons}
+            placeholder='탈퇴 이유 선택'
+            value={withdrawReason}
+            onChange={setWithdrawReason}
+            inputClassName='w-[23.5rem]'
+            menuClassName='w-[23.5rem]'
+          />
+        </div>
+        {/* 탈퇴 버튼 */}
+          <div className='mt-[2.5rem] pl-[1.75rem]'>
+            <CommonButton
+              variantType='Primary'
+              px='2.25rem'
+              py='0.875rem'
+              onClick={handleWithdraw}
+              disabled={!isAgreed}
+              className={!isAgreed ? 'opacity-50 cursor-not-allowed' : ''}
+            >
+              탈퇴하기
+            </CommonButton>
+          </div>
         </div>
       </div>
     </div>
