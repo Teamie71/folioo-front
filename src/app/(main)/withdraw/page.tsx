@@ -199,6 +199,90 @@ export default function WithdrawPage() {
             menuClassName='w-[23.5rem]'
           />
         </div>
+
+        {/* 선택된 이유에 따른 조건부 UI */}
+        {withdrawReason === '1' && (
+          <div className='mt-[2rem] pl-[1.75rem]'>
+            <p className='text-[1rem] leading-[150%] text-[#000000]'>
+              Folioo는 신입과 주니어가 각각 특화된 결과물을 얻을 수 있도록
+              기능을 개선하고 있어요.
+              <br />
+              계정을 유지하고, 추후 이직 준비 시에 다시 찾아주시면 어떨까요?
+              <br />
+              기록이 유지되면 더 좋은 결과물을 기대하실 수 있을 거예요!
+            </p>
+          </div>
+        )}
+
+        {withdrawReason === '2' && (
+          <div className='mt-[2.5rem] pl-[1.75rem]'>
+            <p className='text-[1rem] leading-[150%] text-[#000000]'>
+              Folioo에서는 이벤트를 통해서도 크레딧 충전이 가능해요.
+              <br />
+              크레딧 충전 페이지와 공식 인스타그램 계정 (@Folioo_AI)에 업데이트
+              되는 이벤트를 확인하고, 
+              <br />
+              참여하여 무료 크레딧을 받아보세요!
+            </p>
+            <div className='mt-[2rem] flex flex-col gap-[0.75rem]'>
+              <a
+                href='#'
+                className='text-[1rem] text-[#1A1A1A] underline underline-offset-[3px]'
+                onClick={(e) => {
+                  e.preventDefault();
+                  // TODO: 크레딧 충전 페이지로 이동
+                }}
+              >
+                크레딧 충전 페이지 확인하기
+              </a>
+              <a
+                href='#'
+                className='text-[1rem] text-[#1A1A1A] underline underline-offset-[3px]'
+                onClick={(e) => {
+                  e.preventDefault();
+                  // TODO: 인스타그램 링크로 이동
+                }}
+              >
+                공식 인스타그램 계정 확인하기
+              </a>
+            </div>
+          </div>
+        )}
+
+        {withdrawReason === '3' && (
+          <div className='mt-[2rem] pl-[1.75rem]'>
+            <p className='text-[1rem] leading-[150%] text-[#000000]'>
+              Folioo의 기능이 만족스럽지 않으셨다니 진심으로 죄송해요. 
+              <br />
+              기능을 개선할 수 있도록 피드백을 남겨주시면, 더 좋은 결과물을 얻으실 수
+              있도록 노력할게요. 
+              <br />
+              계정을 유지하고, 추후 기능 업데이트 시에 다시
+              찾아주시면 어떨까요?
+            </p>
+            <a
+              href='#'
+              className='mt-[2rem] inline-block text-[1rem] text-[#1A1A1A] underline underline-offset-[3px]'
+              onClick={(e) => {
+                e.preventDefault();
+                // TODO: 피드백 페이지로 이동
+              }}
+            >
+              피드백 남기러 가기 →
+            </a>
+          </div>
+        )}
+
+        {withdrawReason === '4' && (
+          <div className='mt-[1.5rem] pl-[1.75rem]'>
+            <textarea
+              placeholder='이유를 알려주세요.'
+              className='w-full rounded-[0.5rem] border-[1px] border-[#74777D] px-[1.25rem] py-[0.75rem] text-[1rem] outline-none resize-none'
+              rows={4}
+            />
+          </div>
+        )}
+
         {/* 탈퇴 버튼 */}
           <div className='mt-[2.5rem] pl-[1.75rem]'>
             <CommonButton
