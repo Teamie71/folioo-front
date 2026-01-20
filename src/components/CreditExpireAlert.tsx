@@ -80,7 +80,7 @@ export function CreditExpireAlert({
 
       {/* 말풍선 팝오버 */}
       {isOpen && (
-        <div className='absolute top-[calc(100%+0.75rem)] right-[-1rem] z-50 w-[26.7rem]'>
+        <div className='absolute top-[calc(100%+0.75rem)] right-[-1rem] z-50 w-[28.7rem]'>
           {/* SVG 말풍선 */}
           <div className='relative h-[9.25rem] w-full'>
             <svg
@@ -143,13 +143,24 @@ export function CreditExpireAlert({
             </svg>
 
             {/* 내용 영역 */}
-            <div className='absolute inset-0 flex items-center px-[2.5rem] pt-[0.5rem]'>
+            <div className='absolute inset-0 z-10 flex items-center justify-center px-[2.5rem] pt-[0.5rem]'>
               <div className='flex flex-col gap-[0.25rem] text-center'>
                 <p className='text-[1rem] font-semibold text-[#1A1A1A]'>
                   {expireDate}에 {expireCredits}크레딧이 만료 예정이에요.
                 </p>
                 <p className='text-[0.875rem] text-[#74777D]'>
-                  크레딧 결제 또는 획득 내역은 크레딧 거래 내역을 확인해주세요.
+                  크레딧 결제 또는 획득 내역은{' '}
+                  <button
+                    type='button'
+                    className='underline underline-offset-3 text-[#74777D] cursor-pointer'
+                    onClick={() => {
+                      // TODO: 크레딧 거래 내역 페이지로 이동
+                      console.log('크레딧 거래 내역 클릭');
+                    }}
+                  >
+                    크레딧 거래 내역
+                  </button>
+                  을 확인해주세요.
                 </p>
               </div>
             </div>
