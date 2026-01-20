@@ -1,6 +1,7 @@
 'use client';
 
 import { CommonButton } from '@/components/CommonButton';
+import { CreditExpireAlert } from '@/components/CreditExpireAlert';
 
 export default function TopupPage() {
   const currentCredits = 50; // TODO: 실제 사용자 크레딧 데이터로 교체
@@ -45,33 +46,40 @@ export default function TopupPage() {
   return (
     <div className='flex flex-col gap-[4.5rem]'>
       {/* 크레딧 충전 헤더 */}
-      <div className='mx-auto flex h-[15.625rem] w-full min-w-[66rem] bg-[#F6F5FF]'>
-        <div className='mx-auto flex min-w-[66rem] items-center justify-between px-[2rem]'>
-          {/* 크레딧 충전 타이틀 */}
-          <div>
-            <div className='flex flex-col gap-[1.25rem]'>
-              <div className='flex items-center gap-[1.125rem]'>
-                <div className='h-[1.75rem] w-[1.75rem] bg-[#E0E0E0]'></div>
-                <span className='text-[1.5rem] font-bold'>크레딧 충전</span>
+      <div className='relative mx-auto flex h-[15.625rem] w-full min-w-[66rem] bg-[#F6F5FF]'>
+        <div className='mx-auto flex min-w-[66rem] items-center justify-center px-[2rem]'>
+          <div className='flex items-center justify-between w-full'>
+            {/* 크레딧 충전 타이틀 */}
+            <div>
+              <div className='flex flex-col gap-[1.25rem]'>
+                <div className='flex items-center gap-[1.125rem]'>
+                  <div className='h-[1.75rem] w-[1.75rem] bg-[#E0E0E0]'></div>
+                  <span className='text-[1.5rem] font-bold'>크레딧 충전</span>
+                </div>
+                <span className='text-[1.125rem] leading-[150%] text-[#464B53]'>
+                  크레딧을 충전하고, 다양한 AI 기능을 이용하세요.
+                </span>
               </div>
-              <span className='text-[1.125rem] leading-[150%] text-[#464B53]'>
-                크레딧을 충전하고, 다양한 AI 기능을 이용하세요.
-              </span>
             </div>
-          </div>
 
-          {/* 현재 보유 크레딧 */}
-          <div className='flex flex-col items-end gap-[0.5rem]'>
-            <span className='text-[20px] font-bold text-[#1A1A1A]'>
-              현재 보유 크레딧
-            </span>
-            <div className='flex items-center gap-[0.25rem]'>
-              <span className='text-[28px] font-bold text-[#1A1A1A]'>
-                {currentCredits}
+            {/* 현재 보유 크레딧 */}
+            <div className='relative flex flex-col items-end gap-[0.5rem]'>
+              <span className='text-[20px] font-bold text-[#1A1A1A]'>
+                현재 보유 크레딧
               </span>
-              <span className='text-[18px] font-normal text-[#1A1A1A]'>
-                크레딧
-              </span>
+              <div className='flex items-center gap-[0.75rem]'>
+                <span className='text-[28px] font-bold text-[#1A1A1A]'>
+                  {currentCredits}
+                </span>
+                <span className='text-[18px] font-normal text-[#1A1A1A]'>
+                  크레딧
+                </span>
+              </div>
+
+              {/* 크레딧 만료 예정 안내 - absolute 배치 */}
+              <div className='absolute top-16 mt-[1.75rem] right-0'>
+                <CreditExpireAlert message='크레딧 만료 예정 안내' />
+              </div>
             </div>
           </div>
         </div>
