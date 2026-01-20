@@ -1,11 +1,17 @@
 'use client';
 
+import { useState } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import { CreditExpireAlert } from '@/components/CreditExpireAlert';
+import { CommonModal } from '@/components/CommonModal';
 
 export default function TopupPage() {
   const currentCredits = 50; // TODO: 실제 사용자 크레딧 데이터로 교체
   const userName = '000'; // TODO: 실제 사용자 이름으로 교체
+  const [selectedPackage, setSelectedPackage] = useState<{
+    credits: number;
+    price: number;
+  } | null>(null);
 
   const packages = [
     {
@@ -38,13 +44,22 @@ export default function TopupPage() {
     },
   ];
 
-  const handlePurchase = (packageId: number) => {
+  const handlePurchaseClick = (pkg: { credits: number; price: number }) => {
+    setSelectedPackage(pkg);
+  };
+
+  const handleConfirmPurchase = () => {
+    if (!selectedPackage) return;
     // TODO: 구매 로직 구현
-    console.log(`구매: 패키지 ${packageId}`);
+    console.log(
+      `구매 진행: ${selectedPackage.credits} 크레딧, ${selectedPackage.price}원`,
+    );
+    setSelectedPackage(null);
   };
 
   return (
-    <div className='flex flex-col gap-[4.5rem]'>
+    <>
+      <div className='flex flex-col gap-[4.5rem]'>
       {/* 크레딧 충전 헤더 */}
       <div className='relative mx-auto flex h-[15.625rem] w-full min-w-[66rem] bg-[#F6F5FF]'>
         <div className='mx-auto flex min-w-[66rem] items-center justify-center px-[2rem]'>
@@ -137,7 +152,7 @@ export default function TopupPage() {
                       variantType={pkg.recommended ? 'Primary' : 'Outline'}
                       px='2.25rem'
                       py='0.5rem'
-                      onClick={() => handlePurchase(pkg.id)}
+                      onClick={() => handlePurchaseClick(pkg)}
                     >
                       구매하기
                     </CommonButton>
@@ -173,6 +188,27 @@ export default function TopupPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+
+      {/* 구매 확인 모달 (CommonModal 기본 버튼 사용) */}
+      <CommonModal
+        open={!!selectedPackage}
+        onOpenChange={(open) => {
+          if (!open) setSelectedPackage(null);
+        }}
+        title={
+          selectedPackage
+            ? `${selectedPackage.credits.toLocaleString()} 크레딧을 결제할까요?`
+            : ''
+        }
+        description='크레딧은 결제 후 6개월 동안 유효하게 사용 가능해요.'
+        cancelBtnText='취소'
+        primaryBtnText='결제'
+        onCancelClick={() => setSelectedPackage(null)}
+        onPrimaryClick={handleConfirmPurchase}
+        primaryBtnVariant='default'
+        className='w-[28.1875rem] max-w-[28.1875rem] items-center gap-[1.5rem] px-[2rem] py-[3.75rem]'
+      />
+    </>
   );
 }
