@@ -21,7 +21,7 @@ export const PortfolioComments = () => {
             </div>
             </div>
 
-            <div className="flex flex-col gap-[0.5rem] bg-[#C4CCFF]/50 items-center">
+            <div className="flex flex-col gap-[0.5rem] items-center">
             <div className="w-[17.625rem] h-[1.375rem] opacity-50 bg-[#ffffff] rounded-[6.25rem] blur-[0.25rem]" />
             <div className="w-[12rem] h-[1.125rem] opacity-50 bg-[#ffffff] rounded-[6.25rem] blur-[0.25rem]" />
             <div className="w-[7.5rem] h-[0.625rem] opacity-50 bg-[#ffffff] rounded-[6.25rem] blur-[0.25rem]" />
