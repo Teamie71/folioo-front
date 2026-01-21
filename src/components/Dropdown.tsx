@@ -16,6 +16,7 @@ interface DropdownProps {
   onChange?: (value: string) => void;
   className?: string;
   inputClassName?: string;
+  menuClassName?: string;
 }
 
 export function Dropdown({
@@ -25,6 +26,7 @@ export function Dropdown({
   onChange,
   className,
   inputClassName,
+  menuClassName,
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
@@ -61,7 +63,7 @@ export function Dropdown({
       {/* Input */}
       <div
         className={cn(
-          'flex w-[28.5rem] items-center rounded-[0.5rem] border-[0.1rem] border-[#74777D] px-[1.25rem] py-[0.75rem]',
+          'flex w-[28.5rem] items-center rounded-[0.5rem] border-[1px] border-[#74777D] px-[1.25rem] py-[0.75rem]',
           inputClassName,
         )}
         onClick={() => setIsOpen(!isOpen)}
@@ -90,8 +92,8 @@ export function Dropdown({
           >
             <path
               d='M6 9L12 15L18 9'
-              stroke='black'
-              strokeWidth='2'
+              stroke='#74777D'
+              strokeWidth='1.5'
               strokeLinecap='round'
               strokeLinejoin='round'
             />
@@ -101,7 +103,10 @@ export function Dropdown({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className='absolute top-full z-50 mt-[1.25rem] w-[28.5rem] overflow-hidden rounded-[0.5rem] border border-[#CDD0D5] bg-[#FFFFFF] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
+        <div className={cn(
+          'absolute top-full z-50 mt-[1.25rem] w-[28.5rem] overflow-hidden rounded-[0.5rem] border border-[#CDD0D5] bg-[#FFFFFF] shadow-[0_0.25rem_0.5rem_0_#00000033]',
+          menuClassName
+        )}>
           <div className='flex flex-col'>
             {items.map((item, index) => {
               const isHovered = hoveredItemId === item.id;
