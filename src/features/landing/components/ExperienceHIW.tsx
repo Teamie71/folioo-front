@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type TabType = '설정' | 'AI 대화' | '포트폴리오';
@@ -8,6 +8,11 @@ type TabType = '설정' | 'AI 대화' | '포트폴리오';
 export const ExperienceHIW = () => {
   const [selectedTab, setSelectedTab] = useState<TabType>('설정');
   const [direction, setDirection] = useState(0);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [isMouseInside, setIsMouseInside] = useState(false);
+  const scrollAccumulatorRef = useRef(0);
+  const scrollDirectionRef = useRef<number>(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const tabContent = {
     설정: (
@@ -43,12 +48,77 @@ export const ExperienceHIW = () => {
 
   const tabs: TabType[] = ['설정', 'AI 대화', '포트폴리오'];
 
-  const handleTabChange = (newTab: TabType) => {
+  const handleTabChange = useCallback((newTab: TabType) => {
     const currentIndex = tabs.indexOf(selectedTab);
     const newIndex = tabs.indexOf(newTab);
     setDirection(newIndex > currentIndex ? 1 : -1);
     setSelectedTab(newTab);
-  };
+  }, [selectedTab]);
+
+  useEffect(() => {
+    const SCROLL_THRESHOLD = 200; // 탭 변경에 필요한 스크롤 임계값
+    
+    const handleWheel = (e: WheelEvent) => {
+      if (!containerRef.current || !isMouseInside) return;
+
+      const deltaY = e.deltaY;
+      const currentIndex = tabs.indexOf(selectedTab);
+
+      // 첫 탭에서 위로 스크롤 또는 마지막 탭에서 아래로 스크롤하면 외부 스크롤 허용
+      const isFirstTabScrollingUp = currentIndex === 0 && deltaY < 0;
+      const isLastTabScrollingDown = currentIndex === tabs.length - 1 && deltaY > 0;
+
+      if (isFirstTabScrollingUp || isLastTabScrollingDown) {
+        return; // 외부 스크롤 허용
+      }
+
+      // 마우스가 영역 안에 있을 때만 외부 스크롤 방지
+      e.preventDefault();
+
+      if (isScrolling) return;
+
+      // 스크롤 방향 확인
+      const currentDirection = deltaY > 0 ? 1 : -1;
+      
+      // 방향이 바뀌면 누적량 리셋
+      if (scrollDirectionRef.current !== 0 && scrollDirectionRef.current !== currentDirection) {
+        scrollAccumulatorRef.current = 0;
+      }
+      
+      scrollDirectionRef.current = currentDirection;
+
+      // 같은 방향으로 스크롤 누적
+      scrollAccumulatorRef.current += Math.abs(deltaY);
+
+      // 임계값을 넘었을 때만 탭 변경
+      if (scrollAccumulatorRef.current >= SCROLL_THRESHOLD) {
+        if (deltaY > 0 && currentIndex < tabs.length - 1) {
+          // 아래로 스크롤 - 다음 탭
+          scrollAccumulatorRef.current = 0;
+          scrollDirectionRef.current = 0;
+          setIsScrolling(true);
+          handleTabChange(tabs[currentIndex + 1]);
+          setTimeout(() => setIsScrolling(false), 500);
+        } else if (deltaY < 0 && currentIndex > 0) {
+          // 위로 스크롤 - 이전 탭
+          scrollAccumulatorRef.current = 0;
+          scrollDirectionRef.current = 0;
+          setIsScrolling(true);
+          handleTabChange(tabs[currentIndex - 1]);
+          setTimeout(() => setIsScrolling(false), 500);
+        }
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, [selectedTab, isScrolling, handleTabChange, isMouseInside]);
+
+  // 탭이 변경될 때 스크롤 누적량 리셋
+  useEffect(() => {
+    scrollAccumulatorRef.current = 0;
+    scrollDirectionRef.current = 0;
+  }, [selectedTab]);
 
   // 애니메이션 variants
   const contentVariants = {
@@ -73,7 +143,12 @@ export const ExperienceHIW = () => {
   };
 
   return (
-    <div className='flex justify-between'>
+    <div 
+      ref={containerRef} 
+      className='flex justify-between'
+      onMouseEnter={() => setIsMouseInside(true)}
+      onMouseLeave={() => setIsMouseInside(false)}
+    >
       <div className='flex flex-col gap-[1.5rem]'>
         {/* 아코디언 형태의 탭 목록 */}
         {tabs.map((tab) => (
