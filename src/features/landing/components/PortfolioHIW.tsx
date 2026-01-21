@@ -130,12 +130,16 @@ export const PortfolioHIW = () => {
 
             {/* 영상 */}
             <div className="flex items-center justify-center gap-[1.5rem]">
-                <button 
-                    onClick={handlePrev}
-                    className="rotate-180 scale-y-[-1] cursor-pointer"
-                >
-                    <ChevronCircleIcon />
-                </button>
+                {activeStep > 0 ? (
+                    <button 
+                        onClick={handlePrev}
+                        className="rotate-180 scale-y-[-1] cursor-pointer"
+                    >
+                        <ChevronCircleIcon />
+                    </button>
+                ) : (
+                    <div className="w-[3rem]"></div>
+                )}
                 <AnimatePresence mode="wait" custom={direction}>
                     <motion.div
                         key={activeStep}
@@ -148,12 +152,16 @@ export const PortfolioHIW = () => {
                         transition={{ duration: 0.3, ease: 'easeInOut' }}
                     />
                 </AnimatePresence>
-                <button 
-                    onClick={handleNext}
-                    className="cursor-pointer"
-                >
-                    <ChevronCircleIcon />
-                </button>
+                {activeStep < steps.length - 1 ? (
+                    <button 
+                        onClick={handleNext}
+                        className="cursor-pointer"
+                    >
+                        <ChevronCircleIcon />
+                    </button>
+                ) : (
+                    <div className="w-[3rem]"></div>
+                )}
             </div>
         </div>
     )
