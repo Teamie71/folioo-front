@@ -13,6 +13,21 @@ export default function TopupPage() {
     price: number;
   } | null>(null);
 
+  const benefitCards = [
+    {
+      id: 'phone',
+      title: '휴대폰 번호 인증하고, 무료 크레딧을 획득하세요!',
+      description: '무료 크레딧을 받고, Folioo와 커리어 기록을 시작하세요.',
+      cta: '100 크레딧 받기',
+    },
+    {
+      id: 'cta',
+      title: '제목제목제목',
+      description: '설명설명설명',
+      cta: 'CTACTACTAC',
+    },
+  ];
+
   const packages = [
     {
       id: 1,
@@ -100,11 +115,44 @@ export default function TopupPage() {
         </div>
       </div>
 
+      {/* 혜택/안내 카드 섹션 */}
+      <div className='mx-auto flex w-[66rem] flex-col gap-[1.75rem]'>
+        {benefitCards.map((card) => (
+          <div
+            key={card.id}
+            className='flex items-center justify-between gap-[1.5rem] rounded-[1.25rem] border border-[#E9EAEC] bg-white px-[2rem] py-[1.75rem] shadow-[0_4px_8px_rgba(0,0,0,0.08)]'
+          >
+            <div className='flex items-center gap-[1.75rem]'>
+              <div className='h-[4rem] w-[4rem] bg-[#E0E0E0]' />
+              <div className='flex flex-col gap-[0.5rem]'>
+                <p className='text-[1.125rem] font-semibold'>
+                  {card.title}
+                </p>
+                <p className='text-[1rem] text-[#74777D]'>{card.description}</p>
+              </div>
+            </div>
+
+            <CommonButton
+              variantType='Outline'
+              px='2.25rem'
+              py='0.5rem'
+              className='text-[1rem] font-semibold'
+              onClick={() => {
+                // TODO: 각 CTA에 맞는 동작 연결
+                console.log(`${card.id} CTA 클릭`);
+              }}
+            >
+              {card.cta}
+            </CommonButton>
+          </div>
+        ))}
+      </div>
+
       {/* 크레딧 패키지 섹션 */}
       <div className='mx-auto flex w-[66rem] flex-col gap-[3rem]'>
         <div className='mx-auto flex w-full flex-col gap-[1.5rem] rounded-[1rem] border border-[#E9EAEC] bg-[#FDFDFD] px-[2rem] py-[2rem] shadow-[0_4px_8px_0_rgba(0,0,0,0.2)]'>
           {/* 패키지 섹션 타이틀 */}
-          <div className='flex flex-col items-center gap-[0.75rem]'>
+          <div className='flex flex-col items-center gap-[0.5rem]'>
             <h2 className='text-[2rem] font-bold text-[#1A1A1A]'>크레딧 패키지</h2>
             <p className='text-[1.125rem] text-[#74777D]'>
               {userName}님께 가장 적합한 패키지를 선택해보세요!
