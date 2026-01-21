@@ -1,3 +1,5 @@
+import TextField from '@/components/TextField';
+
 // 템플릿 미사용 폼
 export function NoTemplateForm() {
   return (
@@ -8,8 +10,9 @@ export function NoTemplateForm() {
       </div>
 
       <div className='flex flex-col'>
-        <textarea
-          className='line-height-[160%] h-full rounded-[0.5rem] border border-[#74777D] px-[1.75rem] py-[1.25rem]'
+        <TextField
+          variant='wide'
+          height='13.75rem'
           placeholder='오늘은 어떤 인사이트를 얻으셨나요?'
         />
         <span className='mt-[0.5rem] text-right'>0/250</span>
