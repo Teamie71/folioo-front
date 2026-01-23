@@ -6,13 +6,14 @@ import { Button, ButtonProps } from '@/components/ui/Button';
 import { cn } from '@/utils/utils';
 import { PlusIcon } from '@/components/icons/PlusIcon';
 
-// 5가지 스타일 정의 타입
+// 스타일 정의 타입
 export type CommonButtonVariant =
   | 'Primary'
   | 'Execute'
   | 'Cancel'
   | 'Outline'
-  | 'StartChat';
+  | 'StartChat'
+  | 'Gradient';
 
 interface CommonButtonProps extends Omit<ButtonProps, 'variant'> {
   variantType: CommonButtonVariant;
@@ -53,6 +54,10 @@ export function CommonButton({
     // StartChat: 채팅 시작 버튼 - px&py 고정
     StartChat:
       'rounded-[6.25rem] bg-[#ffffff] px-[2rem] py-[1.25rem] text-[#1A1A1A] text-[1.125rem] font-bold shadow-[0px_0px_8px_0px_#00000026] gap-[0.5rem] cursor-pointer inline-flex items-center justify-center [&_svg]:!w-6 [&_svg]:!h-6',
+
+    // Gradient: 그라디언트 배경 버튼
+    Gradient:
+      'rounded-[6.25rem] bg-gradient-to-b from-[#93B3F4] to-[#5060C5] text-[#ffffff] text-[1rem] font-bold cursor-pointer',
   };
 
   // px, py 값을 그대로 사용
