@@ -1,4 +1,5 @@
 import { ContributionBar } from '@/features/experience/components/ContributionBar';
+import SpanArea from '@/components/SpanArea';
 
 export default function ExperienceSettingsPortfolioPage() {
   return (
@@ -87,33 +88,33 @@ export default function ExperienceSettingsPortfolioPage() {
         {/* 상세정보 */}
         <div className='flex flex-col gap-[1rem]'>
           <span className='text-[1.125rem] font-bold'>상세정보</span>
-          <div className='font-regular line-height-[160%] rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] text-[#1A1A1A]'>
+          <SpanArea>
             내용
-          </div>
+          </SpanArea>
         </div>
 
         {/* 담당업무 */}
         <div className='flex flex-col gap-[1rem]'>
           <span className='text-[1.125rem] font-bold'>담당업무</span>
-          <div className='font-regular line-height-[160%] rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] text-[#1A1A1A]'>
+          <SpanArea>
             내용
-          </div>
+          </SpanArea>
         </div>
 
         {/* 문제해결 */}
         <div className='flex flex-col gap-[1rem]'>
           <span className='text-[1.125rem] font-bold'>문제해결</span>
-          <div className='font-regular line-height-[160%] rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] text-[#1A1A1A]'>
+          <SpanArea>
             내용
-          </div>
+          </SpanArea>
         </div>
 
         {/* 배운 점 */}
         <div className='flex flex-col gap-[1rem]'>
           <span className='text-[1.125rem] font-bold'>배운 점</span>
-          <div className='font-regular line-height-[160%] rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] text-[#1A1A1A]'>
+          <SpanArea>
             내용
-          </div>
+          </SpanArea>
         </div>
       </div>
 
