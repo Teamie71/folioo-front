@@ -161,7 +161,7 @@ export function LearningTemplateForm() {
             <span className='text-[1rem] text-[#1A1A1A]'>적용 계획</span>
             <InputArea
               width='51.25rem'
-              placeholder='앞으로 어디에 어떻게 적용해 볼 건가요?'
+              placeholder='앞으로 어디에, 어떻게 적용해 볼 건가요?'
             />
           </div>
         </div>
