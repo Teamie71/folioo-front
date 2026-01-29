@@ -36,6 +36,11 @@ export default function LogPage() {
   const [content, setContent] = useState('');
   const [logCards, setLogCards] = useState<LogCardData[]>([]);
 
+  // 에러 상태
+  const [titleError, setTitleError] = useState('');
+  const [categoryError, setCategoryError] = useState('');
+  const [contentError, setContentError] = useState('');
+
   const categories = [
     { id: 'interperson', label: '대인관계', icon: <InterpersonIcon /> },
     { id: 'problem-solve', label: '문제해결', icon: <ProblemSolveIcon /> },
@@ -50,19 +55,56 @@ export default function LogPage() {
   ];
 
   const handleCreateLog = () => {
+    // 에러 초기화
+    setTitleError('');
+    setCategoryError('');
+    setContentError('');
+
+    // 유효성 검사
+    let isValid = true;
+
+    if (!title.trim()) {
+      setTitleError('제목을 입력해주세요.');
+      isValid = false;
+    }
+
+    if (selectedCategory === 'none') {
+      setCategoryError('카테고리를 선택해주세요.');
+      isValid = false;
+    }
+
+    if (!content.trim()) {
+      setContentError('내용을 입력해주세요.');
+      isValid = false;
+    }
+
+    // 유효성 검사 실패 시 로그 생성하지 않음
+    if (!isValid) {
+      return;
+    }
+
+    // 로그 생성
     const newLog: LogCardData = {
       id: Date.now().toString(),
-      title: title || '제목',
+      title: title,
       activityName: activityName || '미분류',
-      category: selectedCategory === 'none' ? '' : selectedCategory,
-      content: content || '내용 없음',
+      category: selectedCategory,
+      content: content,
       date: new Date().toISOString().split('T')[0],
     };
 
     setLogCards([newLog, ...logCards]);
+
     // 입력 필드 초기화
     setTitle('');
     setActivityName('');
+    setSelectedCategory('none');
+    setContent('');
+
+    // 에러 메시지 초기화
+    setTitleError('');
+    setCategoryError('');
+    setContentError('');
   };
   return (
     <div className='flex flex-col gap-[4.5rem] pb-[4.5rem]'>
@@ -106,9 +148,16 @@ export default function LogPage() {
           {/* 제목, 활동명 */}
           <div className='grid grid-cols-2 justify-between gap-[1.5rem]'>
             <div className='flex flex-col gap-[0.5rem]'>
-              <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
-                <span>제목</span>
-                <span className='text-[#DC0000]'>*</span>
+              <div className='flex items-center gap-[0.5rem] text-[1.125rem]'>
+                <div className='flex items-center gap-[0.25rem]'>
+                  <span className='font-bold'>제목</span>
+                  <span className='tex font-bold text-[#DC0000]'>*</span>
+                </div>
+                {titleError && (
+                  <p className='font-regular text-[0.875rem] text-[#DC0000]'>
+                    {titleError}
+                  </p>
+                )}
               </div>
               <InputArea
                 placeholder='제목 입력'
@@ -123,16 +172,22 @@ export default function LogPage() {
 
           {/* 카테고리 선택 */}
           <div className='flex flex-col gap-[0.625rem]'>
-            <div className='flex flex-col gap-[0.75rem]'>
+            <div className='flex flex-col gap-[0.25rem]'>
               <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
                 <span>카테고리</span>
                 <span className='text-[#DC0000]'>*</span>
               </div>
+              {categoryError && (
+                <p className='font-regular text-[0.875rem] text-[#DC0000]'>
+                  {categoryError}
+                </p>
+              )}
             </div>
 
             <InsightTemplateSelector
-              onCategoryChange={(category) => setSelectedCategory(category)}
-              onContentChange={(content) => setContent(content)}
+              onCategoryChange={setSelectedCategory}
+              onContentChange={setContent}
+              contentError={contentError}
             />
           </div>
         </div>

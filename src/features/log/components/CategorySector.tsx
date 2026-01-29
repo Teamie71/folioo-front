@@ -27,12 +27,14 @@ type TemplateType =
 interface InsightTemplateSelectorProps {
   onCategoryChange?: (category: TemplateType) => void;
   onContentChange?: (content: string) => void;
+  contentError?: string;
 }
 
 // 인사이트 템플릿 선택 및 폼 표시 컴포넌트
 export function InsightTemplateSelector({
   onCategoryChange,
   onContentChange,
+  contentError,
 }: InsightTemplateSelectorProps = {}) {
   const [isTemplateEnabled, setIsTemplateEnabled] = useState(false);
   const [selectedTemplate, setSelectedTemplate] =
@@ -166,6 +168,7 @@ export function InsightTemplateSelector({
         <NoTemplateForm
           content={noTemplateContent}
           setContent={setNoTemplateContent}
+          contentError={contentError}
         />
       );
     }
@@ -176,6 +179,7 @@ export function InsightTemplateSelector({
           <InterpersonTemplateForm
             data={interpersonData}
             setData={setInterpersonData}
+            contentError={contentError}
           />
         );
       case '문제해결':
@@ -183,17 +187,23 @@ export function InsightTemplateSelector({
           <ProblemSolveTemplateForm
             data={problemSolveData}
             setData={setProblemSolveData}
+            contentError={contentError}
           />
         );
       case '학습':
         return (
-          <LearningTemplateForm data={learningData} setData={setLearningData} />
+          <LearningTemplateForm
+            data={learningData}
+            setData={setLearningData}
+            contentError={contentError}
+          />
         );
       case '레퍼런스':
         return (
           <ReferenceTemplateForm
             data={referenceData}
             setData={setReferenceData}
+            contentError={contentError}
           />
         );
       case '기타':
@@ -201,6 +211,7 @@ export function InsightTemplateSelector({
           <NoTemplateForm
             content={noTemplateContent}
             setContent={setNoTemplateContent}
+            contentError={contentError}
           />
         );
       default:
@@ -208,6 +219,7 @@ export function InsightTemplateSelector({
           <NoTemplateForm
             content={noTemplateContent}
             setContent={setNoTemplateContent}
+            contentError={contentError}
           />
         );
     }

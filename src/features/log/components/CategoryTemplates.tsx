@@ -7,15 +7,26 @@ import TextField from '@/components/TextField';
 interface NoTemplateFormProps {
   content: string;
   setContent: (value: string) => void;
+  contentError?: string;
 }
 
-export function NoTemplateForm({ content, setContent }: NoTemplateFormProps) {
+export function NoTemplateForm({
+  content,
+  setContent,
+  contentError,
+}: NoTemplateFormProps) {
   return (
     <div className='flex flex-col gap-[0.5rem]'>
       <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
         <span>내용</span>
         <span className='text-[#DC0000]'>*</span>
       </div>
+
+      {contentError && (
+        <p className='font-regular text-[0.875rem] text-[#DC0000]'>
+          {contentError}
+        </p>
+      )}
 
       <div className='flex flex-col'>
         <TextField
@@ -45,11 +56,13 @@ interface InterpersonTemplateFormProps {
     result: string;
     lesson: string;
   }) => void;
+  contentError?: string;
 }
 
 export function InterpersonTemplateForm({
   data,
   setData,
+  contentError,
 }: InterpersonTemplateFormProps) {
   const totalLength =
     data.situation.length +
@@ -63,6 +76,12 @@ export function InterpersonTemplateForm({
         <span>내용</span>
         <span className='text-[#DC0000]'>*</span>
       </div>
+
+      {contentError && (
+        <p className='font-regular text-[0.875rem] text-[#DC0000]'>
+          {contentError}
+        </p>
+      )}
 
       <div className='flex flex-col gap-[0.5rem]'>
         <div className='flex flex-col gap-[1.25rem]'>
@@ -131,11 +150,13 @@ interface ProblemSolveTemplateFormProps {
     result: string;
     lesson: string;
   }) => void;
+  contentError?: string;
 }
 
 export function ProblemSolveTemplateForm({
   data,
   setData,
+  contentError,
 }: ProblemSolveTemplateFormProps) {
   const totalLength =
     data.problem.length +
@@ -149,6 +170,12 @@ export function ProblemSolveTemplateForm({
         <span>내용</span>
         <span className='text-[#DC0000]'>*</span>
       </div>
+
+      {contentError && (
+        <p className='font-regular text-[0.875rem] text-[#DC0000]'>
+          {contentError}
+        </p>
+      )}
 
       <div className='flex flex-col gap-[0.5rem]'>
         <div className='flex flex-col gap-[1.25rem]'>
@@ -211,11 +238,13 @@ interface LearningTemplateFormProps {
     plan: string;
   };
   setData: (data: { path: string; learned: string; plan: string }) => void;
+  contentError?: string;
 }
 
 export function LearningTemplateForm({
   data,
   setData,
+  contentError,
 }: LearningTemplateFormProps) {
   const totalLength = data.path.length + data.learned.length + data.plan.length;
 
@@ -225,6 +254,12 @@ export function LearningTemplateForm({
         <span>내용</span>
         <span className='text-[#DC0000]'>*</span>
       </div>
+
+      {contentError && (
+        <p className='font-regular text-[0.875rem] text-[#DC0000]'>
+          {contentError}
+        </p>
+      )}
 
       <div className='flex flex-col gap-[0.5rem]'>
         <div className='flex flex-col gap-[1.25rem]'>
@@ -282,11 +317,13 @@ interface ReferenceTemplateFormProps {
     thought: string;
     plan: string;
   }) => void;
+  contentError?: string;
 }
 
 export function ReferenceTemplateForm({
   data,
   setData,
+  contentError,
 }: ReferenceTemplateFormProps) {
   const totalLength =
     data.source.length +
@@ -300,6 +337,12 @@ export function ReferenceTemplateForm({
         <span>내용</span>
         <span className='text-[#DC0000]'>*</span>
       </div>
+
+      {contentError && (
+        <p className='font-regular text-[0.875rem] text-[#DC0000]'>
+          {contentError}
+        </p>
+      )}
 
       <div className='flex flex-col gap-[0.5rem]'>
         <div className='flex flex-col gap-[1.25rem]'>
