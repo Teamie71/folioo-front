@@ -14,12 +14,27 @@ import { SingleButtonGroup } from '@/components/SingleButtonGroup';
 import { Checkbox } from '@/components/ui/CheckBox';
 import { ActivitySelect } from '@/features/log/components/ActivitySelect';
 import { InsightTemplateSelector } from '@/features/log/components/CategorySector';
+import { LogCard } from '@/features/log/components/LogCard';
 import { SearchIcon } from 'lucide-react';
 import { DropdownButton } from '@/components/DropdownButton';
+
+interface LogCardData {
+  id: string;
+  title: string;
+  activityName: string;
+  category: string;
+  content: string;
+  date: string;
+}
 
 export default function LogPage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
   const [selectedActivityId, setSelectedActivityId] = useState('');
+  const [title, setTitle] = useState('');
+  const [activityName, setActivityName] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('none');
+  const [content, setContent] = useState('');
+  const [logCards, setLogCards] = useState<LogCardData[]>([]);
 
   const categories = [
     { id: 'interperson', label: '대인관계', icon: <InterpersonIcon /> },
@@ -33,6 +48,22 @@ export default function LogPage() {
     { id: '1', label: '활동 A' },
     { id: '2', label: '활동 B' },
   ];
+
+  const handleCreateLog = () => {
+    const newLog: LogCardData = {
+      id: Date.now().toString(),
+      title: title || '제목',
+      activityName: activityName || '미분류',
+      category: selectedCategory === 'none' ? '' : selectedCategory,
+      content: content || '내용 없음',
+      date: new Date().toISOString().split('T')[0],
+    };
+
+    setLogCards([newLog, ...logCards]);
+    // 입력 필드 초기화
+    setTitle('');
+    setActivityName('');
+  };
   return (
     <div className='flex flex-col gap-[4.5rem] pb-[4.5rem]'>
       {/* 인사이트 로그 헤더 */}
@@ -57,7 +88,12 @@ export default function LogPage() {
         {/* 로그 작성 헤더 */}
         <div className='flex w-full items-center justify-between px-[0.5rem]'>
           <span className='text-[1.25rem] font-bold'>새로운 로그 작성</span>
-          <CommonButton variantType='Primary' px='2.25rem' py='0.75rem'>
+          <CommonButton
+            variantType='Primary'
+            px='2.25rem'
+            py='0.75rem'
+            onClick={handleCreateLog}
+          >
             로그 등록하기
           </CommonButton>
         </div>
@@ -74,11 +110,15 @@ export default function LogPage() {
                 <span>제목</span>
                 <span className='text-[#DC0000]'>*</span>
               </div>
-              <InputArea placeholder='제목 입력' />
+              <InputArea
+                placeholder='제목 입력'
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
             </div>
 
             {/* 활동명 선택 */}
-            <ActivitySelect />
+            <ActivitySelect value={activityName} onChange={setActivityName} />
           </div>
 
           {/* 카테고리 선택 */}
@@ -90,7 +130,10 @@ export default function LogPage() {
               </div>
             </div>
 
-            <InsightTemplateSelector />
+            <InsightTemplateSelector
+              onCategoryChange={(category) => setSelectedCategory(category)}
+              onContentChange={(content) => setContent(content)}
+            />
           </div>
         </div>
       </div>
@@ -152,163 +195,23 @@ export default function LogPage() {
 
         {/* 카드 */}
         <div className='grid grid-cols-2 gap-[1.5rem]'>
-          <div className='flex flex-col gap-[1.5rem] rounded-[1.25rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.5rem] shadow-[0px_4px_8px_0px_#00000033]'>
-            {/* 제목, 날짜 */}
-            <div className='flex items-center justify-between'>
-              <span className='text-[1.125rem] font-bold text-[#1A1A1A]'>
-                제목
-              </span>
-              <span className='text-[1rem] text-[#74777D]'>2000-00-00</span>
+          {logCards.length === 0 ? (
+            <div className='col-span-2 mt-[5rem] flex items-center justify-center text-center text-[1.125rem] leading-[130%] font-bold text-[#000000]'>
+              아직 작성한 로그가 없어요 <br />
+              로그를 작성하고 인사이트를 기록해보세요!
             </div>
-
-            {/* 내용 + 태그 */}
-            <div className='flex flex-col gap-[1.25rem]'>
-              {/* 내용 */}
-              <div className='line-height-[150%] text-[1rem] text-[#1A1A1A]'>
-                내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-              </div>
-
-              {/* 태그 */}
-              <div className='flex items-center gap-[0.5rem]'>
-                <div className='rounded-[3.75rem] border border-[#CDD0D5] px-[0.625rem] py-[0.25rem] text-[0.875rem] text-[#1A1A1A]'>
-                  활동 A
-                </div>
-
-                <div className='flex items-center gap-[0.5rem] rounded-[3.75rem] border border-[#CDD0D5] px-[0.625rem] py-[0.25rem] text-[0.875rem] text-[#1A1A1A]'>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    width='18'
-                    height='18'
-                    viewBox='0 0 18 18'
-                    fill='none'
-                  >
-                    <path
-                      d='M5.34375 9C6.74172 9 7.875 7.86672 7.875 6.46875C7.875 5.07078 6.74172 3.9375 5.34375 3.9375C3.94578 3.9375 2.8125 5.07078 2.8125 6.46875C2.8125 7.86672 3.94578 9 5.34375 9Z'
-                      fill='#464B53'
-                    />
-                    <path
-                      d='M8.22656 10.4062C7.23656 9.90352 6.14391 9.70312 5.34375 9.70312C3.77648 9.70312 0.5625 10.6643 0.5625 12.5859V14.0625H5.83594V13.4975C5.83594 12.8296 6.11719 12.1598 6.60938 11.6016C7.00207 11.1558 7.55191 10.742 8.22656 10.4062Z'
-                      fill='#464B53'
-                    />
-                    <path
-                      d='M11.9531 10.125C10.1225 10.125 6.46875 11.2556 6.46875 13.5V15.1875H17.4375V13.5C17.4375 11.2556 13.7837 10.125 11.9531 10.125Z'
-                      fill='#464B53'
-                    />
-                    <path
-                      d='M11.9531 9C13.6618 9 15.0469 7.61488 15.0469 5.90625C15.0469 4.19762 13.6618 2.8125 11.9531 2.8125C10.2445 2.8125 8.85938 4.19762 8.85938 5.90625C8.85938 7.61488 10.2445 9 11.9531 9Z'
-                      fill='#464B53'
-                    />
-                  </svg>
-                  <span>대인관계</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className='flex flex-col gap-[1.5rem] rounded-[1.25rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.5rem] shadow-[0px_4px_8px_0px_#00000033]'>
-            {/* 제목, 날짜 */}
-            <div className='flex items-center justify-between'>
-              <span className='text-[1.125rem] font-bold text-[#1A1A1A]'>
-                제목
-              </span>
-              <span className='text-[1rem] text-[#74777D]'>2000-00-00</span>
-            </div>
-
-            {/* 내용 + 태그 */}
-            <div className='flex flex-col gap-[1.25rem]'>
-              {/* 내용 */}
-              <div className='line-height-[150%] text-[1rem] text-[#1A1A1A]'>
-                내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-              </div>
-
-              {/* 태그 */}
-              <div className='flex items-center gap-[0.5rem]'>
-                <div className='rounded-[3.75rem] border border-[#CDD0D5] px-[0.625rem] py-[0.25rem] text-[0.875rem] text-[#1A1A1A]'>
-                  활동 A
-                </div>
-
-                <div className='flex items-center gap-[0.5rem] rounded-[3.75rem] border border-[#CDD0D5] px-[0.625rem] py-[0.25rem] text-[0.875rem] text-[#1A1A1A]'>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    width='18'
-                    height='18'
-                    viewBox='0 0 18 18'
-                    fill='none'
-                  >
-                    <path
-                      d='M5.34375 9C6.74172 9 7.875 7.86672 7.875 6.46875C7.875 5.07078 6.74172 3.9375 5.34375 3.9375C3.94578 3.9375 2.8125 5.07078 2.8125 6.46875C2.8125 7.86672 3.94578 9 5.34375 9Z'
-                      fill='#464B53'
-                    />
-                    <path
-                      d='M8.22656 10.4062C7.23656 9.90352 6.14391 9.70312 5.34375 9.70312C3.77648 9.70312 0.5625 10.6643 0.5625 12.5859V14.0625H5.83594V13.4975C5.83594 12.8296 6.11719 12.1598 6.60938 11.6016C7.00207 11.1558 7.55191 10.742 8.22656 10.4062Z'
-                      fill='#464B53'
-                    />
-                    <path
-                      d='M11.9531 10.125C10.1225 10.125 6.46875 11.2556 6.46875 13.5V15.1875H17.4375V13.5C17.4375 11.2556 13.7837 10.125 11.9531 10.125Z'
-                      fill='#464B53'
-                    />
-                    <path
-                      d='M11.9531 9C13.6618 9 15.0469 7.61488 15.0469 5.90625C15.0469 4.19762 13.6618 2.8125 11.9531 2.8125C10.2445 2.8125 8.85938 4.19762 8.85938 5.90625C8.85938 7.61488 10.2445 9 11.9531 9Z'
-                      fill='#464B53'
-                    />
-                  </svg>
-                  <span>대인관계</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className='flex flex-col gap-[1.5rem] rounded-[1.25rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.5rem] shadow-[0px_4px_8px_0px_#00000033]'>
-            {/* 제목, 날짜 */}
-            <div className='flex items-center justify-between'>
-              <span className='text-[1.125rem] font-bold text-[#1A1A1A]'>
-                제목
-              </span>
-              <span className='text-[1rem] text-[#74777D]'>2000-00-00</span>
-            </div>
-
-            {/* 내용 + 태그 */}
-            <div className='flex flex-col gap-[1.25rem]'>
-              {/* 내용 */}
-              <div className='line-height-[150%] text-[1rem] text-[#1A1A1A]'>
-                내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-              </div>
-
-              {/* 태그 */}
-              <div className='flex items-center gap-[0.5rem]'>
-                <div className='rounded-[3.75rem] border border-[#CDD0D5] px-[0.625rem] py-[0.25rem] text-[0.875rem] text-[#1A1A1A]'>
-                  활동 A
-                </div>
-
-                <div className='flex items-center gap-[0.5rem] rounded-[3.75rem] border border-[#CDD0D5] px-[0.625rem] py-[0.25rem] text-[0.875rem] text-[#1A1A1A]'>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    width='18'
-                    height='18'
-                    viewBox='0 0 18 18'
-                    fill='none'
-                  >
-                    <path
-                      d='M5.34375 9C6.74172 9 7.875 7.86672 7.875 6.46875C7.875 5.07078 6.74172 3.9375 5.34375 3.9375C3.94578 3.9375 2.8125 5.07078 2.8125 6.46875C2.8125 7.86672 3.94578 9 5.34375 9Z'
-                      fill='#464B53'
-                    />
-                    <path
-                      d='M8.22656 10.4062C7.23656 9.90352 6.14391 9.70312 5.34375 9.70312C3.77648 9.70312 0.5625 10.6643 0.5625 12.5859V14.0625H5.83594V13.4975C5.83594 12.8296 6.11719 12.1598 6.60938 11.6016C7.00207 11.1558 7.55191 10.742 8.22656 10.4062Z'
-                      fill='#464B53'
-                    />
-                    <path
-                      d='M11.9531 10.125C10.1225 10.125 6.46875 11.2556 6.46875 13.5V15.1875H17.4375V13.5C17.4375 11.2556 13.7837 10.125 11.9531 10.125Z'
-                      fill='#464B53'
-                    />
-                    <path
-                      d='M11.9531 9C13.6618 9 15.0469 7.61488 15.0469 5.90625C15.0469 4.19762 13.6618 2.8125 11.9531 2.8125C10.2445 2.8125 8.85938 4.19762 8.85938 5.90625C8.85938 7.61488 10.2445 9 11.9531 9Z'
-                      fill='#464B53'
-                    />
-                  </svg>
-                  <span>대인관계</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          ) : (
+            logCards.map((log) => (
+              <LogCard
+                key={log.id}
+                title={log.title}
+                date={log.date}
+                content={log.content}
+                activityName={log.activityName}
+                category={log.category}
+              />
+            ))
+          )}
         </div>
       </div>
     </div>
