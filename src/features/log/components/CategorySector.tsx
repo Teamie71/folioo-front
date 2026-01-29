@@ -42,6 +42,10 @@ export function InsightTemplateSelector() {
   // 체크박스 변경 핸들러
   const handleCheckboxChange = (checked: boolean) => {
     setIsTemplateEnabled(checked);
+    // 체크 해제 시 카테고리 선택도 해제
+    if (!checked) {
+      setSelectedTemplate('none');
+    }
   };
 
   // 템플릿 선택 변경 핸들러
@@ -94,6 +98,7 @@ export function InsightTemplateSelector() {
           {/* 템플릿 선택 버튼 */}
           <SingleButtonGroup
             options={templateOptions}
+            value={selectedTemplate !== 'none' ? selectedTemplate : undefined}
             onValueChange={handleTemplateChange}
           />
         </div>
