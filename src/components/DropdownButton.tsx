@@ -3,10 +3,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { DropdownIcon } from './icons/DropdownIcon';
 import { cn } from '@/utils/utils';
+import { DeleteIcon } from './icons/DeleteIcon';
 
 interface DropdownItem {
   id: string;
   label: string;
+  icon?: React.ReactNode;
   onDelete?: (id: string) => void;
 }
 
@@ -95,7 +97,7 @@ export const DropdownButton = ({
                 <div
                   key={item.id}
                   className={cn(
-                    'group relative flex cursor-pointer items-center justify-between px-[1.25rem] py-[1rem] transition-colors',
+                    'group relative flex cursor-pointer items-center justify-between px-[1.25rem] py-[0.75rem] transition-colors',
                     isHovered && 'bg-[#F6F5FF]',
                     isHovered &&
                       isFirst &&
@@ -108,10 +110,17 @@ export const DropdownButton = ({
                   onMouseLeave={() => setHoveredItemId(null)}
                   onClick={() => handleItemClick(item.id)}
                 >
-                  <span className='text-[1rem] text-[#1A1A1A]'>
-                    {item.label}
-                  </span>
-                  <div className='flex h-[28px] w-[28px] flex-shrink-0 items-center justify-center'>
+                  <div className='flex items-center gap-[0.75rem]'>
+                    {item.icon && (
+                      <div className='flex flex-shrink-0 items-center justify-center'>
+                        {item.icon}
+                      </div>
+                    )}
+                    <span className='text-[1rem] text-[#1A1A1A]'>
+                      {item.label}
+                    </span>
+                  </div>
+                  <div className='flex h-[1.75rem] w-[1.75rem] flex-shrink-0 items-center justify-center'>
                     {hasDelete && isHovered && (
                       <button
                         onClick={(e) => {
@@ -120,23 +129,7 @@ export const DropdownButton = ({
                         }}
                         className='cursor-pointer border-none bg-transparent text-[#1A1A1A] hover:opacity-80'
                       >
-                        <svg
-                          xmlns='http://www.w3.org/2000/svg'
-                          width='28'
-                          height='28'
-                          viewBox='0 0 24 24'
-                          fill='none'
-                          stroke='#DC0000'
-                          strokeWidth='2'
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                        >
-                          <path d='M3 6h18' />
-                          <path d='M8 6V4h8v2' />
-                          <rect x='5' y='6' width='14' height='15' rx='1' />
-                          <path d='M10 11v6' />
-                          <path d='M14 11v6' />
-                        </svg>
+                        <DeleteIcon />
                       </button>
                     )}
                   </div>
