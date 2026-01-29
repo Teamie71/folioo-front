@@ -5,7 +5,15 @@ import { DropdownButton } from '@/components/DropdownButton';
 import { CommonModal } from '@/components/CommonModal';
 import InputArea from '@/components/InputArea';
 
-export function ActivitySelect() {
+interface ActivitySelectProps {
+  value?: string;
+  onChange?: (value: string) => void;
+}
+
+export function ActivitySelect({
+  value = '',
+  onChange,
+}: ActivitySelectProps = {}) {
   const [activities, setActivities] = useState([
     {
       id: '1',
@@ -17,7 +25,6 @@ export function ActivitySelect() {
     },
   ]);
   const [selectedActivityId, setSelectedActivityId] = useState('');
-  const [inputValue, setInputValue] = useState('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
@@ -52,8 +59,13 @@ export function ActivitySelect() {
     setSelectedActivityId(id);
     const selectedActivity = activities.find((activity) => activity.id === id);
     if (selectedActivity) {
-      setInputValue(selectedActivity.label);
+      onChange?.(selectedActivity.label);
     }
+  };
+
+  // 입력값 변경 시
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange?.(e.target.value);
   };
 
   const deleteTargetActivity = activities.find(
@@ -65,13 +77,12 @@ export function ActivitySelect() {
       <div className='flex flex-col gap-[0.5rem]'>
         <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
           <span>활동명</span>
-          <span className='text-[#DC0000]'>*</span>
         </div>
         <InputArea
           placeholder='활동명 입력 또는 선택'
           width='28.5rem'
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          value={value}
+          onChange={handleInputChange}
           rightElement={
             <DropdownButton
               items={activitiesWithHandlers}

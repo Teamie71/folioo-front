@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import EtcIcon from '@/components/icons/EtcIcon';
 import InterpersonIcon from '@/components/icons/InterpersonIcon';
 import LearningIcon from '@/components/icons/LearningIcon';
@@ -24,8 +24,16 @@ type TemplateType =
   | '레퍼런스'
   | '기타';
 
+interface InsightTemplateSelectorProps {
+  onCategoryChange?: (category: TemplateType) => void;
+  onContentChange?: (content: string) => void;
+}
+
 // 인사이트 템플릿 선택 및 폼 표시 컴포넌트
-export function InsightTemplateSelector() {
+export function InsightTemplateSelector({
+  onCategoryChange,
+  onContentChange,
+}: InsightTemplateSelectorProps = {}) {
   const [isTemplateEnabled, setIsTemplateEnabled] = useState(false);
   const [selectedTemplate, setSelectedTemplate] =
     useState<TemplateType>('none');
@@ -71,15 +79,84 @@ export function InsightTemplateSelector() {
     // 체크 해제 시 카테고리 선택도 해제
     if (!checked) {
       setSelectedTemplate('none');
+      onCategoryChange?.('none');
     }
   };
 
   // 템플릿 선택 변경 핸들러
   const handleTemplateChange = (value: string) => {
     if (value) {
-      setSelectedTemplate(value as TemplateType);
+      const newTemplate = value as TemplateType;
+      setSelectedTemplate(newTemplate);
+      onCategoryChange?.(newTemplate);
     }
   };
+
+  // 템플릿 내용 포맷팅 및 상위 컴포넌트로 전달
+  useEffect(() => {
+    let formattedContent = '';
+
+    if (!isTemplateEnabled || selectedTemplate === 'none') {
+      formattedContent = noTemplateContent;
+    } else {
+      switch (selectedTemplate) {
+        case '대인관계':
+          formattedContent = [
+            interpersonData.situation && `상황 - ${interpersonData.situation}`,
+            interpersonData.response &&
+              `나의 반응 - ${interpersonData.response}`,
+            interpersonData.result && `결과 - ${interpersonData.result}`,
+            interpersonData.lesson && `배운 점 - ${interpersonData.lesson}`,
+          ]
+            .filter(Boolean)
+            .join('\n');
+          break;
+        case '문제해결':
+          formattedContent = [
+            problemSolveData.problem && `문제 - ${problemSolveData.problem}`,
+            problemSolveData.attempt && `시도 - ${problemSolveData.attempt}`,
+            problemSolveData.result && `결과 - ${problemSolveData.result}`,
+            problemSolveData.lesson && `배운 점 - ${problemSolveData.lesson}`,
+          ]
+            .filter(Boolean)
+            .join('\n');
+          break;
+        case '학습':
+          formattedContent = [
+            learningData.path && `학습 경로 - ${learningData.path}`,
+            learningData.learned && `배운 내용 - ${learningData.learned}`,
+            learningData.plan && `적용 계획 - ${learningData.plan}`,
+          ]
+            .filter(Boolean)
+            .join('\n');
+          break;
+        case '레퍼런스':
+          formattedContent = [
+            referenceData.source && `출처 - ${referenceData.source}`,
+            referenceData.content && `내용 - ${referenceData.content}`,
+            referenceData.thought && `생각 - ${referenceData.thought}`,
+            referenceData.plan && `적용 계획 - ${referenceData.plan}`,
+          ]
+            .filter(Boolean)
+            .join('\n');
+          break;
+        case '기타':
+          formattedContent = noTemplateContent;
+          break;
+      }
+    }
+
+    onContentChange?.(formattedContent);
+  }, [
+    isTemplateEnabled,
+    selectedTemplate,
+    noTemplateContent,
+    interpersonData,
+    problemSolveData,
+    learningData,
+    referenceData,
+    onContentChange,
+  ]);
 
   // 선택된 템플릿에 따른 폼 렌더링
   const renderTemplateForm = () => {
