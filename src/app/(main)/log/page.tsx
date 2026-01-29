@@ -19,6 +19,7 @@ import { DropdownButton } from '@/components/DropdownButton';
 
 export default function LogPage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
+  const [selectedActivityId, setSelectedActivityId] = useState('');
 
   const categories = [
     { id: 'interperson', label: '대인관계', icon: <InterpersonIcon /> },
@@ -26,6 +27,11 @@ export default function LogPage() {
     { id: 'learning', label: '학습', icon: <LearningIcon /> },
     { id: 'reference', label: '레퍼런스', icon: <ReferenceIcon /> },
     { id: 'etc', label: '기타', icon: <EtcIcon /> },
+  ];
+
+  const activities = [
+    { id: '1', label: '활동 A' },
+    { id: '2', label: '활동 B' },
   ];
   return (
     <div className='flex flex-col gap-[4.5rem] pb-[4.5rem]'>
@@ -126,27 +132,20 @@ export default function LogPage() {
 
             {/* 활동 분류 선택 */}
             <div className='relative flex items-center'>
-              <input
-                className='w-[15.375rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                placeholder='활동 분류 선택'
-              />
-              <button className='absolute right-[1.25rem] cursor-pointer border-none bg-transparent'>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  width='24'
-                  height='24'
-                  viewBox='0 0 24 24'
-                  fill='none'
-                >
-                  <path
-                    d='M6 9L12 15L18 9'
-                    stroke='black'
-                    strokeWidth='2'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                  />
-                </svg>
-              </button>
+              <div className='w-[15.375rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'>
+                <span className='text-[1rem] text-[#74777D]'>
+                  {activities.find((act) => act.id === selectedActivityId)
+                    ?.label || '활동 분류 선택'}
+                </span>
+              </div>
+              <div className='absolute right-[1.25rem]'>
+                <DropdownButton
+                  items={activities}
+                  value={selectedActivityId}
+                  onChange={setSelectedActivityId}
+                  menuWidth='15.375rem'
+                />
+              </div>
             </div>
           </div>
         </div>
