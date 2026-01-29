@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import EtcIcon from '@/components/icons/EtcIcon';
 import InterpersonIcon from '@/components/icons/InterpersonIcon';
 import LearningIcon from '@/components/icons/LearningIcon';
@@ -15,56 +15,38 @@ import {
   ReferenceTemplateForm,
 } from './CategoryTemplates';
 import { Checkbox } from '@/components/ui/CheckBox';
+import { useLogStore, type TemplateType } from '@/store/useLogStore';
 
-export type TemplateType =
-  | 'none'
-  | '대인관계'
-  | '문제해결'
-  | '학습'
-  | '레퍼런스'
-  | '기타';
+export type { TemplateType };
 
 interface InsightTemplateSelectorProps {
   onCategoryChange?: (category: TemplateType) => void;
-  onContentChange?: (content: string) => void;
   contentError?: string;
 }
 
 // 인사이트 템플릿 선택 및 폼 표시 컴포넌트
 export function InsightTemplateSelector({
   onCategoryChange,
-  onContentChange,
   contentError,
 }: InsightTemplateSelectorProps = {}) {
-  const [isTemplateEnabled, setIsTemplateEnabled] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] =
-    useState<TemplateType>('none');
-
-  // 각 템플릿의 입력값 저장
-  const [noTemplateContent, setNoTemplateContent] = useState('');
-  const [interpersonData, setInterpersonData] = useState({
-    situation: '',
-    response: '',
-    result: '',
-    lesson: '',
-  });
-  const [problemSolveData, setProblemSolveData] = useState({
-    problem: '',
-    attempt: '',
-    result: '',
-    lesson: '',
-  });
-  const [learningData, setLearningData] = useState({
-    path: '',
-    learned: '',
-    plan: '',
-  });
-  const [referenceData, setReferenceData] = useState({
-    source: '',
-    content: '',
-    thought: '',
-    plan: '',
-  });
+  const {
+    isTemplateEnabled,
+    selectedTemplate,
+    noTemplateContent,
+    interpersonData,
+    problemSolveData,
+    learningData,
+    referenceData,
+    setIsTemplateEnabled,
+    setSelectedTemplate,
+    setNoTemplateContent,
+    setInterpersonData,
+    setProblemSolveData,
+    setLearningData,
+    setReferenceData,
+    getFormattedContent,
+    setFormField,
+  } = useLogStore();
 
   // 템플릿 버튼 목록
   const templateOptions = [
@@ -96,59 +78,8 @@ export function InsightTemplateSelector({
 
   // 템플릿 내용 포맷팅 및 상위 컴포넌트로 전달
   useEffect(() => {
-    let formattedContent = '';
-
-    if (!isTemplateEnabled || selectedTemplate === 'none') {
-      formattedContent = noTemplateContent;
-    } else {
-      switch (selectedTemplate) {
-        case '대인관계':
-          formattedContent = [
-            interpersonData.situation && `상황 - ${interpersonData.situation}`,
-            interpersonData.response &&
-              `나의 반응 - ${interpersonData.response}`,
-            interpersonData.result && `결과 - ${interpersonData.result}`,
-            interpersonData.lesson && `배운 점 - ${interpersonData.lesson}`,
-          ]
-            .filter(Boolean)
-            .join('\n');
-          break;
-        case '문제해결':
-          formattedContent = [
-            problemSolveData.problem && `문제 - ${problemSolveData.problem}`,
-            problemSolveData.attempt && `시도 - ${problemSolveData.attempt}`,
-            problemSolveData.result && `결과 - ${problemSolveData.result}`,
-            problemSolveData.lesson && `배운 점 - ${problemSolveData.lesson}`,
-          ]
-            .filter(Boolean)
-            .join('\n');
-          break;
-        case '학습':
-          formattedContent = [
-            learningData.path && `학습 경로 - ${learningData.path}`,
-            learningData.learned && `배운 내용 - ${learningData.learned}`,
-            learningData.plan && `적용 계획 - ${learningData.plan}`,
-          ]
-            .filter(Boolean)
-            .join('\n');
-          break;
-        case '레퍼런스':
-          formattedContent = [
-            referenceData.source && `출처 - ${referenceData.source}`,
-            referenceData.content && `내용 - ${referenceData.content}`,
-            referenceData.thought && `생각 - ${referenceData.thought}`,
-            referenceData.plan && `적용 계획 - ${referenceData.plan}`,
-          ]
-            .filter(Boolean)
-            .join('\n');
-          break;
-        case '기타':
-          formattedContent = noTemplateContent;
-          break;
-      }
-    }
-
-    onContentChange?.(formattedContent);
+    const formattedContent = getFormattedContent();
+    setFormField('content', formattedContent);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isTemplateEnabled,

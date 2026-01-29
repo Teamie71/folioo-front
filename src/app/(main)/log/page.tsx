@@ -1,7 +1,6 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import EtcIcon from '@/components/icons/EtcIcon';
 import { InsightLogIcon } from '@/components/icons/InsightLogIcon';
@@ -23,8 +22,7 @@ import { SearchIcon } from 'lucide-react';
 import { DropdownButton } from '@/components/DropdownButton';
 import {
   useLogStore,
-  logFormSchema,
-  type LogFormData,
+  type TemplateType as StoreTemplateType,
 } from '@/store/useLogStore';
 
 export default function LogPage() {
@@ -33,33 +31,20 @@ export default function LogPage() {
     logCards,
     selectedCategoryId,
     selectedActivityId,
+    formData,
     addLog,
     setSelectedCategoryId,
     setSelectedActivityId,
+    setFormField,
+    resetForm,
+    validateForm,
+    getFormattedContent,
   } = useLogStore();
 
-  // react-hook-form 설정
-  const {
-    handleSubmit,
-    watch,
-    setValue,
-    reset,
-    formState: { errors },
-  } = useForm<LogFormData>({
-    resolver: zodResolver(logFormSchema),
-    defaultValues: {
-      title: '',
-      activityName: '',
-      category: 'none',
-      content: '',
-    },
-  });
-
-  // 폼 값 watch
-  const watchTitle = watch('title');
-  const watchActivityName = watch('activityName');
-  const watchCategory = watch('category');
-  const watchContent = watch('content');
+  // 에러 상태
+  const [errors, setErrors] = useState<
+    Partial<Record<'title' | 'category' | 'content', string>>
+  >({});
 
   const categories = [
     { id: 'interperson', label: '대인관계', icon: <InterpersonIcon /> },
@@ -75,20 +60,32 @@ export default function LogPage() {
   ];
 
   // 폼 제출 핸들러
-  const onSubmit = (data: LogFormData) => {
+  const handleSubmit = () => {
+    // 유효성 검사
+    const validation = validateForm();
+
+    if (!validation.isValid) {
+      setErrors(validation.errors as typeof errors);
+      return;
+    }
+
+    // 에러 초기화
+    setErrors({});
+
+    // 로그 생성
     const newLog = {
       id: Date.now().toString(),
-      title: data.title,
-      activityName: data.activityName || '미분류',
-      category: data.category,
-      content: data.content,
+      title: formData.title,
+      activityName: formData.activityName || '미분류',
+      category: formData.category,
+      content: formData.content,
       date: new Date().toISOString().split('T')[0],
     };
 
     addLog(newLog);
 
     // 폼 초기화
-    reset();
+    resetForm();
   };
   return (
     <div className='flex flex-col gap-[4.5rem] pb-[4.5rem]'>
@@ -118,7 +115,7 @@ export default function LogPage() {
             variantType='Primary'
             px='2.25rem'
             py='0.75rem'
-            onClick={handleSubmit(onSubmit)}
+            onClick={handleSubmit}
           >
             로그 등록하기
           </CommonButton>
@@ -139,21 +136,21 @@ export default function LogPage() {
                 </div>
                 {errors.title && (
                   <p className='font-regular text-[0.875rem] text-[#DC0000]'>
-                    {errors.title.message}
+                    {errors.title}
                   </p>
                 )}
               </div>
               <InputArea
                 placeholder='제목 입력'
-                value={watchTitle}
-                onChange={(e) => setValue('title', e.target.value)}
+                value={formData.title}
+                onChange={(e) => setFormField('title', e.target.value)}
               />
             </div>
 
             {/* 활동명 선택 */}
             <ActivitySelect
-              value={watchActivityName}
-              onChange={(value) => setValue('activityName', value)}
+              value={formData.activityName}
+              onChange={(value) => setFormField('activityName', value)}
             />
           </div>
 
@@ -166,17 +163,16 @@ export default function LogPage() {
               </div>
               {errors.category && (
                 <p className='font-regular text-[0.875rem] text-[#DC0000]'>
-                  {errors.category.message}
+                  {errors.category}
                 </p>
               )}
             </div>
 
             <InsightTemplateSelector
               onCategoryChange={(category: TemplateType) =>
-                setValue('category', category as string)
+                setFormField('category', category as string)
               }
-              onContentChange={(content) => setValue('content', content)}
-              contentError={errors.content?.message}
+              contentError={errors.content}
             />
           </div>
         </div>

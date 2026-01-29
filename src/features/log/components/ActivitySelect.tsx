@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { DropdownButton } from '@/components/DropdownButton';
 import { CommonModal } from '@/components/CommonModal';
 import InputArea from '@/components/InputArea';
+import { useLogStore } from '@/store/useLogStore';
 
 interface ActivitySelectProps {
   value?: string;
@@ -14,16 +15,7 @@ export function ActivitySelect({
   value = '',
   onChange,
 }: ActivitySelectProps = {}) {
-  const [activities, setActivities] = useState([
-    {
-      id: '1',
-      label: '활동 A',
-    },
-    {
-      id: '2',
-      label: '활동 B',
-    },
-  ]);
+  const { activities, removeActivity } = useLogStore();
   const [selectedActivityId, setSelectedActivityId] = useState('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
@@ -37,12 +29,11 @@ export function ActivitySelect({
   // 실제 삭제 실행
   const confirmDelete = () => {
     if (deleteTargetId) {
-      setActivities((prev) =>
-        prev.filter((activity) => activity.id !== deleteTargetId),
-      );
+      removeActivity(deleteTargetId);
       // 삭제된 항목이 선택된 항목이면 선택 해제
       if (selectedActivityId === deleteTargetId) {
         setSelectedActivityId('');
+        onChange?.('');
       }
     }
     setIsDeleteModalOpen(false);
