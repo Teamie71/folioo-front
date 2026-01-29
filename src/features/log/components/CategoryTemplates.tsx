@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import InputArea from '@/components/InputArea';
 import TextField from '@/components/TextField';
 
 // 템플릿 미사용 폼
-export function NoTemplateForm() {
-  const [content, setContent] = useState('');
+interface NoTemplateFormProps {
+  content: string;
+  setContent: (value: string) => void;
+}
 
+export function NoTemplateForm({ content, setContent }: NoTemplateFormProps) {
   return (
     <div className='flex flex-col gap-[0.5rem]'>
       <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
@@ -30,14 +32,30 @@ export function NoTemplateForm() {
 }
 
 // 대인관계 템플릿 폼
-export function InterpersonTemplateForm() {
-  const [situation, setSituation] = useState('');
-  const [response, setResponse] = useState('');
-  const [result, setResult] = useState('');
-  const [lesson, setLesson] = useState('');
+interface InterpersonTemplateFormProps {
+  data: {
+    situation: string;
+    response: string;
+    result: string;
+    lesson: string;
+  };
+  setData: (data: {
+    situation: string;
+    response: string;
+    result: string;
+    lesson: string;
+  }) => void;
+}
 
+export function InterpersonTemplateForm({
+  data,
+  setData,
+}: InterpersonTemplateFormProps) {
   const totalLength =
-    situation.length + response.length + result.length + lesson.length;
+    data.situation.length +
+    data.response.length +
+    data.result.length +
+    data.lesson.length;
 
   return (
     <div className='flex flex-col gap-[1.25rem]'>
@@ -54,8 +72,8 @@ export function InterpersonTemplateForm() {
             <input
               className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
               placeholder='누구와, 어떤 상황이 발생했나요?'
-              value={situation}
-              onChange={(e) => setSituation(e.target.value)}
+              value={data.situation}
+              onChange={(e) => setData({ ...data, situation: e.target.value })}
             />
           </div>
 
@@ -65,8 +83,8 @@ export function InterpersonTemplateForm() {
             <input
               className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
               placeholder='나는 어떻게 대응했나요?'
-              value={response}
-              onChange={(e) => setResponse(e.target.value)}
+              value={data.response}
+              onChange={(e) => setData({ ...data, response: e.target.value })}
             />
           </div>
 
@@ -76,8 +94,8 @@ export function InterpersonTemplateForm() {
             <input
               className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
               placeholder='어떤 결과가 나타났나요?'
-              value={result}
-              onChange={(e) => setResult(e.target.value)}
+              value={data.result}
+              onChange={(e) => setData({ ...data, result: e.target.value })}
             />
           </div>
 
@@ -87,8 +105,8 @@ export function InterpersonTemplateForm() {
             <input
               className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
               placeholder='무엇을 배웠고, 앞으로는 비슷한 상황에서 어떻게 대응할건가요?'
-              value={lesson}
-              onChange={(e) => setLesson(e.target.value)}
+              value={data.lesson}
+              onChange={(e) => setData({ ...data, lesson: e.target.value })}
             />
           </div>
         </div>
@@ -100,14 +118,30 @@ export function InterpersonTemplateForm() {
 }
 
 // 문제해결 템플릿 폼
-export function ProblemSolveTemplateForm() {
-  const [problem, setProblem] = useState('');
-  const [attempt, setAttempt] = useState('');
-  const [result, setResult] = useState('');
-  const [lesson, setLesson] = useState('');
+interface ProblemSolveTemplateFormProps {
+  data: {
+    problem: string;
+    attempt: string;
+    result: string;
+    lesson: string;
+  };
+  setData: (data: {
+    problem: string;
+    attempt: string;
+    result: string;
+    lesson: string;
+  }) => void;
+}
 
+export function ProblemSolveTemplateForm({
+  data,
+  setData,
+}: ProblemSolveTemplateFormProps) {
   const totalLength =
-    problem.length + attempt.length + result.length + lesson.length;
+    data.problem.length +
+    data.attempt.length +
+    data.result.length +
+    data.lesson.length;
 
   return (
     <div className='flex flex-col gap-[1.25rem]'>
@@ -124,8 +158,8 @@ export function ProblemSolveTemplateForm() {
             <InputArea
               width='51.25rem'
               placeholder='어떤 상황에서, 어떤 문제가 발생했나요?'
-              value={problem}
-              onChange={(e) => setProblem(e.target.value)}
+              value={data.problem}
+              onChange={(e) => setData({ ...data, problem: e.target.value })}
             />
           </div>
 
@@ -135,8 +169,8 @@ export function ProblemSolveTemplateForm() {
             <InputArea
               width='51.25rem'
               placeholder='문제를 해결하기 위해 어떤 시도를 해보았나요?'
-              value={attempt}
-              onChange={(e) => setAttempt(e.target.value)}
+              value={data.attempt}
+              onChange={(e) => setData({ ...data, attempt: e.target.value })}
             />
           </div>
 
@@ -146,8 +180,8 @@ export function ProblemSolveTemplateForm() {
             <InputArea
               width='51.25rem'
               placeholder='어떤 결과가 나타났나요?'
-              value={result}
-              onChange={(e) => setResult(e.target.value)}
+              value={data.result}
+              onChange={(e) => setData({ ...data, result: e.target.value })}
             />
           </div>
 
@@ -157,8 +191,8 @@ export function ProblemSolveTemplateForm() {
             <InputArea
               width='51.25rem'
               placeholder='무엇을 배웠고, 앞으로는 비슷한 상황에서 어떻게 대응할건가요?'
-              value={lesson}
-              onChange={(e) => setLesson(e.target.value)}
+              value={data.lesson}
+              onChange={(e) => setData({ ...data, lesson: e.target.value })}
             />
           </div>
         </div>
@@ -170,12 +204,20 @@ export function ProblemSolveTemplateForm() {
 }
 
 // 학습 템플릿 폼
-export function LearningTemplateForm() {
-  const [path, setPath] = useState('');
-  const [learned, setLearned] = useState('');
-  const [plan, setPlan] = useState('');
+interface LearningTemplateFormProps {
+  data: {
+    path: string;
+    learned: string;
+    plan: string;
+  };
+  setData: (data: { path: string; learned: string; plan: string }) => void;
+}
 
-  const totalLength = path.length + learned.length + plan.length;
+export function LearningTemplateForm({
+  data,
+  setData,
+}: LearningTemplateFormProps) {
+  const totalLength = data.path.length + data.learned.length + data.plan.length;
 
   return (
     <div className='flex flex-col gap-[1.25rem]'>
@@ -192,8 +234,8 @@ export function LearningTemplateForm() {
             <InputArea
               width='51.25rem'
               placeholder='어떤 매체를 통해, 무엇을 계기로 학습을 진행했나요?'
-              value={path}
-              onChange={(e) => setPath(e.target.value)}
+              value={data.path}
+              onChange={(e) => setData({ ...data, path: e.target.value })}
             />
           </div>
 
@@ -203,8 +245,8 @@ export function LearningTemplateForm() {
             <InputArea
               width='51.25rem'
               placeholder='어떤 지식 또는 스킬을 배웠나요?'
-              value={learned}
-              onChange={(e) => setLearned(e.target.value)}
+              value={data.learned}
+              onChange={(e) => setData({ ...data, learned: e.target.value })}
             />
           </div>
 
@@ -214,8 +256,8 @@ export function LearningTemplateForm() {
             <InputArea
               width='51.25rem'
               placeholder='앞으로 어디에, 어떻게 적용해 볼 건가요?'
-              value={plan}
-              onChange={(e) => setPlan(e.target.value)}
+              value={data.plan}
+              onChange={(e) => setData({ ...data, plan: e.target.value })}
             />
           </div>
         </div>
@@ -227,14 +269,30 @@ export function LearningTemplateForm() {
 }
 
 // 레퍼런스 템플릿 폼
-export function ReferenceTemplateForm() {
-  const [source, setSource] = useState('');
-  const [content, setContent] = useState('');
-  const [thought, setThought] = useState('');
-  const [plan, setPlan] = useState('');
+interface ReferenceTemplateFormProps {
+  data: {
+    source: string;
+    content: string;
+    thought: string;
+    plan: string;
+  };
+  setData: (data: {
+    source: string;
+    content: string;
+    thought: string;
+    plan: string;
+  }) => void;
+}
 
+export function ReferenceTemplateForm({
+  data,
+  setData,
+}: ReferenceTemplateFormProps) {
   const totalLength =
-    source.length + content.length + thought.length + plan.length;
+    data.source.length +
+    data.content.length +
+    data.thought.length +
+    data.plan.length;
 
   return (
     <div className='flex flex-col gap-[1.25rem]'>
@@ -251,8 +309,8 @@ export function ReferenceTemplateForm() {
             <InputArea
               width='51.25rem'
               placeholder='어디서 얻은 레퍼런스인가요?'
-              value={source}
-              onChange={(e) => setSource(e.target.value)}
+              value={data.source}
+              onChange={(e) => setData({ ...data, source: e.target.value })}
             />
           </div>
 
@@ -262,8 +320,8 @@ export function ReferenceTemplateForm() {
             <InputArea
               width='51.25rem'
               placeholder='어떤 점이 인상 깊었나요?'
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
+              value={data.content}
+              onChange={(e) => setData({ ...data, content: e.target.value })}
             />
           </div>
 
@@ -273,8 +331,8 @@ export function ReferenceTemplateForm() {
             <InputArea
               width='51.25rem'
               placeholder='이 레퍼런스를 보고 어떤 생각이 들었나요?'
-              value={thought}
-              onChange={(e) => setThought(e.target.value)}
+              value={data.thought}
+              onChange={(e) => setData({ ...data, thought: e.target.value })}
             />
           </div>
 
@@ -284,8 +342,8 @@ export function ReferenceTemplateForm() {
             <InputArea
               width='51.25rem'
               placeholder='앞으로 어디에, 어떻게 적용해 볼 건가요?'
-              value={plan}
-              onChange={(e) => setPlan(e.target.value)}
+              value={data.plan}
+              onChange={(e) => setData({ ...data, plan: e.target.value })}
             />
           </div>
         </div>

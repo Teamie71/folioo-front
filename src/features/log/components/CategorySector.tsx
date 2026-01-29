@@ -30,6 +30,32 @@ export function InsightTemplateSelector() {
   const [selectedTemplate, setSelectedTemplate] =
     useState<TemplateType>('none');
 
+  // 각 템플릿의 입력값 저장
+  const [noTemplateContent, setNoTemplateContent] = useState('');
+  const [interpersonData, setInterpersonData] = useState({
+    situation: '',
+    response: '',
+    result: '',
+    lesson: '',
+  });
+  const [problemSolveData, setProblemSolveData] = useState({
+    problem: '',
+    attempt: '',
+    result: '',
+    lesson: '',
+  });
+  const [learningData, setLearningData] = useState({
+    path: '',
+    learned: '',
+    plan: '',
+  });
+  const [referenceData, setReferenceData] = useState({
+    source: '',
+    content: '',
+    thought: '',
+    plan: '',
+  });
+
   // 템플릿 버튼 목록
   const templateOptions = [
     { label: '대인관계', icon: <InterpersonIcon /> },
@@ -59,22 +85,54 @@ export function InsightTemplateSelector() {
   const renderTemplateForm = () => {
     // 체크박스가 체크되고 템플릿이 선택되었을 때만 해당 템플릿 표시
     if (!isTemplateEnabled || selectedTemplate === 'none') {
-      return <NoTemplateForm />;
+      return (
+        <NoTemplateForm
+          content={noTemplateContent}
+          setContent={setNoTemplateContent}
+        />
+      );
     }
 
     switch (selectedTemplate) {
       case '대인관계':
-        return <InterpersonTemplateForm />;
+        return (
+          <InterpersonTemplateForm
+            data={interpersonData}
+            setData={setInterpersonData}
+          />
+        );
       case '문제해결':
-        return <ProblemSolveTemplateForm />;
+        return (
+          <ProblemSolveTemplateForm
+            data={problemSolveData}
+            setData={setProblemSolveData}
+          />
+        );
       case '학습':
-        return <LearningTemplateForm />;
+        return (
+          <LearningTemplateForm data={learningData} setData={setLearningData} />
+        );
       case '레퍼런스':
-        return <ReferenceTemplateForm />;
+        return (
+          <ReferenceTemplateForm
+            data={referenceData}
+            setData={setReferenceData}
+          />
+        );
       case '기타':
-        return <NoTemplateForm />;
+        return (
+          <NoTemplateForm
+            content={noTemplateContent}
+            setContent={setNoTemplateContent}
+          />
+        );
       default:
-        return <NoTemplateForm />;
+        return (
+          <NoTemplateForm
+            content={noTemplateContent}
+            setContent={setNoTemplateContent}
+          />
+        );
     }
   };
 
