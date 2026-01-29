@@ -11,7 +11,7 @@ import { PortfolioHIW } from '@/features/landing/components/PortfolioHIW';
 
 export default function LandingPage() {
   return (
-    <div className='w-full'>
+    <div className='w-full overflow-x-hidden'>
       {/* 배경 Wrapper */}
       <div className='relative'>
         <div
