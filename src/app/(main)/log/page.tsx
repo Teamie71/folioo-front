@@ -5,6 +5,7 @@ import InterpersonIcon from '@/components/icons/InterpersonIcon';
 import LearningIcon from '@/components/icons/LearningIcon';
 import ProblemSolveIcon from '@/components/icons/ProblemSolveIcon';
 import ReferenceIcon from '@/components/icons/ReferenceIcon';
+import InputArea from '@/components/InputArea';
 import { SingleButtonGroup } from '@/components/SingleButtonGroup';
 import { Checkbox } from '@/components/ui/CheckBox';
 import { ActivitySelect } from '@/features/log/components/ActivitySelect';
@@ -52,10 +53,7 @@ export default function LogPage() {
                 <span>제목</span>
                 <span className='text-[#DC0000]'>*</span>
               </div>
-              <input
-                className='w-[28.5rem] rounded-[0.5rem] border-[0.1rem] border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                placeholder='제목 입력'
-              />
+              <InputArea placeholder='제목 입력' />
             </div>
 
             {/* 활동명 선택 */}
