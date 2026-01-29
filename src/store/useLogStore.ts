@@ -123,6 +123,7 @@ interface LogStore {
 
   // 로그 Actions
   addLog: (log: LogCardData) => void;
+  updateLog: (id: string, data: Partial<LogCardData>) => void;
   removeLog: (id: string) => void;
   clearLogs: () => void;
   setSelectedCategoryId: (id: string) => void;
@@ -368,6 +369,13 @@ export const useLogStore = create<LogStore>()(
       addLog: (log) =>
         set((state) => ({
           logCards: [log, ...state.logCards],
+        })),
+
+      updateLog: (id, data) =>
+        set((state) => ({
+          logCards: state.logCards.map((log) =>
+            log.id === id ? { ...log, ...data } : log,
+          ),
         })),
 
       removeLog: (id) =>

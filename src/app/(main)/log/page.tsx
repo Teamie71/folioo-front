@@ -18,11 +18,13 @@ import {
   type TemplateType,
 } from '@/features/log/components/CategorySector';
 import { LogCard } from '@/features/log/components/LogCard';
+import { LogDetailModal } from '@/features/log/components/LogCardDetailModal';
 import { SearchIcon } from 'lucide-react';
 import { DropdownButton } from '@/components/DropdownButton';
 import {
   useLogStore,
   type TemplateType as StoreTemplateType,
+  type LogCardData,
 } from '@/store/useLogStore';
 
 export default function LogPage() {
@@ -33,6 +35,8 @@ export default function LogPage() {
     selectedActivityId,
     formData,
     addLog,
+    updateLog,
+    removeLog,
     setSelectedCategoryId,
     setSelectedActivityId,
     setFormField,
@@ -45,6 +49,46 @@ export default function LogPage() {
   const [errors, setErrors] = useState<
     Partial<Record<'title' | 'category' | 'content', string>>
   >({});
+
+  // 모달 상태
+  const [selectedLog, setSelectedLog] = useState<LogCardData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // 카드 클릭 핸들러
+  const handleCardClick = (log: LogCardData) => {
+    setSelectedLog(log);
+    setIsModalOpen(true);
+  };
+
+  // 모달 닫기 핸들러
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedLog(null);
+  };
+
+  // 로그 삭제 핸들러
+  const handleDeleteLog = () => {
+    if (selectedLog) {
+      removeLog(selectedLog.id);
+      handleCloseModal();
+    }
+  };
+
+  // 로그 수정 핸들러
+  const handleSaveLog = (data: { title: string; content: string }) => {
+    if (selectedLog) {
+      updateLog(selectedLog.id, {
+        title: data.title,
+        content: data.content,
+      });
+      // selectedLog도 업데이트
+      setSelectedLog({
+        ...selectedLog,
+        title: data.title,
+        content: data.content,
+      });
+    }
+  };
 
   const categories = [
     { id: 'interperson', label: '대인관계', icon: <InterpersonIcon /> },
@@ -249,11 +293,27 @@ export default function LogPage() {
                 content={log.content}
                 activityName={log.activityName}
                 category={log.category}
+                onClick={() => handleCardClick(log)}
               />
             ))
           )}
         </div>
       </div>
+
+      {/* 로그 상세 모달 */}
+      {selectedLog && (
+        <LogDetailModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onDelete={handleDeleteLog}
+          onSave={handleSaveLog}
+          title={selectedLog.title}
+          date={selectedLog.date}
+          content={selectedLog.content}
+          activityName={selectedLog.activityName}
+          category={selectedLog.category}
+        />
+      )}
     </div>
   );
 }

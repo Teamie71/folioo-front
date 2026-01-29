@@ -10,6 +10,7 @@ interface LogCardProps {
   content: string;
   activityName: string;
   category: string;
+  onClick?: () => void;
 }
 
 export function LogCard({
@@ -18,6 +19,7 @@ export function LogCard({
   content,
   activityName,
   category,
+  onClick,
 }: LogCardProps) {
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -56,7 +58,10 @@ export function LogCard({
   };
 
   return (
-    <div className='flex flex-col gap-[1.5rem] rounded-[1.25rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.5rem] shadow-[0px_4px_8px_0px_#00000033]'>
+    <div
+      className='flex cursor-pointer flex-col gap-[1.5rem] rounded-[1.25rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.5rem] shadow-[0px_4px_8px_0px_#00000033] transition-shadow hover:shadow-[0px_6px_12px_0px_#00000033]'
+      onClick={onClick}
+    >
       {/* 제목, 날짜 */}
       <div className='flex items-center justify-between'>
         <span className='text-[1.125rem] font-bold text-[#1A1A1A]'>
