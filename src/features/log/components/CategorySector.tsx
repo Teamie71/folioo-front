@@ -16,7 +16,7 @@ import {
 } from './CategoryTemplates';
 import { Checkbox } from '@/components/ui/CheckBox';
 
-type TemplateType =
+export type TemplateType =
   | 'none'
   | '대인관계'
   | '문제해결'
@@ -149,6 +149,7 @@ export function InsightTemplateSelector({
     }
 
     onContentChange?.(formattedContent);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isTemplateEnabled,
     selectedTemplate,
@@ -157,7 +158,6 @@ export function InsightTemplateSelector({
     problemSolveData,
     learningData,
     referenceData,
-    onContentChange,
   ]);
 
   // 선택된 템플릿에 따른 폼 렌더링

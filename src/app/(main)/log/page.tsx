@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { CommonButton } from '@/components/CommonButton';
 import EtcIcon from '@/components/icons/EtcIcon';
 import { InsightLogIcon } from '@/components/icons/InsightLogIcon';
@@ -13,33 +14,52 @@ import { SearchButton } from '@/components/SearchButton';
 import { SingleButtonGroup } from '@/components/SingleButtonGroup';
 import { Checkbox } from '@/components/ui/CheckBox';
 import { ActivitySelect } from '@/features/log/components/ActivitySelect';
-import { InsightTemplateSelector } from '@/features/log/components/CategorySector';
+import {
+  InsightTemplateSelector,
+  type TemplateType,
+} from '@/features/log/components/CategorySector';
 import { LogCard } from '@/features/log/components/LogCard';
 import { SearchIcon } from 'lucide-react';
 import { DropdownButton } from '@/components/DropdownButton';
-
-interface LogCardData {
-  id: string;
-  title: string;
-  activityName: string;
-  category: string;
-  content: string;
-  date: string;
-}
+import {
+  useLogStore,
+  logFormSchema,
+  type LogFormData,
+} from '@/store/useLogStore';
 
 export default function LogPage() {
-  const [selectedCategoryId, setSelectedCategoryId] = useState('');
-  const [selectedActivityId, setSelectedActivityId] = useState('');
-  const [title, setTitle] = useState('');
-  const [activityName, setActivityName] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('none');
-  const [content, setContent] = useState('');
-  const [logCards, setLogCards] = useState<LogCardData[]>([]);
+  // Zustand store
+  const {
+    logCards,
+    selectedCategoryId,
+    selectedActivityId,
+    addLog,
+    setSelectedCategoryId,
+    setSelectedActivityId,
+  } = useLogStore();
 
-  // 에러 상태
-  const [titleError, setTitleError] = useState('');
-  const [categoryError, setCategoryError] = useState('');
-  const [contentError, setContentError] = useState('');
+  // react-hook-form 설정
+  const {
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<LogFormData>({
+    resolver: zodResolver(logFormSchema),
+    defaultValues: {
+      title: '',
+      activityName: '',
+      category: 'none',
+      content: '',
+    },
+  });
+
+  // 폼 값 watch
+  const watchTitle = watch('title');
+  const watchActivityName = watch('activityName');
+  const watchCategory = watch('category');
+  const watchContent = watch('content');
 
   const categories = [
     { id: 'interperson', label: '대인관계', icon: <InterpersonIcon /> },
@@ -54,57 +74,21 @@ export default function LogPage() {
     { id: '2', label: '활동 B' },
   ];
 
-  const handleCreateLog = () => {
-    // 에러 초기화
-    setTitleError('');
-    setCategoryError('');
-    setContentError('');
-
-    // 유효성 검사
-    let isValid = true;
-
-    if (!title.trim()) {
-      setTitleError('제목을 입력해주세요.');
-      isValid = false;
-    }
-
-    if (selectedCategory === 'none') {
-      setCategoryError('카테고리를 선택해주세요.');
-      isValid = false;
-    }
-
-    if (!content.trim()) {
-      setContentError('내용을 입력해주세요.');
-      isValid = false;
-    }
-
-    // 유효성 검사 실패 시 로그 생성하지 않음
-    if (!isValid) {
-      return;
-    }
-
-    // 로그 생성
-    const newLog: LogCardData = {
+  // 폼 제출 핸들러
+  const onSubmit = (data: LogFormData) => {
+    const newLog = {
       id: Date.now().toString(),
-      title: title,
-      activityName: activityName || '미분류',
-      category: selectedCategory,
-      content: content,
+      title: data.title,
+      activityName: data.activityName || '미분류',
+      category: data.category,
+      content: data.content,
       date: new Date().toISOString().split('T')[0],
     };
 
-    setLogCards([newLog, ...logCards]);
+    addLog(newLog);
 
-    // 입력 필드 초기화
-    setTitle('');
-    setActivityName('');
-    setSelectedCategory('none');
-    setContent('');
-
-    // 에러 메시지 초기화
-    setTitleError('');
-    setCategoryError('');
-    setContentError('');
+    // 폼 초기화
+    reset();
   };
   return (
     <div className='flex flex-col gap-[4.5rem] pb-[4.5rem]'>
@@ -134,7 +118,7 @@ export default function LogPage() {
             variantType='Primary'
             px='2.25rem'
             py='0.75rem'
-            onClick={handleCreateLog}
+            onClick={handleSubmit(onSubmit)}
           >
             로그 등록하기
           </CommonButton>
@@ -153,21 +137,24 @@ export default function LogPage() {
                   <span className='font-bold'>제목</span>
                   <span className='tex font-bold text-[#DC0000]'>*</span>
                 </div>
-                {titleError && (
+                {errors.title && (
                   <p className='font-regular text-[0.875rem] text-[#DC0000]'>
-                    {titleError}
+                    {errors.title.message}
                   </p>
                 )}
               </div>
               <InputArea
                 placeholder='제목 입력'
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                value={watchTitle}
+                onChange={(e) => setValue('title', e.target.value)}
               />
             </div>
 
             {/* 활동명 선택 */}
-            <ActivitySelect value={activityName} onChange={setActivityName} />
+            <ActivitySelect
+              value={watchActivityName}
+              onChange={(value) => setValue('activityName', value)}
+            />
           </div>
 
           {/* 카테고리 선택 */}
@@ -177,17 +164,19 @@ export default function LogPage() {
                 <span>카테고리</span>
                 <span className='text-[#DC0000]'>*</span>
               </div>
-              {categoryError && (
+              {errors.category && (
                 <p className='font-regular text-[0.875rem] text-[#DC0000]'>
-                  {categoryError}
+                  {errors.category.message}
                 </p>
               )}
             </div>
 
             <InsightTemplateSelector
-              onCategoryChange={setSelectedCategory}
-              onContentChange={setContent}
-              contentError={contentError}
+              onCategoryChange={(category: TemplateType) =>
+                setValue('category', category as string)
+              }
+              onContentChange={(content) => setValue('content', content)}
+              contentError={errors.content?.message}
             />
           </div>
         </div>
