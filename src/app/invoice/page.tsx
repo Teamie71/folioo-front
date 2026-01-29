@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BackButton } from '@/components/BackButton';
+import { PeriodDropdown } from '@/features/invoice/components/PeriodDropdown';
 
 export default function InvoicePage() {
   return (
@@ -14,29 +15,8 @@ export default function InvoicePage() {
       {/* 드롭다운 + 표 */}
       <div className='flex flex-col gap-[1.75rem]'>
         {/* 드롭다운 */}
-        <div className='flex w-[5.75rem] flex-col items-center gap-[0.375rem]'>
-          <button className='flex cursor-pointer items-center gap-[0.5rem] border-none bg-transparent pl-[0.25rem]'>
-            <span className='text-[1rem] text-[#464B53]'>전체 기간</span>
-            <div>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='20'
-                height='20'
-                viewBox='0 0 20 20'
-                fill='none'
-              >
-                <path
-                  d='M5 7.5L10 12.5L15 7.5'
-                  stroke='#464B53'
-                  strokeWidth='1.5'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                />
-              </svg>
-            </div>
-          </button>
-
-          <div className='w-full rounded-[0.5rem] border border-[#74777D]' />
+        <div className='flex'>
+          <PeriodDropdown />
         </div>
 
         {/* 표 */}
