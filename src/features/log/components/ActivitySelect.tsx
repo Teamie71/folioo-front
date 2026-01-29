@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Dropdown } from '@/components/Dropdown';
+import { DropdownButton } from '@/components/DropdownButton';
 import { CommonModal } from '@/components/CommonModal';
+import InputArea from '@/components/InputArea';
 
 export function ActivitySelect() {
   const [activities, setActivities] = useState([
@@ -16,6 +17,7 @@ export function ActivitySelect() {
     },
   ]);
   const [selectedActivityId, setSelectedActivityId] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
@@ -45,6 +47,15 @@ export function ActivitySelect() {
     onDelete: handleDelete,
   }));
 
+  // 드롭다운에서 항목 선택 시
+  const handleActivitySelect = (id: string) => {
+    setSelectedActivityId(id);
+    const selectedActivity = activities.find((activity) => activity.id === id);
+    if (selectedActivity) {
+      setInputValue(selectedActivity.label);
+    }
+  };
+
   const deleteTargetActivity = activities.find(
     (activity) => activity.id === deleteTargetId,
   );
@@ -56,11 +67,19 @@ export function ActivitySelect() {
           <span>활동명</span>
           <span className='text-[#DC0000]'>*</span>
         </div>
-        <Dropdown
-          items={activitiesWithHandlers}
-          value={selectedActivityId}
-          onChange={setSelectedActivityId}
-          placeholder='활동을 선택하세요'
+        <InputArea
+          placeholder='활동명 입력 또는 선택'
+          width='28.5rem'
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          rightElement={
+            <DropdownButton
+              items={activitiesWithHandlers}
+              menuWidth='28.5rem'
+              value={selectedActivityId}
+              onChange={handleActivitySelect}
+            />
+          }
         />
       </div>
 
