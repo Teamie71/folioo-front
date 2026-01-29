@@ -1,3 +1,4 @@
+import InputArea from '@/components/InputArea';
 import TextField from '@/components/TextField';
 
 // 템플릿 미사용 폼
@@ -89,35 +90,32 @@ export function ProblemSolveTemplateForm() {
           {/* 문제 상황 */}
           <div className='flex items-center justify-between'>
             <span className='text-[1rem] text-[#1A1A1A]'>문제 상황</span>
-            <input
-              className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-              placeholder='누구와, 어떤 상황이 발생했나요?'
+            <InputArea
+              width='51.25rem'
+              placeholder='어떤 상황에서, 어떤 문제가 발생했나요?'
             />
           </div>
 
           {/* 해결 시도 */}
           <div className='flex items-center justify-between'>
             <span className='text-[1rem] text-[#1A1A1A]'>해결 시도</span>
-            <input
-              className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-              placeholder='나는 어떻게 대응했나요?'
+            <InputArea
+              width='51.25rem'
+              placeholder='문제를 해결하기 위해 어떤 시도를 해보았나요?'
             />
           </div>
 
           {/* 결과 */}
           <div className='flex items-center justify-between'>
             <span className='text-[1rem] text-[#1A1A1A]'>결과</span>
-            <input
-              className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-              placeholder='어떤 결과가 나타났나요?'
-            />
+            <InputArea width='51.25rem' placeholder='어떤 결과가 나타났나요?' />
           </div>
 
           {/* 배운 점/계획 */}
           <div className='flex items-center justify-between'>
             <span className='text-[1rem] text-[#1A1A1A]'>배운 점/계획</span>
-            <input
-              className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+            <InputArea
+              width='51.25rem'
               placeholder='무엇을 배웠고, 앞으로는 비슷한 상황에서 어떻게 대응할건가요?'
             />
           </div>
@@ -143,8 +141,8 @@ export function LearningTemplateForm() {
           {/* 학습 경로 */}
           <div className='flex items-center justify-between'>
             <span className='text-[1rem] text-[#1A1A1A]'>학습 경로</span>
-            <input
-              className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+            <InputArea
+              width='51.25rem'
               placeholder='어떤 매체를 통해, 무엇을 계기로 학습을 진행했나요?'
             />
           </div>
@@ -152,8 +150,8 @@ export function LearningTemplateForm() {
           {/* 배운 내용 */}
           <div className='flex items-center justify-between'>
             <span className='text-[1rem] text-[#1A1A1A]'>배운 내용</span>
-            <input
-              className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+            <InputArea
+              width='51.25rem'
               placeholder='어떤 지식 또는 스킬을 배웠나요?'
             />
           </div>
@@ -161,8 +159,8 @@ export function LearningTemplateForm() {
           {/* 적용 계획 */}
           <div className='flex items-center justify-between'>
             <span className='text-[1rem] text-[#1A1A1A]'>적용 계획</span>
-            <input
-              className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+            <InputArea
+              width='51.25rem'
               placeholder='앞으로 어디에 어떻게 적용해 볼 건가요?'
             />
           </div>
@@ -188,8 +186,8 @@ export function ReferenceTemplateForm() {
           {/* 출처 */}
           <div className='flex items-center justify-between'>
             <span className='text-[1rem] text-[#1A1A1A]'>출처</span>
-            <input
-              className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+            <InputArea
+              width='51.25rem'
               placeholder='어디서 얻은 레퍼런스인가요?'
             />
           </div>
@@ -197,8 +195,8 @@ export function ReferenceTemplateForm() {
           {/* 내용 */}
           <div className='flex items-center justify-between'>
             <span className='text-[1rem] text-[#1A1A1A]'>내용</span>
-            <input
-              className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+            <InputArea
+              width='51.25rem'
               placeholder='어떤 점이 인상 깊었나요?'
             />
           </div>
@@ -206,8 +204,8 @@ export function ReferenceTemplateForm() {
           {/* 나의 생각 */}
           <div className='flex items-center justify-between'>
             <span className='text-[1rem] text-[#1A1A1A]'>나의 생각</span>
-            <input
-              className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+            <InputArea
+              width='51.25rem'
               placeholder='이 레퍼런스를 보고 어떤 생각이 들었나요?'
             />
           </div>
@@ -215,8 +213,8 @@ export function ReferenceTemplateForm() {
           {/* 적용 계획 */}
           <div className='flex items-center justify-between'>
             <span className='text-[1rem] text-[#1A1A1A]'>적용 계획</span>
-            <input
-              className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
+            <InputArea
+              width='51.25rem'
               placeholder='앞으로 어디에, 어떻게 적용해 볼 건가요?'
             />
           </div>
