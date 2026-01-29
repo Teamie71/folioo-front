@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import EtcIcon from '@/components/icons/EtcIcon';
 import { InsightLogIcon } from '@/components/icons/InsightLogIcon';
@@ -12,8 +15,18 @@ import { Checkbox } from '@/components/ui/CheckBox';
 import { ActivitySelect } from '@/features/log/components/ActivitySelect';
 import { InsightTemplateSelector } from '@/features/log/components/CategorySector';
 import { SearchIcon } from 'lucide-react';
+import { DropdownButton } from '@/components/DropdownButton';
 
 export default function LogPage() {
+  const [selectedCategoryId, setSelectedCategoryId] = useState('');
+
+  const categories = [
+    { id: 'interperson', label: '대인관계', icon: <InterpersonIcon /> },
+    { id: 'problem-solve', label: '문제해결', icon: <ProblemSolveIcon /> },
+    { id: 'learning', label: '학습', icon: <LearningIcon /> },
+    { id: 'reference', label: '레퍼런스', icon: <ReferenceIcon /> },
+    { id: 'etc', label: '기타', icon: <EtcIcon /> },
+  ];
   return (
     <div className='flex flex-col gap-[4.5rem] pb-[4.5rem]'>
       {/* 인사이트 로그 헤더 */}
@@ -95,27 +108,20 @@ export default function LogPage() {
 
             {/* 카테고리 선택 */}
             <div className='relative flex items-center'>
-              <input
-                className='w-[15.375rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-                placeholder='카테고리 선택'
-              />
-              <button className='absolute right-[1.25rem] cursor-pointer border-none bg-transparent'>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  width='24'
-                  height='24'
-                  viewBox='0 0 24 24'
-                  fill='none'
-                >
-                  <path
-                    d='M6 9L12 15L18 9'
-                    stroke='black'
-                    strokeWidth='2'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                  />
-                </svg>
-              </button>
+              <div className='w-[15.375rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'>
+                <span className='text-[1rem] text-[#74777D]'>
+                  {categories.find((cat) => cat.id === selectedCategoryId)
+                    ?.label || '카테고리 선택'}
+                </span>
+              </div>
+              <div className='absolute right-[1.25rem]'>
+                <DropdownButton
+                  items={categories}
+                  value={selectedCategoryId}
+                  onChange={setSelectedCategoryId}
+                  menuWidth='15.375rem'
+                />
+              </div>
             </div>
 
             {/* 활동 분류 선택 */}
