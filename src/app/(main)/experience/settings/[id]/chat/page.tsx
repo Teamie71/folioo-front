@@ -6,6 +6,7 @@ import { BackButton } from '@/components/BackButton';
 import { StepProgressBar } from '@/components/StepProgressBar';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
 import { CommonModal } from '@/components/CommonModal';
+import { InlineEdit } from '@/components/InlineEdit';
 import { useExperienceStore } from '@/store/useExperienceStore';
 import { ChatMessageSection } from '@/features/experience/chat/components/ChatMessageSection';
 import { ChatStepSection } from '@/features/experience/chat/components/ChatStepSection';
@@ -20,6 +21,8 @@ export default function ExperienceSettingsChatPage() {
   const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);
   const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
   const [isTransitionModalOpen, setIsTransitionModalOpen] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [experienceTitle, setExperienceTitle] = useState('새로운 경험 정리');
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<
     Array<{ role: 'ai' | 'user'; content: string }>
@@ -48,9 +51,17 @@ export default function ExperienceSettingsChatPage() {
       <div className='mx-auto flex min-h-0 w-full max-w-[66rem] flex-1 flex-col gap-[1.5rem] overflow-hidden px-[1rem] pt-[2.5rem]'>
         {/* 헤더 */}
         <div className='flex w-full shrink-0 items-center justify-between'>
-          <div className='flex items-center gap-[1.25rem]'>
+          <div className='flex items-center'>
             <BackButton href='/experience' />
-            <span className='text-[1.25rem] font-bold'>새로운 경험 정리</span>
+            <InlineEdit
+              title={experienceTitle}
+              isEditing={isEditingTitle}
+              onEdit={() => setIsEditingTitle(true)}
+              onSave={(newTitle) => {
+                setExperienceTitle(newTitle);
+                setIsEditingTitle(false);
+              }}
+            />
           </div>
 
           <DeleteModalButton
