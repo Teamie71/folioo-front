@@ -16,19 +16,7 @@ export const ChatFileUploader = ({ onFileSelect }: ChatFileUploaderProps) => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
-    const allowedTypes = [
-      'application/pdf',
-      'image/png',
-      'image/jpeg',
-      'image/jpg',
-    ];
-    const validFiles = selectedFiles.filter((file) =>
-      allowedTypes.includes(file.type),
-    );
-    if (validFiles.length > 0) {
-      onFileSelect?.(validFiles);
-    }
-    // Reset input to allow selecting the same file again
+    onFileSelect?.(selectedFiles);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }

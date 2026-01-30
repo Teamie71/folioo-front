@@ -2,9 +2,19 @@
 
 import { useRef, useEffect, useState } from 'react';
 import Image from 'next/image';
+import { ChatErrorMessage, type ChatErrorType } from './ChatErrorMessage';
 import { ChatFileUploader } from './ChatFileUploader';
 import { ChatSendButton } from './ChatSendButton';
 import { PdfIcon } from '@/components/icons/PdfIcon';
+
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10MB
+const ALLOWED_FILE_TYPES = [
+  'application/pdf',
+  'image/png',
+  'image/jpeg',
+  'image/jpg',
+];
+const MAX_CHARS = 400;
 
 interface ChatInputProps {
   value?: string;
@@ -42,6 +52,8 @@ export const ChatInput = ({
   const contentRef = useRef<HTMLSpanElement>(null);
   const [files, setFiles] = useState<FileItem[]>([]);
   const [hoveredFileId, setHoveredFileId] = useState<string | null>(null);
+  const [formatErrorShown, setFormatErrorShown] = useState(false);
+  const [capacityErrorShown, setCapacityErrorShown] = useState(false);
 
   useEffect(() => {
     if (contentRef.current && contentRef.current.textContent !== value) {
@@ -81,19 +93,80 @@ export const ChatInput = ({
   };
 
   const handleFileSelect = (selectedFiles: File[]) => {
-    const newFiles: FileItem[] = selectedFiles.map((file) => ({
+    const allowed = selectedFiles.filter((f) =>
+      ALLOWED_FILE_TYPES.includes(f.type),
+    );
+    const hasRejected = allowed.length < selectedFiles.length;
+    if (hasRejected) setFormatErrorShown(true);
+
+    const currentTotal = files.reduce((sum, item) => sum + item.file.size, 0);
+    let runningTotal = currentTotal;
+    const toAdd: File[] = [];
+    for (const f of allowed) {
+      if (runningTotal + f.size > MAX_UPLOAD_BYTES) break;
+      runningTotal += f.size;
+      toAdd.push(f);
+    }
+
+    // 용량 초과로 일부 파일이 추가되지 않은 경우
+    if (toAdd.length < allowed.length && !hasRejected) {
+      setCapacityErrorShown(true);
+    }
+
+    const newItems: FileItem[] = toAdd.map((file) => ({
       id: crypto.randomUUID(),
       file,
     }));
-    setFiles((prev) => [...prev, ...newFiles]);
+    setFiles((prev) => [...prev, ...newItems]);
+    if (!hasRejected && toAdd.length === allowed.length) {
+      setFormatErrorShown(false);
+      setCapacityErrorShown(false);
+    }
   };
 
   const handleRemoveFile = (fileId: string) => {
     setFiles((prev) => prev.filter((item) => item.id !== fileId));
   };
 
+  const totalBytes = files.reduce((sum, item) => sum + item.file.size, 0);
+  const error: ChatErrorType | null =
+    value.length > MAX_CHARS
+      ? 'charLimit'
+      : capacityErrorShown || totalBytes > MAX_UPLOAD_BYTES
+        ? 'capacity'
+        : formatErrorShown
+          ? 'format'
+          : null;
+
+  const [errorSuppressed, setErrorSuppressed] = useState(false);
+
+  useEffect(() => {
+    if (!error) {
+      setErrorSuppressed(false);
+      return;
+    }
+    setErrorSuppressed(false);
+    const t = setTimeout(() => setErrorSuppressed(true), 2000);
+    return () => clearTimeout(t);
+  }, [error]);
+
+  useEffect(() => {
+    if (!formatErrorShown) return;
+    const t = setTimeout(() => setFormatErrorShown(false), 2000);
+    return () => clearTimeout(t);
+  }, [formatErrorShown]);
+
+  useEffect(() => {
+    if (!capacityErrorShown) return;
+    const t = setTimeout(() => setCapacityErrorShown(false), 2000);
+    return () => clearTimeout(t);
+  }, [capacityErrorShown]);
+
+  const showError = error && !errorSuppressed ? error : null;
+
   return (
-    <div className='flex w-full flex-col gap-[0.75rem] rounded-[2rem] bg-[#FDFDFD] px-[1.5rem] py-[1rem] shadow-[0px_1px_4px_0px_#0000001A] shadow-[inset_0px_2px_4px_0px_#00000040]'>
+    <div className='relative flex w-full flex-col gap-[0.75rem] rounded-[2rem] bg-[#FDFDFD] px-[1.5rem] py-[1rem] shadow-[0px_1px_4px_0px_#0000001A] shadow-[inset_0px_2px_4px_0px_#00000040]'>
+      <ChatErrorMessage error={showError} positionAboveRight />
       {/* 채팅창 안 파일 카드 */}
       {files.length > 0 && (
         <div className='flex flex-wrap gap-[0.75rem]'>

@@ -12,7 +12,6 @@ const ERROR_MESSAGES: Record<ChatErrorType, string> = {
 
 interface ChatErrorMessageProps {
   error: ChatErrorType | null;
-  /** 채팅창 바로 위 오른쪽에 고정할 때 사용 (부모에 relative 필요) */
   positionAboveRight?: boolean;
 }
 

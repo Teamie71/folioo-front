@@ -231,11 +231,13 @@ export const ChatStepSection = ({
             </div>
           </div>
         </div>
-        <ChatInput
-          value={inputValue}
-          onChange={onInputChange}
-          onSend={onSend}
-        />
+        <div className='min-w-0 flex-1'>
+          <ChatInput
+            value={inputValue}
+            onChange={onInputChange}
+            onSend={onSend}
+          />
+        </div>
       </div>
     </div>
   );
