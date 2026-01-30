@@ -3,6 +3,7 @@ import InputArea from '@/components/InputArea';
 import { ExperienceIcon } from '@/components/icons/ExperienceIcon';
 import { CommonButton } from '@/components/CommonButton';
 import { SearchButton } from '@/components/SearchButton';
+import { ExperienceCardSection } from '@/features/experience/components/ExperienceCardSection';
 
 export default function ExperiencePage() {
   return (
@@ -47,44 +48,8 @@ export default function ExperiencePage() {
           />
         </div>
 
-        {/* 나의 경험 카드 
-        TODO: 경험 카드 없을 때, 검색 결과 없을 때 문구
-        */}
-        <div className='grid grid-cols-2 gap-[1.5rem]'>
-          <div className='rounded-[1rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.75rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
-            <div className='flex flex-col gap-[1.25rem]'>
-              <span className='text-[1.125rem]'>대중문화와 미디어 팀플</span>
-              <div className='flex items-end justify-between'>
-                <div className='rounded-[6.25rem] border border-[#CDD0D5] px-[0.75rem] py-[0.25rem] text-[0.875rem]'>
-                  기획
-                </div>
-                <span className='text-[1rem] text-[#74777D]'>2000-00-00</span>
-              </div>
-            </div>
-          </div>
-          <div className='rounded-[1rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.75rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
-            <div className='flex flex-col gap-[1.25rem]'>
-              <span className='text-[1.125rem]'>대중문화와 미디어 팀플</span>
-              <div className='flex items-end justify-between'>
-                <div className='rounded-[6.25rem] border border-[#CDD0D5] px-[0.75rem] py-[0.25rem] text-[0.875rem]'>
-                  기획
-                </div>
-                <span className='text-[1rem] text-[#74777D]'>2000-00-00</span>
-              </div>
-            </div>
-          </div>
-          <div className='rounded-[1rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.75rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
-            <div className='flex flex-col gap-[1.25rem]'>
-              <span className='text-[1.125rem]'>대중문화와 미디어 팀플</span>
-              <div className='flex items-end justify-between'>
-                <div className='rounded-[6.25rem] border border-[#CDD0D5] px-[0.75rem] py-[0.25rem] text-[0.875rem]'>
-                  기획
-                </div>
-                <span className='text-[1rem] text-[#74777D]'>2000-00-00</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* 나의 경험 카드 */}
+        <ExperienceCardSection />
       </div>
     </div>
   );
