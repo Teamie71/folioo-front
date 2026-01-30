@@ -9,7 +9,8 @@ import { BackButton } from '@/components/BackButton';
 
 export default function ExperienceSettingsPage() {
   const router = useRouter();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isStartChatModalOpen, setIsStartChatModalOpen] = useState(false);
 
   const handleStartChat = () => {
     // TODO: 백엔드 연동 시 API 호출로 교체
@@ -24,7 +25,7 @@ export default function ExperienceSettingsPage() {
       <div className='flex flex-col gap-[1.5rem]'>
         {/* 헤더 */}
         <div className='flex items-center gap-[1.25rem]'>
-          <BackButton />
+          <BackButton onClick={() => setIsCancelModalOpen(true)} />
           <div className='flex items-center gap-[0.75rem]'>
             <span className='text-[1.25rem] font-bold'>새로운 경험 정리</span>
           </div>
@@ -80,7 +81,7 @@ export default function ExperienceSettingsPage() {
 
       {/* 시작하기 버튼 */}
       <button
-        onClick={handleStartChat}
+        onClick={() => setIsStartChatModalOpen(true)}
         className='fixed bottom-[7.5rem] left-1/2 mx-auto flex -translate-x-1/2 cursor-pointer gap-[0.75rem] rounded-[6.25rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
       >
         {/* TODO: 아이콘 추가 */}
@@ -90,10 +91,10 @@ export default function ExperienceSettingsPage() {
         </span>
       </button>
 
-      {/* 모달 */}
+      {/* 취소 모달 */}
       <CommonModal
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
+        open={isCancelModalOpen}
+        onOpenChange={setIsCancelModalOpen}
         title='이 경험 정리를 정말 그만두시겠습니까?'
         description='지금 돌아가면, 작성하신 내용이 저장되지 않아요.'
         secondaryBtnText='그만두기'
@@ -102,6 +103,21 @@ export default function ExperienceSettingsPage() {
         onSecondaryClick={() => {
           router.back();
         }}
+      />
+
+      <CommonModal
+        open={isStartChatModalOpen}
+        onOpenChange={setIsStartChatModalOpen}
+        title={
+          <>
+            30 크레딧을 사용하여
+            <br />
+            경험 정리를 진행하시겠습니까?
+          </>
+        }
+        cancelBtnText='취소'
+        primaryBtnText='진행'
+        onPrimaryClick={handleStartChat}
       />
     </div>
   );
