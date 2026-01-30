@@ -130,7 +130,7 @@ export default function ExperienceSettingsChatPage() {
         onOpenChange={(open) => {
           if (!open) {
             setIsTransitionModalOpen(false);
-            router.push(`/experience/settings/${id}/loading`);
+            router.push(`/experience/settings/${id}/createloading`);
           }
         }}
         title={
