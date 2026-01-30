@@ -26,6 +26,8 @@ interface ExperienceStore {
 
   removeExperience: (id: string) => void;
 
+  updateExperienceTitle: (id: string, title: string) => void;
+
   formData: {
     experienceName: string;
     desiredJob: string;
@@ -59,6 +61,14 @@ export const useExperienceStore = create<ExperienceStore>()(
         set((state) => ({
           experienceCards: state.experienceCards.filter(
             (card) => card.id !== id,
+          ),
+        })),
+
+      // 경험 카드 제목 수정 (채팅 페이지에서 수정 시)
+      updateExperienceTitle: (id, title) =>
+        set((state) => ({
+          experienceCards: state.experienceCards.map((card) =>
+            card.id === id ? { ...card, title } : card,
           ),
         })),
 
