@@ -8,7 +8,7 @@ export default function ExperienceSettingsChatPage() {
         {/* 헤더 */}
         <div className='flex w-full items-center justify-between'>
           <div className='flex items-center gap-[1.25rem]'>
-            <BackButton />
+            <BackButton href='/experience' />
             <span className='text-[1.25rem] font-bold'>새로운 경험 정리</span>
           </div>
 
