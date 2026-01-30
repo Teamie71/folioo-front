@@ -8,7 +8,7 @@ export const ChatSendButton = ({ onClick }: ChatSendButtonProps) => {
   return (
     <button
       type='button'
-      className='flex cursor-pointer items-center justify-center'
+      className='mr-[0.25rem] flex cursor-pointer items-center justify-center'
       onClick={onClick}
     >
       <ChatSendIcon />
