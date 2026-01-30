@@ -51,7 +51,7 @@ export default function ExperienceSettingsChatPage() {
       <div className='mx-auto flex min-h-0 w-full max-w-[66rem] flex-1 flex-col gap-[1.5rem] overflow-hidden px-[1rem] pt-[2.5rem]'>
         {/* 헤더 */}
         <div className='flex w-full shrink-0 items-center justify-between'>
-          <div className='flex items-center'>
+          <div className='flex items-center gap-[0.5rem]'>
             <BackButton href='/experience' />
             <InlineEdit
               title={experienceTitle}
