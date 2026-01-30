@@ -6,6 +6,7 @@ import { CommonModal } from '@/components/CommonModal';
 import { StepProgressBar } from '@/components/StepProgressBar';
 import { SingleButtonGroup } from '@/components/SingleButtonGroup';
 import { BackButton } from '@/components/BackButton';
+import InputArea from '@/components/InputArea';
 
 export default function ExperienceSettingsPage() {
   const router = useRouter();
@@ -47,10 +48,7 @@ export default function ExperienceSettingsPage() {
             <span>경험명</span>
             <span className='text-[#DC0000]'>*</span>
           </div>
-          <input
-            className='rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-[#74777D]'
-            placeholder='경험명을 입력해주세요.'
-          />
+          <InputArea placeholder='경험명을 입력해주세요.' />
         </div>
 
         {/* 희망 직무 선택 */}
