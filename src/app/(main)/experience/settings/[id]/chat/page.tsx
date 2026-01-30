@@ -41,10 +41,10 @@ export default function ExperienceSettingsChatPage() {
   };
 
   return (
-    <div className='mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem]'>
-      <div className='flex flex-col gap-[1.5rem]'>
+    <div className='flex h-screen flex-col overflow-hidden'>
+      <div className='mx-auto flex min-h-0 w-full max-w-[66rem] flex-1 flex-col gap-[1.5rem] overflow-hidden px-[1rem] pt-[2.5rem]'>
         {/* 헤더 */}
-        <div className='flex w-full items-center justify-between'>
+        <div className='flex w-full shrink-0 items-center justify-between'>
           <div className='flex items-center gap-[1.25rem]'>
             <BackButton href='/experience' />
             <span className='text-[1.25rem] font-bold'>새로운 경험 정리</span>
@@ -57,30 +57,29 @@ export default function ExperienceSettingsChatPage() {
         </div>
 
         {/* 프로그레스 바 */}
-        <StepProgressBar
-          steps={['설정', 'AI 대화', '포트폴리오']}
-          currentStep={2}
-        />
+        <div className='shrink-0'>
+          <StepProgressBar
+            steps={['설정', 'AI 대화', '포트폴리오']}
+            currentStep={2}
+          />
+        </div>
 
-        {/* 채팅 영역
-        TODO: 채팅 입력창, 채팅 메시지 영역 분리 + 채팅 메시지 영역 스크롤 기능 추가
-        */}
-        <div className='flex flex-col gap-[1.5rem]'>
-          {/* 채팅 메시지 */}
+        {/* 채팅 영역: 메시지 영역만 스크롤, 브라우저 바닥 10rem까지 */}
+        <div className='flex min-h-0 flex-1 flex-col overflow-hidden pb-[10rem]'>
           <ChatMessageSection
             messages={messages}
             onAIMessageClick={() => setIsCreditModalOpen(true)}
           />
-
-          {/* 채팅 입력 창 */}
-          <div className='fixed bottom-[4.5rem] left-1/2 flex w-[66rem] min-w-[66rem] -translate-x-1/2 items-center gap-[1.25rem]'>
-            <ChatStepSection
-              inputValue={inputValue}
-              onInputChange={setInputValue}
-              onSend={handleSend}
-            />
-          </div>
         </div>
+      </div>
+
+      {/* 채팅 입력 창: 브라우저 바닥 기준 4.75rem 고정 */}
+      <div className='fixed bottom-[4.75rem] left-1/2 flex w-full max-w-[66rem] -translate-x-1/2 items-center px-[1rem]'>
+        <ChatStepSection
+          inputValue={inputValue}
+          onInputChange={setInputValue}
+          onSend={handleSend}
+        />
       </div>
 
       {/* 크레딧 사용 확인 모달 */}
@@ -88,12 +87,12 @@ export default function ExperienceSettingsChatPage() {
         open={isCreditModalOpen}
         onOpenChange={setIsCreditModalOpen}
         title={
-                <>
-                  10 크레딧을 사용하여
-                  <br />
-                  대화를 계속하시겠습니까?
-                </>
-              }
+          <>
+            10 크레딧을 사용하여
+            <br />
+            대화를 계속하시겠습니까?
+          </>
+        }
         description='크레딧 사용 시 3턴의 대화가 추가로 진행돼요.'
         cancelBtnText='취소'
         primaryBtnText='사용'
