@@ -7,11 +7,27 @@ import { StepProgressBar } from '@/components/StepProgressBar';
 import { SingleButtonGroup } from '@/components/SingleButtonGroup';
 import { BackButton } from '@/components/BackButton';
 import InputArea from '@/components/InputArea';
+import { useExperienceStore } from '@/store/useExperienceStore';
+
+const JOB_OPTIONS = [
+  { label: '미정' },
+  { label: '기획' },
+  { label: '광고/마케팅' },
+  { label: '디자인' },
+  { label: 'IT 개발' },
+  { label: '영상/미디어' },
+  { label: '데이터' },
+];
 
 export default function ExperienceSettingsPage() {
   const router = useRouter();
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isStartChatModalOpen, setIsStartChatModalOpen] = useState(false);
+  const [errors, setErrors] = useState<
+    Partial<Record<'experienceName' | 'desiredJob', string>>
+  >({});
+
+  const { formData, setFormField, validateForm } = useExperienceStore();
 
   const handleStartChat = () => {
     // TODO: 백엔드 연동 시 API 호출로 교체
@@ -44,16 +60,27 @@ export default function ExperienceSettingsPage() {
       <div className='flex flex-col gap-[3.75rem]'>
         {/* 경험명 입력 */}
         <div className='flex flex-col gap-[1rem]'>
-          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
-            <span>경험명</span>
-            <span className='text-[#DC0000]'>*</span>
+          <div className='flex flex-col gap-[0.25rem]'>
+            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+              <span>경험명</span>
+              <span className='text-[#DC0000]'>*</span>
+            </div>
+            {errors.experienceName && (
+              <p className='text-[0.875rem] text-[#DC0000]'>
+                {errors.experienceName}
+              </p>
+            )}
           </div>
-          <InputArea placeholder='경험명을 입력해주세요.' />
+          <InputArea
+            placeholder='경험명을 입력해주세요.'
+            value={formData.experienceName}
+            onChange={(e) => setFormField('experienceName', e.target.value)}
+          />
         </div>
 
         {/* 희망 직무 선택 */}
         <div className='flex flex-col gap-[1rem]'>
-          <div className='flex flex-col text-[1.125rem]'>
+          <div className='flex flex-col gap-[0.25rem] text-[1.125rem]'>
             <div className='flex items-center gap-[0.25rem] font-bold'>
               <span>희망 직무</span>
               <span className='text-[#DC0000]'>*</span>
@@ -61,25 +88,32 @@ export default function ExperienceSettingsPage() {
             <span className='font-regular text-[0.825rem] text-[#74777D]'>
               희망 직무에 맞추어 경험을 체계적으로 정리하세요.
             </span>
+            {errors.desiredJob && (
+              <p className='text-[0.875rem] text-[#DC0000]'>
+                {errors.desiredJob}
+              </p>
+            )}
           </div>
           {/* 직무 목록 */}
           <SingleButtonGroup
-            options={[
-              { label: '미정' },
-              { label: '기획' },
-              { label: '광고/마케팅' },
-              { label: '디자인' },
-              { label: 'IT 개발' },
-              { label: '영상/미디어' },
-              { label: '데이터' },
-            ]}
+            options={JOB_OPTIONS}
+            value={formData.desiredJob}
+            onValueChange={(value) => setFormField('desiredJob', value)}
           />
         </div>
       </div>
 
       {/* 시작하기 버튼 */}
       <button
-        onClick={() => setIsStartChatModalOpen(true)}
+        onClick={() => {
+          const validation = validateForm();
+          if (!validation.isValid) {
+            setErrors(validation.errors);
+            return;
+          }
+          setErrors({});
+          setIsStartChatModalOpen(true);
+        }}
         className='fixed bottom-[7.5rem] left-1/2 mx-auto flex -translate-x-1/2 cursor-pointer gap-[0.75rem] rounded-[6.25rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
       >
         {/* TODO: 아이콘 추가 */}
