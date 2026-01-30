@@ -6,11 +6,13 @@ export type ChatMessage = {
 interface ChatMessageSectionProps {
   messages: ChatMessage[];
   onAIMessageClick?: () => void;
+  onUserMessageClick?: () => void;
 }
 
 export function ChatMessageSection({
   messages,
   onAIMessageClick,
+  onUserMessageClick,
 }: ChatMessageSectionProps) {
   return (
     <div className='relative flex min-h-0 flex-1 flex-col'>
@@ -40,11 +42,16 @@ export function ChatMessageSection({
                 </div>
               </button>
             ) : (
-              <div key={`user-${index}`} className='flex justify-end'>
+              <button
+                key={`user-${index}`}
+                type='button'
+                className='flex w-full cursor-pointer justify-end text-left'
+                onClick={onUserMessageClick}
+              >
                 <div className='font-regular mr-[0.5rem] max-w-[53.75rem] rounded-tl-[2rem] rounded-tr-[0.25rem] rounded-br-[2rem] rounded-bl-[2rem] border border-none bg-[#F6F5FF] px-[2.25rem] py-[1.75rem] text-[1rem] text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
                   {msg.content}
                 </div>
-              </div>
+              </button>
             ),
           )}
         </div>

@@ -9,6 +9,7 @@ import { CommonModal } from '@/components/CommonModal';
 import { useExperienceStore } from '@/store/useExperienceStore';
 import { ChatMessageSection } from '@/features/experience/chat/components/ChatMessageSection';
 import { ChatStepSection } from '@/features/experience/chat/components/ChatStepSection';
+import { ChatCompleteModal } from '@/features/experience/chat/components/ChatCompleteModal';
 
 export default function ExperienceSettingsChatPage() {
   const params = useParams();
@@ -17,6 +18,8 @@ export default function ExperienceSettingsChatPage() {
     (state) => state.removeExperience,
   );
   const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);
+  const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
+  const [isTransitionModalOpen, setIsTransitionModalOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<
     Array<{ role: 'ai' | 'user'; content: string }>
@@ -69,6 +72,7 @@ export default function ExperienceSettingsChatPage() {
           <ChatMessageSection
             messages={messages}
             onAIMessageClick={() => setIsCreditModalOpen(true)}
+            onUserMessageClick={() => setIsCompletionModalOpen(true)}
           />
         </div>
       </div>
@@ -81,6 +85,38 @@ export default function ExperienceSettingsChatPage() {
           onSend={handleSend}
         />
       </div>
+
+      {/* 대화 완료 모달 */}
+      <ChatCompleteModal
+        open={isCompletionModalOpen}
+        onOpenChange={setIsCompletionModalOpen}
+        onEndConversation={() => {
+          setIsCompletionModalOpen(false);
+          setIsTransitionModalOpen(true);
+        }}
+        onContinueWithCredits={() => {
+          setIsCompletionModalOpen(false);
+          setIsCreditModalOpen(true);
+        }}
+      />
+
+      {/* 포트폴리오 생성 시작 안내 모달 (2초 후 자동 닫힘 → 포트폴리오 페이지 이동) */}
+      <CommonModal
+        open={isTransitionModalOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsTransitionModalOpen(false);
+            router.push(`/experience/settings/${id}/portfolio`);
+          }
+        }}
+        title={
+          <>
+            AI 컨설턴트가 충분한 정보를 학습했어요!
+            <br />
+            대화 내용을 바탕으로 텍스트형 포트폴리오 생성을 시작할게요
+          </>
+        }
+      />
 
       {/* 크레딧 사용 확인 모달 */}
       <CommonModal
