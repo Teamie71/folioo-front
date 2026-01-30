@@ -12,7 +12,18 @@ export type ExperienceSettingsFormData = z.infer<
   typeof experienceSettingsFormSchema
 >;
 
+export interface ExperienceCard {
+  id: string;
+  title: string;
+  tag: string;
+  date: string;
+}
+
 interface ExperienceStore {
+  /* 나의 경험 카드 목록 (experience 페이지에 표시) */
+  experienceCards: ExperienceCard[];
+  addExperience: (card: ExperienceCard) => void;
+
   formData: {
     experienceName: string;
     desiredJob: string;
@@ -32,6 +43,15 @@ interface ExperienceStore {
 export const useExperienceStore = create<ExperienceStore>()(
   devtools(
     (set, get) => ({
+      // 나의 경험 카드 목록
+      experienceCards: [],
+
+      // 나의 경험 카드 추가
+      addExperience: (card) =>
+        set((state) => ({
+          experienceCards: [card, ...state.experienceCards],
+        })),
+
       formData: {
         experienceName: '',
         desiredJob: '',
