@@ -1,3 +1,4 @@
+import { BackButton } from '@/components/BackButton';
 import { StepProgressBar } from '@/components/StepProgressBar';
 
 export default function ExperienceSettingsChatPage() {
@@ -7,23 +8,7 @@ export default function ExperienceSettingsChatPage() {
         {/* 헤더 */}
         <div className='flex w-full items-center justify-between'>
           <div className='flex items-center gap-[1.25rem]'>
-            <button className='cursor-pointer border-none bg-transparent'>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='28'
-                height='28'
-                viewBox='0 0 28 28'
-                fill='none'
-              >
-                <path
-                  d='M18 23L9 14L18 5.00001'
-                  stroke='black'
-                  strokeWidth='2.5'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                />
-              </svg>
-            </button>
+            <BackButton />
             <span className='text-[1.25rem] font-bold'>새로운 경험 정리</span>
           </div>
 
