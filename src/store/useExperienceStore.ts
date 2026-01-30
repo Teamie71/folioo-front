@@ -24,6 +24,8 @@ interface ExperienceStore {
   experienceCards: ExperienceCard[];
   addExperience: (card: ExperienceCard) => void;
 
+  removeExperience: (id: string) => void;
+
   formData: {
     experienceName: string;
     desiredJob: string;
@@ -50,6 +52,14 @@ export const useExperienceStore = create<ExperienceStore>()(
       addExperience: (card) =>
         set((state) => ({
           experienceCards: [card, ...state.experienceCards],
+        })),
+
+      // 나의 경험 카드 삭제
+      removeExperience: (id) =>
+        set((state) => ({
+          experienceCards: state.experienceCards.filter(
+            (card) => card.id !== id,
+          ),
         })),
 
       formData: {
