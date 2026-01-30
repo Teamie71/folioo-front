@@ -42,7 +42,7 @@ export const ChatStepSection = ({
     'h-[1.125rem] w-[1.125rem] bg-gradient-to-br from-[#93B3F4] to-[#5060C5] border-transparent';
 
   return (
-    <div className='flex min-h-[14rem] w-full flex-col'>
+    <div className='relative z-30 flex min-h-[14rem] w-full flex-col'>
       {/* ChatBubble만 페이드 (0~3단계) */}
       <div className='relative min-h-[10rem] flex-1'>
         {/* 0단계 디자인 */}

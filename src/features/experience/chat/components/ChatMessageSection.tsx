@@ -16,7 +16,7 @@ export function ChatMessageSection({
     <div className='relative flex min-h-0 flex-1 flex-col'>
       {/* 위쪽 페이드 */}
       <div
-        className='pointer-events-none absolute top-0 right-0 left-0 z-10 h-[2.5rem] shrink-0'
+        className='pointer-events-none absolute top-0 right-0 left-0 z-[5] h-[2.5rem] shrink-0'
         style={{
           background:
             'linear-gradient(to bottom, #ffffff 0%, rgba(255,255,255,0.4) 70%, transparent 100%)',
@@ -51,7 +51,7 @@ export function ChatMessageSection({
       </div>
       {/* 아래쪽 페이드 */}
       <div
-        className='pointer-events-none absolute right-0 bottom-0 left-0 z-10 h-[2.5rem] shrink-0'
+        className='pointer-events-none absolute right-0 bottom-0 left-0 z-[5] h-[2.5rem] shrink-0'
         style={{
           background:
             'linear-gradient(to top, #ffffff 0%, rgba(255,255,255,0.4) 70%, transparent 100%)',
