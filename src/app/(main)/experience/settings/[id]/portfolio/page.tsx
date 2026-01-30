@@ -1,36 +1,68 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { BackButton } from '@/components/BackButton';
+import { DeleteModalButton } from '@/components/DeleteModalButton';
+import { InlineEdit } from '@/components/InlineEdit';
+import { useExperienceStore } from '@/store/useExperienceStore';
 import { ContributionBar } from '@/features/experience/components/ContributionBar';
 import SpanArea from '@/components/SpanArea';
 
 export default function ExperienceSettingsPortfolioPage() {
+  const params = useParams();
+  const router = useRouter();
+  const id = typeof params.id === 'string' ? params.id : '';
+  const removeExperience = useExperienceStore(
+    (state) => state.removeExperience,
+  );
+  const updateExperienceTitle = useExperienceStore(
+    (state) => state.updateExperienceTitle,
+  );
+  const storeTitle = useExperienceStore(
+    (state) =>
+      state.experienceCards.find((c) => c.id === id)?.title ??
+      '새로운 경험 정리',
+  );
+
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [experienceTitle, setExperienceTitle] = useState(storeTitle);
+
+  useEffect(() => {
+    setExperienceTitle(storeTitle);
+  }, [id, storeTitle]);
+
+  const handleDelete = () => {
+    removeExperience(id);
+    router.push('/experience');
+  };
+
   return (
     <div className='mx-auto w-[66rem] min-w-[66rem]'>
       <div className='flex flex-col gap-[1.125rem] pb-[4.5rem]'>
         {/* 헤더 */}
         <div className='flex w-full items-center justify-between'>
-          <div className='flex items-center gap-[1.25rem]'>
-            <button className='cursor-pointer border-none bg-transparent'>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='28'
-                height='28'
-                viewBox='0 0 28 28'
-                fill='none'
-              >
-                <path
-                  d='M18 23L9 14L18 5.00001'
-                  stroke='black'
-                  strokeWidth='2.5'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                />
-              </svg>
-            </button>
-            <span className='text-[1.25rem] font-bold'>새로운 경험 정리</span>
+          <div className='flex items-center gap-[0.5rem]'>
+            <BackButton href='/experience' />
+            <InlineEdit
+              title={experienceTitle}
+              isEditing={isEditingTitle}
+              onEdit={() => setIsEditingTitle(true)}
+              onSave={(newTitle) => {
+                setExperienceTitle(newTitle);
+                updateExperienceTitle(id, newTitle);
+                setIsEditingTitle(false);
+              }}
+            />
           </div>
 
           <div className='flex items-center gap-[1.5rem]'>
-            {/* 내보내기 버튼 */}
-            <button className='flex cursor-pointer items-center gap-[0.5rem] border-none bg-transparent'>
+            {/* 내보내기 버튼 - 아직 클릭 동작 없음 */}
+            <button
+              type='button'
+              className='flex cursor-pointer items-center gap-[0.5rem] border-none bg-transparent'
+              aria-label='내보내기'
+            >
               <svg
                 xmlns='http://www.w3.org/2000/svg'
                 width='24'
@@ -49,22 +81,10 @@ export default function ExperienceSettingsPortfolioPage() {
             {/* 구분선 */}
             <div className='h-[2rem] w-[0.125rem] border-none bg-[#1A1A1A]' />
 
-            {/* 삭제 버튼 */}
-            <button className='flex cursor-pointer items-center gap-[0.5rem] border-none bg-transparent'>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='18'
-                height='20'
-                viewBox='0 0 18 20'
-                fill='none'
-              >
-                <path
-                  d='M3.375 20C2.75625 20 2.22675 19.7826 1.7865 19.3478C1.34625 18.913 1.12575 18.3896 1.125 17.7778V3.89583C1.125 3.58517 0.87316 3.33333 0.5625 3.33333C0.25184 3.33333 0 3.08149 0 2.77083V2.11111C0 1.55883 0.447715 1.11111 1 1.11111H5.06944C5.37627 1.11111 5.625 0.86238 5.625 0.555556C5.625 0.248731 5.87373 0 6.18056 0H11.8194C12.1263 0 12.375 0.248731 12.375 0.555556C12.375 0.86238 12.6237 1.11111 12.9306 1.11111H17C17.5523 1.11111 18 1.55883 18 2.11111V2.77083C18 3.08149 17.7482 3.33333 17.4375 3.33333C17.1268 3.33333 16.875 3.58517 16.875 3.89583V17.7778C16.875 18.3889 16.6549 18.9122 16.2146 19.3478C15.7744 19.7833 15.2445 20.0007 14.625 20H3.375ZM14.625 4.33333C14.625 3.78105 14.1773 3.33333 13.625 3.33333H4.375C3.82272 3.33333 3.375 3.78105 3.375 4.33333V16.7778C3.375 17.3301 3.82272 17.7778 4.375 17.7778H13.625C14.1773 17.7778 14.625 17.3301 14.625 16.7778V4.33333ZM5.625 14.5556C5.625 15.1078 6.07272 15.5556 6.625 15.5556H6.875C7.42728 15.5556 7.875 15.1078 7.875 14.5556V6.55556C7.875 6.00327 7.42728 5.55556 6.875 5.55556H6.625C6.07272 5.55556 5.625 6.00327 5.625 6.55556V14.5556ZM10.125 14.5556C10.125 15.1078 10.5727 15.5556 11.125 15.5556H11.375C11.9273 15.5556 12.375 15.1078 12.375 14.5556V6.55556C12.375 6.00327 11.9273 5.55556 11.375 5.55556H11.125C10.5727 5.55556 10.125 6.00327 10.125 6.55556V14.5556Z'
-                  fill='#74777D'
-                />
-              </svg>
-              <span className='text-[1rem] text-[#1A1A1A]'>삭제</span>
-            </button>
+            <DeleteModalButton
+              title='이 경험 정리를 정말 삭제하시겠습니까?'
+              onDelete={handleDelete}
+            />
           </div>
         </div>
 
