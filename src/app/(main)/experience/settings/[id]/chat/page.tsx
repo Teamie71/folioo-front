@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { BackButton } from '@/components/BackButton';
 import { StepProgressBar } from '@/components/StepProgressBar';
@@ -15,20 +15,32 @@ import { ChatCompleteModal } from '@/features/experience/chat/components/ChatCom
 export default function ExperienceSettingsChatPage() {
   const params = useParams();
   const router = useRouter();
+  const id = typeof params.id === 'string' ? params.id : '';
   const removeExperience = useExperienceStore(
     (state) => state.removeExperience,
   );
+  const updateExperienceTitle = useExperienceStore(
+    (state) => state.updateExperienceTitle,
+  );
+  const storeTitle = useExperienceStore(
+    (state) =>
+      state.experienceCards.find((c) => c.id === id)?.title ??
+      '새로운 경험 정리',
+  );
+
   const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);
   const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
   const [isTransitionModalOpen, setIsTransitionModalOpen] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [experienceTitle, setExperienceTitle] = useState('새로운 경험 정리');
+  const [experienceTitle, setExperienceTitle] = useState(storeTitle);
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<
     Array<{ role: 'ai' | 'user'; content: string }>
   >([{ role: 'ai', content: '내용' }]);
 
-  const id = typeof params.id === 'string' ? params.id : '';
+  useEffect(() => {
+    setExperienceTitle(storeTitle);
+  }, [id, storeTitle]);
 
   const handleSend = () => {
     const trimmed = inputValue.trim();
@@ -59,6 +71,7 @@ export default function ExperienceSettingsChatPage() {
               onEdit={() => setIsEditingTitle(true)}
               onSave={(newTitle) => {
                 setExperienceTitle(newTitle);
+                updateExperienceTitle(id, newTitle);
                 setIsEditingTitle(false);
               }}
             />
@@ -117,7 +130,7 @@ export default function ExperienceSettingsChatPage() {
         onOpenChange={(open) => {
           if (!open) {
             setIsTransitionModalOpen(false);
-            router.push(`/experience/settings/${id}/portfolio`);
+            router.push(`/experience/settings/${id}/loading`);
           }
         }}
         title={

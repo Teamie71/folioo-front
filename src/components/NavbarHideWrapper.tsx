@@ -8,6 +8,7 @@ function shouldHideNavbar(pathname: string): boolean {
   if (pathname === '/experience/settings') return true;
   // experience/settings/[id]/chat 페이지
   if (/^\/experience\/settings\/[^/]+\/chat$/.test(pathname)) return true;
+  if (/^\/experience\/settings\/[^/]+\/loading$/.test(pathname)) return true;
   return false;
 }
 
