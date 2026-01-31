@@ -79,47 +79,50 @@ export function InlineEdit({
       </span>
       {isEditing ? (
         <>
-          <div className='relative inline-block'>
-            <span
-              ref={measureRef}
-              aria-hidden
-              className='invisible absolute top-0 left-0 text-[1.25rem] font-bold whitespace-pre'
-            >
-              {value || ' '}
-            </span>
-            <InputArea
-              ref={inputRef}
-              type='text'
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              width={inputWidth > 0 ? inputWidth : undefined}
-              className='rounded-[0.375rem] border-[#1A1A1A] px-[0.75rem] py-[0.5rem] text-[1.25rem] font-bold'
-            />
-          </div>
-          <button
-            type='button'
-            onClick={handleSave}
-            className='cursor-pointer border-none bg-transparent'
-            title='저장'
-          >
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              width='24'
-              height='24'
-              viewBox='0 0 24 24'
-              fill='none'
-            >
-              <circle cx='12' cy='12' r='10' fill='#4F63D3' />
-              <path
-                d='M7.5 12.3 L10.4 15.2 L16.6 9'
-                stroke='#FFFFFF'
-                strokeWidth='2.6'
-                strokeLinecap='round'
-                strokeLinejoin='round'
+          <div className='relative inline-flex items-center'>
+            <div className='relative inline-block'>
+              <span
+                ref={measureRef}
+                aria-hidden
+                className='invisible absolute top-0 left-0 text-[1.25rem] font-bold whitespace-pre'
+              >
+                {value || ' '}
+              </span>
+        
+              <InputArea
+                ref={inputRef}
+                type='text'
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                width={inputWidth > 0 ? inputWidth : undefined}
+                className='rounded-[0.375rem] border-[#1A1A1A] px-[0.75rem] py-[0.5rem] text-[1.25rem] font-bold'
               />
-            </svg>
-          </button>
+            </div>
+        
+            {/* 수정 완료 버튼 */}
+            <button
+              onClick={() => onSave?.(value)}
+              className='ml-[1rem] cursor-pointer border-none bg-transparent'
+            >
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                width='24'
+                height='24'
+                viewBox='0 0 24 24'
+                fill='none'
+              >
+                <circle cx='12' cy='12' r='10' fill='#4F63D3' />
+                <path
+                  d='M7.5 12.3 L10.4 15.2 L16.6 9'
+                  stroke='#FFFFFF'
+                  strokeWidth='2.6'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                />
+              </svg>
+            </button>
+          </div>
         </>
       ) : (
         <>
