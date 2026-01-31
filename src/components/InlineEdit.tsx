@@ -32,7 +32,7 @@ export function InlineEdit({
       {isEditing ? (
         <button
           onClick={onSave}
-          className='cursor-pointer border-none bg-transparent'
+          className='cursor-pointer border-none bg-transparent ml-[1rem]'
         >
           <svg
             xmlns='http://www.w3.org/2000/svg'
