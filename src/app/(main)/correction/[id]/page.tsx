@@ -103,10 +103,10 @@ export default function CorrectionSettingsPage() {
 
   return (
     <div className='mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem]'>
-      <div className='flex flex-col gap-[1.5rem]'>
+      <div className='flex flex-col gap-[0.75rem]'>
         {/* 헤더 */}
         <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-[1.25rem]'>
+          <div className='flex items-center gap-[0.75rem]'>
             <BackButton onClick={() => setIsQuitModalOpen(true)} />
             <CommonModal
               open={isQuitModalOpen}

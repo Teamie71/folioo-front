@@ -66,8 +66,17 @@ export function InlineEdit({
         'group flex items-center gap-[0.75rem]',
         !isEditing && 'cursor-pointer',
         className,
-      )}
-    >
+      )}>
+      <span
+        className={cn(
+          'text-[1.25rem] font-bold rounded-[0.375rem] border px-[0.75rem] py-[0.5rem]',
+          isEditing
+            ? 'border-[#1A1A1A]'
+            : 'border-transparent',
+        )}
+      >
+        {title}
+      </span>
       {isEditing ? (
         <>
           <div className='relative inline-block'>
