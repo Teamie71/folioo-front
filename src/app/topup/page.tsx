@@ -77,7 +77,7 @@ export default function TopupPage() {
       <div className='flex flex-col gap-[4.5rem] pb-[6.25rem]'>
       {/* 크레딧 충전 헤더 */}
       <div className='relative mx-auto flex h-[15.625rem] w-full min-w-[66rem] bg-[#F6F5FF]'>
-        <div className='mx-auto flex min-w-[66rem] items-center justify-center px-[2rem]'>
+        <div className='mx-auto flex min-w-[66rem] items-center justify-center'>
           <div className='flex items-center justify-between w-full'>
             {/* 크레딧 충전 타이틀 */}
             <div>
