@@ -18,7 +18,7 @@ export function InlineEdit({
   className,
 }: InlineEditProps) {
   return (
-    <div className={cn('flex items-center gap-[0.75rem]', className)}>
+    <div className={cn('flex items-center gap-[0.25rem]', className)}>
       <span
         className={cn(
           'text-[1.25rem] font-bold rounded-[0.375rem] border px-[0.75rem] py-[0.5rem]',
