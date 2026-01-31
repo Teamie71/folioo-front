@@ -1,6 +1,6 @@
 import '../styles/globals.css';
 import localFont from 'next/font/local';
-import NavbarWrapper from '@/components/NavbarHideWrapper';
+import LayoutContent from '@/components/LayoutContent';
 
 const pretendard = localFont({
   src: './fonts/PretendardVariable.woff2',
@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang='ko' className={pretendard.className}>
       <body>
-        <NavbarWrapper>{children}</NavbarWrapper>
+        <LayoutContent>{children}</LayoutContent>
       </body>
     </html>
   );
