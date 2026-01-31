@@ -73,6 +73,7 @@ export default function CorrectionSettingsPage() {
     '축소 또는 제외' | '구체화하여 강조'
   >('축소 또는 제외');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
 
   const handleNextStep = () => {
     if (step === 'information') {
@@ -106,8 +107,19 @@ export default function CorrectionSettingsPage() {
         {/* 헤더 */}
         <div className='flex items-center justify-between'>
           <div className='flex items-center gap-[1.25rem]'>
-            {/* TODO: 클릭 시 모달 */}
-            <BackButton href='/correction' />
+            <BackButton onClick={() => setIsQuitModalOpen(true)} />
+            <CommonModal
+              open={isQuitModalOpen}
+              onOpenChange={setIsQuitModalOpen}
+              title='이 첨삭을 정말 그만두시겠습니까?'
+              description='지금 돌아가면, 작성하신 내용이 저장되지 않아요.'
+              cancelBtnText='취소'
+              secondaryBtnText='그만두기'
+              onSecondaryClick={() => {
+                setIsQuitModalOpen(false);
+                router.push('/correction');
+              }}
+            />
             <InlineEdit
               title='새로운 포트폴리오 첨삭'
               isEditing={isEditingTitle}
