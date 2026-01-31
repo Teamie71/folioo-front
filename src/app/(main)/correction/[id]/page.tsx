@@ -720,21 +720,18 @@ export default function CorrectionSettingsPage() {
             </div>
 
             {/* 다음으로 버튼 */}
-            <div className='flex justify-center pb-[7rem]'>
-              <button
-                onClick={handleNextStep}
-                disabled={!selectedPortfolioType}
-                className={`flex cursor-pointer items-center justify-center rounded-[3.75rem] border-none px-[2.25rem] py-[0.75rem] ${
-                  selectedPortfolioType
-                    ? 'bg-[#5060C5]'
-                    : 'cursor-not-allowed bg-[#CDD0D5]'
-                }`}
-              >
-                <span className='text-[1rem] font-bold text-[#FFFFFF]'>
-                  다음으로
-                </span>
-              </button>
-            </div>
+            {selectedPortfolioType && (
+              <div className='flex justify-center pb-[7rem]'>
+                <button
+                  onClick={handleNextStep}
+                  className='flex cursor-pointer items-center justify-center rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
+                >
+                  <span className='text-[1rem] font-bold text-[#FFFFFF]'>
+                    다음으로
+                  </span>
+                </button>
+              </div>
+            )}
           </>
         ) : step === 'analysis' ? (
           <>
