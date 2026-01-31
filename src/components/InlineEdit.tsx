@@ -5,6 +5,7 @@ import { cn } from '@/utils/utils';
 interface InlineEditProps {
   title: string;
   isEditing?: boolean;
+  editable?: boolean; // false면 수정 아이콘 미표시
   onEdit?: () => void;
   onSave?: () => void;
   className?: string;
@@ -13,6 +14,7 @@ interface InlineEditProps {
 export function InlineEdit({
   title,
   isEditing = false,
+  editable = true,
   onEdit,
   onSave,
   className,
@@ -30,6 +32,7 @@ export function InlineEdit({
         {title}
       </span>
       {isEditing ? (
+        editable && (
         <button
           onClick={onSave}
           className='cursor-pointer border-none bg-transparent ml-[1rem]'
@@ -51,7 +54,8 @@ export function InlineEdit({
             />
           </svg>
         </button>
-      ) : (
+        )
+      ) : editable ? (
         <button
           onClick={onEdit}
           className='cursor-pointer border-none bg-transparent opacity-0 transition-opacity group-hover:opacity-100'
@@ -69,7 +73,7 @@ export function InlineEdit({
             />
           </svg>
         </button>
-      )}
+      ) : null}
     </div>
   );
 }
