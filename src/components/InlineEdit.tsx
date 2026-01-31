@@ -18,7 +18,7 @@ export function InlineEdit({
   className,
 }: InlineEditProps) {
   return (
-    <div className={cn('flex items-center gap-[0.25rem]', className)}>
+    <div className={cn('group flex items-center gap-[0.25rem]', className)}>
       <span
         className={cn(
           'text-[1.25rem] font-bold rounded-[0.375rem] border px-[0.75rem] py-[0.5rem]',
@@ -54,7 +54,7 @@ export function InlineEdit({
       ) : (
         <button
           onClick={onEdit}
-          className='cursor-pointer border-none bg-transparent'
+          className='cursor-pointer border-none bg-transparent opacity-0 transition-opacity group-hover:opacity-100'
         >
           <svg
             xmlns='http://www.w3.org/2000/svg'
