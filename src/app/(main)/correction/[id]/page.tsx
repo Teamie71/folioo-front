@@ -77,11 +77,19 @@ export default function CorrectionSettingsPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
   const [isPdfTextExtracted, setIsPdfTextExtracted] = useState(false);
+  const [showTextPortfolioWarning, setShowTextPortfolioWarning] = useState(false);
 
   const handleNextStep = () => {
     if (step === 'information') {
       setStep('portfolio');
     } else if (step === 'portfolio') {
+      if (
+        selectedPortfolioType === 'text' &&
+        selectedTextPortfolioIds.length === 0
+      ) {
+        setShowTextPortfolioWarning(true);
+        return;
+      }
       setStep('analysis');
     } else if (step === 'analysis') {
       // TODO: 백엔드 연동 시 API 호출
@@ -100,6 +108,7 @@ export default function CorrectionSettingsPage() {
 
   const handlePortfolioSelect = (type: PortfolioType) => {
     setSelectedPortfolioType(type);
+    setShowTextPortfolioWarning(false);
     // 포트폴리오 타입 전환 시 텍스트형 선택 상태 초기화
     setSelectedTextPortfolioIds([]);
     // PDF에서 다른 타입으로 전환 시 텍스트 추출 상태 초기화
@@ -429,16 +438,14 @@ export default function CorrectionSettingsPage() {
                     경험 정리를 통해 생성한 포트폴리오 중, 첨삭을 진행할
                     포트폴리오를 최대 5개 클릭하여 선택해주세요.
                   </span>
-                  {selectedTextPortfolioIds.length === 0 && (
-                    <span className='mt-[1.25rem] text-[0.875rem] text-[#DC0000]'>
+                  {showTextPortfolioWarning && (
+                    <span className='mt-[1.75rem] mb-[0.5rem] text-[0.875rem] text-[#DC0000]'>
                       첨삭할 텍스트형 포트폴리오를 선택해주세요
                     </span>
                   )}
                   <div
                     className={`grid grid-cols-2 gap-[1.5rem] ${
-                      selectedTextPortfolioIds.length === 0
-                        ? 'mt-[0.5rem]'
-                        : 'mt-[1.25rem]'
+                      showTextPortfolioWarning ? 'mt-[0.5rem]' : 'mt-[1.25rem]'
                     }`}
                   >
                     {textPortfolios.map((portfolio) => (
@@ -451,6 +458,7 @@ export default function CorrectionSettingsPage() {
                           portfolio.id,
                         )}
                         onClick={() => {
+                          setShowTextPortfolioWarning(false);
                           setSelectedTextPortfolioIds((prev) => {
                             if (prev.includes(portfolio.id)) {
                               // 이미 선택되어 있으면 제거
@@ -664,16 +672,7 @@ export default function CorrectionSettingsPage() {
               <div className='flex justify-center pb-[7rem]'>
                 <button
                   onClick={handleNextStep}
-                  disabled={
-                    selectedPortfolioType === 'text' &&
-                    selectedTextPortfolioIds.length === 0
-                  }
-                  className={`flex items-center justify-center rounded-[3.75rem] border-none px-[2.25rem] py-[0.75rem] ${
-                    selectedPortfolioType === 'text' &&
-                    selectedTextPortfolioIds.length === 0
-                      ? 'cursor-not-allowed bg-[#CDD0D5]'
-                      : 'cursor-pointer bg-[#5060C5]'
-                  }`}
+                  className='flex cursor-pointer items-center justify-center rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
                 >
                   <span className='text-[1rem] font-bold text-[#FFFFFF]'>
                     다음으로
