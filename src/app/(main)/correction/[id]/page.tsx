@@ -12,6 +12,7 @@ import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
 import { ToggleSmall } from '@/components/ToggleSmall';
 import { ToggleLarge } from '@/components/ToggleLarge';
 import InputArea from '@/components/InputArea';
+import TextField from '@/components/TextField';
 
 type Step = 'information' | 'portfolio' | 'analysis' | 'result';
 type Status = 'DRAFT' | 'ANALYZING' | 'DONE';
@@ -209,9 +210,12 @@ export default function CorrectionSettingsPage() {
               </div>
               <div className='flex flex-col gap-[0.75rem]'>
                 {jdMode === 'text' ? (
-                  <div className='min-h-[23.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.625rem] py-[1.25rem] text-[#74777D]'>
-                    채용공고의 JD를 복사 후 붙여넣기 해주세요. 
-                  </div>
+                  <TextField
+                    variant='wide'
+                    height='23.5rem'
+                    className='rounded-[1.25rem]'
+                    placeholder='채용공고의 JD를 복사 후 붙여넣기 해주세요.'
+                  />
                 ) : (
                   <div className='flex gap-[1.5rem]'>
                     {/* 왼쪽: 파일 업로드 옵션들 (회색 배경 섹션) */}
