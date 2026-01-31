@@ -102,7 +102,7 @@ export function CommonModal({
       >
         {/* 헤더 영역 (제목 + 설명) */}
         {(title || description) && (
-          <DialogHeader className='flex flex-col items-center justify-center'>
+          <DialogHeader className='flex flex-col items-center justify-center gap-[0.25rem] space-y-0'>
             {title && (
               <DialogTitle className='line-height-[130%] text-center text-[1.125rem] font-bold'>
                 {title}
@@ -124,7 +124,7 @@ export function CommonModal({
         {(footer || primaryBtnText || secondaryBtnText || cancelBtnText) && (
           <DialogFooter
             className={cn(
-              'flex flex-row justify-center gap-[1.25rem]',
+              'flex flex-row justify-center gap-[1.25rem] space-x-0 sm:space-x-0 [&>button]:m-0',
               // 버튼이 하나면 중앙 정렬
               !cancelBtnText &&
                 !secondaryBtnText &&
