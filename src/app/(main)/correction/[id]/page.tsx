@@ -121,8 +121,10 @@ export default function CorrectionSettingsPage() {
               }}
             />
           </div>
-          {/* 삭제 버튼 */}
-          <DeleteButton onClick={() => setIsDeleteModalOpen(true)} />
+          {/* 삭제 버튼 (information 단계에서는 숨김) */}
+          {step !== 'information' && (
+            <DeleteButton onClick={() => setIsDeleteModalOpen(true)} />
+          )}
           <CommonModal
             open={isDeleteModalOpen}
             onOpenChange={setIsDeleteModalOpen}
