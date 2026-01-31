@@ -11,6 +11,7 @@ import { InlineEdit } from '@/components/InlineEdit';
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
 import { ToggleSmall } from '@/components/ToggleSmall';
 import { ToggleLarge } from '@/components/ToggleLarge';
+import InputArea from '@/components/InputArea';
 
 type Step = 'information' | 'portfolio' | 'analysis' | 'result';
 type Status = 'DRAFT' | 'ANALYZING' | 'DONE';
@@ -171,10 +172,7 @@ export default function CorrectionSettingsPage() {
                   <span>지원 기업명</span>
                   <span className='text-[#DC0000]'>*</span>
                 </div>
-                <input
-                  className='rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-[#74777D]'
-                  placeholder='기업명을 입력해주세요.'
-                />
+                <InputArea placeholder='기업명을 입력해주세요.' />
               </div>
 
               {/* 지원 직무명 입력 */}
@@ -183,10 +181,7 @@ export default function CorrectionSettingsPage() {
                   <span>지원 직무명</span>
                   <span className='text-[#DC0000]'>*</span>
                 </div>
-                <input
-                  className='rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-[#74777D]'
-                  placeholder='직무명을 입력해주세요.'
-                />
+                <InputArea placeholder='직무명을 입력해주세요.' />
               </div>
             </div>
 
