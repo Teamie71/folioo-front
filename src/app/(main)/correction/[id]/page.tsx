@@ -654,7 +654,11 @@ export default function CorrectionSettingsPage() {
                       3크레딧으로 다시 생성
                     </button>
                   </div>
-                  <textarea className='min-h-[17.125rem] rounded-[1.25rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-[#74777D]' />
+                  <TextField
+                    variant='wide'
+                    height='17.125rem'
+                    className='rounded-[1.25rem]'
+                  />
                 </div>
               </div>
 
@@ -668,7 +672,11 @@ export default function CorrectionSettingsPage() {
                     기업 분석 정보를 바탕으로, 이번 서류에서 강조하고 싶은
                     역량이나 기술 등이 있다면 작성해주세요.
                   </span>
-                  <textarea className='min-h-[10.625rem] rounded-[1.25rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-[#74777D]' />
+                  <TextField
+                    variant='wide'
+                    height='10.625rem'
+                    className='rounded-[1.25rem]'
+                  />
                 </div>
               </div>
             </div>
