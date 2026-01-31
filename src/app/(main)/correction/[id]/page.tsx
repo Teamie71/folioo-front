@@ -6,6 +6,7 @@ import { PortfolioCard } from '@/components/PortfolioCard';
 import { PortfolioTypeCard } from '@/components/PortfolioTypeCard';
 import { BackButton } from '@/components/BackButton';
 import { DeleteButton } from '@/components/DeleteButton';
+import { CommonModal } from '@/components/CommonModal';
 import { InlineEdit } from '@/components/InlineEdit';
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
 import { ToggleSmall } from '@/components/ToggleSmall';
@@ -71,6 +72,7 @@ export default function CorrectionSettingsPage() {
   const [lessonsButton, setLessonsButton] = useState<
     '축소 또는 제외' | '구체화하여 강조'
   >('축소 또는 제외');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleNextStep = () => {
     if (step === 'information') {
@@ -120,9 +122,15 @@ export default function CorrectionSettingsPage() {
             />
           </div>
           {/* 삭제 버튼 */}
-          <DeleteButton
-            onClick={() => {
-              // TODO: 삭제 확인 모달 및 API 호출
+          <DeleteButton onClick={() => setIsDeleteModalOpen(true)} />
+          <CommonModal
+            open={isDeleteModalOpen}
+            onOpenChange={setIsDeleteModalOpen}
+            title='이 첨삭을 정말 삭제하시겠습니까?'
+            cancelBtnText='취소'
+            secondaryBtnText='삭제'
+            onSecondaryClick={() => {
+              setIsDeleteModalOpen(false);
               router.push('/correction');
             }}
           />
