@@ -63,10 +63,11 @@ export function InlineEdit({
   return (
     <div
       className={cn(
-        'group flex items-center gap-[0.75rem]',
-        !isEditing && 'cursor-pointer',
+        'group flex items-center gap-[0.25rem]', // 간격 수정 반영
+        !isEditing && 'cursor-pointer',          // UX 유지
         className,
-      )}>
+      )}
+    >
       <span
         className={cn(
           'text-[1.25rem] font-bold rounded-[0.375rem] border px-[0.75rem] py-[0.5rem]',
@@ -126,17 +127,19 @@ export function InlineEdit({
         </>
       ) : (
         <>
+          {/* 제목 텍스트 */}
           <span
             className='rounded-[0.375rem] border border-transparent pl-[0.75rem] pr-0 py-[0.5rem] text-[1.25rem] font-bold'
             onClick={onEdit}
           >
             {title}
           </span>
+
+          {/* 수정 아이콘 버튼 (hover 시 표시) */}
           <button
-            type='button'
             onClick={onEdit}
             className='cursor-pointer border-none bg-transparent opacity-0 transition-opacity group-hover:opacity-100'
-            title='제목 수정'
+            aria-label='제목 수정'
           >
             <svg
               xmlns='http://www.w3.org/2000/svg'
