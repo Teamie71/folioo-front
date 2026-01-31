@@ -128,6 +128,7 @@ export default function CorrectionSettingsPage() {
             <InlineEdit
               title='새로운 포트폴리오 첨삭'
               isEditing={isEditingTitle}
+              editable={step !== 'information'}
               onEdit={() => {
                 // TODO: 포트폴리오 첨삭 명 수정 모드로 전환
                 setIsEditingTitle(true);
