@@ -78,6 +78,8 @@ export default function CorrectionSettingsPage() {
   const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
   const [isPdfTextExtracted, setIsPdfTextExtracted] = useState(false);
   const [showTextPortfolioWarning, setShowTextPortfolioWarning] = useState(false);
+  const [analysisInfoValue, setAnalysisInfoValue] = useState('');
+  const [showAnalysisInfoWarning, setShowAnalysisInfoWarning] = useState(false);
 
   const handleNextStep = () => {
     if (step === 'information') {
@@ -92,6 +94,10 @@ export default function CorrectionSettingsPage() {
       }
       setStep('analysis');
     } else if (step === 'analysis') {
+      if (!analysisInfoValue.trim()) {
+        setShowAnalysisInfoWarning(true);
+        return;
+      }
       // TODO: 백엔드 연동 시 API 호출
       setStatus('ANALYZING');
       // 분석 완료 후
@@ -691,7 +697,11 @@ export default function CorrectionSettingsPage() {
                   <span className='text-[#DC0000]'>*</span>
                 </div>
                 <div className='flex flex-col'>
-                  <div className='mb-[1rem] flex items-center justify-between'>
+                  <div
+                    className={`flex items-center justify-between ${
+                      showAnalysisInfoWarning ? 'mb-[0.5rem]' : 'mb-[1rem]'
+                    }`}
+                  >
                     <div className='flex flex-col'>
                       <span className='text-[0.875rem] text-[#74777D]'>
                         지원 정보를 바탕으로 AI 컨설턴트가 기업 분석 정보를
@@ -701,6 +711,11 @@ export default function CorrectionSettingsPage() {
                         추가하고 싶은 내용이 있으시면, 수정 후 첨삭을
                         의뢰해주세요.
                       </span>
+                      {showAnalysisInfoWarning && (
+                        <span className='mt-[0.5rem] text-[0.875rem] text-[#DC0000]'>
+                          기업 분석 정보를 입력해주세요
+                        </span>
+                      )}
                     </div>
                     <button className='h-fit cursor-pointer rounded-[3.75rem] border border-[#5060C5] bg-[#F6F5FF] px-[2.25rem] py-[0.5rem] text-[1rem] font-bold whitespace-nowrap text-[#5060C5]'>
                       3 크레딧으로 다시 생성
@@ -710,6 +725,11 @@ export default function CorrectionSettingsPage() {
                     variant='wide'
                     height='17.125rem'
                     className='rounded-[1.25rem]'
+                    value={analysisInfoValue}
+                    onChange={(e) => {
+                      setAnalysisInfoValue(e.target.value);
+                      setShowAnalysisInfoWarning(false);
+                    }}
                   />
                 </div>
               </div>
