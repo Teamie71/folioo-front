@@ -95,7 +95,7 @@ export default function CorrectionSettingsPage() {
   };
 
   const handleStartNewExperience = () => {
-    router.push('/experience');
+    router.push('/experience/settings');
   };
 
   const handlePortfolioSelect = (type: PortfolioType) => {
