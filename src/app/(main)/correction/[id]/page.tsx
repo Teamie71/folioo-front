@@ -74,6 +74,7 @@ export default function CorrectionSettingsPage() {
   >('축소 또는 제외');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
+  const [isPdfTextExtracted, setIsPdfTextExtracted] = useState(false);
 
   const handleNextStep = () => {
     if (step === 'information') {
@@ -99,6 +100,8 @@ export default function CorrectionSettingsPage() {
     setSelectedPortfolioType(type);
     // 포트폴리오 타입 전환 시 텍스트형 선택 상태 초기화
     setSelectedTextPortfolioIds([]);
+    // PDF에서 다른 타입으로 전환 시 텍스트 추출 상태 초기화
+    if (type !== 'pdf') setIsPdfTextExtracted(false);
   };
 
   return (
@@ -432,7 +435,15 @@ export default function CorrectionSettingsPage() {
                             최대 10MB의 파일, 최대 5개의 파일을 첨삭이 가능해요.
                           </span>
                         </div>
-                        <button className='cursor-pointer self-start rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'>
+                        <button
+                          onClick={() => setIsPdfTextExtracted(true)}
+                          disabled={isPdfTextExtracted}
+                          className={`self-start rounded-[3.75rem] border-none px-[2.25rem] py-[0.75rem] ${
+                            isPdfTextExtracted
+                              ? 'cursor-not-allowed bg-[#CDD0D5]'
+                              : 'cursor-pointer bg-[#5060C5]'
+                          }`}
+                        >
                           <span className='text-[1rem] font-bold text-[#FFFFFF]'>
                             텍스트 추출하기
                           </span>
@@ -466,7 +477,7 @@ export default function CorrectionSettingsPage() {
               )}
 
               {/* PDF 포트폴리오 텍스트 정리 섹션 */}
-              {selectedPortfolioType === 'pdf' && (
+              {selectedPortfolioType === 'pdf' && isPdfTextExtracted && (
                 <div className='mt-[3.75rem] flex flex-col'>
                   <div className='mb-[0.5rem] flex items-center text-[1.125rem] font-bold'>
                     <span>PDF 포트폴리오 텍스트 정리</span>
