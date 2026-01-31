@@ -372,7 +372,7 @@ export default function CorrectionSettingsPage() {
                   </div>
                   <span className='pt-[0.25rem] text-[0.875rem] text-[#74777D]'>
                     경험 정리를 통해 생성한 포트폴리오 중, 첨삭을 진행할
-                    포트폴리오를 클릭하여 선택해주세요.
+                    포트폴리오를 최대 5개 클릭하여 선택해주세요.
                   </span>
                   {selectedTextPortfolioIds.length === 0 && (
                     <span className='mt-[1.25rem] text-[0.875rem] text-[#DC0000]'>
