@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import { ButtonProps } from '@/components/ui/Button';
 import { cn } from '@/utils/utils';
+import { useRouter } from 'next/navigation';
 
 interface CreditExpireAlertProps
   extends Omit<ButtonProps, 'variant' | 'children'> {
@@ -26,7 +27,7 @@ export function CreditExpireAlert({
 }: CreditExpireAlertProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-
+  const router = useRouter();
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -154,8 +155,7 @@ export function CreditExpireAlert({
                     type='button'
                     className='underline underline-offset-3 text-[#74777D] cursor-pointer'
                     onClick={() => {
-                      // TODO: 크레딧 거래 내역 페이지로 이동
-                      console.log('크레딧 거래 내역 클릭');
+                      router.push('/invoice');
                     }}
                   >
                     크레딧 거래 내역
