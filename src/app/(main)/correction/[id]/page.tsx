@@ -651,7 +651,7 @@ export default function CorrectionSettingsPage() {
                       </span>
                     </div>
                     <button className='h-fit cursor-pointer rounded-[3.75rem] border border-[#5060C5] bg-[#F6F5FF] px-[2.25rem] py-[0.5rem] text-[1rem] font-bold whitespace-nowrap text-[#5060C5]'>
-                      3크레딧으로 다시 생성
+                      3 크레딧으로 다시 생성
                     </button>
                   </div>
                   <TextField
