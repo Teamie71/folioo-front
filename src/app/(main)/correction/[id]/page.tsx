@@ -155,7 +155,13 @@ export default function CorrectionSettingsPage() {
           />
         </div>
 
-        <CorrectionProgressBar step={step} status={status} />
+        {step === 'result' ? (
+          <div className='flex flex-col gap-[0.75rem] pb-[3.375rem]'>
+            <div className='h-[1px] w-full bg-[#9EA4A9]' />
+          </div>
+        ) : (
+          <CorrectionProgressBar step={step} status={status} />
+        )}
       </div>
 
       <div className='flex flex-col gap-[3.75rem]'>
