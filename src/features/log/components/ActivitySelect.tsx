@@ -1,20 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { Dropdown } from '@/components/Dropdown';
+import { DropdownButton } from '@/components/DropdownButton';
 import { CommonModal } from '@/components/CommonModal';
+import InputArea from '@/components/InputArea';
+import { useLogStore } from '@/store/useLogStore';
 
-export function ActivitySelect() {
-  const [activities, setActivities] = useState([
-    {
-      id: '1',
-      label: '활동 A',
-    },
-    {
-      id: '2',
-      label: '활동 B',
-    },
-  ]);
+interface ActivitySelectProps {
+  value?: string;
+  onChange?: (value: string) => void;
+}
+
+export function ActivitySelect({
+  value = '',
+  onChange,
+}: ActivitySelectProps = {}) {
+  const { activities, removeActivity } = useLogStore();
   const [selectedActivityId, setSelectedActivityId] = useState('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
@@ -28,12 +29,11 @@ export function ActivitySelect() {
   // 실제 삭제 실행
   const confirmDelete = () => {
     if (deleteTargetId) {
-      setActivities((prev) =>
-        prev.filter((activity) => activity.id !== deleteTargetId),
-      );
+      removeActivity(deleteTargetId);
       // 삭제된 항목이 선택된 항목이면 선택 해제
       if (selectedActivityId === deleteTargetId) {
         setSelectedActivityId('');
+        onChange?.('');
       }
     }
     setIsDeleteModalOpen(false);
@@ -45,6 +45,20 @@ export function ActivitySelect() {
     onDelete: handleDelete,
   }));
 
+  // 드롭다운에서 항목 선택 시
+  const handleActivitySelect = (id: string) => {
+    setSelectedActivityId(id);
+    const selectedActivity = activities.find((activity) => activity.id === id);
+    if (selectedActivity) {
+      onChange?.(selectedActivity.label);
+    }
+  };
+
+  // 입력값 변경 시
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange?.(e.target.value);
+  };
+
   const deleteTargetActivity = activities.find(
     (activity) => activity.id === deleteTargetId,
   );
@@ -54,13 +68,20 @@ export function ActivitySelect() {
       <div className='flex flex-col gap-[0.5rem]'>
         <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
           <span>활동명</span>
-          <span className='text-[#DC0000]'>*</span>
         </div>
-        <Dropdown
-          items={activitiesWithHandlers}
-          value={selectedActivityId}
-          onChange={setSelectedActivityId}
-          placeholder='활동을 선택하세요'
+        <InputArea
+          placeholder='활동명 입력 또는 선택'
+          width='28.5rem'
+          value={value}
+          onChange={handleInputChange}
+          rightElement={
+            <DropdownButton
+              items={activitiesWithHandlers}
+              menuWidth='28.5rem'
+              value={selectedActivityId}
+              onChange={handleActivitySelect}
+            />
+          }
         />
       </div>
 

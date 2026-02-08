@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 import EtcIcon from '@/components/icons/EtcIcon';
 import InterpersonIcon from '@/components/icons/InterpersonIcon';
 import LearningIcon from '@/components/icons/LearningIcon';
@@ -15,20 +15,38 @@ import {
   ReferenceTemplateForm,
 } from './CategoryTemplates';
 import { Checkbox } from '@/components/ui/CheckBox';
+import { useLogStore, type TemplateType } from '@/store/useLogStore';
 
-type TemplateType =
-  | 'none'
-  | '대인관계'
-  | '문제해결'
-  | '학습'
-  | '레퍼런스'
-  | '기타';
+export type { TemplateType };
+
+interface InsightTemplateSelectorProps {
+  onCategoryChange?: (category: TemplateType) => void;
+  contentError?: string;
+}
 
 // 인사이트 템플릿 선택 및 폼 표시 컴포넌트
-export function InsightTemplateSelector() {
-  const [isTemplateEnabled, setIsTemplateEnabled] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] =
-    useState<TemplateType>('none');
+export function InsightTemplateSelector({
+  onCategoryChange,
+  contentError,
+}: InsightTemplateSelectorProps = {}) {
+  const {
+    isTemplateEnabled,
+    selectedTemplate,
+    noTemplateContent,
+    interpersonData,
+    problemSolveData,
+    learningData,
+    referenceData,
+    setIsTemplateEnabled,
+    setSelectedTemplate,
+    setNoTemplateContent,
+    setInterpersonData,
+    setProblemSolveData,
+    setLearningData,
+    setReferenceData,
+    getFormattedContent,
+    setFormField,
+  } = useLogStore();
 
   // 템플릿 버튼 목록
   const templateOptions = [
@@ -42,35 +60,99 @@ export function InsightTemplateSelector() {
   // 체크박스 변경 핸들러
   const handleCheckboxChange = (checked: boolean) => {
     setIsTemplateEnabled(checked);
+    // 체크 해제 시 카테고리 선택도 해제
+    if (!checked) {
+      setSelectedTemplate('none');
+      onCategoryChange?.('none');
+    }
   };
 
   // 템플릿 선택 변경 핸들러
   const handleTemplateChange = (value: string) => {
     if (value) {
-      setSelectedTemplate(value as TemplateType);
+      const newTemplate = value as TemplateType;
+      setSelectedTemplate(newTemplate);
+      onCategoryChange?.(newTemplate);
     }
   };
+
+  // 템플릿 내용 포맷팅 및 상위 컴포넌트로 전달
+  useEffect(() => {
+    const formattedContent = getFormattedContent();
+    setFormField('content', formattedContent);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    isTemplateEnabled,
+    selectedTemplate,
+    noTemplateContent,
+    interpersonData,
+    problemSolveData,
+    learningData,
+    referenceData,
+  ]);
 
   // 선택된 템플릿에 따른 폼 렌더링
   const renderTemplateForm = () => {
     // 체크박스가 체크되고 템플릿이 선택되었을 때만 해당 템플릿 표시
     if (!isTemplateEnabled || selectedTemplate === 'none') {
-      return <NoTemplateForm />;
+      return (
+        <NoTemplateForm
+          content={noTemplateContent}
+          setContent={setNoTemplateContent}
+          contentError={contentError}
+        />
+      );
     }
 
     switch (selectedTemplate) {
       case '대인관계':
-        return <InterpersonTemplateForm />;
+        return (
+          <InterpersonTemplateForm
+            data={interpersonData}
+            setData={setInterpersonData}
+            contentError={contentError}
+          />
+        );
       case '문제해결':
-        return <ProblemSolveTemplateForm />;
+        return (
+          <ProblemSolveTemplateForm
+            data={problemSolveData}
+            setData={setProblemSolveData}
+            contentError={contentError}
+          />
+        );
       case '학습':
-        return <LearningTemplateForm />;
+        return (
+          <LearningTemplateForm
+            data={learningData}
+            setData={setLearningData}
+            contentError={contentError}
+          />
+        );
       case '레퍼런스':
-        return <ReferenceTemplateForm />;
+        return (
+          <ReferenceTemplateForm
+            data={referenceData}
+            setData={setReferenceData}
+            contentError={contentError}
+          />
+        );
       case '기타':
-        return <NoTemplateForm />;
+        return (
+          <NoTemplateForm
+            content={noTemplateContent}
+            setContent={setNoTemplateContent}
+            contentError={contentError}
+          />
+        );
       default:
-        return <NoTemplateForm />;
+        return (
+          <NoTemplateForm
+            content={noTemplateContent}
+            setContent={setNoTemplateContent}
+            contentError={contentError}
+          />
+        );
     }
   };
 
@@ -94,6 +176,7 @@ export function InsightTemplateSelector() {
           {/* 템플릿 선택 버튼 */}
           <SingleButtonGroup
             options={templateOptions}
+            value={selectedTemplate !== 'none' ? selectedTemplate : undefined}
             onValueChange={handleTemplateChange}
           />
         </div>

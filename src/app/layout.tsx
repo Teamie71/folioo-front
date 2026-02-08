@@ -1,6 +1,6 @@
-import "../styles/globals.css";
+import '../styles/globals.css';
 import localFont from 'next/font/local';
-import Navbar from '@/components/Navbar';
+import NavbarWrapper from '@/components/NavbarHideWrapper';
 
 const pretendard = localFont({
   src: './fonts/PretendardVariable.woff2',
@@ -15,12 +15,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={pretendard.className}>
+    <html lang='ko' className={pretendard.className}>
       <body>
-        <Navbar />
-        <div className="pt-[80px]">
-          {children}
-        </div>
+        <NavbarWrapper>{children}</NavbarWrapper>
       </body>
     </html>
   );

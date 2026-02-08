@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
@@ -16,10 +17,15 @@ export default function Navbar() {
         <div className='flex h-[80px] items-center justify-between'>
           <div className='flex items-center gap-[60px]'>
             {/* 로고 플레이스홀더 */}
-            <div className='flex items-center gap-[3px]'>
-              <div className='h-[40px] w-[40px] bg-[#E0E0E0]'></div>
-              <div className='h-[40px] w-[77px] bg-[#E0E0E0]'></div>
-            </div>
+            <Link href='/'>
+              <Image
+                src='/MainLogo.svg'
+                alt='MainLogo'
+                width={128}
+                height={32}
+                className='cursor-pointer'
+              />
+            </Link>
 
             {/* 네비게이션 링크 */}
             <div className='flex items-center gap-[40px]'>
