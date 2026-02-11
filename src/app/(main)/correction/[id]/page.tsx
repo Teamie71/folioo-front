@@ -6,10 +6,13 @@ import { PortfolioCard } from '@/components/PortfolioCard';
 import { PortfolioTypeCard } from '@/components/PortfolioTypeCard';
 import { BackButton } from '@/components/BackButton';
 import { DeleteButton } from '@/components/DeleteButton';
+import { CommonModal } from '@/components/CommonModal';
 import { InlineEdit } from '@/components/InlineEdit';
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
 import { ToggleSmall } from '@/components/ToggleSmall';
 import { ToggleLarge } from '@/components/ToggleLarge';
+import InputArea from '@/components/InputArea';
+import TextField from '@/components/TextField';
 
 type Step = 'information' | 'portfolio' | 'analysis' | 'result';
 type Status = 'DRAFT' | 'ANALYZING' | 'DONE';
@@ -71,13 +74,30 @@ export default function CorrectionSettingsPage() {
   const [lessonsButton, setLessonsButton] = useState<
     '축소 또는 제외' | '구체화하여 강조'
   >('축소 또는 제외');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
+  const [isPdfTextExtracted, setIsPdfTextExtracted] = useState(false);
+  const [showTextPortfolioWarning, setShowTextPortfolioWarning] = useState(false);
+  const [analysisInfoValue, setAnalysisInfoValue] = useState('');
+  const [showAnalysisInfoWarning, setShowAnalysisInfoWarning] = useState(false);
 
   const handleNextStep = () => {
     if (step === 'information') {
       setStep('portfolio');
     } else if (step === 'portfolio') {
+      if (
+        selectedPortfolioType === 'text' &&
+        selectedTextPortfolioIds.length === 0
+      ) {
+        setShowTextPortfolioWarning(true);
+        return;
+      }
       setStep('analysis');
     } else if (step === 'analysis') {
+      if (!analysisInfoValue.trim()) {
+        setShowAnalysisInfoWarning(true);
+        return;
+      }
       // TODO: 백엔드 연동 시 API 호출
       setStatus('ANALYZING');
       // 분석 완료 후
@@ -89,26 +109,41 @@ export default function CorrectionSettingsPage() {
   };
 
   const handleStartNewExperience = () => {
-    router.push('/experience');
+    router.push('/experience/settings');
   };
 
   const handlePortfolioSelect = (type: PortfolioType) => {
     setSelectedPortfolioType(type);
+    setShowTextPortfolioWarning(false);
     // 포트폴리오 타입 전환 시 텍스트형 선택 상태 초기화
     setSelectedTextPortfolioIds([]);
+    // PDF에서 다른 타입으로 전환 시 텍스트 추출 상태 초기화
+    if (type !== 'pdf') setIsPdfTextExtracted(false);
   };
 
   return (
     <div className='mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem]'>
-      <div className='flex flex-col gap-[1.5rem]'>
+      <div className='flex flex-col gap-[0.75rem]'>
         {/* 헤더 */}
         <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-[1.25rem]'>
-            {/* TODO: 클릭 시 모달 */}
-            <BackButton href='/correction' />
+          <div className='flex items-center gap-[0.75rem]'>
+            <BackButton onClick={() => setIsQuitModalOpen(true)} />
+            <CommonModal
+              open={isQuitModalOpen}
+              onOpenChange={setIsQuitModalOpen}
+              title='이 첨삭을 정말 그만두시겠습니까?'
+              description='지금 돌아가면, 작성하신 내용이 저장되지 않아요.'
+              cancelBtnText='취소'
+              secondaryBtnText='그만두기'
+              onSecondaryClick={() => {
+                setIsQuitModalOpen(false);
+                router.push('/correction');
+              }}
+            />
             <InlineEdit
               title='새로운 포트폴리오 첨삭'
               isEditing={isEditingTitle}
+              editable={step !== 'information'}
               onEdit={() => {
                 // TODO: 포트폴리오 첨삭 명 수정 모드로 전환
                 setIsEditingTitle(true);
@@ -119,22 +154,82 @@ export default function CorrectionSettingsPage() {
               }}
             />
           </div>
-          {/* 삭제 버튼 */}
-          <DeleteButton
-            onClick={() => {
-              // TODO: 삭제 확인 모달 및 API 호출
+          {/* 삭제 버튼 (information 단계에서는 숨김) */}
+          {step !== 'information' && (
+            <DeleteButton onClick={() => setIsDeleteModalOpen(true)} />
+          )}
+          <CommonModal
+            open={isDeleteModalOpen}
+            onOpenChange={setIsDeleteModalOpen}
+            title='이 첨삭을 정말 삭제하시겠습니까?'
+            cancelBtnText='취소'
+            secondaryBtnText='삭제'
+            onSecondaryClick={() => {
+              setIsDeleteModalOpen(false);
               router.push('/correction');
             }}
           />
         </div>
 
-        <CorrectionProgressBar step={step} status={status} />
+        {step === 'result' ? (
+          <div className='flex flex-col gap-[0.75rem] pb-[3.375rem]'>
+            <div className='h-[1px] w-full bg-[#9EA4A9]' />
+          </div>
+        ) : (
+          <CorrectionProgressBar step={step} status={status} />
+        )}
       </div>
 
       <div className='flex flex-col gap-[3.75rem]'>
         {status === 'ANALYZING' ? (
-          <div className='flex items-center justify-center py-[10rem]'>
-            <span className='text-[1.25rem] font-bold'>분석 중...</span>
+          <div className='flex flex-col items-center justify-center gap-[2rem] py-[10rem]'>
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              width='56'
+              height='60'
+              viewBox='0 0 56 60'
+              fill='none'
+            >
+              <path
+                opacity='0.1'
+                fillRule='evenodd'
+                clipRule='evenodd'
+                d='M28 8C22.6957 8 17.6086 10.1071 13.8579 13.8579C10.1071 17.6086 8 22.6957 8 28C8 33.3043 10.1071 38.3914 13.8579 42.1421C17.6086 45.8929 22.6957 48 28 48C33.3043 48 38.3914 45.8929 42.1421 42.1421C45.8929 38.3914 48 33.3043 48 28C48 22.6957 45.8929 17.6086 42.1421 13.8579C38.3914 10.1071 33.3043 8 28 8ZM0 28C0 12.536 12.536 0 28 0C43.464 0 56 12.536 56 28C56 43.464 43.464 56 28 56C12.536 56 0 43.464 0 28Z'
+                fill='#74777D'
+              />
+              <g
+                className='animate-spin'
+                style={{ transformOrigin: '28px 28px' }}
+              >
+                <path
+                  fillRule='evenodd'
+                  clipRule='evenodd'
+                  d='M28.0007 8.00003C22.8444 7.989 17.8852 9.9805 14.1687 13.5547C13.3987 14.2666 12.3801 14.6477 11.3319 14.6159C10.2838 14.5841 9.29007 14.142 8.56467 13.3848C7.83927 12.6276 7.44023 11.6158 7.45344 10.5673C7.46666 9.51879 7.89108 8.51738 8.63534 7.7787C13.8408 2.77773 20.7822 -0.0105164 28.0007 2.98087e-05C29.0615 2.98087e-05 30.079 0.421457 30.8291 1.1716C31.5792 1.92175 32.0007 2.93916 32.0007 4.00003C32.0007 5.0609 31.5792 6.07831 30.8291 6.82846C30.079 7.5786 29.0615 8.00003 28.0007 8.00003Z'
+                  fill='url(#paint0_linear_3242_3790)'
+                />
+              </g>
+              <defs>
+                <linearGradient
+                  id='paint0_linear_3242_3790'
+                  x1='19.7269'
+                  y1='0'
+                  x2='19.7269'
+                  y2='14.6177'
+                  gradientUnits='userSpaceOnUse'
+                >
+                  <stop stopColor='#93B3F4' />
+                  <stop offset='1' stopColor='#5060C5' />
+                </linearGradient>
+              </defs>
+            </svg>
+            <div className='flex flex-col items-center text-center'>
+              <span className='text-[1.125rem] font-bold text-#464B53]'>
+                AI 컨설턴트가 포트폴리오 첨삭을 진행 중이에요.
+              </span>
+              <span className='text-[1.125rem] font-bold text-#464B53]'>
+                페이지를 떠나도 작업은 계속돼요.
+              </span>
+            </div>
           </div>
         ) : step === 'information' ? (
           <>
@@ -146,10 +241,7 @@ export default function CorrectionSettingsPage() {
                   <span>지원 기업명</span>
                   <span className='text-[#DC0000]'>*</span>
                 </div>
-                <input
-                  className='rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-[#74777D]'
-                  placeholder='기업명을 입력해주세요.'
-                />
+                <InputArea placeholder='기업명을 입력해주세요.' />
               </div>
 
               {/* 지원 직무명 입력 */}
@@ -158,10 +250,7 @@ export default function CorrectionSettingsPage() {
                   <span>지원 직무명</span>
                   <span className='text-[#DC0000]'>*</span>
                 </div>
-                <input
-                  className='rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-[#74777D]'
-                  placeholder='직무명을 입력해주세요.'
-                />
+                <InputArea placeholder='직무명을 입력해주세요.' />
               </div>
             </div>
 
@@ -189,9 +278,12 @@ export default function CorrectionSettingsPage() {
               </div>
               <div className='flex flex-col gap-[0.75rem]'>
                 {jdMode === 'text' ? (
-                  <div className='min-h-[23.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.625rem] py-[1.25rem] text-[#74777D]'>
-                    채용공고의 JD를 복사 후 붙여넣기 해주세요. 
-                  </div>
+                  <TextField
+                    variant='wide'
+                    height='23.5rem'
+                    className='rounded-[1.25rem]'
+                    placeholder='채용공고의 JD를 복사 후 붙여넣기 해주세요.'
+                  />
                 ) : (
                   <div className='flex gap-[1.5rem]'>
                     {/* 왼쪽: 파일 업로드 옵션들 (회색 배경 섹션) */}
@@ -348,11 +440,20 @@ export default function CorrectionSettingsPage() {
                   <div className='flex items-center text-[1.125rem] font-bold'>
                     <span>텍스트형 포트폴리오 선택</span>
                   </div>
-                  <span className='pt-[0.25rem] pb-[1.25rem] text-[0.875rem] text-[#74777D]'>
+                  <span className='pt-[0.25rem] text-[0.875rem] text-[#74777D]'>
                     경험 정리를 통해 생성한 포트폴리오 중, 첨삭을 진행할
-                    포트폴리오를 클릭하여 선택해주세요.
+                    포트폴리오를 최대 5개 클릭하여 선택해주세요.
                   </span>
-                  <div className='grid grid-cols-2 gap-[1.5rem]'>
+                  {showTextPortfolioWarning && (
+                    <span className='mt-[1.75rem] mb-[0.5rem] text-[0.875rem] text-[#DC0000]'>
+                      첨삭할 텍스트형 포트폴리오를 선택해주세요
+                    </span>
+                  )}
+                  <div
+                    className={`grid grid-cols-2 gap-[1.5rem] ${
+                      showTextPortfolioWarning ? 'mt-[0.5rem]' : 'mt-[1.25rem]'
+                    }`}
+                  >
                     {textPortfolios.map((portfolio) => (
                       <PortfolioCard
                         key={portfolio.id}
@@ -363,6 +464,7 @@ export default function CorrectionSettingsPage() {
                           portfolio.id,
                         )}
                         onClick={() => {
+                          setShowTextPortfolioWarning(false);
                           setSelectedTextPortfolioIds((prev) => {
                             if (prev.includes(portfolio.id)) {
                               // 이미 선택되어 있으면 제거
@@ -399,7 +501,15 @@ export default function CorrectionSettingsPage() {
                             최대 10MB의 파일, 최대 5개의 파일을 첨삭이 가능해요.
                           </span>
                         </div>
-                        <button className='cursor-pointer self-start rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'>
+                        <button
+                          onClick={() => setIsPdfTextExtracted(true)}
+                          disabled={isPdfTextExtracted}
+                          className={`self-start rounded-[3.75rem] border-none px-[2.25rem] py-[0.75rem] ${
+                            isPdfTextExtracted
+                              ? 'cursor-not-allowed bg-[#CDD0D5]'
+                              : 'cursor-pointer bg-[#5060C5]'
+                          }`}
+                        >
                           <span className='text-[1rem] font-bold text-[#FFFFFF]'>
                             텍스트 추출하기
                           </span>
@@ -433,7 +543,7 @@ export default function CorrectionSettingsPage() {
               )}
 
               {/* PDF 포트폴리오 텍스트 정리 섹션 */}
-              {selectedPortfolioType === 'pdf' && (
+              {selectedPortfolioType === 'pdf' && isPdfTextExtracted && (
                 <div className='mt-[3.75rem] flex flex-col'>
                   <div className='mb-[0.5rem] flex items-center text-[1.125rem] font-bold'>
                     <span>PDF 포트폴리오 텍스트 정리</span>
@@ -561,158 +671,21 @@ export default function CorrectionSettingsPage() {
                   </div>
                 </div>
               )}
-
-              {/* 미분류 텍스트 섹션 */}
-              {selectedPortfolioType === 'pdf' && (
-                <div className='mt-[3.75rem] flex flex-col'>
-                  <div className='mb-[0.5rem] flex items-center gap-[0.5rem] text-[1.125rem] font-bold'>
-                    <button
-                      onClick={() => setIsUnclassifiedOpen(!isUnclassifiedOpen)}
-                      className='flex cursor-pointer items-center justify-center border-none bg-transparent transition-transform'
-                      style={{
-                        transform: isUnclassifiedOpen
-                          ? 'scaleY(-1)'
-                          : 'scaleY(1)',
-                      }}
-                    >
-                      <svg
-                        width='24'
-                        height='24'
-                        viewBox='0 0 24 24'
-                        fill='none'
-                        xmlns='http://www.w3.org/2000/svg'
-                      >
-                        <path
-                          d='M11.55 16.7845L4.18674 8.25729C4.09769 8.15442 4.037 8.02328 4.01234 7.88045C3.98768 7.73762 4.00016 7.58953 4.04821 7.45492C4.09625 7.32031 4.1777 7.20523 4.28225 7.12425C4.38679 7.04327 4.50973 7.00003 4.6355 7H19.3645C19.4903 7.00003 19.6132 7.04327 19.7178 7.12425C19.8223 7.20523 19.9037 7.32031 19.9518 7.45492C19.9998 7.58953 20.0123 7.73762 19.9877 7.88045C19.963 8.02328 19.9023 8.15442 19.8133 8.25729L12.4488 16.7845C12.3296 16.9225 12.1679 17 11.9994 17C11.8308 17 11.6692 16.9225 11.55 16.7845Z'
-                          fill='black'
-                        />
-                      </svg>
-                    </button>
-                    <span>미분류 텍스트</span>
-                  </div>
-
-                  {isUnclassifiedOpen && (
-                    <>
-                      <div className='mb-[2rem] flex flex-col'>
-                        <span className='text-[0.875rem] text-[#74777D]'>
-                          항목에 딱 맞지 않지만, 놓치기 아쉬운 내용을 따로
-                          모았어요. 필요한 내용은 화살표를 눌러 위의 텍스트
-                          정리로 옮겨주세요.
-                        </span>
-                        <span className='text-[0.875rem] text-[#74777D]'>
-                          이곳에 남은 텍스트는 저장되지 않고, 첨삭에 포함되지
-                          않으니 꼼꼼히 확인해주세요.
-                        </span>
-                      </div>
-
-                      {/* 라디오버튼 및 내용 영역 */}
-                      <div className='relative z-20 flex min-h-[397px] flex-col rounded-[1.25rem] border border-[#E9EAEC] bg-[#FFFFFF] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
-                        {/* 활동 탭 */}
-                        <div className='flex border-b border-b-[#CDD0D5]'>
-                          <button
-                            className={`cursor-pointer border-none px-[2.5rem] py-[1rem] text-[1rem] font-medium transition-all`}
-                          >
-                            활동 A로 이동
-                          </button>
-                        </div>
-
-                        {/* 라디오버튼 및 내용 영역 */}
-                        <div className='flex flex-1'>
-                          {/* 라디오버튼 네비게이션 */}
-                          <div className='flex flex-col border-r border-r-[#CDD0D5]'>
-                            <label className='flex cursor-pointer items-center gap-[0.5rem] px-[1.5rem] pt-[1.5rem]'>
-                              <input
-                                type='radio'
-                                name='unclassifiedTab'
-                                checked={selectedUnclassifiedTab === '상세정보'}
-                                onChange={() =>
-                                  setSelectedUnclassifiedTab('상세정보')
-                                }
-                                className='h-[1rem] w-[1rem] cursor-pointer accent-[#5060C5]'
-                              />
-                              <span className='text-[1rem]'>상세정보</span>
-                            </label>
-                            <label className='flex cursor-pointer items-center gap-[0.5rem] px-[1.5rem] pt-[1.75rem]'>
-                              <input
-                                type='radio'
-                                name='unclassifiedTab'
-                                checked={selectedUnclassifiedTab === '담당업무'}
-                                onChange={() =>
-                                  setSelectedUnclassifiedTab('담당업무')
-                                }
-                                className='h-[1rem] w-[1rem] cursor-pointer accent-[#5060C5]'
-                              />
-                              <span className='text-[1rem]'>담당업무</span>
-                            </label>
-                            <label className='flex cursor-pointer items-center gap-[0.5rem] px-[1.5rem] pt-[1.75rem]'>
-                              <input
-                                type='radio'
-                                name='unclassifiedTab'
-                                checked={selectedUnclassifiedTab === '문제해결'}
-                                onChange={() =>
-                                  setSelectedUnclassifiedTab('문제해결')
-                                }
-                                className='h-[1rem] w-[1rem] cursor-pointer accent-[#5060C5]'
-                              />
-                              <span className='text-[1rem]'>문제해결</span>
-                            </label>
-                            <label className='flex cursor-pointer items-center gap-[0.5rem] px-[1.5rem] pt-[1.75rem]'>
-                              <input
-                                type='radio'
-                                name='unclassifiedTab'
-                                checked={selectedUnclassifiedTab === '배운 점'}
-                                onChange={() =>
-                                  setSelectedUnclassifiedTab('배운 점')
-                                }
-                                className='h-[1rem] w-[1rem] cursor-pointer accent-[#5060C5]'
-                              />
-                              <span className='text-[1rem]'>배운 점</span>
-                            </label>
-                          </div>
-
-                          {/* 내용 영역 */}
-                          <div className='flex-1 rounded-tr-[1.25rem] rounded-br-[1.25rem] bg-[#FFFFFF] px-[2.5rem] py-[1.5rem]'>
-                            <div className='flex flex-col gap-[1rem] text-[1rem] text-[#1A1A1A]'>
-                              <span>
-                                →
-                                내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-                                내용내용내용내용내용내용내용
-                                내용내용내용내용내용내용내용
-                              </span>
-                              <span>
-                                →
-                                내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-                              </span>
-                              <span>
-                                →
-                                내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
             </div>
 
             {/* 다음으로 버튼 */}
-            <div className='flex justify-center pb-[7rem]'>
-              <button
-                onClick={handleNextStep}
-                disabled={!selectedPortfolioType}
-                className={`flex cursor-pointer items-center justify-center rounded-[3.75rem] border-none px-[2.25rem] py-[0.75rem] ${
-                  selectedPortfolioType
-                    ? 'bg-[#5060C5]'
-                    : 'cursor-not-allowed bg-[#CDD0D5]'
-                }`}
-              >
-                <span className='text-[1rem] font-bold text-[#FFFFFF]'>
-                  다음으로
-                </span>
-              </button>
-            </div>
+            {selectedPortfolioType && (
+              <div className='flex justify-center pb-[7rem]'>
+                <button
+                  onClick={handleNextStep}
+                  className='flex cursor-pointer items-center justify-center rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
+                >
+                  <span className='text-[1rem] font-bold text-[#FFFFFF]'>
+                    다음으로
+                  </span>
+                </button>
+              </div>
+            )}
           </>
         ) : step === 'analysis' ? (
           <>
@@ -724,7 +697,11 @@ export default function CorrectionSettingsPage() {
                   <span className='text-[#DC0000]'>*</span>
                 </div>
                 <div className='flex flex-col'>
-                  <div className='mb-[1rem] flex items-center justify-between'>
+                  <div
+                    className={`flex items-center justify-between ${
+                      showAnalysisInfoWarning ? 'mb-[0.5rem]' : 'mb-[1rem]'
+                    }`}
+                  >
                     <div className='flex flex-col'>
                       <span className='text-[0.875rem] text-[#74777D]'>
                         지원 정보를 바탕으로 AI 컨설턴트가 기업 분석 정보를
@@ -734,12 +711,26 @@ export default function CorrectionSettingsPage() {
                         추가하고 싶은 내용이 있으시면, 수정 후 첨삭을
                         의뢰해주세요.
                       </span>
+                      {showAnalysisInfoWarning && (
+                        <span className='mt-[0.5rem] text-[0.875rem] text-[#DC0000]'>
+                          기업 분석 정보를 입력해주세요
+                        </span>
+                      )}
                     </div>
                     <button className='h-fit cursor-pointer rounded-[3.75rem] border border-[#5060C5] bg-[#F6F5FF] px-[2.25rem] py-[0.5rem] text-[1rem] font-bold whitespace-nowrap text-[#5060C5]'>
-                      3크레딧으로 다시 생성
+                      3 크레딧으로 다시 생성
                     </button>
                   </div>
-                  <textarea className='min-h-[17.125rem] rounded-[1.25rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-[#74777D]' />
+                  <TextField
+                    variant='wide'
+                    height='17.125rem'
+                    className='rounded-[1.25rem]'
+                    value={analysisInfoValue}
+                    onChange={(e) => {
+                      setAnalysisInfoValue(e.target.value);
+                      setShowAnalysisInfoWarning(false);
+                    }}
+                  />
                 </div>
               </div>
 
@@ -753,7 +744,11 @@ export default function CorrectionSettingsPage() {
                     기업 분석 정보를 바탕으로, 이번 서류에서 강조하고 싶은
                     역량이나 기술 등이 있다면 작성해주세요.
                   </span>
-                  <textarea className='min-h-[10.625rem] rounded-[1.25rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-[#74777D]' />
+                  <TextField
+                    variant='wide'
+                    height='10.625rem'
+                    className='rounded-[1.25rem]'
+                  />
                 </div>
               </div>
             </div>
@@ -774,8 +769,54 @@ export default function CorrectionSettingsPage() {
           <>
             {/* status가 ANALYZING 상태일 때는 DRAFT, DONE이 아닌 값을 미리 체크 */}
             {status !== 'DRAFT' && status !== 'DONE' ? (
-              <div className='flex items-center justify-center py-[10rem]'>
-                <span className='text-[1.25rem] font-bold'>분석 중...</span>
+              <div className='flex flex-col items-center justify-center gap-[2rem] py-[10rem]'>
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  width='56'
+                  height='60'
+                  viewBox='0 0 56 60'
+                  fill='none'
+                >
+                  <path
+                    opacity='0.1'
+                    fillRule='evenodd'
+                    clipRule='evenodd'
+                    d='M28 8C22.6957 8 17.6086 10.1071 13.8579 13.8579C10.1071 17.6086 8 22.6957 8 28C8 33.3043 10.1071 38.3914 13.8579 42.1421C17.6086 45.8929 22.6957 48 28 48C33.3043 48 38.3914 45.8929 42.1421 42.1421C45.8929 38.3914 48 33.3043 48 28C48 22.6957 45.8929 17.6086 42.1421 13.8579C38.3914 10.1071 33.3043 8 28 8ZM0 28C0 12.536 12.536 0 28 0C43.464 0 56 12.536 56 28C56 43.464 43.464 56 28 56C12.536 56 0 43.464 0 28Z'
+                    fill='#74777D'
+                  />
+                  <g
+                    className='animate-spin'
+                    style={{ transformOrigin: '28px 28px' }}
+                  >
+                    <path
+                      fillRule='evenodd'
+                      clipRule='evenodd'
+                      d='M28.0007 8.00003C22.8444 7.989 17.8852 9.9805 14.1687 13.5547C13.3987 14.2666 12.3801 14.6477 11.3319 14.6159C10.2838 14.5841 9.29007 14.142 8.56467 13.3848C7.83927 12.6276 7.44023 11.6158 7.45344 10.5673C7.46666 9.51879 7.89108 8.51738 8.63534 7.7787C13.8408 2.77773 20.7822 -0.0105164 28.0007 2.98087e-05C29.0615 2.98087e-05 30.079 0.421457 30.8291 1.1716C31.5792 1.92175 32.0007 2.93916 32.0007 4.00003C32.0007 5.0609 31.5792 6.07831 30.8291 6.82846C30.079 7.5786 29.0615 8.00003 28.0007 8.00003Z'
+                      fill='url(#paint0_linear_3242_3790_analysis)'
+                    />
+                  </g>
+                  <defs>
+                    <linearGradient
+                      id='paint0_linear_3242_3790_analysis'
+                      x1='19.7269'
+                      y1='0'
+                      x2='19.7269'
+                      y2='14.6177'
+                      gradientUnits='userSpaceOnUse'
+                    >
+                      <stop stopColor='#93B3F4' />
+                      <stop offset='1' stopColor='#5060C5' />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div className='flex flex-col items-center gap-[0.5rem] text-center'>
+                  <span className='text-[1.25rem] font-bold text-[#1A1A1A]'>
+                    AI 컨설턴트가 포트폴리오 첨삭을 진행 중이에요.
+                  </span>
+                  <span className='text-[1rem] text-[#74777D]'>
+                    페이지를 떠나도 작업은 계속돼요.
+                  </span>
+                </div>
               </div>
             ) : (
               <>
