@@ -1,6 +1,11 @@
 @import 'tailwindcss';
 
-/* 스크롤바 숨김 스타일링*/
+/* 배너 닫힘 시 레이아웃에서 제거 - 스크립트 먼저 실행 */
+body[data-banner-dismissed='true'] .banner-beta {
+  display: none !important;
+}
+
+/* 스크롤바 숨김 스타일링 */
 @layer utilities {
   .scrollbar-hide {
     -ms-overflow-style: none;
