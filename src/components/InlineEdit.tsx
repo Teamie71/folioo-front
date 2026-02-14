@@ -70,16 +70,6 @@ export function InlineEdit({
         className,
       )}
     >
-      <span
-        className={cn(
-          'text-[1.25rem] font-bold rounded-[0.375rem] border px-[0.75rem] py-[0.5rem]',
-          isEditing
-            ? 'border-[#1A1A1A]'
-            : 'border-transparent',
-        )}
-      >
-        {title}
-      </span>
       {isEditing ? (
         editable && (
           <div className='relative inline-flex items-center'>
