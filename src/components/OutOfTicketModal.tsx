@@ -1,14 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/Dialog';
 import { TicketIcon } from './icons/TicketIcon';
 import { CommonButton } from './CommonButton';
+import { PaymentModal } from './PaymentModal';
 
 export type OutOfTicketTicketType = 'experience' | 'correction';
 
@@ -44,6 +45,23 @@ export function OutOfTicketModal({
   onPurchase,
   onViewPackages,
 }: OutOfTicketModalProps) {
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [paymentProductName, setPaymentProductName] = useState('');
+  const [paymentTicketType, setPaymentTicketType] =
+    useState<OutOfTicketTicketType | null>(null);
+
+  const handlePurchaseClick = (type: OutOfTicketTicketType) => {
+    const option = TICKET_OPTIONS[type];
+    setPaymentProductName(`${option.label} ${option.description}`);
+    setPaymentTicketType(type);
+    setPaymentModalOpen(true);
+  };
+
+  const handlePaymentConfirm = () => {
+    if (paymentTicketType) onPurchase?.(paymentTicketType);
+    onOpenChange(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='w-[45.125rem] items-center gap-[1.75rem] px-[5rem] py-[3.75rem] text-center'>
@@ -79,7 +97,12 @@ export function OutOfTicketModal({
                     <span className='text-[1.75rem] font-bold text-[#1A1A1A]'>
                       {option.price.toLocaleString()} 원
                     </span>
-                    <CommonButton variantType='Execute' px='2rem' py='0.5rem'>
+                    <CommonButton
+                      variantType='Execute'
+                      px='2rem'
+                      py='0.5rem'
+                      onClick={() => handlePurchaseClick(type)}
+                    >
                       구매하기
                     </CommonButton>
                   </div>
@@ -93,6 +116,13 @@ export function OutOfTicketModal({
           할인된 패키지 보러가기 →
         </CommonButton>
       </DialogContent>
+
+      <PaymentModal
+        open={paymentModalOpen}
+        onOpenChange={setPaymentModalOpen}
+        productName={paymentProductName}
+        onConfirm={handlePaymentConfirm}
+      />
     </Dialog>
   );
 }
