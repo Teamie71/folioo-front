@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import { BannerBeta } from '@/components/BannerBeta';
 
 const HIDE_NAVBAR_PATTERNS = [/^\/correction\/[^/]+$/];
 
@@ -20,7 +21,10 @@ export default function LayoutContent({
   return (
     <>
       {!hideNavbar && <Navbar />}
-      <div className={hideNavbar ? '' : 'pt-[80px]'}>{children}</div>
+      <div className={hideNavbar ? '' : 'pt-[80px]'}>
+        {!hideNavbar && <BannerBeta />}
+        {children}
+      </div>
     </>
   );
 }

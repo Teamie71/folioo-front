@@ -10,6 +10,7 @@ import { ContributionBar } from '@/features/experience/components/ContributionBa
 import { ExperienceExport } from '@/features/experience/portfolio/components/ExperienceExport';
 import SpanArea from '@/components/SpanArea';
 import Link from 'next/link';
+import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 
 export default function ExperienceSettingsPortfolioPage() {
   const params = useParams();
@@ -45,6 +46,7 @@ export default function ExperienceSettingsPortfolioPage() {
   };
 
   return (
+    <>
     <div className='mx-auto w-[66rem] min-w-[66rem]'>
       <div className='flex flex-col gap-[1.125rem] pb-[4.5rem]'>
         {/* 헤더 */}
@@ -178,5 +180,8 @@ export default function ExperienceSettingsPortfolioPage() {
         </Link>
       </div>
     </div>
+
+    <FeedbackFloatingButton />
+    </>
   );
 }
