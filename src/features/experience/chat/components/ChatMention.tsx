@@ -21,17 +21,17 @@ interface MentionItem {
 const DUMMY_ITEMS: MentionItem[] = [
   {
     id: '1',
-    title: '제목제목제목',
+    title: '제목',
     date: '2025.01.10',
-    content: '내용이 들어가는 곳입니다.',
+    content: '내용내용',
     activityName: '미분류',
     category: '대인관계',
   },
   {
     id: '2',
-    title: '제목제목제목',
+    title: '제목제목',
     date: '2025.01.11',
-    content: '두 번째 내용입니다.',
+    content: '내용내용내용내용내용내용',
     activityName: '활동 A',
     category: '문제해결',
   },
@@ -39,23 +39,23 @@ const DUMMY_ITEMS: MentionItem[] = [
     id: '3',
     title: '제목제목제목',
     date: '2025.01.12',
-    content: '세 번째 내용입니다.',
+    content: '내용내용내용내용내용내용내용내용',
     activityName: '활동 BB',
     category: '학습',
   },
   {
     id: '4',
-    title: '제목제목제목',
+    title: '제목제목제목제목',
     date: '2025.01.13',
-    content: '네 번째 내용입니다.',
+    content: '내용내용내용내용내용내용내용내용내용내용',
     activityName: '미분류',
     category: '레퍼런스',
   },
   {
     id: '5',
-    title: '제목제목제목',
+    title: '제목제목제목제목제목',
     date: '2025.01.14',
-    content: '다섯 번째 내용입니다.',
+    content: '내용내용내용내용내용내용내용내용내용내용내용내용',
     activityName: '미분류',
     category: '기타',
   },
@@ -83,35 +83,35 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
       <div className='flex h-[15rem] w-[35.2rem] flex-col rounded-[1rem] border border-[#CDD0D5] bg-[#FDFDFD] shadow-[0px_0px_32px_0px_#00000040]'>
         <div className='flex items-center'>
           <div className='flex items-center justify-center'>
-            <div className='flex cursor-pointer items-center gap-[0.5rem] border-b-[0.125rem] border-[#9EA4A9] px-[1.25rem] py-[0.75rem] hover:rounded-tl-[1rem] hover:border-b-[#5060C5] hover:bg-[#F6F5FF] hover:font-bold hover:text-[#5060C5]'>
+            <div className='flex cursor-pointer items-center gap-[0.5rem] border-b-[0.125rem] border-[#9EA4A9] px-[1.25rem] py-[0.75rem] text-[#1A1A1A] hover:rounded-tl-[1rem] hover:border-b-[#5060C5] hover:bg-[#F6F5FF] hover:font-bold hover:text-[#5060C5]'>
               <InterpersonIcon />
               <p>대인관계</p>
             </div>
           </div>
 
           <div className='flex items-center justify-center'>
-            <div className='flex cursor-pointer items-center gap-[0.5rem] border-b-[0.125rem] border-[#9EA4A9] px-[1.25rem] py-[0.75rem] hover:rounded-tr-[1rem] hover:border-b-[#5060C5] hover:bg-[#F6F5FF] hover:font-bold hover:text-[#5060C5]'>
+            <div className='flex cursor-pointer items-center gap-[0.5rem] border-b-[0.125rem] border-[#9EA4A9] px-[1.25rem] py-[0.75rem] text-[#1A1A1A] hover:rounded-tr-[1rem] hover:border-b-[#5060C5] hover:bg-[#F6F5FF] hover:font-bold hover:text-[#5060C5]'>
               <ProblemSolveIcon />
               <p>문제해결</p>
             </div>
           </div>
 
           <div className='flex items-center justify-center'>
-            <div className='flex cursor-pointer items-center gap-[0.5rem] border-b-[0.125rem] border-[#9EA4A9] px-[1.25rem] py-[0.75rem] hover:rounded-tr-[1rem] hover:border-b-[#5060C5] hover:bg-[#F6F5FF] hover:font-bold hover:text-[#5060C5]'>
+            <div className='flex cursor-pointer items-center gap-[0.5rem] border-b-[0.125rem] border-[#9EA4A9] px-[1.25rem] py-[0.75rem] text-[#1A1A1A] hover:rounded-tr-[1rem] hover:border-b-[#5060C5] hover:bg-[#F6F5FF] hover:font-bold hover:text-[#5060C5]'>
               <LearningIcon />
               <p>학습</p>
             </div>
           </div>
 
           <div className='flex items-center justify-center'>
-            <div className='flex cursor-pointer items-center gap-[0.5rem] border-b-[0.125rem] border-[#9EA4A9] px-[1.25rem] py-[0.75rem] hover:rounded-tr-[1rem] hover:border-b-[#5060C5] hover:bg-[#F6F5FF] hover:font-bold hover:text-[#5060C5]'>
+            <div className='flex cursor-pointer items-center gap-[0.5rem] border-b-[0.125rem] border-[#9EA4A9] px-[1.25rem] py-[0.75rem] text-[#1A1A1A] hover:rounded-tr-[1rem] hover:border-b-[#5060C5] hover:bg-[#F6F5FF] hover:font-bold hover:text-[#5060C5]'>
               <ReferenceIcon />
               <p>레퍼런스</p>
             </div>
           </div>
 
           <div className='flex items-center justify-center'>
-            <div className='flex cursor-pointer items-center gap-[0.5rem] border-b-[0.125rem] border-[#9EA4A9] px-[1.25rem] py-[0.75rem] hover:rounded-tr-[1rem] hover:border-b-[#5060C5] hover:bg-[#F6F5FF] hover:font-bold hover:text-[#5060C5]'>
+            <div className='flex cursor-pointer items-center gap-[0.5rem] border-b-[0.125rem] border-[#9EA4A9] px-[1.25rem] py-[0.75rem] text-[#1A1A1A] hover:rounded-tr-[1rem] hover:border-b-[#5060C5] hover:bg-[#F6F5FF] hover:font-bold hover:text-[#5060C5]'>
               <EtcIcon />
               <p>기타</p>
             </div>
