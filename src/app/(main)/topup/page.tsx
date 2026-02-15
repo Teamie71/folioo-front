@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import { CreditExpireAlert } from '@/components/CreditExpireAlert';
 import { PaymentModal } from '@/components/PaymentModal';
+import { TicketIcon } from '@/components/icons/TicketIcon';
 import Image from 'next/image';
 
 type VoucherType = 'experience' | 'portfolio';
@@ -38,15 +39,25 @@ export default function TopupPage() {
   const benefitCards = [
     {
       id: 'phone',
+      icon: <TicketIcon />,
       title: '휴대폰 번호 인증하고, 무료 크레딧을 획득하세요!',
       description: '무료 크레딧을 받고, Folioo와 커리어 기록을 시작하세요.',
-      cta: '100 크레딧 받기',
+      cta: '번호 인증하기',
+    },
+    {
+      id: 'review',
+      icon: <TicketIcon />,
+      title: 'Folioo 사용 후기를 남기면, 원하는 이용권이 하나 더!',
+      description:
+        '첫 피드백을 남겨주시면, 감사의 마음을 담아 원하시는 무료 이용권을 드려요.',
+      cta: '피드백 남기기',
     },
     {
       id: 'cta',
+      icon: <TicketIcon />,
       title: '제목제목제목',
       description: '설명설명설명',
-      cta: 'CTACTACTAC',
+      cta: 'CTA',
     },
   ];
 
@@ -128,7 +139,9 @@ export default function TopupPage() {
               className='flex items-center justify-between gap-[1.5rem] rounded-[1.25rem] border border-[#E9EAEC] bg-white px-[2rem] py-[1.75rem] shadow-[0_4px_8px_rgba(0,0,0,0.08)]'
             >
               <div className='flex items-center gap-[1.75rem]'>
-                <div className='h-[4rem] w-[4rem] bg-[#E0E0E0]' />
+                <div className='flex h-[4rem] w-[4rem] shrink-0 items-center justify-center'>
+                  {card.icon}
+                </div>
                 <div className='flex flex-col gap-[0.5rem]'>
                   <p className='text-[1.125rem] font-semibold'>
                     {card.title}
