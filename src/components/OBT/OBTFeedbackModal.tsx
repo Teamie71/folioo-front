@@ -48,7 +48,7 @@ export function OBTFeedbackModal({
       title={
         <span className='block text-left text-[1.5rem] font-bold text-[#1A1A1A]'>
           {isFirstFeedback
-            ? '사용 후기 남기고, 원하는 이용권 받으세요!'
+            ? '사용 후기 남기고, 추가 이용권 받으세요!'
             : 'Folioo 사용 후기를 알려주세요!'}
         </span>
       }
