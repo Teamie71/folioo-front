@@ -29,7 +29,6 @@ export default function ExperienceSettingsChatPage() {
       '새로운 경험 정리',
   );
 
-  const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);
   const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
   const [isTransitionModalOpen, setIsTransitionModalOpen] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -98,11 +97,7 @@ export default function ExperienceSettingsChatPage() {
 
         {/* 채팅 영역: 메시지 영역만 스크롤, 브라우저 바닥 10rem까지 */}
         <div className='flex min-h-0 flex-1 flex-col overflow-hidden pb-[10rem]'>
-          <ChatMessageSection
-            messages={messages}
-            onAIMessageClick={() => setIsCreditModalOpen(true)}
-            onUserMessageClick={() => setIsCompletionModalOpen(true)}
-          />
+          <ChatMessageSection messages={messages} />
         </div>
       </div>
 
@@ -123,10 +118,7 @@ export default function ExperienceSettingsChatPage() {
           setIsCompletionModalOpen(false);
           setIsTransitionModalOpen(true);
         }}
-        onContinueWithCredits={() => {
-          setIsCompletionModalOpen(false);
-          setIsCreditModalOpen(true);
-        }}
+        onContinueWithCredits={() => setIsCompletionModalOpen(false)}
       />
 
       {/* 포트폴리오 생성 시작 안내 모달 (2초 후 자동 닫힘 → 포트폴리오 페이지 이동) */}
@@ -145,24 +137,6 @@ export default function ExperienceSettingsChatPage() {
             대화 내용을 바탕으로 텍스트형 포트폴리오 생성을 시작할게요
           </>
         }
-      />
-
-      {/* 크레딧 사용 확인 모달 */}
-      <CommonModal
-        open={isCreditModalOpen}
-        onOpenChange={setIsCreditModalOpen}
-        title={
-          <>
-            10 크레딧을 사용하여
-            <br />
-            대화를 계속하시겠습니까?
-          </>
-        }
-        description='크레딧 사용 시 3턴의 대화가 추가로 진행돼요.'
-        cancelBtnText='취소'
-        primaryBtnText='사용'
-        onCancelClick={() => setIsCreditModalOpen(false)}
-        onPrimaryClick={() => setIsCreditModalOpen(false)}
       />
     </div>
   );
