@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { CommonModal } from '@/components/CommonModal';
 import { Stamp } from '@/components/icons/Stamp';
@@ -29,8 +30,13 @@ export function ChallengeModal({
   hasWrittenToday?: boolean;
   onLogClick?: () => void;
 }) {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [eventModalOpen, setEventModalOpen] = useState(false);
+
+  const handleEventModalButtonClick = () => {
+    router.push('/experience');
+  };
 
   const handleLogClick = () => {
     onLogClick?.();
@@ -157,6 +163,7 @@ export function ChallengeModal({
       eventSubTitle='보상 지급 완료'
       reward='경험 정리 1회권'
       buttonText='경험 정리하기'
+      onButtonClick={handleEventModalButtonClick}
     />
     </>
   );
