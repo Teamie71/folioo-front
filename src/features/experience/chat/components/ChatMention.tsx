@@ -83,7 +83,7 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
     {
       label: '대인관계',
       icon: <InterpersonIcon />,
-      roundedClass: 'hover:rounded-tl-[1rem]',
+      roundedClass: 'rounded-tl-[1rem]',
     },
     {
       label: '문제해결',
