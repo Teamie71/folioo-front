@@ -39,12 +39,25 @@ export function ChallengeModal({
     onOpenChange(false);
   };
 
+  const handleRewardClick = () => {
+    // TODO: 보상 받기 버튼 클릭 시 이벤트 모달 연동
+    onOpenChange(false);
+  };
+
+  const isRewardReady = currentCount >= 10;
+  const buttonText = isRewardReady
+    ? '보상 받기 →'
+    : hasWrittenToday
+      ? '확인'
+      : '오늘의 로그 작성하기 →';
+  const handlePrimaryClick = isRewardReady ? handleRewardClick : hasWrittenToday ? handleConfirm : handleLogClick;
+
   return (
     <CommonModal
       open={open}
       onOpenChange={onOpenChange}
-      primaryBtnText={hasWrittenToday ? '확인' : '오늘의 로그 작성하기'}
-      onPrimaryClick={hasWrittenToday ? handleConfirm : handleLogClick}
+      primaryBtnText={buttonText.replace(' →', '')}
+      onPrimaryClick={handlePrimaryClick}
       footer={
         <div className='flex w-full flex-col items-start gap-[1rem]'>
           <CommonButton
@@ -52,9 +65,9 @@ export function ChallengeModal({
             px='2.5rem'
             py='0.5rem'
             className='rounded-lg text-[1.125rem] font-semibold hover:bg-[#4352B3]'
-            onClick={hasWrittenToday ? handleConfirm : handleLogClick}
+            onClick={handlePrimaryClick}
           >
-            {hasWrittenToday ? '확인' : '오늘의 로그 작성하기 →'}
+            {buttonText}
           </CommonButton>
           <p className='text-[0.875rem] text-[#9EA4A9]'>
             본 이벤트는{' '}
