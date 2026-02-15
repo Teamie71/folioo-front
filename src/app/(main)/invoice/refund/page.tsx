@@ -75,12 +75,6 @@ export default function InvoiceRefundPage() {
         </div>
       </div>
 
-      {/* 환불 예정 금액 */}
-      <div className='flex justify-between rounded-[1.25rem] bg-[#F6F5FF] px-[3rem] py-[2.75rem] text-[2rem] font-bold'>
-        <span>환불 예정 금액</span>
-        <span className='text-[#5060C5]'>00,000원</span>
-      </div>
-
       {/* 환급 계좌 정보 */}
       <div className='flex flex-col gap-[2.5rem] rounded-[1.75rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[3rem] py-[2.25rem]'>
         {/* 환급 계좌 정보 헤더 */}
