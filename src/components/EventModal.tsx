@@ -39,7 +39,7 @@ export function EventModal({
           variantType='Execute'
           px='1.75rem'
           py='0.5rem'
-          className='w-full rounded-[6.25rem] text-[1.125rem] font-semibold hover:bg-[#4352B3]'
+          className='w-full rounded-[6.25rem] text-[1rem] font-bold'
           onClick={handleClick}
         >
           {buttonText}
