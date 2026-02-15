@@ -44,14 +44,6 @@ const DUMMY_ITEMS: MentionItem[] = [
     category: '학습',
   },
   {
-    id: '4',
-    title: '제목제목제목제목',
-    date: '2025.01.13',
-    content: '내용내용내용내용내용내용내용내용내용내용',
-    activityName: '미분류',
-    category: '레퍼런스',
-  },
-  {
     id: '5',
     title: '제목제목제목제목제목',
     date: '2025.01.14',
@@ -114,15 +106,20 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
         <div className='flex items-center'>
           {tabs.map((tab) => {
             const isActive = selectedTab === tab.label;
+            const hasItems = DUMMY_ITEMS.some(
+              (item) => item.category === tab.label,
+            );
             return (
               <div key={tab.label} className='flex items-center justify-center'>
                 <button
                   type='button'
-                  onClick={() => setSelectedTab(tab.label)}
-                  className={`flex cursor-pointer items-center gap-[0.5rem] border-b-[0.125rem] px-[1.25rem] py-[0.75rem] ${
-                    isActive
-                      ? 'border-b-[#5060C5] bg-[#F6F5FF] font-bold text-[#5060C5]'
-                      : 'border-[#9EA4A9] text-[#1A1A1A] hover:border-b-[#5060C5] hover:bg-[#F6F5FF] hover:font-bold hover:text-[#5060C5]'
+                  onClick={() => hasItems && setSelectedTab(tab.label)}
+                  className={`flex items-center gap-[0.5rem] border-b-[0.125rem] px-[1.25rem] py-[0.75rem] ${
+                    !hasItems
+                      ? 'cursor-default border-b-[#CDD0D5] text-[#CDD0D5]'
+                      : isActive
+                        ? 'cursor-pointer border-b-[#5060C5] bg-[#F6F5FF] font-bold text-[#5060C5]'
+                        : 'cursor-pointer border-[#9EA4A9] text-[#1A1A1A] hover:border-b-[#5060C5] hover:bg-[#F6F5FF] hover:font-bold hover:text-[#5060C5]'
                   } ${tab.roundedClass}`}
                 >
                   {tab.icon}
