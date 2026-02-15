@@ -51,7 +51,7 @@ export function ExperienceSettingsChatStart({
       <CommonButton
         variantType='Primary'
         onClick={handleStartChatClick}
-        className='fixed bottom-[7.5rem] left-1/2 -translate-x-1/2 items-center [&_svg]:!h-6 [&_svg]:!w-6'
+        className='fixed bottom-[7.5rem] left-1/2 -translate-x-1/2 items-center'
         px='2.25rem'
         py='0.75rem'
       >
