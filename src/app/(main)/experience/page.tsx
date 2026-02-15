@@ -1,9 +1,8 @@
-import Link from 'next/link';
 import InputArea from '@/components/InputArea';
 import { ExperienceIcon } from '@/components/icons/ExperienceIcon';
-import { CommonButton } from '@/components/CommonButton';
 import { SearchButton } from '@/components/SearchButton';
 import { ExperienceCardSection } from '@/features/experience/components/ExperienceCardSection';
+import { NewExperienceStartButton } from '@/features/experience/components/NewExperienceStartButton';
 
 export default function ExperiencePage() {
   return (
@@ -27,11 +26,7 @@ export default function ExperiencePage() {
           </div>
 
           {/* 새로운 경험 정리 시작하기 버튼 */}
-          <Link href='/experience/settings' className='no-underline'>
-            <CommonButton variantType='StartChat'>
-              새로운 경험 정리 시작하기
-            </CommonButton>
-          </Link>
+          <NewExperienceStartButton />
         </div>
       </div>
 
