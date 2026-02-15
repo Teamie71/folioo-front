@@ -1,10 +1,26 @@
+'use client';
+
+import { useState } from 'react';
+import { FeedbackModal } from '@/components/FeedbackModal';
+
 export const FeedbackFloatingButton = () => {
+  const [modalOpen, setModalOpen] = useState(false);
+  // TODO: API로 첫 피드백 여부 조회 후 연동
+  const isFirstFeedback = true;
+
+  const handleFeedbackClick = () => {
+    setModalOpen(false);
+    // TODO: 피드백 페이지로 이동 (외부 링크 또는 내부 경로)
+  };
+
   return (
-    <button
-      type='button'
-      className='fixed right-[3.75rem] bottom-[5rem] z-50 h-[3.75rem] w-[3.75rem] cursor-pointer rounded-full bg-gradient-to-b from-[#93B3F4] to-[#5060C5]'
-      aria-label='피드백 남기기'
-    >
+    <>
+      <button
+        type='button'
+        className='fixed right-[3.75rem] bottom-[5rem] z-50 h-[3.75rem] w-[3.75rem] cursor-pointer rounded-full bg-gradient-to-b from-[#93B3F4] to-[#5060C5]'
+        aria-label='피드백 남기기'
+        onClick={() => setModalOpen(true)}
+      >
       <svg
         xmlns='http://www.w3.org/2000/svg'
         width='34'
@@ -19,5 +35,13 @@ export const FeedbackFloatingButton = () => {
         />
       </svg>
     </button>
+
+      <FeedbackModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        isFirstFeedback={isFirstFeedback}
+        onFeedbackClick={handleFeedbackClick}
+      />
+    </>
   );
 };
