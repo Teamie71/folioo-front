@@ -60,6 +60,12 @@ export function ChallengeModal({
       : '오늘의 로그 작성하기 →';
   const handlePrimaryClick = isRewardReady ? handleRewardClick : hasWrittenToday ? handleConfirm : handleLogClick;
 
+  const titleText = isRewardReady
+    ? '인사이트 로그 작성 챌린지 성공!'
+    : hasWrittenToday
+      ? '인사이트 로그 작성 챌린지 참여 완료!'
+      : '인사이트 로그 작성 챌린지';
+
   return (
     <>
     <CommonModal
@@ -89,7 +95,7 @@ export function ChallengeModal({
       title={
         <div className='flex flex-col gap-[1.5rem]'>
           <h2 className='text-[1.5rem] font-bold text-[#1A1A1A] text-left'>
-            인사이트 로그 작성 챌린지
+            {titleText}
           </h2>
           <p className='text-[1rem] font-medium text-[#1A1A1A]'>
             4월 한 달간, 인사이트 로그 10개를 꾸준히 작성하시면 경험 정리 1회권을 드려요!
