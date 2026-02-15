@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { CreditExpireAlert } from '@/components/CreditExpireAlert';
 import { PaymentModal } from '@/components/PaymentModal';
@@ -35,6 +36,7 @@ export default function TopupPage() {
   const [selectedVoucher, setSelectedVoucher] = useState<SelectedVoucher | null>(
     null,
   );
+  const router = useRouter();
 
   const benefitCards = [
     {
@@ -156,6 +158,10 @@ export default function TopupPage() {
                 py='0.5rem'
                 className='text-[1rem] font-semibold'
                 onClick={() => {
+                  if (card.id === 'phone') {
+                    router.push('/verify');
+                    return;
+                  }
                   // TODO: 각 CTA에 맞는 동작 연결
                   console.log(`${card.id} CTA 클릭`);
                 }}
