@@ -154,9 +154,9 @@ export function ChallengeModal({
           <button
             type='button'
             onClick={() => setIsOpen(!isOpen)}
-            className='flex items-center gap-1 text-[1rem] font-bold text-[#1A1A1A]'
+            className='flex items-center gap-1 text-[1rem] font-bold text-[#1A1A1A] cursor-pointer'
           >
-            <ChevronDownIcon className={cn('transition-transform duration-300', isOpen && 'rotate-180')} />
+            <ChevronDownIcon className={cn('transition-transform duration-300', !isOpen && '-rotate-90')} />
             리워드 지급 및 인정 기준
           </button>
           {isOpen && (
