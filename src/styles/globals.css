@@ -1,5 +1,22 @@
 @import 'tailwindcss';
 
+@theme {
+  --font-sans:
+    var(--font-pretendard), 'Pretendard Variable', Pretendard, -apple-system,
+    BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI',
+    'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+  --font-weight-bold: 700;
+  --font-weight-semibold: 600;
+  --font-weight-regular: 400;
+}
+
+/* OS 폰트 렌더링 최적화 */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 /* 배너 닫힘 시 레이아웃에서 제거 - 스크립트 먼저 실행 */
 body[data-banner-dismissed='true'] .banner-beta {
   display: none !important;
