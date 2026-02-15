@@ -7,6 +7,7 @@ import { Stamp } from '@/components/icons/Stamp';
 import { BigStamp } from '@/components/icons/BigStamp';
 import { cn } from '@/utils/utils';
 import { ChevronDown } from '@/components/icons/ChevronDown';
+import { EventModal } from '@/components/EventModal';
 
 const ChevronDownIcon = ({ className }: { className?: string }) => (
   <span className={className}>
@@ -29,6 +30,7 @@ export function ChallengeModal({
   onLogClick?: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [eventModalOpen, setEventModalOpen] = useState(false);
 
   const handleLogClick = () => {
     onLogClick?.();
@@ -40,8 +42,8 @@ export function ChallengeModal({
   };
 
   const handleRewardClick = () => {
-    // TODO: 보상 받기 버튼 클릭 시 이벤트 모달 연동
     onOpenChange(false);
+    setEventModalOpen(true);
   };
 
   const isRewardReady = currentCount >= 10;
@@ -53,6 +55,7 @@ export function ChallengeModal({
   const handlePrimaryClick = isRewardReady ? handleRewardClick : hasWrittenToday ? handleConfirm : handleLogClick;
 
   return (
+    <>
     <CommonModal
       open={open}
       onOpenChange={onOpenChange}
@@ -147,6 +150,14 @@ export function ChallengeModal({
         </div>
       </div>
     </CommonModal>
+    <EventModal
+      open={eventModalOpen}
+      onOpenChange={setEventModalOpen}
+      eventName='인사이트 로그 작성 챌린지'
+      reward='경험 정리 1회권'
+      buttonText='경험 정리하기'
+    />
+    </>
   );
 }
 
