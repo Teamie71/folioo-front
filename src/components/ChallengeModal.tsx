@@ -66,6 +66,12 @@ export function ChallengeModal({
       ? '인사이트 로그 작성 챌린지 참여 완료!'
       : '인사이트 로그 작성 챌린지';
 
+  const descriptionText = isRewardReady
+    ? '보상을 받고, 작성한 인사이트를 활용해 풍부한 경험 정리를 진행해보세요.'
+    : hasWrittenToday
+      ? `${10 - currentCount}개의 로그를 더 작성하고, 경험 정리 1회권을 받으세요.`
+      : '4월 한 달간, 인사이트 로그 10개를 꾸준히 작성하시면 경험 정리 1회권을 드려요!';
+
   return (
     <>
     <CommonModal
@@ -98,7 +104,7 @@ export function ChallengeModal({
             {titleText}
           </h2>
           <p className='text-[1rem] font-medium text-[#1A1A1A]'>
-            4월 한 달간, 인사이트 로그 10개를 꾸준히 작성하시면 경험 정리 1회권을 드려요!
+            {descriptionText}
           </p>
         </div>
       }
