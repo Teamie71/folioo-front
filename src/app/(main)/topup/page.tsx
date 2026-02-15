@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import { CreditExpireAlert } from '@/components/CreditExpireAlert';
 import { CommonModal } from '@/components/CommonModal';
+import Image from 'next/image';
 
 export default function TopupPage() {
   const currentCredits = 50; // TODO: 실제 사용자 크레딧 데이터로 교체
@@ -81,34 +82,36 @@ export default function TopupPage() {
           <div className='flex items-center justify-between w-full'>
             {/* 크레딧 충전 타이틀 */}
             <div>
-              <div className='flex flex-col gap-[1.25rem]'>
-                <div className='flex items-center gap-[1.125rem]'>
-                  <div className='h-[1.75rem] w-[1.75rem] bg-[#E0E0E0]'></div>
-                  <span className='text-[1.5rem] font-bold'>크레딧 충전</span>
+              <div className='flex flex-col gap-[1.25rem] mt-8'>
+                <div className='flex items-center gap-[1rem]'>
+                  <Image src="/Ticket.svg" alt="" width={32} height={32} className='h-[2rem] w-[2rem]' />
+                  <span className='text-[1.5rem] font-bold'>이용권 구매</span>
                 </div>
                 <span className='text-[1.125rem] leading-[150%] text-[#464B53]'>
-                  크레딧을 충전하고, 다양한 AI 기능을 이용하세요.
+                  합격을 위한 가장 효율적인 선택, AI 컨설턴트와 함께하세요.
                 </span>
+              </div>
+              {/* 이용권 만료 예정 안내 */}
+              <div className='mt-[1.75rem]'>
+                <CreditExpireAlert message='이용권 만료 예정 안내' />
               </div>
             </div>
 
             {/* 현재 보유 크레딧 */}
             <div className='relative flex flex-col items-end gap-[0.5rem]'>
               <span className='text-[20px] font-bold text-[#1A1A1A]'>
-                현재 보유 크레딧
+                나의 잔여 이용권
               </span>
               <div className='flex items-center gap-[0.75rem]'>
+                <span className='text-[18px] font-normal text-[#1A1A1A]'>
+                  경험 정리
+                </span>
                 <span className='text-[28px] font-bold text-[#1A1A1A]'>
                   {currentCredits}
                 </span>
                 <span className='text-[18px] font-normal text-[#1A1A1A]'>
-                  크레딧
+                  회
                 </span>
-              </div>
-
-              {/* 크레딧 만료 예정 안내 - absolute 배치 */}
-              <div className='absolute top-16 mt-[1.75rem] right-0'>
-                <CreditExpireAlert message='크레딧 만료 예정 안내' />
               </div>
             </div>
           </div>
