@@ -10,7 +10,7 @@ interface FeedbackModalProps {
   onFeedbackClick: () => void;
 }
 
-export function FeedbackModal({
+export function OBTFeedbackModal({
   open,
   onOpenChange,
   isFirstFeedback,
