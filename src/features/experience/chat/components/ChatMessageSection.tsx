@@ -1,3 +1,5 @@
+import { ChatAnalogs } from './ChatAnalogs';
+
 export type ChatMessage = {
   role: 'ai' | 'user';
   content: string;
@@ -33,12 +35,13 @@ export function ChatMessageSection({
               <button
                 key={`ai-${index}`}
                 type='button'
-                className='flex w-full cursor-pointer gap-[1.5rem] text-left'
+                className='flex cursor-pointer gap-[1.5rem] text-left'
                 onClick={onAIMessageClick}
               >
                 <div className='h-[3rem] w-[3rem] flex-shrink-0 bg-[#D9D9D9]' />
-                <div className='font-regular whitespace-pre-wrap rounded-tl-[0.25rem] rounded-tr-[2rem] rounded-br-[2rem] rounded-bl-[2rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2.25rem] py-[1.75rem] text-[1rem] text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
+                <div className='font-regular max-w-[53.75rem] rounded-tl-[0.25rem] rounded-tr-[2rem] rounded-br-[2rem] rounded-bl-[2rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2.25rem] py-[1.75rem] text-[1rem] whitespace-pre-wrap text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
                   {msg.content}
+                  <ChatAnalogs />
                 </div>
               </button>
             ) : (
@@ -48,7 +51,7 @@ export function ChatMessageSection({
                 className='flex w-full cursor-pointer justify-end text-left'
                 onClick={onUserMessageClick}
               >
-                <div className='font-regular mr-[0.5rem] max-w-[53.75rem] whitespace-pre-wrap rounded-tl-[2rem] rounded-tr-[0.25rem] rounded-br-[2rem] rounded-bl-[2rem] border border-none bg-[#F6F5FF] px-[2.25rem] py-[1.75rem] text-[1rem] text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
+                <div className='font-regular mr-[0.5rem] max-w-[53.75rem] rounded-tl-[2rem] rounded-tr-[0.25rem] rounded-br-[2rem] rounded-bl-[2rem] border border-none bg-[#F6F5FF] px-[2.25rem] py-[1.75rem] text-[1rem] whitespace-pre-wrap text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
                   {msg.content}
                 </div>
               </button>
