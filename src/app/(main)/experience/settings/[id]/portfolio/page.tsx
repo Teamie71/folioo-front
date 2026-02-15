@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
 import { InlineEdit } from '@/components/InlineEdit';
@@ -39,6 +40,10 @@ export default function ExperienceSettingsPortfolioPage() {
   useEffect(() => {
     setExperienceTitle(storeTitle);
   }, [id, storeTitle]);
+
+  useEffect(() => {
+    if (id) setExperienceReturnPath(id, 'portfolio');
+  }, [id]);
 
   const handleDelete = () => {
     removeExperience(id);

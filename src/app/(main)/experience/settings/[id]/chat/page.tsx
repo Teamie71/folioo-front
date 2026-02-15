@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { StepProgressBar } from '@/components/StepProgressBar';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
@@ -41,6 +42,10 @@ export default function ExperienceSettingsChatPage() {
   useEffect(() => {
     setExperienceTitle(storeTitle);
   }, [id, storeTitle]);
+
+  useEffect(() => {
+    if (id) setExperienceReturnPath(id, 'chat');
+  }, [id]);
 
   const handleSend = () => {
     const trimmed = inputValue.trim();
