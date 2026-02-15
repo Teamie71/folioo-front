@@ -81,30 +81,29 @@ export function CreditExpireAlert({
 
       {/* 말풍선 팝오버 */}
       {isOpen && (
-        <div className='absolute top-[calc(100%+0.75rem)] right-[-1rem] z-50 w-[28.7rem]'>
-          {/* SVG 말풍선 */}
-          <div className='relative h-[9.25rem] w-full'>
+        <div className='absolute left-[-1.125rem] z-50 w-[30rem]'>
+          <div className='relative h-[11.0625rem] w-full'>
             <svg
               xmlns='http://www.w3.org/2000/svg'
-              width='463'
-              height='148'
-              viewBox='0 0 463 148'
+              width='482'
+              height='177'
+              viewBox='0 0 482 177'
               fill='none'
               className='absolute inset-0 h-full w-full'
             >
-              <g filter='url(#filter0_d_3242_5331)'>
+              <g filter='url(#filter0_d_4539_3617)'>
                 <path
-                  d='M30 124C23.3726 124 18 118.627 18 112L18 47C18 40.3726 23.3726 35 30 35L398.087 35C398.121 34.9156 398.163 34.8323 398.211 34.75L410.768 13C411.537 11.6667 413.463 11.6667 414.232 13L426.789 34.75C426.837 34.8323 426.878 34.9156 426.913 35L433 35C439.627 35 445 40.3726 445 47L445 112C445 118.627 439.627 124 433 124L30 124Z'
+                  d='M30 153C23.3726 153 18 147.627 18 141L18 47C18 40.3726 23.3726 35 30 35L54.0869 35C54.1215 34.9156 54.1634 34.8323 54.2109 34.75L66.7676 13C67.5374 11.6667 69.4626 11.6667 70.2324 13L82.7891 34.75C82.8366 34.8323 82.8785 34.9156 82.9131 35L452 35C458.627 35 464 40.3726 464 47L464 141C464 147.627 458.627 153 452 153L30 153Z'
                   fill='white'
                 />
               </g>
               <defs>
                 <filter
-                  id='filter0_d_3242_5331'
+                  id='filter0_d_4539_3617'
                   x='0'
                   y='0'
-                  width='463'
-                  height='148'
+                  width='482'
+                  height='177'
                   filterUnits='userSpaceOnUse'
                   colorInterpolationFilters='sRGB'
                 >
@@ -119,7 +118,7 @@ export function CreditExpireAlert({
                     radius='2'
                     operator='erode'
                     in='SourceAlpha'
-                    result='effect1_dropShadow_3242_5331'
+                    result='effect1_dropShadow_4539_3617'
                   />
                   <feOffset dy='6' />
                   <feGaussianBlur stdDeviation='10' />
@@ -131,12 +130,12 @@ export function CreditExpireAlert({
                   <feBlend
                     mode='normal'
                     in2='BackgroundImageFix'
-                    result='effect1_dropShadow_3242_5331'
+                    result='effect1_dropShadow_4539_3617'
                   />
                   <feBlend
                     mode='normal'
                     in='SourceGraphic'
-                    in2='effect1_dropShadow_3242_5331'
+                    in2='effect1_dropShadow_4539_3617'
                     result='shape'
                   />
                 </filter>
@@ -144,25 +143,22 @@ export function CreditExpireAlert({
             </svg>
 
             {/* 내용 영역 */}
-            <div className='absolute inset-0 z-10 flex items-center justify-center px-[2.5rem] pt-[0.5rem]'>
-              <div className='flex flex-col gap-[0.25rem] text-center'>
-                <p className='text-[1rem] font-semibold text-[#1A1A1A]'>
-                  {expireDate}에 {expireCredits}크레딧이 만료 예정이에요.
-                </p>
-                <p className='text-[0.875rem] text-[#74777D]'>
-                  크레딧 결제 또는 획득 내역은{' '}
-                  <button
-                    type='button'
-                    className='underline underline-offset-3 text-[#74777D] cursor-pointer'
-                    onClick={() => {
-                      router.push('/invoice');
-                    }}
-                  >
-                    크레딧 거래 내역
-                  </button>
-                  을 확인해주세요.
-                </p>
-              </div>
+            <div className='absolute inset-0 z-10 flex flex-col justify-center px-[2.5rem] pt-[0.25rem]'>
+              <ul className='list-disc pl-[2.5rem] pt-[0.5rem] text-[1rem] font-semibold text-[#1A1A1A]'>
+                <li>{expireDate} 경험 정리 1회 이용권 만료 예정</li>
+                <li>{expireDate} 포트폴리오 첨삭 3회 이용권 만료 예정</li>
+              </ul>
+              <p className='mt-[0.5rem] text-[0.875rem] pl-[1.75rem] text-[#74777D]'>
+                이용권 결제 또는 획득 내역은{' '}
+                <button
+                  type='button'
+                  className='cursor-pointer underline underline-offset-2 text-[#74777D]'
+                  onClick={() => router.push('/invoice')}
+                >
+                  이용권 거래 내역
+                </button>
+                을 확인해주세요.
+              </p>
             </div>
           </div>
         </div>
