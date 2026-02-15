@@ -32,6 +32,9 @@ interface CommonModalProps {
   footer?: React.ReactNode;
   children?: React.ReactNode; // 본문에 추가 내용이 필요할 경우
 
+  // 푸터 버튼 없이 닫기(X) 버튼만 사용할 때 true
+  closeButtonOnly?: boolean;
+
   // 스타일
   className?: string; // 모달 크기 조절 등
   overlayClassName?: string; // 배경 오버레이 색상 조절
@@ -51,52 +54,49 @@ export function CommonModal({
   primaryBtnVariant = 'default',
   footer,
   children,
+  closeButtonOnly = false,
   className,
   overlayClassName,
 }: CommonModalProps) {
   // 버튼이 없는지 확인 (secondaryBtnText, primaryBtnText, cancelBtnText가 모두 없을 때)
   const hasNoButtons = !primaryBtnText && !secondaryBtnText && !cancelBtnText;
+  // 푸터 없이 닫기 버튼만 쓰는 경우 (X로만 닫기)
+  const isCloseButtonOnly = hasNoButtons && closeButtonOnly;
 
-  // 버튼이 전부 없을 때, 2초 후 자동으로 닫기
+  // 버튼이 전부 없고 closeButtonOnly가 아닐 때만 2초 후 자동으로 닫기
   useEffect(() => {
-    if (open && hasNoButtons) {
+    if (open && hasNoButtons && !closeButtonOnly) {
       const timer = setTimeout(() => {
         onOpenChange(false);
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [open, hasNoButtons, onOpenChange]);
+  }, [open, hasNoButtons, closeButtonOnly, onOpenChange]);
 
   return (
     <Dialog
       open={open}
       onOpenChange={
-        hasNoButtons
-          ? () => {
-              // 버튼이 전부 없는 경우 수동 닫기 방지
-            }
-          : onOpenChange
+        isCloseButtonOnly ? onOpenChange : hasNoButtons ? () => {} : onOpenChange
       }
     >
       <DialogContent
         overlayClassName={overlayClassName}
         onInteractOutside={(e) => {
-          // 버튼이 전부 없는 경우 오버레이 클릭으로 닫기 방지
-          if (hasNoButtons) {
+          if (hasNoButtons && !closeButtonOnly) {
             e.preventDefault();
           }
         }}
         onEscapeKeyDown={(e) => {
-          // 버튼이 전부 없는 경우 ESC 키로 닫기 방지
-          if (hasNoButtons) {
+          if (hasNoButtons && !closeButtonOnly) {
             e.preventDefault();
           }
         }}
         className={cn(
           'items-center gap-[1.75rem] px-[5rem] py-[3.75rem] text-center',
-          // 버튼이 전부 없는 경우 닫기 버튼 숨기기
-          hasNoButtons && '[&>button:last-child]:hidden',
+          // 푸터 없이 자동 닫기 모드일 때만 닫기 버튼 숨기기
+          hasNoButtons && !closeButtonOnly && '[&>button:last-child]:hidden',
           className,
         )}
       >
