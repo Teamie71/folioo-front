@@ -1,10 +1,22 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { PortfolioCard } from '@/components/PortfolioCard';
 import { useExperienceStore } from '@/store/useExperienceStore';
+import {
+  getExperienceReturnPaths,
+  type ExperienceReturnPath,
+} from '@/features/experience/utils/experienceReturnPath';
 
 export function ExperienceCardSection() {
   const { experienceCards } = useExperienceStore();
+  const [returnPaths, setReturnPaths] = useState<
+    Record<string, ExperienceReturnPath>
+  >({});
+
+  useEffect(() => {
+    setReturnPaths(getExperienceReturnPaths());
+  }, []);
 
   return (
     <div className='grid grid-cols-2 gap-[1.5rem]'>
@@ -14,15 +26,18 @@ export function ExperienceCardSection() {
           경험을 정리하고, 텍스트형 포트폴리오를 받아보세요!
         </div>
       ) : (
-        experienceCards.map((card) => (
-          <PortfolioCard
-            key={card.id}
-            title={card.title}
-            tag={card.tag}
-            date={card.date}
-            href={`/experience/settings/${card.id}/chat`}
-          />
-        ))
+        experienceCards.map((card) => {
+          const subPath = returnPaths[card.id] ?? 'chat';
+          return (
+            <PortfolioCard
+              key={card.id}
+              title={card.title}
+              tag={card.tag}
+              date={card.date}
+              href={`/experience/settings/${card.id}/${subPath}`}
+            />
+          );
+        })
       )}
     </div>
   );

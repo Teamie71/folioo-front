@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { StepProgressBar } from '@/components/StepProgressBar';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
@@ -21,6 +23,10 @@ export default function ExperienceSettingsChatLoadingPage() {
   const id = typeof params.id === 'string' ? params.id : '';
   const title =
     experienceCards.find((card) => card.id === id)?.title ?? '새로운 경험 정리';
+
+  useEffect(() => {
+    if (id) setExperienceReturnPath(id, 'createloading');
+  }, [id]);
 
   const handleDelete = () => {
     removeExperience(id);

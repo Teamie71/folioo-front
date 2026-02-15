@@ -37,11 +37,11 @@ export function CommonButton({
   const styles = {
     // Primary: 주로 사용하는 버튼
     Primary:
-      'rounded-full bg-[#5060C5] text-[#ffffff] text-[1rem] font-bold cursor-pointer',
+      'rounded-[6.25rem] bg-[#5060C5] hover:bg-[#404D9E] text-[#ffffff] text-[1rem] font-bold cursor-pointer',
 
     // Execute: 모달에서 실행하거나 동작할 때 사용하는 버튼
     Execute:
-      'rounded-[0.5rem] bg-[#5060C5] text-[#ffffff] text-[1rem] font-bold cursor-pointer',
+      'rounded-[0.5rem] bg-[#5060C5] hover:bg-[#404D9E] text-[#ffffff] text-[1rem] font-bold cursor-pointer',
 
     // Cancel: 취소 버튼
     Cancel:
@@ -49,11 +49,11 @@ export function CommonButton({
 
     // Outline: border가 존재하는 버튼
     Outline:
-      'rounded-[6.25rem] bg-[#F6F5FF] text-[#5060C5] border-[0.09375rem] border-[#5060C5] text-[1rem] font-semibold cursor-pointer',
+      'rounded-[6.25rem] bg-[#F6F5FF] hover:bg-[#EEEDF7] text-[#5060C5] border-[0.09375rem] border-[#5060C5] text-[1rem] font-semibold cursor-pointer',
 
     // StartChat: 채팅 시작 버튼 - px&py 고정
     StartChat:
-      'rounded-[6.25rem] bg-[#ffffff] px-[2rem] py-[1.25rem] text-[#1A1A1A] text-[1.125rem] font-bold shadow-[0px_0px_8px_0px_#00000026] gap-[0.5rem] cursor-pointer inline-flex items-center justify-center [&_svg]:!w-6 [&_svg]:!h-6',
+      'rounded-[6.25rem] transition-shadow duration-200 hover:shadow-[0px_4px_20px_0px_#00000026] bg-[#ffffff] px-[2rem] py-[1.25rem] text-[#1A1A1A] text-[1.125rem] font-bold shadow-[0px_0px_8px_0px_#00000026] gap-[0.5rem] cursor-pointer inline-flex items-center justify-center [&_svg]:!w-6 [&_svg]:!h-6',
 
     // Gradient: 그라디언트 배경 버튼
     Gradient:

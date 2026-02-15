@@ -1,5 +1,22 @@
 @import 'tailwindcss';
 
+@theme {
+  --font-sans:
+    var(--font-pretendard), 'Pretendard Variable', Pretendard, -apple-system,
+    BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI',
+    'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+  --font-weight-bold: 700 !important;
+  --font-weight-semibold: 600 !important;
+  --font-weight-regular: 400 !important;
+}
+
+/* OS 폰트 렌더링 최적화 */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 /* 배너 닫힘 시 레이아웃에서 제거 - 스크립트 먼저 실행 */
 body[data-banner-dismissed='true'] .banner-beta {
   display: none !important;
@@ -14,4 +31,19 @@ body[data-banner-dismissed='true'] .banner-beta {
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+}
+
+/* 멘션 팝업 커스텀 스크롤바 */
+.mention-scroll::-webkit-scrollbar {
+  width: 0.25rem;
+}
+.mention-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+.mention-scroll::-webkit-scrollbar-thumb {
+  background: #9ea4a9;
+  border-radius: 3.125rem;
+  background-clip: padding-box;
 }

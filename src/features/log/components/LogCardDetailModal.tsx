@@ -71,32 +71,32 @@ export function LogDetailModal({
     switch (category) {
       case '대인관계':
         return (
-          <div className='scale-90'>
+          <div className='scale-90 text-[#74777D]'>
             <InterpersonIcon />
           </div>
         );
       case '문제해결':
         return (
-          <div className='scale-90'>
+          <div className='scale-90 text-[#74777D]'>
             <ProblemSolveIcon />
           </div>
         );
       case '학습':
         return (
-          <div className='scale-90'>
+          <div className='scale-90 text-[#74777D]'>
             <LearningIcon />
           </div>
         );
       case '레퍼런스':
         return (
-          <div className='scale-90'>
+          <div className='scale-90 text-[#74777D]'>
             <ReferenceIcon />
           </div>
         );
       case '기타':
       default:
         return (
-          <div className='scale-90'>
+          <div className='scale-90 text-[#74777D]'>
             <EtcIcon />
           </div>
         );

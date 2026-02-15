@@ -45,15 +45,15 @@ export function ExperienceSettingsForm({
         />
       </div>
 
-      {/* 희망 직무 선택 */}
+      {/* 희망 직군 선택 */}
       <div className='flex flex-col gap-[1rem]'>
         <div className='flex flex-col gap-[0.25rem] text-[1.125rem]'>
           <div className='flex items-center gap-[0.25rem] font-bold'>
-            <span>희망 직무</span>
+            <span>희망 직군</span>
             <span className='text-[#DC0000]'>*</span>
           </div>
           <span className='font-regular text-[0.825rem] text-[#74777D]'>
-            희망 직무에 맞추어 경험을 체계적으로 정리하세요.
+            희망 직군에 맞추어 경험을 체계적으로 정리하세요.
           </span>
           {errors.desiredJob && (
             <p className='text-[0.875rem] text-[#DC0000]'>

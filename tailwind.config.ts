@@ -1,4 +1,4 @@
-import type { Config } from 'tailwindcss'
+import type { Config } from 'tailwindcss';
 
 const config = {
   darkMode: 'class',
@@ -18,6 +18,31 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: [
+          'var(--font-pretendard)',
+          'Pretendard Variable',
+          'Pretendard',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'system-ui',
+          'Roboto',
+          'Helvetica Neue',
+          'Segoe UI',
+          'Apple SD Gothic Neo',
+          'Noto Sans KR',
+          'Malgun Gothic',
+          'Apple Color Emoji',
+          'Segoe UI Emoji',
+          'Segoe UI Symbol',
+          'sans-serif',
+        ],
+      },
+      fontWeight: {
+        regular: '400',
+        semibold: '600',
+        bold: '700',
+      },
       keyframes: {
         'accordion-down': {
           from: { height: '0' },
@@ -35,6 +60,6 @@ const config = {
     },
   },
   plugins: [require('tailwindcss-animate')],
-} satisfies Config
+} satisfies Config;
 
-export default config
+export default config;

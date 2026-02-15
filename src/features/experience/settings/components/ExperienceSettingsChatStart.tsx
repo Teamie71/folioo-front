@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { CommonButton } from '@/components/CommonButton';
 import { CommonModal } from '@/components/CommonModal';
 import { useExperienceStore } from '@/store/useExperienceStore';
+import { ChatStartIcon } from '@/components/icons/ChatStartIcon';
 
 interface ExperienceSettingsChatStartProps {
   onValidationError: (
@@ -46,16 +48,16 @@ export function ExperienceSettingsChatStart({
   return (
     <>
       {/* 시작하기 버튼 */}
-      <button
+      <CommonButton
+        variantType='Primary'
         onClick={handleStartChatClick}
-        className='fixed bottom-[7.5rem] left-1/2 mx-auto flex -translate-x-1/2 cursor-pointer gap-[0.75rem] rounded-[6.25rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
+        className='fixed bottom-[7.5rem] left-1/2 -translate-x-1/2 items-center'
+        px='2.25rem'
+        py='0.75rem'
       >
-        {/* TODO: 아이콘 추가 */}
-        <div className='h-[1.5rem] w-[1.5rem] bg-[#FFFFFF]' />
-        <span className='text-[1rem] font-bold text-[#FFFFFF]'>
-          AI와 대화 시작하기
-        </span>
-      </button>
+        <ChatStartIcon />
+        AI와 대화 시작하기
+      </CommonButton>
 
       {/* 시작하기 모달 */}
       <CommonModal
@@ -63,9 +65,9 @@ export function ExperienceSettingsChatStart({
         onOpenChange={setIsStartChatModalOpen}
         title={
           <>
-            30 크레딧을 사용하여
+            경험 정리 1회권을 사용하여
             <br />
-            경험 정리를 진행하시겠습니까?
+            진행하시겠습니까?
           </>
         }
         cancelBtnText='취소'
