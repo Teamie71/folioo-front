@@ -24,11 +24,11 @@ export function OBTEventModal({
   eventSubTitle: string;
   /** 지급된 보상 내용 (예: 경험 정리 1회권) */
   reward: string;
-  /** 보상 지급 문구 (미입력 시 `${reward}이 지급되었어요.`) */
+  /** 보상 지급 문구. {reward}는 실제 reward 값으로 치환됨 (미입력 시 `${reward}이 지급되었어요.`) */
   rewardMessage?: string;
-  /** 서브 문구 (미입력 시 "Folioo와 함께 경험을 강력한 서류로 만들어보세요.") */
+  /** 서브 문구. {reward} 치환 가능 (미입력 시 "Folioo와 함께 경험을 강력한 서류로 만들어보세요.") */
   subMessage?: string;
-  /** 이용권 유효 안내 문구 (미입력 시 "지급된 이용권은 6개월 간 사용 가능해요.") */
+  /** 이용권 유효 안내 문구. {reward} 치환 가능 (미입력 시 "지급된 이용권은 6개월 간 사용 가능해요.") */
   validityMessage?: string;
   /** 하단 CTA 버튼 문구 */
   buttonText: string;
@@ -38,6 +38,8 @@ export function OBTEventModal({
     onButtonClick?.();
     onOpenChange(false);
   };
+
+  const replaceReward = (text: string) => text.replace(/\{reward\}/g, reward);
 
   return (
     <CommonModal
@@ -68,11 +70,11 @@ export function OBTEventModal({
         </div>
         <div className='flex flex-col gap-[0.25rem]'>
           <div className='text-[1rem] text-[#1A1A1A] mt-[1rem]'>
-            <p>{rewardMessage ?? `${reward}이 지급되었어요.`}</p>
-            <p>{subMessage ?? 'Folioo와 함께 경험을 강력한 서류로 만들어보세요.'}</p>
+            <p>{replaceReward(rewardMessage ?? `${reward}이 지급되었어요.`)}</p>
+            <p>{replaceReward(subMessage ?? 'Folioo와 함께 경험을 강력한 서류로 만들어보세요.')}</p>
           </div>
           <div className='text-[0.75rem] text-[#74777D]'>
-            <p>{validityMessage ?? '지급된 이용권은 6개월 간 사용 가능해요.'}</p>
+            <p>{replaceReward(validityMessage ?? '지급된 이용권은 6개월 간 사용 가능해요.')}</p>
           </div>
         </div>
       </div>
