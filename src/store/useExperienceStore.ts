@@ -5,7 +5,7 @@ import { z } from 'zod';
 // Zod 스키마 (경험 설정)
 export const experienceSettingsFormSchema = z.object({
   experienceName: z.string().min(1, '경험명을 입력해주세요').trim(),
-  desiredJob: z.string().min(1, '희망 직무를 선택해주세요').trim(),
+  desiredJob: z.string().min(1, '희망 직군을 선택해주세요').trim(),
 });
 
 export type ExperienceSettingsFormData = z.infer<
