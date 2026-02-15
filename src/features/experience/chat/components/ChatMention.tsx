@@ -136,9 +136,8 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
         <div className='mention-scroll mr-[0.5rem] flex min-h-0 flex-1 flex-col gap-[0.25rem] overflow-y-auto px-[1.25rem] py-[1.125rem] pr-[0.5rem]'>
           {filteredItems.length > 0 ? (
             filteredItems.map((item) => (
-              <button
+              <div
                 key={item.id}
-                type='button'
                 className='flex w-full cursor-pointer items-center justify-between rounded-[0.25rem] border border-[#CDD0D5] px-[1rem] py-[0.75rem] hover:bg-[#F6F5FF]'
                 onClick={() => onSelect?.(item.title)}
               >
@@ -156,7 +155,7 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
                     내용보기
                   </button>
                 </div>
-              </button>
+              </div>
             ))
           ) : (
             <div className='flex flex-1 items-center justify-center text-[0.875rem] text-[#9EA4A9]'>
