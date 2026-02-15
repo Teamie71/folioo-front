@@ -28,12 +28,11 @@ export function PortfolioCard({
   className,
 }: PortfolioCardProps) {
   const cardClassName = cn(
-    // 클릭 가능한 경우 커서 포인터 및 호버 효과
+    'border border-[#CDD0D5] bg-[#FDFDFD] shadow-[0_0.25rem_0.5rem_0_#00000033] transition-all',
     (onClick || href) &&
-      'cursor-pointer transition-all hover:shadow-[0_0.5rem_1rem_0_#00000033]',
-    // 선택된 경우 활성화 색상 (border와 배경색 변경)
+      'cursor-pointer hover:bg-[#FDFDFD] hover:border-[#CDD0D5] hover:shadow-[0_0.375rem_1rem_0_#00000033]',
     selected &&
-      'border-[#5060C5] bg-[#F6F5FF] shadow-[0_0.25rem_0.5rem_0_#5060C533]',
+      'border border-[#CDD0D5] bg-[#F6F5FF] shadow-[0_0.25rem_0.5rem_0_#00000033,inset_0_0_0_2px_#5060C5] hover:bg-[#F6F5FF] hover:shadow-[0_0.25rem_0.5rem_0_#00000033,inset_0_0_0_2px_#5060C5]',
     className,
   );
 
