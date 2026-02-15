@@ -65,9 +65,9 @@ export function ExperienceSettingsChatStart({
         onOpenChange={setIsStartChatModalOpen}
         title={
           <>
-            30 크레딧을 사용하여
+            경험 정리 1회권을 사용하여
             <br />
-            경험 정리를 진행하시겠습니까?
+            진행하시겠습니까?
           </>
         }
         cancelBtnText='취소'
