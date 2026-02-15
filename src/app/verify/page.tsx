@@ -32,7 +32,7 @@ export default function VerifyPage() {
               휴대폰 번호 인증
             </h1>
             <p className='text-[1.125rem] text-[#464B53]'>
-              3초만에 회원가입 완료하고, 무료 이용권 2종을 받으세요!
+              3초만에 회원가입 완료하고, 무료 이용권을 받으세요!
             </p>
           </div>
 

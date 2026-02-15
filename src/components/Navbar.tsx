@@ -3,11 +3,21 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { cn } from '@/utils/utils';
 
 export default function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const linkClass = (href: string) =>
+    cn(
+      'inline-block py-[8px] font-[16px] no-underline transition-colors hover:font-bold',
+      pathname === href || (href !== '/' && pathname.startsWith(href))
+        ? 'font-bold text-[#5060C5]'
+        : 'text-[#333333]',
+    );
 
   const handleLogin = () => {
     setIsLoggedIn(true);
@@ -19,7 +29,6 @@ export default function Navbar() {
       <div className='mx-auto w-[1056px]'>
         <div className='flex h-[80px] items-center justify-between'>
           <div className='flex items-center gap-[60px]'>
-            {/* 로고 플레이스홀더 */}
             <Link href='/'>
               <Image
                 src='/MainLogo.svg'
@@ -32,22 +41,13 @@ export default function Navbar() {
 
             {/* 네비게이션 링크 */}
             <div className='flex items-center gap-[40px]'>
-              <Link
-                href='/log'
-                className='inline-block py-[8px] font-[16px] text-[#333333] no-underline'
-              >
+              <Link href='/log' className={linkClass('/log')}>
                 인사이트 로그
               </Link>
-              <Link
-                href='/experience'
-                className='inline-block py-[8px] font-[16px] text-[#333333] no-underline'
-              >
+              <Link href='/experience' className={linkClass('/experience')}>
                 경험 정리
               </Link>
-              <Link
-                href='/correction'
-                className='inline-block py-[8px] font-[16px] text-[#333333] no-underline'
-              >
+              <Link href='/correction' className={linkClass('/correction')}>
                 포트폴리오 첨삭
               </Link>
             </div>
@@ -56,11 +56,8 @@ export default function Navbar() {
           <div className='flex items-center'>
             {isLoggedIn ? (
               <div className='flex items-center gap-[40px]'>
-                <Link
-                  href='/topup'
-                  className='inline-block py-[8px] font-[16px] text-[#333333] no-underline'
-                >
-                  크레딧 충전
+                <Link href='/topup' className={linkClass('/topup')}>
+                  이용권 구매
                 </Link>
                 <button
                   onClick={handleLogin}
@@ -83,11 +80,8 @@ export default function Navbar() {
               </div>
             ) : (
               <div className='flex items-center gap-[40px]'>
-                <Link
-                  href='/topup'
-                  className='inline-block py-[8px] font-[16px] text-[#333333] no-underline'
-                >
-                  크레딧 충전
+                <Link href='/topup' className={linkClass('/topup')}>
+                  이용권 구매
                 </Link>
                 <button
                 onClick={handleLogin}

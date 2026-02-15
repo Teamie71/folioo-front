@@ -14,6 +14,7 @@ import { ToggleLarge } from '@/components/ToggleLarge';
 import InputArea from '@/components/InputArea';
 import TextField from '@/components/TextField';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
+import { CorrectionIcon } from '@/components/icons/CorrectionIcon';
 
 type Step = 'information' | 'portfolio' | 'analysis' | 'result';
 type Status = 'DRAFT' | 'ANALYZING' | 'DONE';
@@ -60,9 +61,9 @@ export default function CorrectionSettingsPage() {
       date: '2000-00-00',
     },
   ];
-  const [resultTab, setResultTab] = useState<'지원 정보' | '활동 A' | '활동 B'>(
-    '지원 정보',
-  );
+  const [resultTab, setResultTab] = useState<
+    '지원 정보' | '총평' | '활동 A' | '활동 B'
+  >('지원 정보');
   const [detailInfoButton, setDetailInfoButton] = useState<
     '축소 또는 제외' | '구체화하여 강조'
   >('축소 또는 제외');
@@ -77,6 +78,8 @@ export default function CorrectionSettingsPage() {
   >('축소 또는 제외');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
+  const [isStartCorrectionModalOpen, setIsStartCorrectionModalOpen] =
+    useState(false);
   const [isPdfTextExtracted, setIsPdfTextExtracted] = useState(false);
   const [showTextPortfolioWarning, setShowTextPortfolioWarning] = useState(false);
   const [analysisInfoValue, setAnalysisInfoValue] = useState('');
@@ -170,6 +173,24 @@ export default function CorrectionSettingsPage() {
               router.push('/correction');
             }}
           />
+            <CommonModal
+              open={isStartCorrectionModalOpen}
+              onOpenChange={setIsStartCorrectionModalOpen}
+              title={
+                <>
+                  포트폴리오 첨삭 1회권을 사용하여
+                  <br />
+                  진행하시겠습니까?
+                </>
+              }
+              cancelBtnText='취소'
+              primaryBtnText='진행'
+              onPrimaryClick={() => {
+                setIsStartCorrectionModalOpen(false);
+                handleNextStep();
+              }}
+              className='max-w-[24.75rem] items-center px-[5rem] py-[3.75rem] text-center'
+            />
         </div>
 
         {step === 'result' ? (
@@ -360,16 +381,15 @@ export default function CorrectionSettingsPage() {
               </div>
             </div>
 
-            {/* 첨삭 의뢰하기 버튼 */}
+            {/* 첨삭 시작하기 버튼 */}
             <div className='flex justify-center pb-[7rem]'>
               <button
-                onClick={handleNextStep}
+                onClick={() => setIsStartCorrectionModalOpen(true)}
                 className='flex cursor-pointer items-center justify-center gap-[0.75rem] rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
               >
-                {/* TODO: 아이콘 추가 */}
-                <div className='h-[1.5rem] w-[1.5rem] bg-[#FFFFFF]' />
-                <span className='text-[1rem] font-bold text-[#FFFFFF]'>
-                  첨삭 의뢰하기
+                <CorrectionIcon />
+                <span className='text-[1rem] font-bold text-[#FFFFFF] whitespace-nowrap'>
+                  첨삭 시작하기
                 </span>
               </button>
             </div>
@@ -718,9 +738,6 @@ export default function CorrectionSettingsPage() {
                         </span>
                       )}
                     </div>
-                    <button className='h-fit cursor-pointer rounded-[3.75rem] border border-[#5060C5] bg-[#F6F5FF] px-[2.25rem] py-[0.5rem] text-[1rem] font-bold whitespace-nowrap text-[#5060C5]'>
-                      3 크레딧으로 다시 생성
-                    </button>
                   </div>
                   <TextField
                     variant='wide'
@@ -758,9 +775,10 @@ export default function CorrectionSettingsPage() {
             <div className='flex justify-center pt-[1.25rem] pb-[7rem]'>
               <button
                 onClick={handleNextStep}
-                className='flex cursor-pointer items-center justify-center rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
+                className='flex cursor-pointer items-center justify-center rounded-[3.75rem] gap-[0.75rem]  border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
               >
-                <span className='text-[1rem] font-bold text-[#FFFFFF]'>
+                <CorrectionIcon />
+                <span className='text-[1rem] font-bold text-[#FFFFFF] whitespace-nowrap'>
                   첨삭 의뢰하기
                 </span>
               </button>
@@ -840,6 +858,23 @@ export default function CorrectionSettingsPage() {
                       }
                     >
                       지원 정보
+                    </button>
+                    <button
+                      onClick={() => setResultTab('총평')}
+                      className={`cursor-pointer rounded-t-[0.5rem] border-none px-[2.5rem] py-[0.875rem] text-[1rem] font-bold transition-all ${
+                        resultTab === '총평'
+                          ? 'relative z-10 bg-[#FFFFFF] text-[#5060C5]'
+                          : 'bg-[#F6F8FA] text-[#9EA4A9]'
+                      }`}
+                      style={
+                        resultTab === '총평'
+                          ? {
+                              boxShadow: '0 -0.15rem 0.5rem 0 rgba(0,0,0,0.2)',
+                            }
+                          : undefined
+                      }
+                    >
+                      총평
                     </button>
                     <button
                       onClick={() => setResultTab('활동 A')}
@@ -934,17 +969,21 @@ export default function CorrectionSettingsPage() {
                       </div>
                     )}
 
-                    {/* 활동 A, B 탭 내용 */}
-                    {(resultTab === '활동 A' || resultTab === '활동 B') && (
+                    {/* 총평 탭 내용 */}
+                    {resultTab === '총평' && (
                       <div className='flex flex-col gap-[3rem]'>
-                        {/* 총평 */}
                         <div className='flex flex-col gap-[1rem]'>
                           <div className='text-[1.125rem] font-bold'>총평</div>
                           <div className='rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem]'>
                             일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십
                           </div>
                         </div>
+                      </div>
+                    )}
 
+                    {/* 활동 A, B 탭 내용 */}
+                    {(resultTab === '활동 A' || resultTab === '활동 B') && (
+                      <div className='flex flex-col gap-[3rem]'>
                         {/* 상세정보 */}
                         <div className='flex flex-col gap-[1rem]'>
                           <div className='text-[1.125rem] font-bold'>
