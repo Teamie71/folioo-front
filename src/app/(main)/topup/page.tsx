@@ -44,8 +44,8 @@ export default function TopupPage() {
     {
       id: 'phone',
       icon: <TicketIcon />,
-      title: '휴대폰 번호 인증하고, 무료 크레딧을 획득하세요!',
-      description: '무료 크레딧을 받고, Folioo와 커리어 기록을 시작하세요.',
+      title: '휴대폰 번호 인증하고, 무료 이용권으로 시작하세요!',
+      description: '3초만에 인증하고, Folioo와 커리어 기록을 진행해보세요.',
       cta: '번호 인증하기',
     },
     {
