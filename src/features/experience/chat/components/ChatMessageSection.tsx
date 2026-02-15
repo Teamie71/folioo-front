@@ -29,7 +29,7 @@ export function ChatMessageSection({
       />
       {/* 스크롤 영역 */}
       <div className='scrollbar-hide flex min-h-0 flex-1 flex-col gap-[3.75rem] overflow-y-auto'>
-        <div className='flex flex-col gap-[3.75rem] pb-[10rem]'>
+        <div className='flex flex-col gap-[3.75rem]'>
           {messages.map((msg, index) =>
             msg.role === 'ai' ? (
               <button

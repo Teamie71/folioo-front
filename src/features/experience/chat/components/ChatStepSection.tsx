@@ -108,7 +108,7 @@ export const ChatStepSection = ({
       </div>
 
       {/* 그리드 + ChatInput: 그리드만 페이드, ChatInput은 항상 유지 */}
-      <div className='flex items-center gap-[1.25rem]'>
+      <div className='flex w-[66rem] items-center gap-[1.25rem]'>
         <div className='relative h-[2.5rem] w-[2.5rem] flex-shrink-0'>
           {/* 0단계 그리드 */}
           <div

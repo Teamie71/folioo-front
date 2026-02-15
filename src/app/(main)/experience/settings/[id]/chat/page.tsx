@@ -46,6 +46,15 @@ export default function ExperienceSettingsChatPage() {
     if (id) setExperienceReturnPath(id, 'chat');
   }, [id]);
 
+  // 브라우저 스크롤 차단
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
   const handleSend = () => {
     const trimmed = inputValue.trim();
     if (!trimmed) return;
@@ -64,7 +73,7 @@ export default function ExperienceSettingsChatPage() {
 
   return (
     <div className='flex h-screen flex-col overflow-hidden'>
-      <div className='mx-auto flex min-h-0 w-full max-w-[66rem] flex-1 flex-col gap-[1.5rem] overflow-hidden px-[1rem] pt-[2.5rem]'>
+      <div className='mx-auto flex min-h-0 w-[66rem] flex-1 flex-col gap-[1.5rem] overflow-hidden px-[1rem] pt-[2.5rem]'>
         {/* 헤더 */}
         <div className='flex w-full shrink-0 items-center justify-between'>
           <div className='flex items-center gap-[0.5rem]'>
@@ -96,7 +105,7 @@ export default function ExperienceSettingsChatPage() {
         </div>
 
         {/* 채팅 영역: 메시지 영역만 스크롤, 브라우저 바닥 10rem까지 */}
-        <div className='flex min-h-0 flex-1 flex-col overflow-hidden pb-[10rem]'>
+        <div className='flex min-h-0 flex-1 flex-col overflow-hidden pb-[19.75rem]'>
           <ChatMessageSection
             messages={messages}
             onAIMessageClick={() => setIsCompletionModalOpen(true)}
