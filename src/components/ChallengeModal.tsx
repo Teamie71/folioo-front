@@ -18,11 +18,14 @@ export function ChallengeModal({
   open,
   onOpenChange,
   currentCount = 3,
+  hasWrittenToday = false,
   onLogClick,
 }: {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   currentCount?: number;
+  /** 오늘 인사이트 로그를 이미 작성했는지 여부. true면 버튼이 "확인"으로만 표시됨 */
+  hasWrittenToday?: boolean;
   onLogClick?: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,12 +35,16 @@ export function ChallengeModal({
     onOpenChange(false);
   };
 
+  const handleConfirm = () => {
+    onOpenChange(false);
+  };
+
   return (
     <CommonModal
       open={open}
       onOpenChange={onOpenChange}
-      primaryBtnText='오늘의 로그 작성하기'
-      onPrimaryClick={handleLogClick}
+      primaryBtnText={hasWrittenToday ? '확인' : '오늘의 로그 작성하기'}
+      onPrimaryClick={hasWrittenToday ? handleConfirm : handleLogClick}
       footer={
         <div className='flex w-full flex-col items-start gap-[1rem]'>
           <CommonButton
@@ -45,9 +52,9 @@ export function ChallengeModal({
             px='2.5rem'
             py='0.5rem'
             className='rounded-lg text-[1.125rem] font-semibold hover:bg-[#4352B3]'
-            onClick={handleLogClick}
+            onClick={hasWrittenToday ? handleConfirm : handleLogClick}
           >
-            오늘의 로그 작성하기 →
+            {hasWrittenToday ? '확인' : '오늘의 로그 작성하기 →'}
           </CommonButton>
           <p className='text-[0.875rem] text-[#9EA4A9]'>
             본 이벤트는{' '}
