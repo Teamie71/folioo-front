@@ -54,6 +54,7 @@ export function OutOfTicketModal({
     const option = TICKET_OPTIONS[type];
     setPaymentProductName(`${option.label} ${option.description}`);
     setPaymentTicketType(type);
+    onOpenChange(false);
     setPaymentModalOpen(true);
   };
 
@@ -63,8 +64,9 @@ export function OutOfTicketModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='w-[45.125rem] items-center gap-[1.75rem] px-[5rem] py-[3.75rem] text-center'>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className='w-[45.125rem] items-center gap-[1.75rem] px-[5rem] py-[3.75rem] text-center'>
         <DialogHeader className='flex flex-col items-center justify-center space-y-0'>
           <DialogTitle className='text-center text-[1.25rem] leading-[130%] font-bold text-[#1A1A1A]'>
             앗, 이용권이 부족해요.
@@ -115,7 +117,8 @@ export function OutOfTicketModal({
         <CommonButton variantType='Outline' px='2rem' py='0.5rem'>
           할인된 패키지 보러가기 →
         </CommonButton>
-      </DialogContent>
+        </DialogContent>
+      </Dialog>
 
       <PaymentModal
         open={paymentModalOpen}
@@ -123,6 +126,6 @@ export function OutOfTicketModal({
         productName={paymentProductName}
         onConfirm={handlePaymentConfirm}
       />
-    </Dialog>
+    </>
   );
 }
