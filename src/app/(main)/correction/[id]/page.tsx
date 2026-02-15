@@ -14,6 +14,7 @@ import { ToggleLarge } from '@/components/ToggleLarge';
 import InputArea from '@/components/InputArea';
 import TextField from '@/components/TextField';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
+import { CorrectionIcon } from '@/components/icons/CorrectionIcon';
 
 type Step = 'information' | 'portfolio' | 'analysis' | 'result';
 type Status = 'DRAFT' | 'ANALYZING' | 'DONE';
@@ -386,9 +387,8 @@ export default function CorrectionSettingsPage() {
                 onClick={() => setIsStartCorrectionModalOpen(true)}
                 className='flex cursor-pointer items-center justify-center gap-[0.75rem] rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
               >
-                {/* TODO: 아이콘 추가 */}
-                <div className='h-[1.5rem] w-[1.5rem] bg-[#FFFFFF]' />
-                <span className='text-[1rem] font-bold text-[#FFFFFF]'>
+                <CorrectionIcon />
+                <span className='text-[1rem] font-bold text-[#FFFFFF] whitespace-nowrap'>
                   첨삭 시작하기
                 </span>
               </button>
@@ -775,9 +775,10 @@ export default function CorrectionSettingsPage() {
             <div className='flex justify-center pt-[1.25rem] pb-[7rem]'>
               <button
                 onClick={handleNextStep}
-                className='flex cursor-pointer items-center justify-center rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
+                className='flex cursor-pointer items-center justify-center rounded-[3.75rem] gap-[0.75rem]  border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
               >
-                <span className='text-[1rem] font-bold text-[#FFFFFF]'>
+                <CorrectionIcon />
+                <span className='text-[1rem] font-bold text-[#FFFFFF] whitespace-nowrap'>
                   첨삭 의뢰하기
                 </span>
               </button>
