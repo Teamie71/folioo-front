@@ -1,25 +1,12 @@
+import { BackButton } from '@/components/BackButton';
+import { PaymentIcon } from '@/components/icons/PaymentIcon';
+
 export default function InvoiceRefundPage() {
   return (
     <div className='mx-auto flex w-[66rem] min-w-[66rem] flex-col gap-[3.75rem] pt-[3.75rem]'>
       {/* 헤더 */}
       <div className='flex items-center gap-[1.25rem]'>
-        <button>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='28'
-            height='28'
-            viewBox='0 0 28 28'
-            fill='none'
-          >
-            <path
-              d='M18 23L9 14L18 5.00001'
-              stroke='black'
-              strokeWidth='2.5'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-            />
-          </svg>
-        </button>
+        <BackButton />
 
         <span className='text-[1.5rem] font-bold'>환불 신청</span>
       </div>
@@ -30,18 +17,7 @@ export default function InvoiceRefundPage() {
           {/* 결제 요약 헤더 */}
           <div className='flex flex-col gap-[0.5rem]'>
             <div className='flex items-center gap-[0.75rem]'>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='24'
-                height='24'
-                viewBox='0 0 24 24'
-                fill='none'
-              >
-                <path
-                  d='M0 6C0 5.20435 0.316071 4.44129 0.87868 3.87868C1.44129 3.31607 2.20435 3 3 3H21C21.7956 3 22.5587 3.31607 23.1213 3.87868C23.6839 4.44129 24 5.20435 24 6V7.5H0V6ZM0 10.5V18C0 18.7956 0.316071 19.5587 0.87868 20.1213C1.44129 20.6839 2.20435 21 3 21H21C21.7956 21 22.5587 20.6839 23.1213 20.1213C23.6839 19.5587 24 18.7956 24 18V10.5H0ZM4.5 13.5H6C6.39782 13.5 6.77936 13.658 7.06066 13.9393C7.34196 14.2206 7.5 14.6022 7.5 15V16.5C7.5 16.8978 7.34196 17.2794 7.06066 17.5607C6.77936 17.842 6.39782 18 6 18H4.5C4.10218 18 3.72064 17.842 3.43934 17.5607C3.15804 17.2794 3 16.8978 3 16.5V15C3 14.6022 3.15804 14.2206 3.43934 13.9393C3.72064 13.658 4.10218 13.5 4.5 13.5Z'
-                  fill='black'
-                />
-              </svg>
+              <PaymentIcon />
               <span className='text-[1.25rem] font-bold'>결제 요약</span>
             </div>
 
