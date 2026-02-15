@@ -77,6 +77,8 @@ export default function CorrectionSettingsPage() {
   >('축소 또는 제외');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
+  const [isStartCorrectionModalOpen, setIsStartCorrectionModalOpen] =
+    useState(false);
   const [isPdfTextExtracted, setIsPdfTextExtracted] = useState(false);
   const [showTextPortfolioWarning, setShowTextPortfolioWarning] = useState(false);
   const [analysisInfoValue, setAnalysisInfoValue] = useState('');
@@ -170,6 +172,24 @@ export default function CorrectionSettingsPage() {
               router.push('/correction');
             }}
           />
+            <CommonModal
+              open={isStartCorrectionModalOpen}
+              onOpenChange={setIsStartCorrectionModalOpen}
+              title={
+                <>
+                  포트폴리오 첨삭 1회권을 사용하여
+                  <br />
+                  진행하시겠습니까?
+                </>
+              }
+              cancelBtnText='취소'
+              primaryBtnText='진행'
+              onPrimaryClick={() => {
+                setIsStartCorrectionModalOpen(false);
+                handleNextStep();
+              }}
+              className='max-w-[24.75rem] items-center px-[5rem] py-[3.75rem] text-center'
+            />
         </div>
 
         {step === 'result' ? (
@@ -360,16 +380,16 @@ export default function CorrectionSettingsPage() {
               </div>
             </div>
 
-            {/* 첨삭 의뢰하기 버튼 */}
+            {/* 첨삭 시작하기 버튼 */}
             <div className='flex justify-center pb-[7rem]'>
               <button
-                onClick={handleNextStep}
+                onClick={() => setIsStartCorrectionModalOpen(true)}
                 className='flex cursor-pointer items-center justify-center gap-[0.75rem] rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
               >
                 {/* TODO: 아이콘 추가 */}
                 <div className='h-[1.5rem] w-[1.5rem] bg-[#FFFFFF]' />
                 <span className='text-[1rem] font-bold text-[#FFFFFF]'>
-                  첨삭 의뢰하기
+                  첨삭 시작하기
                 </span>
               </button>
             </div>
