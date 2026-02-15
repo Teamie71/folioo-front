@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import { CreditExpireAlert } from '@/components/CreditExpireAlert';
-import { CommonModal } from '@/components/CommonModal';
+import { PaymentModal } from '@/components/PaymentModal';
 import Image from 'next/image';
 
 type VoucherType = 'experience' | 'portfolio';
@@ -200,21 +200,15 @@ export default function TopupPage() {
         </section>
       </div>
 
-      <CommonModal
+      <PaymentModal
         open={!!selectedVoucher}
         onOpenChange={(open) => !open && setSelectedVoucher(null)}
-        title={
+        productName={
           selectedVoucher
-            ? `${selectedVoucher.option.times}회권 ${selectedVoucher.option.price.toLocaleString()}원 결제할까요?`
+            ? `${selectedVoucher.type === 'experience' ? '경험 정리' : '포트폴리오 첨삭'} ${selectedVoucher.option.times}회권`
             : ''
         }
-        description='결제 후 이용권이 즉시 적립됩니다.'
-        cancelBtnText='취소'
-        primaryBtnText='결제'
-        onCancelClick={() => setSelectedVoucher(null)}
-        onPrimaryClick={handleConfirmPurchase}
-        primaryBtnVariant='default'
-        className='w-[28.1875rem] max-w-[28.1875rem] items-center gap-[1.5rem] px-[2rem] py-[3.75rem]'
+        onConfirm={handleConfirmPurchase}
       />
     </>
   );
