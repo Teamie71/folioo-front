@@ -1,10 +1,11 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { ChatErrorMessage, type ChatErrorType } from './ChatErrorMessage';
 import { ChatFileUploader } from './ChatFileUploader';
 import { ChatSendButton } from './ChatSendButton';
+import { ChatMention } from './ChatMention';
 import { PdfIcon } from '@/components/icons/PdfIcon';
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10MB
@@ -50,9 +51,15 @@ export const ChatInput = ({
   onSend,
 }: ChatInputProps): React.ReactElement => {
   const contentRef = useRef<HTMLSpanElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [files, setFiles] = useState<FileItem[]>([]);
   const [hoveredFileId, setHoveredFileId] = useState<string | null>(null);
   const [formatErrorShown, setFormatErrorShown] = useState(false);
+  const [mentionOpen, setMentionOpen] = useState(false);
+  const [mentionPos, setMentionPos] = useState<{
+    left: number;
+    bottom: number;
+  } | null>(null);
   const [capacityErrorShown, setCapacityErrorShown] = useState(false);
 
   useEffect(() => {
@@ -83,9 +90,115 @@ export const ChatInput = ({
   const handleInput = () => {
     const text = contentRef.current?.textContent || '';
     onChange?.(text);
+
+    // @ 입력 감지
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const cursorNode = range.startContainer;
+
+      // 커서가 멘션 span 내부에 있으면 무시
+      const parentEl =
+        cursorNode.nodeType === Node.TEXT_NODE
+          ? cursorNode.parentElement
+          : (cursorNode as Element);
+      if (parentEl?.closest('[data-mention]')) return;
+
+      // 현재 텍스트 노드에서만 @ 감지
+      const nodeText =
+        cursorNode.nodeType === Node.TEXT_NODE
+          ? cursorNode.textContent || ''
+          : '';
+      const charBeforeCursor = nodeText.charAt(range.startOffset - 1);
+
+      if (charBeforeCursor === '@' && containerRef.current) {
+        const rect = range.getBoundingClientRect();
+        const containerRect = containerRef.current.getBoundingClientRect();
+        setMentionPos({
+          left: rect.left - containerRect.left - 12,
+          bottom: containerRect.bottom - rect.top + 44,
+        });
+        setMentionOpen(true);
+      } else if (mentionOpen) {
+        const atIdx = nodeText.slice(0, range.startOffset).lastIndexOf('@');
+        if (atIdx === -1) {
+          setMentionOpen(false);
+        }
+      }
+    }
   };
 
+  const handleCloseMention = useCallback(() => {
+    setMentionOpen(false);
+    setMentionPos(null);
+  }, []);
+
+  const handleMentionSelect = useCallback(
+    (title: string) => {
+      setMentionOpen(false);
+      setMentionPos(null);
+
+      if (!contentRef.current) return;
+
+      // 텍스트 노드에서 @ 찾기
+      const walker = document.createTreeWalker(
+        contentRef.current,
+        NodeFilter.SHOW_TEXT,
+      );
+      let targetNode: Text | null = null;
+      let atOffset = -1;
+
+      while (walker.nextNode()) {
+        const node = walker.currentNode as Text;
+        const idx = (node.textContent ?? '').lastIndexOf('@');
+        if (idx !== -1) {
+          targetNode = node;
+          atOffset = idx;
+        }
+      }
+
+      if (targetNode && atOffset !== -1) {
+        // 멘션 인라인 요소 생성 (CommonButton Outline 스타일)
+        const mentionEl = document.createElement('span');
+        mentionEl.contentEditable = 'false';
+        mentionEl.className =
+          'inline-flex items-center rounded-[6.25rem] bg-[#F6F5FF] text-[#5060C5] border-[0.09375rem] border-[#5060C5] text-[0.875rem] font-semibold px-[1rem] py-[0.125rem] mx-[0.125rem] cursor-default align-baseline';
+        mentionEl.textContent = `@ ${title}`;
+        mentionEl.dataset.mention = title;
+
+        // @ 위치에서 텍스트 분할 후 멘션 삽입
+        const afterAt = targetNode.splitText(atOffset);
+        afterAt.textContent = afterAt.textContent?.substring(1) || '';
+        targetNode.parentNode?.insertBefore(mentionEl, afterAt);
+
+        // 멘션 뒤에 공백 추가하여 계속 입력 가능하게
+        const space = document.createTextNode('\u00A0');
+        if (afterAt.textContent) {
+          targetNode.parentNode?.insertBefore(space, afterAt);
+        } else {
+          afterAt.parentNode?.replaceChild(space, afterAt);
+        }
+
+        // 커서를 공백 뒤로 이동
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.setStartAfter(space);
+        range.collapse(true);
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+      }
+
+      onChange?.(contentRef.current.textContent || '');
+    },
+    [onChange],
+  );
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLSpanElement>) => {
+    if (e.key === 'Escape' && mentionOpen) {
+      e.preventDefault();
+      handleCloseMention();
+      return;
+    }
     if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
       onSend?.();
@@ -165,7 +278,22 @@ export const ChatInput = ({
   const showError = error && !errorSuppressed ? error : null;
 
   return (
-    <div className='relative flex w-full flex-col gap-[0.75rem] rounded-[2rem] bg-[#FDFDFD] px-[1.5rem] py-[1rem] shadow-[0px_1px_4px_0px_#0000001A] shadow-[inset_0px_2px_4px_0px_#00000040]'>
+    <div
+      ref={containerRef}
+      className='relative flex w-full flex-col gap-[0.75rem] rounded-[2rem] bg-[#FDFDFD] px-[1.5rem] py-[1rem] shadow-[0px_1px_4px_0px_#0000001A] shadow-[inset_0px_2px_4px_0px_#00000040]'
+    >
+      {/* @ 멘션 팝업 */}
+      {mentionOpen && mentionPos && (
+        <div
+          className='absolute z-50'
+          style={{
+            left: mentionPos.left,
+            bottom: mentionPos.bottom,
+          }}
+        >
+          <ChatMention onSelect={handleMentionSelect} />
+        </div>
+      )}
       <ChatErrorMessage error={showError} positionAboveRight />
       {/* 채팅창 안 파일 카드 */}
       {files.length > 0 && (
