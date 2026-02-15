@@ -8,6 +8,9 @@ import { ExperienceHIW } from '@/features/landing/components/ExperienceHIW';
 import { PortfolioComments } from '@/features/landing/components/PortfolioProblems';
 import { PortfoliloPoints } from '@/features/landing/components/PortfolioPoints';
 import { PortfolioHIW } from '@/features/landing/components/PortfolioHIW';
+import Image from 'next/image';
+import Link from 'next/link';
+import Footer from '@/components/Footer';
 
 export default function LandingPage() {
   return (
@@ -53,6 +56,14 @@ export default function LandingPage() {
           >
             <ContentCard
               title='인사이트 로그'
+              icon={
+                <Image
+                  src='/InsightLogIconLanding.svg'
+                  alt='InsightLogIconLanding'
+                  width={120}
+                  height={120}
+                />
+              }
               description={
                 <>
                   스쳐 지나가는 작은 인사이트, <br />
@@ -60,9 +71,18 @@ export default function LandingPage() {
                 </>
               }
               buttonText='로그 작성하기 →'
+              buttonHref='/log'
             />
             <ContentCard
               title='경험 정리'
+              icon={
+                <Image
+                  src='/ExperienceIconLanding.svg'
+                  alt='ExperienceIconLanding'
+                  width={120}
+                  height={120}
+                />
+              }
               description={
                 <>
                   컨설턴트와의 체계적인 대화를
@@ -71,9 +91,18 @@ export default function LandingPage() {
                 </>
               }
               buttonText='대화 시작하기 →'
+              buttonHref='/experience'
             />
             <ContentCard
               title='포트폴리오 첨삭'
+              icon={
+                <Image
+                  src='/CorrectionIconLanding.svg'
+                  alt='CorrectionIconLanding'
+                  width={120}
+                  height={120}
+                />
+              }
               description={
                 <>
                   매번 새로 쓰는 부담 없이, <br />
@@ -81,6 +110,7 @@ export default function LandingPage() {
                 </>
               }
               buttonText='첨삭 의뢰하기 →'
+              buttonHref='/correction'
             />
           </motion.div>
         </section>
@@ -146,7 +176,6 @@ export default function LandingPage() {
           </div>
         </motion.section>
       </div>
-
       {/* ~ 경험 정리 */}
       <section className='mx-auto w-full bg-[#E6E9FF]/30 pt-[10rem] pb-[10rem] pb-[13.75rem]'>
         <div className='flex flex-col gap-[16.25rem]'>
@@ -218,7 +247,6 @@ export default function LandingPage() {
           </motion.div>
         </div>
       </section>
-
       {/* ~ 포트폴리오 첨삭 + 시작하기 */}
       <section className='mx-auto flex flex-col gap-[28.75rem] pt-[10rem] pb-[25rem]'>
         <div>
@@ -293,7 +321,6 @@ export default function LandingPage() {
           </motion.div>
         </div>
       </section>
-
       {/* ~ 엔딩 문구 + 시작하기 */}
       <section className='relative overflow-hidden py-[10rem]'>
         <div
@@ -329,6 +356,8 @@ export default function LandingPage() {
           </CommonButton>
         </motion.div>
       </section>
+
+      <Footer />
     </div>
   );
 }

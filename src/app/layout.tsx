@@ -13,9 +13,25 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const bannerScript = `
+    (function(){
+      try {
+        if (sessionStorage.getItem('bannerBetaDismissed') === 'true') {
+          document.body.dataset.bannerDismissed = 'true';
+        }
+      } catch (e) {}
+    })();
+  `;
+
   return (
     <html lang='ko' className={pretendard.className}>
-      <body>{children}</body>
+      <body suppressHydrationWarning>
+        <script
+          dangerouslySetInnerHTML={{ __html: bannerScript }}
+          suppressHydrationWarning
+        />
+        {children}
+      </body>
     </html>
   );
 }

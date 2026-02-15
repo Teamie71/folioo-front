@@ -13,6 +13,7 @@ import { ToggleSmall } from '@/components/ToggleSmall';
 import { ToggleLarge } from '@/components/ToggleLarge';
 import InputArea from '@/components/InputArea';
 import TextField from '@/components/TextField';
+import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 
 type Step = 'information' | 'portfolio' | 'analysis' | 'result';
 type Status = 'DRAFT' | 'ANALYZING' | 'DONE';
@@ -1174,6 +1175,8 @@ export default function CorrectionSettingsPage() {
           </>
         )}
       </div>
+
+      {step === 'result' && <FeedbackFloatingButton />}
     </div>
   );
 }

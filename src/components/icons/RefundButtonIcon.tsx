@@ -10,9 +10,9 @@ export const RefundButtonIcon = () => {
       <path
         d='M0.75 9.75L4.75 5.25L0.75 0.75'
         stroke='#5060C5'
-        stroke-width='1.5'
-        stroke-linecap='round'
-        stroke-linejoin='round'
+        strokeWidth='1.5'
+        strokeLinecap='round'
+        strokeLinejoin='round'
       />
     </svg>
   );
