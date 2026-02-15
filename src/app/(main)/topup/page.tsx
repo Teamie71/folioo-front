@@ -7,6 +7,7 @@ import { CreditExpireAlert } from '@/components/CreditExpireAlert';
 import { PaymentModal } from '@/components/PaymentModal';
 import { TicketIcon } from '@/components/icons/TicketIcon';
 import Image from 'next/image';
+import { ChallengeModal } from '@/components/ChallengeModal';
 
 type VoucherType = 'experience' | 'portfolio';
 
@@ -36,6 +37,7 @@ export default function TopupPage() {
   const [selectedVoucher, setSelectedVoucher] = useState<SelectedVoucher | null>(
     null,
   );
+  const [challengeModalOpen, setChallengeModalOpen] = useState(false);
   const router = useRouter();
 
   const benefitCards = [
@@ -162,7 +164,10 @@ export default function TopupPage() {
                     router.push('/verify');
                     return;
                   }
-                  // TODO: 각 CTA에 맞는 동작 연결
+                  if (card.id === 'cta') {
+                    setChallengeModalOpen(true);
+                    return;
+                  }
                   console.log(`${card.id} CTA 클릭`);
                 }}
               >
@@ -228,6 +233,16 @@ export default function TopupPage() {
             : ''
         }
         onConfirm={handleConfirmPurchase}
+      />
+
+      <ChallengeModal
+        open={challengeModalOpen}
+        onOpenChange={setChallengeModalOpen}
+        currentCount={10}
+        hasWrittenToday={true}
+        onLogClick={() => {
+          router.push('/log');
+        }}
       />
     </>
   );

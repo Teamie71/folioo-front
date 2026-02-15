@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import InputArea from '@/components/InputArea';
+import { EventModal } from '@/components/EventModal';
+import { useRouter } from 'next/navigation';
 
 const TIMER_INITIAL = 299; // 04:59
 const OTP_LENGTH = 6;
@@ -95,6 +97,8 @@ function VerifyOtpStep({
   setIsError: React.Dispatch<React.SetStateAction<boolean>>;
   formatTime: (seconds: number) => string;
 }) {
+  const [eventModalOpen, setEventModalOpen] = useState(false);
+  const router = useRouter();
   // 타이머 로직
   useEffect(() => {
     const countdown = setInterval(() => {
@@ -124,11 +128,17 @@ function VerifyOtpStep({
   const handleVerify = () => {
     const fullCode = otp.join('');
     if (fullCode.length !== OTP_LENGTH) return;
-    // TODO: 인증 API 연동 후 성공/실패 처리
-    setIsError(true); // 테스트용: 실패 시 에러 표시
+    // TODO: 인증번호 일치 여부 API로 확인
+    if (fullCode === '000000') {
+      setIsError(false);
+      setEventModalOpen(true);
+    } else {
+      setIsError(true);
+    }
   };
 
   return (
+    <>
     <div className='flex min-h-screen flex-col items-center mt-[15rem] bg-white font-sans'>
       <div className='flex flex-col items-center w-full max-w-[400px] gap-[1.25rem]'>
         <h2 className='text-[24px] font-bold text-[#1A1A1A]'>
@@ -186,5 +196,17 @@ function VerifyOtpStep({
         </CommonButton>
       </div>
     </div>
+    <EventModal
+      open={eventModalOpen}
+      onOpenChange={setEventModalOpen}
+      eventTitle='환영합니다!'
+      eventSubTitle='가입 선물을 드려요.'
+      reward='경험 정리 1회권 + 포트폴리오 첨삭 1회권'
+      buttonText='경험 정리하기'
+      onButtonClick={() => {
+        router.push('/experience');
+      }}
+    />
+    </>
   );
 }
