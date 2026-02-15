@@ -37,7 +37,7 @@ export function CommonButton({
   const styles = {
     // Primary: 주로 사용하는 버튼
     Primary:
-      'rounded-full bg-[#5060C5] hover:bg-[#404D9E] text-[#ffffff] text-[1rem] font-bold cursor-pointer',
+      'rounded-[6.25rem] bg-[#5060C5] hover:bg-[#404D9E] text-[#ffffff] text-[1rem] font-bold cursor-pointer',
 
     // Execute: 모달에서 실행하거나 동작할 때 사용하는 버튼
     Execute:
