@@ -3,7 +3,7 @@ import { PaymentIcon } from '@/components/icons/PaymentIcon';
 
 export default function InvoiceRefundPage() {
   return (
-    <div className='mx-auto flex w-[66rem] min-w-[66rem] flex-col gap-[3.75rem] pt-[3.75rem]'>
+    <div className='mx-auto flex w-[66rem] min-w-[66rem] flex-col gap-[3.75rem] pt-[3.75rem] pb-[6.25rem]'>
       {/* 헤더 */}
       <div className='flex items-center gap-[1.25rem]'>
         <BackButton />
@@ -120,6 +120,18 @@ export default function InvoiceRefundPage() {
             placeholder='- 없이 숫자만 입력해주세요.'
           />
         </div>
+      </div>
+
+      {/* 환불 안내 내용 */}
+      <div className='flex text-[1rem] leading-[150%] text-[#898989]'>
+        <p>
+          결제 후 7일이 지났거나 사용 이력이 있는 경우, 부분 환불이 진행됩니다.{' '}
+          <br />
+          환불 금액은 사용하신 횟수 (정상가 기준 차감)와 위약금 (총 결제액의
+          10%)을 공제한 후 산정되며, 최종 환불 금액은 담당자 확인 후 확정됩니다.{' '}
+          <br />
+          자세한 내용은 서비스 이용약관을 참고해주세요.
+        </p>
       </div>
 
       {/* 환불 신청 이유, 신청 */}
