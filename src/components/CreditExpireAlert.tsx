@@ -5,6 +5,7 @@ import { CommonButton } from '@/components/CommonButton';
 import { ButtonProps } from '@/components/ui/Button';
 import { cn } from '@/utils/utils';
 import { useRouter } from 'next/navigation';
+import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 
 interface CreditExpireAlertProps
   extends Omit<ButtonProps, 'variant' | 'children'> {
@@ -26,6 +27,7 @@ export function CreditExpireAlert({
   ...props
 }: CreditExpireAlertProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [obtModalOpen, setObtModalOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   useEffect(() => {
@@ -54,7 +56,7 @@ export function CreditExpireAlert({
         px={px}
         py={py}
         className={cn(
-          '!flex !items-center gap-[0.75rem] !rounded-[0.5rem] !border-[#DC0000] !bg-[#FFF2F2] !text-[#1A1A1A] !text-[1rem] !font-normal whitespace-nowrap [&_svg]:!h-[1.75rem] [&_svg]:!w-[1.75rem]',
+          '!flex !items-center gap-[0.75rem] !rounded-[0.5rem] !border-[#DC0000] !bg-[#FFF2F2] !text-[1rem] !font-normal whitespace-nowrap !text-[#1A1A1A] [&_svg]:!h-[1.75rem] [&_svg]:!w-[1.75rem]',
           className,
         )}
         onClick={() => setIsOpen(!isOpen)}
@@ -144,16 +146,23 @@ export function CreditExpireAlert({
 
             {/* 내용 영역 */}
             <div className='absolute inset-0 z-10 flex flex-col justify-center px-[2.5rem] pt-[0.25rem]'>
-              <ul className='list-disc pl-[2.5rem] pt-[0.5rem] text-[1rem] font-semibold text-[#1A1A1A]'>
+              <ul className='list-disc pt-[0.5rem] pl-[2.5rem] text-[1rem] font-semibold text-[#1A1A1A]'>
                 <li>{expireDate} 경험 정리 1회 이용권 만료 예정</li>
                 <li>{expireDate} 포트폴리오 첨삭 3회 이용권 만료 예정</li>
               </ul>
-              <p className='mt-[0.5rem] text-[0.875rem] pl-[1.75rem] text-[#74777D]'>
-                이용권 결제 또는 획득 내역은{' '}
-                <button
+              <p className='mt-[0.5rem] pl-[1.75rem] text-[0.875rem] text-[#74777D]'>
+                이용권 결제 또는 획득 내역은 {/* OBT 기간 동안 주석 처리 */}
+                {/* <button
                   type='button'
                   className='cursor-pointer underline underline-offset-2 text-[#74777D]'
                   onClick={() => router.push('/invoice')}
+                >
+                  이용권 거래 내역
+                </button> */}
+                <button
+                  type='button'
+                  className='cursor-pointer text-[#74777D] underline underline-offset-2'
+                  onClick={() => setObtModalOpen(true)}
                 >
                   이용권 거래 내역
                 </button>
@@ -163,6 +172,8 @@ export function CreditExpireAlert({
           </div>
         </div>
       )}
+
+      <OBTRedirectModal open={obtModalOpen} onOpenChange={setObtModalOpen} />
     </div>
   );
 }
