@@ -8,6 +8,7 @@ import { PaymentModal } from '@/components/PaymentModal';
 import { TicketIcon } from '@/components/icons/TicketIcon';
 import Image from 'next/image';
 import { ChallengeModal } from '@/components/ChallengeModal';
+import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 
 type VoucherType = 'experience' | 'portfolio';
 
@@ -34,9 +35,8 @@ type SelectedVoucher = { type: VoucherType; option: VoucherOption };
 
 export default function TopupPage() {
   const currentCredits = 1; // TODO: 실제 사용자 데이터로 교체
-  const [selectedVoucher, setSelectedVoucher] = useState<SelectedVoucher | null>(
-    null,
-  );
+  const [selectedVoucher, setSelectedVoucher] =
+    useState<SelectedVoucher | null>(null);
   const [challengeModalOpen, setChallengeModalOpen] = useState(false);
   const router = useRouter();
 
@@ -81,12 +81,18 @@ export default function TopupPage() {
         {/* 크레딧 충전 헤더 */}
         <div className='relative mx-auto flex h-[15.625rem] w-full min-w-[66rem] bg-[#F6F5FF]'>
           <div className='mx-auto flex min-w-[66rem] items-center justify-center'>
-            <div className='flex items-center justify-between w-full'>
+            <div className='flex w-full items-center justify-between'>
               {/* 크레딧 충전 타이틀 */}
               <div>
-                <div className='flex flex-col gap-[1.25rem] mt-8'>
+                <div className='mt-8 flex flex-col gap-[1.25rem]'>
                   <div className='flex items-center gap-[1rem]'>
-                    <Image src="/Ticket.svg" alt="" width={32} height={32} className='h-[2rem] w-[2rem]' />
+                    <Image
+                      src='/Ticket.svg'
+                      alt=''
+                      width={32}
+                      height={32}
+                      className='h-[2rem] w-[2rem]'
+                    />
                     <span className='text-[1.5rem] font-bold'>이용권 구매</span>
                   </div>
                   <span className='text-[1.125rem] leading-[150%] text-[#464B53]'>
@@ -101,7 +107,7 @@ export default function TopupPage() {
 
               {/* 현재 보유 크레딧 */}
               <div className='relative flex flex-col items-end gap-[0.5rem]'>
-                <span className='text-[1.25rem] mb-[0.75rem] font-bold text-[#1A1A1A]'>
+                <span className='mb-[0.75rem] text-[1.25rem] font-bold text-[#1A1A1A]'>
                   나의 잔여 이용권
                 </span>
                 <div className='flex items-center gap-[1.25rem]'>
@@ -113,7 +119,8 @@ export default function TopupPage() {
                       {currentCredits}
                     </span>
                     <span className='text-[1.25rem] font-normal text-[#1A1A1A]'>
-                      {' '}회
+                      {' '}
+                      회
                     </span>
                   </div>
                 </div>
@@ -126,7 +133,8 @@ export default function TopupPage() {
                       {currentCredits}
                     </span>
                     <span className='text-[1.25rem] font-normal text-[#1A1A1A]'>
-                      {' '}회
+                      {' '}
+                      회
                     </span>
                   </div>
                 </div>
@@ -147,10 +155,10 @@ export default function TopupPage() {
                   {card.icon}
                 </div>
                 <div className='flex flex-col gap-[0.5rem]'>
-                  <p className='text-[1.125rem] font-semibold'>
-                    {card.title}
+                  <p className='text-[1.125rem] font-semibold'>{card.title}</p>
+                  <p className='text-[1rem] text-[#74777D]'>
+                    {card.description}
                   </p>
-                  <p className='text-[1rem] text-[#74777D]'>{card.description}</p>
                 </div>
               </div>
 
@@ -207,7 +215,7 @@ export default function TopupPage() {
               포트폴리오 첨삭 이용권
             </h2>
             <p className='text-[1rem] leading-[1.5] text-[#464B53]'>
-              공고 맞춤형 포트폴리오를 빠르게 제작할 수 있도록, 
+              공고 맞춤형 포트폴리오를 빠르게 제작할 수 있도록,
               <br />
               AI 컨설턴트에게 첨삭을 의뢰하세요.
             </p>
@@ -224,7 +232,8 @@ export default function TopupPage() {
         </section>
       </div>
 
-      <PaymentModal
+      {/* OBT 기간 동안 주석 처리 */}
+      {/* <PaymentModal
         open={!!selectedVoucher}
         onOpenChange={(open) => !open && setSelectedVoucher(null)}
         productName={
@@ -233,6 +242,11 @@ export default function TopupPage() {
             : ''
         }
         onConfirm={handleConfirmPurchase}
+      /> */}
+
+      <OBTRedirectModal
+        open={!!selectedVoucher}
+        onOpenChange={(open) => !open && setSelectedVoucher(null)}
       />
 
       <ChallengeModal
@@ -256,10 +270,10 @@ function VoucherCard({
   onPurchase: () => void;
 }) {
   return (
-    <div className='relative flex flex-col justify-between rounded-[1rem] bg-white py-[2rem] px-[2.25rem] shadow-[1px_1px_4px_0px_#00000040_inset]'>
+    <div className='relative flex flex-col justify-between rounded-[1rem] bg-white px-[2.25rem] py-[2rem] shadow-[1px_1px_4px_0px_#00000040_inset]'>
       {/* 할인 뱃지: 배경은 연한 핑크, 글자는 빨간색 */}
       {option.discountPercent != null && (
-        <div className='absolute right-[2rem] top-[2rem] rounded-[0.5rem] bg-[#FFF2F2] px-[0.75rem] py-[0.4rem] text-[0.8125rem] font-bold text-[#DC0000]'>
+        <div className='absolute top-[2rem] right-[2rem] rounded-[0.5rem] bg-[#FFF2F2] px-[0.75rem] py-[0.4rem] text-[0.8125rem] font-bold text-[#DC0000]'>
           약 {option.discountPercent}% 할인
         </div>
       )}
