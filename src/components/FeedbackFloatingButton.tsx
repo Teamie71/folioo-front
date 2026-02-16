@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FeedbackModal } from '@/components/FeedbackModal';
+import { OBTFeedbackModal } from '@/components/OBT/OBTFeedbackModal';
 
 export const FeedbackFloatingButton = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -39,7 +39,7 @@ export const FeedbackFloatingButton = () => {
         </span>
       </button>
 
-      <FeedbackModal
+      <OBTFeedbackModal
         open={modalOpen}
         onOpenChange={setModalOpen}
         isFirstFeedback={isFirstFeedback}
