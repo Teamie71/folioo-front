@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import InputArea from '@/components/InputArea';
-import { EventModal } from '@/components/EventModal';
+// import { EventModal } from '@/components/EventModal';
+import { OBTEventModal } from '@/components/OBT/OBTEventModal';
 import { useRouter } from 'next/navigation';
 
 const TIMER_INITIAL = 299; // 04:59
@@ -25,7 +26,7 @@ export default function VerifyPage() {
   // 1단계: 휴대폰 번호 입력
   if (!codeSent) {
     return (
-      <div className='flex min-h-screen flex-col items-center mt-[15rem] bg-white px-[1.5rem] py-[3rem]'>
+      <div className='mt-[15rem] flex min-h-screen flex-col items-center bg-white px-[1.5rem] py-[3rem]'>
         <div className='flex flex-col gap-[2.5rem]'>
           <div className='flex flex-col gap-[1.25rem] text-center'>
             <h1 className='text-[1.5rem] font-bold text-[#1A1A1A]'>
@@ -139,64 +140,65 @@ function VerifyOtpStep({
 
   return (
     <>
-    <div className='flex min-h-screen flex-col items-center mt-[15rem] bg-white font-sans'>
-      <div className='flex flex-col items-center w-full max-w-[400px] gap-[1.25rem]'>
-        <h2 className='text-[24px] font-bold text-[#1A1A1A]'>
-          휴대폰 번호 인증
-        </h2>
+      <div className='mt-[15rem] flex min-h-screen flex-col items-center bg-white font-sans'>
+        <div className='flex w-full max-w-[400px] flex-col items-center gap-[1.25rem]'>
+          <h2 className='text-[24px] font-bold text-[#1A1A1A]'>
+            휴대폰 번호 인증
+          </h2>
 
-        <p className='text-center text-[1.125rem] font-normal text-[#1A1A1A]'>
-          문자로 전송된 인증번호를 확인 후, 입력해주세요.
-        </p>
+          <p className='text-center text-[1.125rem] font-normal text-[#1A1A1A]'>
+            문자로 전송된 인증번호를 확인 후, 입력해주세요.
+          </p>
 
-        <div className='text-[1.125rem] font-bold text-[#DC0000]'>
-          {formatTime(timer)}
-        </div>
-        <div className='flex flex-col gap-[0.75rem]'>
-          <div className='flex gap-[1rem]'>
-            {otp.map((digit, index) => (
-              <input
-                key={index}
-                id={`otp-${index}`}
-                type='text'
-                maxLength={1}
-                value={digit}
-                onChange={(e) => handleChange(e.target.value, index)}
-                className='h-[3rem] w-[3rem] rounded-[6px] border border-[#74777D] text-center text-[20px] outline-none focus:border-[#5060C5]'
-              />
-            ))}
+          <div className='text-[1.125rem] font-bold text-[#DC0000]'>
+            {formatTime(timer)}
+          </div>
+          <div className='flex flex-col gap-[0.75rem]'>
+            <div className='flex gap-[1rem]'>
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  id={`otp-${index}`}
+                  type='text'
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleChange(e.target.value, index)}
+                  className='h-[3rem] w-[3rem] rounded-[6px] border border-[#74777D] text-center text-[20px] outline-none focus:border-[#5060C5]'
+                />
+              ))}
+            </div>
+
+            <div className='flex flex-row items-center justify-between gap-[7.5rem]'>
+              {isError ? (
+                <span className='text-[14px] font-normal text-[#DC0000]'>
+                  인증번호가 일치하지 않아요.
+                </span>
+              ) : (
+                <span />
+              )}
+              <button
+                type='button'
+                className='cursor-pointer text-[14px] font-normal text-[#1A1A1A] underline underline-offset-2'
+                onClick={handleResend}
+              >
+                인증번호 재발송
+              </button>
+            </div>
           </div>
 
-          <div className='flex flex-row items-center justify-between gap-[7.5rem]'>
-            {isError ? (
-              <span className='text-[14px] font-normal text-[#DC0000]'>
-                인증번호가 일치하지 않아요.
-              </span>
-            ) : (
-              <span />
-            )}
-            <button
-              type='button'
-              className='text-[14px] font-normal text-[#1A1A1A] underline underline-offset-2 cursor-pointer'
-              onClick={handleResend}
-            >
-              인증번호 재발송
-            </button>
-          </div>
+          <CommonButton
+            variantType='Execute'
+            px='1.75rem'
+            py='0.5rem'
+            className='mt-[1.25rem] rounded-[7.5rem] text-[1rem]'
+            onClick={handleVerify}
+          >
+            인증하기
+          </CommonButton>
         </div>
-
-        <CommonButton
-          variantType='Execute'
-          px='1.75rem'
-          py='0.5rem'
-          className='mt-[1.25rem] rounded-[7.5rem] text-[1rem]'
-          onClick={handleVerify}
-        >
-          인증하기
-        </CommonButton>
       </div>
-    </div>
-    <EventModal
+      {/* OBT 기간 동안 주석 처리 */}
+      {/* <EventModal
       open={eventModalOpen}
       onOpenChange={setEventModalOpen}
       eventTitle='환영합니다!'
@@ -206,7 +208,21 @@ function VerifyOtpStep({
       onButtonClick={() => {
         router.push('/experience');
       }}
-    />
+    /> */}
+      <OBTEventModal
+        open={eventModalOpen}
+        onOpenChange={setEventModalOpen}
+        eventTitle='환영합니다!'
+        eventSubTitle='Beta 기간동안 무료로 이용해보세요.'
+        reward='무료 이용권 8개'
+        rewardMessage='Beta 기간동안 매주 {reward}를 드려요.'
+        subMessage='사용 후 피드백을 남기고 추가 이용권을 받아가세요!'
+        validityMessage='잔여 이용권은 매주 월요일 자정 소멸되고, 새로운 주차의 이용권이 다시 지급돼요.'
+        buttonText='경험 정리하기'
+        onButtonClick={() => {
+          router.push('/experience');
+        }}
+      />
     </>
   );
 }
