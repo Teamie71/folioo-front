@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { PortfolioCard } from '@/components/PortfolioCard';
 import { PortfolioTypeCard } from '@/components/PortfolioTypeCard';
@@ -15,6 +15,9 @@ import InputArea from '@/components/InputArea';
 import TextField from '@/components/TextField';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 import { CorrectionIcon } from '@/components/icons/CorrectionIcon';
+import { CloseIcon } from '@/components/icons/CloseIcon';
+import { FileCloseIcon } from '@/components/icons/FileCloseIcon';
+import { FullIcon } from '@/components/icons/FullIcon';
 
 type Step = 'information' | 'portfolio' | 'analysis' | 'result';
 type Status = 'DRAFT' | 'ANALYZING' | 'DONE';
@@ -87,6 +90,14 @@ export default function CorrectionSettingsPage() {
   const [companyName, setCompanyName] = useState('');
   const [jobTitle, setJobTitle] = useState('');
   const [jobDescription, setJobDescription] = useState('');
+  const [hasJdImageUploaded, setHasJdImageUploaded] = useState(false);
+  const [jdUploadedFile, setJdUploadedFile] = useState<{
+    name: string;
+    size: number;
+    previewUrl: string;
+  } | null>(null);
+  const [isJdImageViewerOpen, setIsJdImageViewerOpen] = useState(false);
+  const jdFileInputRef = useRef<HTMLInputElement>(null);
   const [informationErrors, setInformationErrors] = useState<{
     companyName: boolean;
     jobTitle: boolean;
@@ -97,7 +108,7 @@ export default function CorrectionSettingsPage() {
     const companyNameEmpty = !companyName.trim();
     const jobTitleEmpty = !jobTitle.trim();
     const jobDescriptionEmpty =
-      jdMode === 'text' ? !jobDescription.trim() : false;
+      jdMode === 'text' ? !jobDescription.trim() : !hasJdImageUploaded;
     const hasError = companyNameEmpty || jobTitleEmpty || jobDescriptionEmpty;
     setInformationErrors({
       companyName: companyNameEmpty,
@@ -213,6 +224,36 @@ export default function CorrectionSettingsPage() {
               }}
               className='max-w-[24.75rem] items-center px-[5rem] py-[3.75rem] text-center'
             />
+
+            {/* JD 이미지 전체보기 뷰어 */}
+            {isJdImageViewerOpen && jdUploadedFile && (
+              <div
+                className='fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4'
+                role='dialog'
+                aria-modal='true'
+                aria-label='JD 이미지 전체보기'
+                onClick={() => setIsJdImageViewerOpen(false)}
+              >
+                <button
+                  type='button'
+                  className='absolute top-4 right-4 flex cursor-pointer h-[2.5rem] w-[2.5rem] items-center justify-center rounded-[0.25rem] bg-white/90 text-[#1A1A1A] hover:bg-white'
+                  aria-label='닫기'
+                  onClick={() => setIsJdImageViewerOpen(false)}
+                >
+                  <CloseIcon />
+                </button>
+                <div
+                  className='flex max-h-full max-w-full items-center justify-center'
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <img
+                    src={jdUploadedFile.previewUrl}
+                    alt='JD 미리보기 전체'
+                    className='max-h-[90vh] max-w-full object-contain'
+                  />
+                </div>
+              </div>
+            )}
         </div>
 
         {step === 'result' ? (
@@ -337,7 +378,11 @@ export default function CorrectionSettingsPage() {
                   <span>Job Description</span>
                   <span className='text-[#DC0000]'>*</span>
                 </div>
-                <div className='flex items-center justify-between'>
+                <div
+                  className={`flex items-center justify-between ${
+                    informationErrors.jobDescription ? 'mb-0' : 'mb-[1.25rem]'
+                  }`}
+                >
                   <span className='font-regular text-[0.875rem] leading-[1.5] text-[#74777D]'>
                     JD는 채용공고에 명시된 직무 설명서로, 주로 담당할 업무,
                     자격요건, 우대사항 등이 포함돼요.
@@ -348,21 +393,32 @@ export default function CorrectionSettingsPage() {
                       { value: 'image', label: '이미지' },
                     ]}
                     value={jdMode}
-                    onChange={(value) => setJdMode(value as 'text' | 'image')}
+                    onChange={(value) => {
+                      setJdMode(value as 'text' | 'image');
+                      if (value === 'image') {
+                        setHasJdImageUploaded(false);
+                        setJdUploadedFile((prev) => {
+                          if (prev?.previewUrl) URL.revokeObjectURL(prev.previewUrl);
+                          return null;
+                        });
+                      }
+                    }}
                   />
                 </div>
+                {informationErrors.jobDescription && (
+                  <p className='text-[0.875rem] text-[#DC0000]'>
+                    {jdMode === 'text'
+                      ? 'Job Description을 입력해주세요.'
+                      : 'Job Description 이미지를 업로드해주세요.'}
+                  </p>
+                )}
               </div>
-              {informationErrors.jobDescription && (
-                <p className='text-[0.875rem] text-[#DC0000]'>
-                  Job Description을 입력해주세요.
-                </p>
-              )}
               <div className='flex flex-col gap-[0.75rem]'>
                 {jdMode === 'text' ? (
                   <TextField
                     variant='wide'
                     height='23.5rem'
-                    className='rounded-[1.25rem]'
+                    className='rounded-[1.25rem] px-[1.625rem] py-[1.25rem]'
                     placeholder='채용공고의 JD를 복사 후 붙여넣기 해주세요.'
                     value={jobDescription}
                     onChange={(e) => {
@@ -376,10 +432,43 @@ export default function CorrectionSettingsPage() {
                   />
                 ) : (
                   <div className='flex gap-[1.5rem]'>
+                    <input
+                      ref={jdFileInputRef}
+                      type='file'
+                      accept='.jpg,.jpeg,.png,image/jpeg,image/png'
+                      className='hidden'
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setHasJdImageUploaded(true);
+                          setInformationErrors((prev) => ({
+                            ...prev,
+                            jobDescription: false,
+                          }));
+                          setJdUploadedFile((prev) => {
+                            if (prev?.previewUrl) URL.revokeObjectURL(prev.previewUrl);
+                            return {
+                              name: file.name,
+                              size: file.size,
+                              previewUrl: URL.createObjectURL(file),
+                            };
+                          });
+                        }
+                        e.target.value = '';
+                      }}
+                    />
                     {/* 왼쪽: 파일 업로드 옵션들 (회색 배경 섹션) */}
-                    <div className='flex flex-1 flex-col gap-[1rem] rounded-[1.25rem] bg-[#F6F8FA] p-[1.75rem]'>
+                    <div className='flex flex-1 flex-col gap-[0.5rem] rounded-[1.25rem] bg-[#F6F8FA] px-[1.5rem] py-[1.25rem]'>
                       {/* 첫 번째: JD 파일 업로드 */}
-                      <div className='flex items-center gap-[3.625rem] rounded-[1rem] border border-[#E9EAEC] bg-[#FFFFFF] px-[4.75rem] py-[2.25rem] shadow-sm'>
+                      <div
+                        role='button'
+                        tabIndex={0}
+                        className='flex cursor-pointer items-center gap-[3.625rem] rounded-[1rem] border border-[#E9EAEC] bg-[#FFFFFF] px-[4.75rem] py-[2.25rem] shadow-sm'
+                        onClick={() => jdFileInputRef.current?.click()}
+                        onKeyDown={(e) =>
+                          e.key === 'Enter' && jdFileInputRef.current?.click()
+                        }
+                      >
                         <svg
                           xmlns='http://www.w3.org/2000/svg'
                           width='40'
@@ -396,10 +485,10 @@ export default function CorrectionSettingsPage() {
                           />
                         </svg>
                         <div className='flex flex-col'>
-                          <span className='text-[0.875rem] text-[#1A1A1A]'>
+                          <span className='text-[0.875rem] text-[#1A1A1A] whitespace-nowrap'>
                             클릭하여 JD 파일을 업로드 하세요.
                           </span>
-                          <span className='text-[0.75rem] text-[#74777D]'>
+                          <span className='text-[0.75rem] text-[#74777D] whitespace-nowrap'>
                             (JPG, PNG 파일만 업로드 가능)
                           </span>
                         </div>
@@ -408,13 +497,21 @@ export default function CorrectionSettingsPage() {
                       {/* 구분선 */}
                       <div className='relative flex w-full items-center px-[1rem] py-[0.5rem]'>
                         <div className='h-[1px] w-full bg-[#CDD0D5]' />
-                        <div className='absolute left-1/2 flex h-[2.75rem] w-[3.75rem] -translate-x-1/2 items-center justify-center bg-[#F6F8FA] text-center text-[0.875rem] text-[#1A1A1A]'>
+                        <div className='absolute left-1/2 flex h-[1.25rem] w-[3.5rem] -translate-x-1/2 items-center justify-center bg-[#F6F8FA] text-center text-[0.875rem] text-[#1A1A1A]'>
                           또는
                         </div>
                       </div>
 
                       {/* 두 번째: 복사한 JD 이미지 업로드 */}
-                      <div className='flex items-center gap-[2rem] rounded-[1rem] border border-[#E9EAEC] bg-[#FFFFFF] px-[4.75rem] py-[2.25rem] shadow-sm'>
+                      <div
+                        role='button'
+                        tabIndex={0}
+                        className='flex cursor-pointer items-center gap-[2rem] rounded-[1rem] border border-[#E9EAEC] bg-[#FFFFFF] px-[4.75rem] py-[2.25rem] shadow-sm'
+                        onClick={() => jdFileInputRef.current?.click()}
+                        onKeyDown={(e) =>
+                          e.key === 'Enter' && jdFileInputRef.current?.click()
+                        }
+                      >
                         <svg
                           width='40'
                           height='40'
@@ -431,19 +528,73 @@ export default function CorrectionSettingsPage() {
                             fill='#9EA4A9'
                           />
                         </svg>
-                        <span className='text-[0.875rem] text-[#1A1A1A]'>
+                        <span className='text-[0.875rem] text-[#1A1A1A] whitespace-nowrap'>
                           클릭하여 복사한 JD 이미지를 업로드 하세요.
                         </span>
                       </div>
                     </div>
 
-                    {/* 오른쪽: 드롭존/미리보기 영역 (섹션 밖) */}
+                    {/* 오른쪽: 드롭존/미리보기 영역 (전체 32.25rem × 19.125rem, 미리보기만 15rem) */}
                     <div
-                      className='flex flex-1 items-center justify-center rounded-[1rem] border-2 border-dashed bg-[#FDFDFD]'
-                      style={{
-                        borderColor: '#CDD0D5',
-                      }}
-                    ></div>
+                      className={`flex h-[19.125rem] w-[32.25rem] shrink-0 flex-col overflow-hidden rounded-[1rem] bg-[#FFFFFF] ${
+                        jdUploadedFile
+                          ? 'border border-[#9EA4A9]'
+                          : 'border border-dashed border-[#CDD0D5]'
+                      }`}
+                    >
+                      {jdUploadedFile ? (
+                        <>
+                          {/* 미리보기 영역: 15rem 고정 */}
+                          <div className='group relative h-[15rem] shrink-0 overflow-hidden bg-[#FFFFFF] hover:bg-[#E9EAEC] p-[1rem]'>
+                            <img
+                              src={jdUploadedFile.previewUrl}
+                              alt='JD 미리보기'
+                              className='h-full w-full object-contain object-left-top'
+                            />
+                            <button
+                              type='button'
+                              className='absolute cursor-pointer top-[0.75rem] right-[0.75rem] flex h-[1.5rem] w-[1.5rem] items-center justify-center rounded-[0.25rem] bg-[#74777D] opacity-0 transition-opacity duration-150 group-hover:opacity-100'
+                              aria-label='파일 삭제'
+                              onClick={() => {
+                                if (jdUploadedFile?.previewUrl) URL.revokeObjectURL(jdUploadedFile.previewUrl);
+                                setHasJdImageUploaded(false);
+                                setJdUploadedFile(null);
+                              }}
+                            >
+                              <FileCloseIcon />
+                            </button>
+                            <button
+                              type='button'
+                              className='absolute bottom-[0.75rem] cursor-pointer bg-white right-[0.75rem] flex h-[1.5rem] w-[1.5rem] items-center justify-center rounded-[0.25rem] shadow-[0_0_8px_0_rgba(0,0,0,0.25)]'
+                              aria-label='전체화면'
+                              onClick={() => setIsJdImageViewerOpen(true)}
+                            >
+                              <FullIcon />
+                            </button>
+                          </div>
+                          <div className='h-[1px] w-full bg-[#E9EAEC]' />
+                          <div className='flex items-center gap-[0.75rem] border-t border-[#9EA4A9] px-[1rem] py-[0.75rem]'>
+                            <div className='flex h-[2.5rem] w-[2.5rem] items-center justify-center rounded-[0.375rem] bg-[#E9EAEC]'>
+                              <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#74777D' strokeWidth='2'>
+                                <rect x='3' y='3' width='18' height='18' rx='2' ry='2' />
+                                <circle cx='8.5' cy='8.5' r='1.5' />
+                                <path d='M21 15l-5-5L5 21' />
+                              </svg>
+                            </div>
+                            <div className='min-w-0 flex-1'>
+                              <p className='truncate text-[0.875rem] font-bold text-[#1A1A1A]'>
+                                {jdUploadedFile.name}
+                              </p>
+                              <p className='text-[0.75rem] text-[#74777D]'>
+                                {(jdUploadedFile.size / 1024 / 1024).toFixed(1)} MB
+                              </p>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className='flex h-full w-full rounded-[1rem]' />
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
