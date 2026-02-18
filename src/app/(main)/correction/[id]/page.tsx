@@ -105,6 +105,9 @@ export default function CorrectionSettingsPage() {
     jobTitle: boolean;
     jobDescription: boolean;
   }>({ companyName: false, jobTitle: false, jobDescription: false });
+  const [jdImageError, setJdImageError] = useState<null | 'required' | 'too_large'>(
+    null,
+  );
 
   // information + 이미지 모드일 때 창 어디로든 파일 드래그 들어오면 전체 페이지 드롭 오버레이 활성화
   useEffect(() => {
@@ -176,18 +179,23 @@ export default function CorrectionSettingsPage() {
       file.type === 'image/png' ||
       file.type === 'image/jpeg' ||
       /\.(png|jpe?g)$/i.test(file.name);
-    if (isImage) {
-      setHasJdImageUploaded(true);
-      setInformationErrors((prev) => ({ ...prev, jobDescription: false }));
-      setJdUploadedFile((prev) => {
-        if (prev?.previewUrl) URL.revokeObjectURL(prev.previewUrl);
-        return {
-          name: file.name,
-          size: file.size,
-          previewUrl: URL.createObjectURL(file),
-        };
-      });
+    if (!isImage) return;
+    if (file.size > 1024 * 1024) {
+      setJdImageError('too_large');
+      setInformationErrors((prev) => ({ ...prev, jobDescription: true }));
+      return;
     }
+    setJdImageError(null);
+    setHasJdImageUploaded(true);
+    setInformationErrors((prev) => ({ ...prev, jobDescription: false }));
+    setJdUploadedFile((prev) => {
+      if (prev?.previewUrl) URL.revokeObjectURL(prev.previewUrl);
+      return {
+        name: file.name,
+        size: file.size,
+        previewUrl: URL.createObjectURL(file),
+      };
+    });
   };
 
   return (
@@ -448,6 +456,7 @@ export default function CorrectionSettingsPage() {
                       setJdMode(value as 'text' | 'image');
                       if (value === 'image') {
                         setHasJdImageUploaded(false);
+                        setJdImageError(null);
                         setJdUploadedFile((prev) => {
                           if (prev?.previewUrl) URL.revokeObjectURL(prev.previewUrl);
                           return null;
@@ -460,7 +469,9 @@ export default function CorrectionSettingsPage() {
                   <p className='text-[0.875rem] text-[#DC0000]'>
                     {jdMode === 'text'
                       ? 'Job Description을 입력해주세요.'
-                      : 'Job Description 이미지를 업로드해주세요.'}
+                      : jdImageError === 'too_large'
+                        ? '1MB 이하의 이미지 파일만 업로드 가능하며, 최대 2개까지만 업로드 가능해요.'
+                        : 'Job Description 이미지를 업로드해주세요.'}
                   </p>
                 )}
               </div>
@@ -595,6 +606,7 @@ export default function CorrectionSettingsPage() {
                               onClick={() => {
                                 if (jdUploadedFile?.previewUrl) URL.revokeObjectURL(jdUploadedFile.previewUrl);
                                 setHasJdImageUploaded(false);
+                                setJdImageError(null);
                                 setJdUploadedFile(null);
                               }}
                             >
@@ -614,12 +626,14 @@ export default function CorrectionSettingsPage() {
                             <div className='flex h-[2.5rem] w-[2.5rem] items-center justify-center rounded-[0.375rem]'>
                               <FileImageIcon />
                             </div>
-                            <div className='min-w-0 flex-1'>
+                            <div className='min-w-0 flex-1 overflow-hidden'>
                               <p className='truncate text-[0.875rem] font-bold text-[#1A1A1A]'>
                                 {jdUploadedFile.name}
                               </p>
-                              <p className='text-[0.75rem] text-[#74777D]'>
-                                {(jdUploadedFile.size / 1024 / 1024).toFixed(1)} MB
+                              <p className='mt-[0.125rem] text-[0.75rem] text-[#74777D]'>
+                                {jdUploadedFile.size >= 1024 * 1024
+                                  ? `${(jdUploadedFile.size / 1024 / 1024).toFixed(1)} MB`
+                                  : `${(jdUploadedFile.size / 1024).toFixed(1)} KB`}
                               </p>
                             </div>
                           </div>
