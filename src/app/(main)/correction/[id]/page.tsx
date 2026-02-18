@@ -963,7 +963,7 @@ export default function CorrectionSettingsPage() {
                             첨삭을 진행해요.
                           </span>
                           <span className='text-[0.875rem] text-[#1A1A1A]'>
-                            최대 10MB의 파일, 최대 5개의 파일을 첨삭이 가능해요.
+                            최대 10MB의 파일, 최대 5개의 활동 첨삭이 가능해요.
                           </span>
                         </div>
                         <button
