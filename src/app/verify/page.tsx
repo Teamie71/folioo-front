@@ -58,7 +58,7 @@ export default function VerifyPage() {
               value={formatPhoneDisplay(phoneNumber)}
               onChange={(e) => setPhoneNumber(parsePhoneDigits(e.target.value))}
               variant='default'
-              className='w-full max-w-[28rem] text-center'
+              className='w-full max-w-[28rem] font-semibold text-center'
             />
             <CommonButton
               variantType='Execute'
