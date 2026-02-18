@@ -35,7 +35,7 @@ export function ChallengeModal({
   const [eventModalOpen, setEventModalOpen] = useState(false);
 
   const handleEventModalButtonClick = () => {
-    router.push('/experience');
+    router.push('/experience/settings');
   };
 
   const handleLogClick = () => {
