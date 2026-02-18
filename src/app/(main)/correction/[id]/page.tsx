@@ -89,10 +89,11 @@ export default function CorrectionSettingsPage() {
   const [pdfUploadedFile, setPdfUploadedFile] = useState<{ name: string } | null>(
     null,
   );
-  const [pdfUploadError, setPdfUploadError] = useState<null | 'too_large'>(
-    null,
-  );
+  const [pdfUploadError, setPdfUploadError] = useState<
+    null | 'too_large' | 'too_many'
+  >(null);
   const [pdfShakeKey, setPdfShakeKey] = useState(0);
+  const [isPdfDropOverlayActive, setIsPdfDropOverlayActive] = useState(false);
   const pdfFileInputRef = useRef<HTMLInputElement>(null);
   const [showTextPortfolioWarning, setShowTextPortfolioWarning] = useState(false);
   const [analysisInfoValue, setAnalysisInfoValue] = useState('');
@@ -127,6 +128,17 @@ export default function CorrectionSettingsPage() {
     document.addEventListener('dragenter', onDragEnter);
     return () => document.removeEventListener('dragenter', onDragEnter);
   }, [step, jdMode]);
+
+  // portfolio + PDF 선택 시 창 어디로든 파일 드래그 들어오면 전체 페이지 드롭 오버레이 활성화
+  useEffect(() => {
+    if (step !== 'portfolio' || selectedPortfolioType !== 'pdf') return;
+    const onDragEnter = (e: DragEvent) => {
+      if (e.dataTransfer?.types.includes('Files'))
+        setIsPdfDropOverlayActive(true);
+    };
+    document.addEventListener('dragenter', onDragEnter);
+    return () => document.removeEventListener('dragenter', onDragEnter);
+  }, [step, selectedPortfolioType]);
 
   const handleStartCorrectionClick = () => {
     const companyNameEmpty = !companyName.trim();
@@ -195,6 +207,22 @@ export default function CorrectionSettingsPage() {
     }
   };
 
+  const handlePdfFile = (file: File) => {
+    if (file.type !== 'application/pdf') return;
+    if (file.size > 10 * 1024 * 1024) {
+      setPdfUploadError('too_large');
+      setPdfShakeKey((k) => k + 1);
+      return;
+    }
+    if (pdfUploadedFile) {
+      setPdfUploadError('too_many');
+      setPdfShakeKey((k) => k + 1);
+      return;
+    }
+    setPdfUploadError(null);
+    setPdfUploadedFile({ name: file.name });
+  };
+
   const handleJdImageFile = (file: File) => {
     const isImage =
       file.type === 'image/png' ||
@@ -240,20 +268,25 @@ export default function CorrectionSettingsPage() {
   return (
     <div
       key={
-        pdfUploadError === 'too_large'
+        pdfUploadError === 'too_large' || pdfUploadError === 'too_many'
           ? `pdf-shake-${pdfShakeKey}`
           : jdImageError === 'too_large' || jdImageError === 'too_many'
             ? `jd-shake-${jdShakeKey}`
             : 'no-shake'
       }
-      className={`mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem] ${jdImageError === 'too_large' || jdImageError === 'too_many' || pdfUploadError === 'too_large' ? 'animate-shake' : ''}`}
+      className={`mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem] ${jdImageError === 'too_large' || jdImageError === 'too_many' || pdfUploadError === 'too_large' || pdfUploadError === 'too_many' ? 'animate-shake' : ''}`}
       onDragEnter={
         step === 'information' && jdMode === 'image'
           ? (e) => {
               if (e.dataTransfer.types.includes('Files'))
                 setIsJdDropOverlayActive(true);
             }
-          : undefined
+          : step === 'portfolio' && selectedPortfolioType === 'pdf'
+            ? (e) => {
+                if (e.dataTransfer.types.includes('Files'))
+                  setIsPdfDropOverlayActive(true);
+              }
+            : undefined
       }
     >
       {/* JD 이미지 전체 페이지 드롭 오버레이 (이미지 모드 + 드래그 중일 때만) */}
@@ -273,6 +306,29 @@ export default function CorrectionSettingsPage() {
           }}
         />
       )}
+
+      {/* PDF 전체 페이지 드롭 오버레이 (포트폴리오 PDF 선택 + 드래그 중일 때만) */}
+      {step === 'portfolio' &&
+        selectedPortfolioType === 'pdf' &&
+        isPdfDropOverlayActive && (
+          <div
+            className='fixed inset-0 z-40'
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = 'copy';
+            }}
+            onDragLeave={() => setIsPdfDropOverlayActive(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setIsPdfDropOverlayActive(false);
+              const file = e.dataTransfer.files?.[0];
+              if (file) {
+                // 드래그앤드롭에서도 동일하게 10MB 초과 / 2개 초과 시 흔들림+오류메시지 적용
+                handlePdfFile(file);
+              }
+            }}
+          />
+        )}
       <div className='flex flex-col gap-[0.75rem]'>
         {/* 헤더 */}
         <div className='flex items-center justify-between'>
@@ -908,14 +964,7 @@ export default function CorrectionSettingsPage() {
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           e.target.value = '';
-                          if (!file || file.type !== 'application/pdf') return;
-                          if (file.size > 10 * 1024 * 1024) {
-                            setPdfUploadError('too_large');
-                            setPdfShakeKey((k) => k + 1);
-                            return;
-                          }
-                          setPdfUploadError(null);
-                          setPdfUploadedFile({ name: file.name });
+                          if (file) handlePdfFile(file);
                         }}
                       />
                       <div
