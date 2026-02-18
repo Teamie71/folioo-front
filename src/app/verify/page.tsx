@@ -124,13 +124,28 @@ function VerifyOtpStep({
   }, [setTimer]);
 
   const handleChange = (value: string, index: number) => {
-    if (/[^0-9]/.test(value)) return;
+    if (value !== '' && /[^0-9]/.test(value)) return;
     const newOtp = [...otp];
-    newOtp[index] = value.slice(-1);
+    newOtp[index] = value === '' ? '' : value.slice(-1);
     setOtp(newOtp);
     if (value && index < 5) {
       const nextInput = document.getElementById(`otp-${index + 1}`);
       nextInput?.focus();
+    }
+    if (value === '' && index > 0) {
+      const prevInput = document.getElementById(`otp-${index - 1}`);
+      prevInput?.focus();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      e.preventDefault();
+      const newOtp = [...otp];
+      newOtp[index - 1] = '';
+      setOtp(newOtp);
+      const prevInput = document.getElementById(`otp-${index - 1}`);
+      prevInput?.focus();
     }
   };
 
@@ -178,7 +193,8 @@ function VerifyOtpStep({
                   maxLength={1}
                   value={digit}
                   onChange={(e) => handleChange(e.target.value, index)}
-                  className='h-[3rem] w-[3rem] rounded-[6px] border border-[#74777D] text-center text-[20px] outline-none focus:border-[#5060C5]'
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  className='h-[3rem] w-[3rem] rounded-[6px] border font-bold border-[#74777D] text-center text-[20px] outline-none focus:border-[#5060C5]'
                 />
               ))}
             </div>
