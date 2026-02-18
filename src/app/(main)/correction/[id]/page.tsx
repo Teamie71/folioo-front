@@ -253,6 +253,29 @@ export default function CorrectionSettingsPage() {
     ]);
   };
 
+  const handlePasteJdImageFromClipboard = async () => {
+    try {
+      const items = await navigator.clipboard.read();
+      for (const item of items) {
+        for (const type of item.types) {
+          if (type === 'image/png' || type === 'image/jpeg') {
+            const blob = await item.getType(type);
+            const baseName =
+              jdUploadedFiles.length === 0
+                ? 'pasted-image'
+                : `pasted-image-${jdUploadedFiles.length + 1}`;
+            const ext = type === 'image/png' ? 'png' : 'jpg';
+            const file = new File([blob], `${baseName}.${ext}`, { type });
+            handleJdImageFile(file);
+            return;
+          }
+        }
+      }
+    } catch {
+      // 권한 거부 또는 클립보드에 이미지 없음
+    }
+  };
+
   const removeJdFileAt = (index: number) => {
     setJdUploadedFiles((prev) => {
       const next = prev.filter((_, i) => i !== index);
@@ -705,10 +728,13 @@ export default function CorrectionSettingsPage() {
                           role='button'
                           tabIndex={0}
                           className='flex cursor-pointer items-center gap-[2rem] rounded-[1rem] border border-[#E9EAEC] bg-[#FFFFFF] px-[4.75rem] py-[2.25rem] shadow-sm'
-                          onClick={() => jdFileInputRef.current?.click()}
-                          onKeyDown={(e) =>
-                            e.key === 'Enter' && jdFileInputRef.current?.click()
-                          }
+                          onClick={() => handlePasteJdImageFromClipboard()}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              handlePasteJdImageFromClipboard();
+                            }
+                          }}
                         >
                           <svg
                             width='40'
