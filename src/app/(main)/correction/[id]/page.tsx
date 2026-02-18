@@ -17,6 +17,7 @@ import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 import { CorrectionIcon } from '@/components/icons/CorrectionIcon';
 import { CloseIcon } from '@/components/icons/CloseIcon';
 import { FileCloseIcon } from '@/components/icons/FileCloseIcon';
+import { FileImageIcon } from '@/components/icons/FileImageIcon';
 import { FullIcon } from '@/components/icons/FullIcon';
 
 type Step = 'information' | 'portfolio' | 'analysis' | 'result';
@@ -234,14 +235,6 @@ export default function CorrectionSettingsPage() {
                 aria-label='JD 이미지 전체보기'
                 onClick={() => setIsJdImageViewerOpen(false)}
               >
-                <button
-                  type='button'
-                  className='absolute top-4 right-4 flex cursor-pointer h-[2.5rem] w-[2.5rem] items-center justify-center rounded-[0.25rem] bg-white/90 text-[#1A1A1A] hover:bg-white'
-                  aria-label='닫기'
-                  onClick={() => setIsJdImageViewerOpen(false)}
-                >
-                  <CloseIcon />
-                </button>
                 <div
                   className='flex max-h-full max-w-full items-center justify-center'
                   onClick={(e) => e.stopPropagation()}
@@ -574,12 +567,8 @@ export default function CorrectionSettingsPage() {
                           </div>
                           <div className='h-[1px] w-full bg-[#E9EAEC]' />
                           <div className='flex items-center gap-[0.75rem] border-t border-[#9EA4A9] px-[1rem] py-[0.75rem]'>
-                            <div className='flex h-[2.5rem] w-[2.5rem] items-center justify-center rounded-[0.375rem] bg-[#E9EAEC]'>
-                              <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#74777D' strokeWidth='2'>
-                                <rect x='3' y='3' width='18' height='18' rx='2' ry='2' />
-                                <circle cx='8.5' cy='8.5' r='1.5' />
-                                <path d='M21 15l-5-5L5 21' />
-                              </svg>
+                            <div className='flex h-[2.5rem] w-[2.5rem] items-center justify-center rounded-[0.375rem]'>
+                              <FileImageIcon />
                             </div>
                             <div className='min-w-0 flex-1'>
                               <p className='truncate text-[0.875rem] font-bold text-[#1A1A1A]'>
