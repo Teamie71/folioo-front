@@ -20,6 +20,7 @@ import { FileCloseIcon } from '@/components/icons/FileCloseIcon';
 import { FileImageIcon } from '@/components/icons/FileImageIcon';
 import { FullIcon } from '@/components/icons/FullIcon';
 import { PdfIcon } from '@/components/icons/PdfIcon';
+import { useCorrectionNavbar } from '@/contexts/CorrectionNavbarContext';
 
 type Step = 'information' | 'portfolio' | 'analysis' | 'result';
 type Status = 'DRAFT' | 'ANALYZING' | 'DONE';
@@ -139,6 +140,12 @@ export default function CorrectionSettingsPage() {
     document.addEventListener('dragenter', onDragEnter);
     return () => document.removeEventListener('dragenter', onDragEnter);
   }, [step, selectedPortfolioType]);
+
+  // 첨삭 결과 단계에서만 Navbar 표시
+  const { setShowNavbarOnResult } = useCorrectionNavbar() ?? {};
+  useEffect(() => {
+    setShowNavbarOnResult?.(step === 'result');
+  }, [step, setShowNavbarOnResult]);
 
   const handleStartCorrectionClick = () => {
     const companyNameEmpty = !companyName.trim();

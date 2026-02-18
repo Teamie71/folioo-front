@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Navbar from '@/components/Navbar';
 import { BannerBeta } from '@/components/BannerBeta';
 import { OBTEventModal } from '@/components/OBT/OBTEventModal';
@@ -9,11 +9,12 @@ import {
   shouldGrantWeeklyVoucher,
   markWeeklyVoucherGranted,
 } from '@/utils/weeklyVoucher';
+import { CorrectionNavbarContext } from '@/contexts/CorrectionNavbarContext';
 
 const HIDE_NAVBAR_PATTERNS = [/^\/correction\/[^/]+$/];
 
-function shouldHideNavbar(pathname: string) {
-  return HIDE_NAVBAR_PATTERNS.some((pattern) => pattern.test(pathname));
+function isCorrectionDetailPath(pathname: string) {
+  return /^\/correction\/[^/]+$/.test(pathname);
 }
 
 export default function LayoutContent({
@@ -23,8 +24,17 @@ export default function LayoutContent({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const hideNavbar = shouldHideNavbar(pathname ?? '');
+  const [showNavbarOnResult, setShowNavbarOnResult] = useState(false);
   const [weeklyVoucherModalOpen, setWeeklyVoucherModalOpen] = useState(false);
+
+  const isCorrectionDetail = isCorrectionDetailPath(pathname ?? '');
+  const hideNavbar = isCorrectionDetail
+    ? !showNavbarOnResult
+    : HIDE_NAVBAR_PATTERNS.some((p) => p.test(pathname ?? ''));
+
+  useEffect(() => {
+    if (!isCorrectionDetail) setShowNavbarOnResult(false);
+  }, [isCorrectionDetail]);
 
   useEffect(() => {
     // 접속 시 주간 이용권 지급 여부 확인
@@ -35,7 +45,9 @@ export default function LayoutContent({
   }, []);
 
   return (
-    <>
+    <CorrectionNavbarContext.Provider
+      value={{ setShowNavbarOnResult: useCallback((show: boolean) => setShowNavbarOnResult(show), []) }}
+    >
       {!hideNavbar && <Navbar />}
       <div className={hideNavbar ? '' : 'pt-[80px]'}>
         {!hideNavbar && <BannerBeta />}
@@ -57,6 +69,6 @@ export default function LayoutContent({
           router.push('/correction');
         }}
       />
-    </>
+    </CorrectionNavbarContext.Provider>
   );
 }
