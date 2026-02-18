@@ -251,7 +251,7 @@ function VerifyOtpStep({
         validityMessage='잔여 이용권은 매주 월요일 자정 소멸되고, 새로운 주차의 이용권이 다시 지급돼요.'
         buttonText='경험 정리하기'
         onButtonClick={() => {
-          router.push('/experience');
+          router.push('/experience/settings');
         }}
       />
     </>
