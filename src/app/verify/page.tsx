@@ -9,11 +9,24 @@ import { useRouter } from 'next/navigation';
 
 const TIMER_INITIAL = 299; // 04:59
 const OTP_LENGTH = 6;
+const PHONE_MAX_LENGTH = 11;
 
 function formatTime(seconds: number) {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${String(mins).padStart(2, '0')} : ${String(secs).padStart(2, '0')}`;
+}
+
+/** 숫자만 추출하여 최대 11자로 제한 */
+function parsePhoneDigits(value: string): string {
+  return value.replace(/\D/g, '').slice(0, PHONE_MAX_LENGTH);
+}
+
+/** XXX-XXXX-XXXX 형태로 포맷 */
+function formatPhoneDisplay(digits: string): string {
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
 }
 
 export default function VerifyPage() {
@@ -40,9 +53,10 @@ export default function VerifyPage() {
           <div className='flex flex-col items-center gap-[2.5rem]'>
             <InputArea
               type='tel'
+              inputMode='numeric'
               placeholder='휴대폰 번호를 입력해주세요.'
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
+              value={formatPhoneDisplay(phoneNumber)}
+              onChange={(e) => setPhoneNumber(parsePhoneDigits(e.target.value))}
               variant='default'
               className='w-full max-w-[28rem] text-center'
             />
@@ -50,7 +64,8 @@ export default function VerifyPage() {
               variantType='Execute'
               px='1.75rem'
               py='0.5rem'
-              className='rounded-[6.25rem]'
+              className='rounded-[6.25rem] disabled:cursor-not-allowed disabled:bg-[#CDD0D5] disabled:hover:bg-[#CDD0D5]'
+              disabled={phoneNumber.length !== PHONE_MAX_LENGTH}
               onClick={() => {
                 // TODO: 인증 번호 발송 API 연동
                 setCodeSent(true);
