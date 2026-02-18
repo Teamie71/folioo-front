@@ -372,7 +372,7 @@ export default function CorrectionSettingsPage() {
                 } else if (step === 'analysis') {
                   setStep('portfolio');
                 } else if (step === 'result') {
-                  setStep('analysis');
+                  router.push('/correction');
                 }
               }}
             />
