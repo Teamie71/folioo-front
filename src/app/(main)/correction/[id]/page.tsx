@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { PortfolioCard } from '@/components/PortfolioCard';
 import { PortfolioTypeCard } from '@/components/PortfolioTypeCard';
@@ -98,12 +98,24 @@ export default function CorrectionSettingsPage() {
     previewUrl: string;
   } | null>(null);
   const [isJdImageViewerOpen, setIsJdImageViewerOpen] = useState(false);
+  const [isJdDropOverlayActive, setIsJdDropOverlayActive] = useState(false);
   const jdFileInputRef = useRef<HTMLInputElement>(null);
   const [informationErrors, setInformationErrors] = useState<{
     companyName: boolean;
     jobTitle: boolean;
     jobDescription: boolean;
   }>({ companyName: false, jobTitle: false, jobDescription: false });
+
+  // information + 이미지 모드일 때 창 어디로든 파일 드래그 들어오면 전체 페이지 드롭 오버레이 활성화
+  useEffect(() => {
+    if (step !== 'information' || jdMode !== 'image') return;
+    const onDragEnter = (e: DragEvent) => {
+      if (e.dataTransfer?.types.includes('Files'))
+        setIsJdDropOverlayActive(true);
+    };
+    document.addEventListener('dragenter', onDragEnter);
+    return () => document.removeEventListener('dragenter', onDragEnter);
+  }, [step, jdMode]);
 
   const handleStartCorrectionClick = () => {
     const companyNameEmpty = !companyName.trim();
@@ -159,8 +171,54 @@ export default function CorrectionSettingsPage() {
     if (type !== 'pdf') setIsPdfTextExtracted(false);
   };
 
+  const handleJdImageFile = (file: File) => {
+    const isImage =
+      file.type === 'image/png' ||
+      file.type === 'image/jpeg' ||
+      /\.(png|jpe?g)$/i.test(file.name);
+    if (isImage) {
+      setHasJdImageUploaded(true);
+      setInformationErrors((prev) => ({ ...prev, jobDescription: false }));
+      setJdUploadedFile((prev) => {
+        if (prev?.previewUrl) URL.revokeObjectURL(prev.previewUrl);
+        return {
+          name: file.name,
+          size: file.size,
+          previewUrl: URL.createObjectURL(file),
+        };
+      });
+    }
+  };
+
   return (
-    <div className='mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem]'>
+    <div
+      className='mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem]'
+      onDragEnter={
+        step === 'information' && jdMode === 'image'
+          ? (e) => {
+              if (e.dataTransfer.types.includes('Files'))
+                setIsJdDropOverlayActive(true);
+            }
+          : undefined
+      }
+    >
+      {/* JD 이미지 전체 페이지 드롭 오버레이 (이미지 모드 + 드래그 중일 때만) */}
+      {step === 'information' && jdMode === 'image' && isJdDropOverlayActive && (
+        <div
+          className='fixed inset-0 z-40'
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+          }}
+          onDragLeave={() => setIsJdDropOverlayActive(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setIsJdDropOverlayActive(false);
+            const file = e.dataTransfer.files?.[0];
+            if (file) handleJdImageFile(file);
+          }}
+        />
+      )}
       <div className='flex flex-col gap-[0.75rem]'>
         {/* 헤더 */}
         <div className='flex items-center justify-between'>
@@ -432,21 +490,7 @@ export default function CorrectionSettingsPage() {
                       className='hidden'
                       onChange={(e) => {
                         const file = e.target.files?.[0];
-                        if (file) {
-                          setHasJdImageUploaded(true);
-                          setInformationErrors((prev) => ({
-                            ...prev,
-                            jobDescription: false,
-                          }));
-                          setJdUploadedFile((prev) => {
-                            if (prev?.previewUrl) URL.revokeObjectURL(prev.previewUrl);
-                            return {
-                              name: file.name,
-                              size: file.size,
-                              previewUrl: URL.createObjectURL(file),
-                            };
-                          });
-                        }
+                        if (file) handleJdImageFile(file);
                         e.target.value = '';
                       }}
                     />
