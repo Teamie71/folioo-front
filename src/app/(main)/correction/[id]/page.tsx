@@ -356,7 +356,19 @@ export default function CorrectionSettingsPage() {
         {/* 헤더 */}
         <div className='flex items-center justify-between'>
           <div className='flex items-center gap-[0.75rem]'>
-            <BackButton onClick={() => setIsQuitModalOpen(true)} />
+            <BackButton
+              onClick={() => {
+                if (step === 'information') {
+                  setIsQuitModalOpen(true);
+                } else if (step === 'portfolio') {
+                  setStep('information');
+                } else if (step === 'analysis') {
+                  setStep('portfolio');
+                } else if (step === 'result') {
+                  setStep('analysis');
+                }
+              }}
+            />
             <CommonModal
               open={isQuitModalOpen}
               onOpenChange={setIsQuitModalOpen}
