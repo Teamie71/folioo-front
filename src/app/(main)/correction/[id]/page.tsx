@@ -84,6 +84,28 @@ export default function CorrectionSettingsPage() {
   const [showTextPortfolioWarning, setShowTextPortfolioWarning] = useState(false);
   const [analysisInfoValue, setAnalysisInfoValue] = useState('');
   const [showAnalysisInfoWarning, setShowAnalysisInfoWarning] = useState(false);
+  const [companyName, setCompanyName] = useState('');
+  const [jobTitle, setJobTitle] = useState('');
+  const [jobDescription, setJobDescription] = useState('');
+  const [informationErrors, setInformationErrors] = useState<{
+    companyName: boolean;
+    jobTitle: boolean;
+    jobDescription: boolean;
+  }>({ companyName: false, jobTitle: false, jobDescription: false });
+
+  const handleStartCorrectionClick = () => {
+    const companyNameEmpty = !companyName.trim();
+    const jobTitleEmpty = !jobTitle.trim();
+    const jobDescriptionEmpty =
+      jdMode === 'text' ? !jobDescription.trim() : false;
+    const hasError = companyNameEmpty || jobTitleEmpty || jobDescriptionEmpty;
+    setInformationErrors({
+      companyName: companyNameEmpty,
+      jobTitle: jobTitleEmpty,
+      jobDescription: jobDescriptionEmpty,
+    });
+    if (!hasError) setIsStartCorrectionModalOpen(true);
+  };
 
   const handleNextStep = () => {
     if (step === 'information') {
@@ -245,10 +267,10 @@ export default function CorrectionSettingsPage() {
               </defs>
             </svg>
             <div className='flex flex-col items-center text-center'>
-              <span className='text-[1.125rem] font-bold text-#464B53]'>
+              <span className='text-[1.125rem] font-bold leading-[1.3] text-#464B53]'>
                 AI 컨설턴트가 포트폴리오 첨삭을 진행 중이에요.
               </span>
-              <span className='text-[1.125rem] font-bold text-#464B53]'>
+              <span className='text-[1.125rem] font-bold leading-[1.3] text-#464B53]'>
                 페이지를 떠나도 작업은 계속돼요.
               </span>
             </div>
@@ -258,33 +280,65 @@ export default function CorrectionSettingsPage() {
             {/* 지원 기업명 및 지원 직무명 입력 */}
             <div className='grid grid-cols-2 gap-[1.5rem]'>
               {/* 지원 기업명 입력 */}
-              <div className='flex flex-col gap-[1rem]'>
-                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+              <div className='flex flex-col gap-[0.5rem]'>
+                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                   <span>지원 기업명</span>
                   <span className='text-[#DC0000]'>*</span>
                 </div>
-                <InputArea placeholder='기업명을 입력해주세요.' />
+                {informationErrors.companyName && (
+                  <p className='text-[0.875rem] text-[#DC0000]'>
+                    지원 기업명을 입력해주세요.
+                  </p>
+                )}
+                <InputArea
+                  placeholder='기업명을 입력해주세요.'
+                  value={companyName}
+                  onChange={(e) => {
+                    setCompanyName(e.target.value);
+                    if (informationErrors.companyName)
+                      setInformationErrors((prev) => ({
+                        ...prev,
+                        companyName: false,
+                      }));
+                  }}
+                />
               </div>
 
               {/* 지원 직무명 입력 */}
-              <div className='flex flex-col gap-[1rem]'>
-                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+              <div className='flex flex-col gap-[0.5rem]'>
+                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                   <span>지원 직무명</span>
                   <span className='text-[#DC0000]'>*</span>
                 </div>
-                <InputArea placeholder='직무명을 입력해주세요.' />
+                {informationErrors.jobTitle && (
+                  <p className='text-[0.875rem] text-[#DC0000]'>
+                    지원 직무명을 입력해주세요.
+                  </p>
+                )}
+                <InputArea
+                  placeholder='직무명을 입력해주세요.'
+                  value={jobTitle}
+                  onChange={(e) => {
+                    setJobTitle(e.target.value);
+                    if (informationErrors.jobTitle)
+                      setInformationErrors((prev) => ({
+                        ...prev,
+                        jobTitle: false,
+                      }));
+                  }}
+                />
               </div>
             </div>
 
             {/* Job Description */}
-            <div className='flex flex-col gap-[1rem]'>
+            <div className='flex flex-col gap-[0.5rem]'>
               <div>
-                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                   <span>Job Description</span>
                   <span className='text-[#DC0000]'>*</span>
                 </div>
                 <div className='flex items-center justify-between'>
-                  <span className='font-regular text-[0.875rem] text-[#74777D]'>
+                  <span className='font-regular text-[0.875rem] leading-[1.5] text-[#74777D]'>
                     JD는 채용공고에 명시된 직무 설명서로, 주로 담당할 업무,
                     자격요건, 우대사항 등이 포함돼요.
                   </span>
@@ -298,6 +352,11 @@ export default function CorrectionSettingsPage() {
                   />
                 </div>
               </div>
+              {informationErrors.jobDescription && (
+                <p className='text-[0.875rem] text-[#DC0000]'>
+                  Job Description을 입력해주세요.
+                </p>
+              )}
               <div className='flex flex-col gap-[0.75rem]'>
                 {jdMode === 'text' ? (
                   <TextField
@@ -305,6 +364,15 @@ export default function CorrectionSettingsPage() {
                     height='23.5rem'
                     className='rounded-[1.25rem]'
                     placeholder='채용공고의 JD를 복사 후 붙여넣기 해주세요.'
+                    value={jobDescription}
+                    onChange={(e) => {
+                      setJobDescription(e.target.value);
+                      if (informationErrors.jobDescription)
+                        setInformationErrors((prev) => ({
+                          ...prev,
+                          jobDescription: false,
+                        }));
+                    }}
                   />
                 ) : (
                   <div className='flex gap-[1.5rem]'>
@@ -384,7 +452,7 @@ export default function CorrectionSettingsPage() {
             {/* 첨삭 시작하기 버튼 */}
             <div className='flex justify-center pb-[7rem]'>
               <button
-                onClick={() => setIsStartCorrectionModalOpen(true)}
+                onClick={handleStartCorrectionClick}
                 className='flex cursor-pointer items-center justify-center gap-[0.75rem] rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
               >
                 <CorrectionIcon />
@@ -398,7 +466,7 @@ export default function CorrectionSettingsPage() {
           <>
             {/* 포트폴리오 종류 선택 */}
             <div className='flex flex-col gap-[1.25rem]'>
-              <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+              <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                 <span>포트폴리오 종류 선택</span>
                 <span className='text-[#DC0000]'>*</span>
               </div>
@@ -458,7 +526,7 @@ export default function CorrectionSettingsPage() {
                 // TODO: 실제 데이터 연동 시 textPortfolios를 API 데이터로 교체
                 // TODO: 선택된 포트폴리오 ID를 다음 단계 API에 전달
                 <div className='mt-[4.75rem] flex flex-col'>
-                  <div className='flex items-center text-[1.125rem] font-bold'>
+                  <div className='flex items-center text-[1.125rem] font-bold leading-[1.3]'>
                     <span>텍스트형 포트폴리오 선택</span>
                   </div>
                   <span className='pt-[0.25rem] text-[0.875rem] text-[#74777D]'>
@@ -505,7 +573,7 @@ export default function CorrectionSettingsPage() {
               {/* PDF 포트폴리오 업로드 섹션 */}
               {selectedPortfolioType === 'pdf' && (
                 <div className='mt-[4.75rem] flex flex-col gap-[1.25rem]'>
-                  <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                  <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                     <span>PDF 포트폴리오 업로드</span>
                     <span className='text-[#DC0000]'>*</span>
                   </div>
@@ -566,7 +634,7 @@ export default function CorrectionSettingsPage() {
               {/* PDF 포트폴리오 텍스트 정리 섹션 */}
               {selectedPortfolioType === 'pdf' && isPdfTextExtracted && (
                 <div className='mt-[3.75rem] flex flex-col'>
-                  <div className='mb-[0.5rem] flex items-center text-[1.125rem] font-bold'>
+                  <div className='mb-[0.5rem] flex items-center text-[1.125rem] font-bold leading-[1.3]'>
                     <span>PDF 포트폴리오 텍스트 정리</span>
                   </div>
                   <div className='mb-[2.5rem] flex flex-col'>
@@ -713,7 +781,7 @@ export default function CorrectionSettingsPage() {
             <div className='flex flex-col gap-[5rem]'>
               {/* 기업 분석 정보 섹션 */}
               <div className='flex flex-col gap-[0.375rem]'>
-                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                   <span>기업 분석 정보</span>
                   <span className='text-[#DC0000]'>*</span>
                 </div>
@@ -754,7 +822,7 @@ export default function CorrectionSettingsPage() {
 
               {/* 강조 포인트 섹션 */}
               <div className='flex flex-col gap-[0.375rem]'>
-                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                   <span>강조 포인트</span>
                 </div>
                 <div className='flex flex-col'>
@@ -829,7 +897,7 @@ export default function CorrectionSettingsPage() {
                   </defs>
                 </svg>
                 <div className='flex flex-col items-center gap-[0.5rem] text-center'>
-                  <span className='text-[1.25rem] font-bold text-[#1A1A1A]'>
+                  <span className='text-[1.25rem] font-bold leading-[1.3] text-[#1A1A1A]'>
                     AI 컨설턴트가 포트폴리오 첨삭을 진행 중이에요.
                   </span>
                   <span className='text-[1rem] text-[#74777D]'>
@@ -920,7 +988,7 @@ export default function CorrectionSettingsPage() {
                         {/* 지원 기업명 및 지원 직무명 */}
                         <div className='grid grid-cols-2 gap-[1.5rem]'>
                           <div className='flex flex-col gap-[1rem]'>
-                            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                               <span>지원 기업명</span>
                             </div>
                             <div className='rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'>
@@ -928,7 +996,7 @@ export default function CorrectionSettingsPage() {
                             </div>
                           </div>
                           <div className='flex flex-col gap-[1rem]'>
-                            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                               <span>지원 직무명</span>
                             </div>
                             <div className='rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'>
@@ -939,7 +1007,7 @@ export default function CorrectionSettingsPage() {
 
                         {/* Job Description */}
                         <div className='flex flex-col gap-[1rem]'>
-                          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                             <span>Job Description</span>
                           </div>
                           <div className='rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem]'>
@@ -949,7 +1017,7 @@ export default function CorrectionSettingsPage() {
 
                         {/* 기업 분석 정보 */}
                         <div className='flex flex-col gap-[1rem]'>
-                          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                             <span>기업 분석 정보</span>
                           </div>
                           <div className='rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem]'>
@@ -959,7 +1027,7 @@ export default function CorrectionSettingsPage() {
 
                         {/* 강조 포인트 */}
                         <div className='flex flex-col gap-[1rem]'>
-                          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                             <span>강조 포인트</span>
                           </div>
                           <div className='rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem]'>
@@ -973,7 +1041,7 @@ export default function CorrectionSettingsPage() {
                     {resultTab === '총평' && (
                       <div className='flex flex-col gap-[3rem]'>
                         <div className='flex flex-col gap-[1rem]'>
-                          <div className='text-[1.125rem] font-bold'>총평</div>
+                          <div className='text-[1.125rem] font-bold leading-[1.3]'>총평</div>
                           <div className='rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem]'>
                             일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십
                           </div>
@@ -986,7 +1054,7 @@ export default function CorrectionSettingsPage() {
                       <div className='flex flex-col gap-[3rem]'>
                         {/* 상세정보 */}
                         <div className='flex flex-col gap-[1rem]'>
-                          <div className='text-[1.125rem] font-bold'>
+                          <div className='text-[1.125rem] font-bold leading-[1.3]'>
                             상세정보
                           </div>
                           <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
@@ -1039,7 +1107,7 @@ export default function CorrectionSettingsPage() {
 
                         {/* 담당업무 */}
                         <div className='flex flex-col gap-[1rem]'>
-                          <div className='text-[1.125rem] font-bold'>
+                          <div className='text-[1.125rem] font-bold leading-[1.3]'>
                             담당업무
                           </div>
                           <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
@@ -1092,7 +1160,7 @@ export default function CorrectionSettingsPage() {
 
                         {/* 문제 해결 */}
                         <div className='flex flex-col gap-[1rem]'>
-                          <div className='text-[1.125rem] font-bold'>
+                          <div className='text-[1.125rem] font-bold leading-[1.3]'>
                             문제 해결
                           </div>
                           <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
@@ -1127,7 +1195,7 @@ export default function CorrectionSettingsPage() {
 
                         {/* 배운 점 */}
                         <div className='flex flex-col gap-[1rem]'>
-                          <div className='text-[1.125rem] font-bold'>
+                          <div className='text-[1.125rem] font-bold leading-[1.3]'>
                             배운 점
                           </div>
                           <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
