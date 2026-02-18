@@ -4,10 +4,10 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { CommonModal } from '@/components/CommonModal';
-import { Stamp } from '@/components/icons/Stamp';
-import { BigStamp } from '@/components/icons/BigStamp';
+import { Stamp } from '@/components/icons/StampIcon';
+import { BigStamp } from '@/components/icons/BigStampIcon';
 import { cn } from '@/utils/utils';
-import { ChevronDown } from '@/components/icons/ChevronDown';
+import { ChevronDown } from '@/components/icons/ChevronDownIcon';
 import { EventModal } from '@/components/EventModal';
 
 const ChevronDownIcon = ({ className }: { className?: string }) => (
