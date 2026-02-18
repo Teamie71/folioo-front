@@ -164,6 +164,15 @@ export default function CorrectionSettingsPage() {
     router.push('/experience/settings');
   };
 
+  /** 지원 기업명/직무명: 최대 20자, 한국어·영어·숫자·공백·특수문자만 허용 */
+  const limitCompanyOrJobInput = (value: string) =>
+    value
+      .replace(
+        /[^\uAC00-\uD7A3\u3130-\u318Ea-zA-Z0-9\s.,\-'()\/&·!?@#%+*<>]/g,
+        '',
+      )
+      .slice(0, 20);
+
   const handlePortfolioSelect = (type: PortfolioType) => {
     setSelectedPortfolioType(type);
     setShowTextPortfolioWarning(false);
@@ -411,8 +420,10 @@ export default function CorrectionSettingsPage() {
                 <InputArea
                   placeholder='기업명을 입력해주세요.'
                   value={companyName}
+                  maxLength={20}
                   onChange={(e) => {
-                    setCompanyName(e.target.value);
+                    const next = limitCompanyOrJobInput(e.target.value);
+                    setCompanyName(next);
                     if (informationErrors.companyName)
                       setInformationErrors((prev) => ({
                         ...prev,
@@ -436,8 +447,10 @@ export default function CorrectionSettingsPage() {
                 <InputArea
                   placeholder='직무명을 입력해주세요.'
                   value={jobTitle}
+                  maxLength={20}
                   onChange={(e) => {
-                    setJobTitle(e.target.value);
+                    const next = limitCompanyOrJobInput(e.target.value);
+                    setJobTitle(next);
                     if (informationErrors.jobTitle)
                       setInformationErrors((prev) => ({
                         ...prev,
@@ -506,8 +519,9 @@ export default function CorrectionSettingsPage() {
                     className='rounded-[1.25rem] px-[1.625rem] py-[1.25rem]'
                     placeholder='채용공고의 JD를 복사 후 붙여넣기 해주세요.'
                     value={jobDescription}
+                    maxLength={700}
                     onChange={(e) => {
-                      setJobDescription(e.target.value);
+                      setJobDescription(e.target.value.slice(0, 700));
                       if (informationErrors.jobDescription)
                         setInformationErrors((prev) => ({
                           ...prev,
