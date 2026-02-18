@@ -19,6 +19,7 @@ import { CloseIcon } from '@/components/icons/CloseIcon';
 import { FileCloseIcon } from '@/components/icons/FileCloseIcon';
 import { FileImageIcon } from '@/components/icons/FileImageIcon';
 import { FullIcon } from '@/components/icons/FullIcon';
+import { PdfIcon } from '@/components/icons/PdfIcon';
 
 type Step = 'information' | 'portfolio' | 'analysis' | 'result';
 type Status = 'DRAFT' | 'ANALYZING' | 'DONE';
@@ -85,6 +86,10 @@ export default function CorrectionSettingsPage() {
   const [isStartCorrectionModalOpen, setIsStartCorrectionModalOpen] =
     useState(false);
   const [isPdfTextExtracted, setIsPdfTextExtracted] = useState(false);
+  const [pdfUploadedFile, setPdfUploadedFile] = useState<{ name: string } | null>(
+    null,
+  );
+  const pdfFileInputRef = useRef<HTMLInputElement>(null);
   const [showTextPortfolioWarning, setShowTextPortfolioWarning] = useState(false);
   const [analysisInfoValue, setAnalysisInfoValue] = useState('');
   const [showAnalysisInfoWarning, setShowAnalysisInfoWarning] = useState(false);
@@ -179,7 +184,10 @@ export default function CorrectionSettingsPage() {
     // 포트폴리오 타입 전환 시 텍스트형 선택 상태 초기화
     setSelectedTextPortfolioIds([]);
     // PDF에서 다른 타입으로 전환 시 텍스트 추출 상태 초기화
-    if (type !== 'pdf') setIsPdfTextExtracted(false);
+    if (type !== 'pdf') {
+      setIsPdfTextExtracted(false);
+      setPdfUploadedFile(null);
+    }
   };
 
   const handleJdImageFile = (file: File) => {
@@ -873,26 +881,80 @@ export default function CorrectionSettingsPage() {
                         </button>
                       </div>
 
-                      {/* 오른쪽: 파일 업로드 영역 */}
-                      <div className='flex flex-col items-center justify-center gap-[0.75rem] rounded-[1rem] border border-[#CDD0D5] bg-[#FFFFFF] p-[3rem]'>
-                        <svg
-                          xmlns='http://www.w3.org/2000/svg'
-                          width='40'
-                          height='40'
-                          viewBox='0 0 60 60'
-                          fill='none'
-                        >
-                          <path
-                            d='M45 42.5C48.3152 42.5 51.4946 41.183 53.8388 38.8388C56.183 36.4946 57.5 33.3152 57.5 30C57.5 26.6848 56.183 23.5053 53.8388 21.1611C51.4946 18.8169 48.3152 17.5 45 17.5C44.337 13.1902 41.989 9.32034 38.4727 6.74172C34.9564 4.16309 30.5598 3.08693 26.25 3.74997C21.9402 4.41301 18.0704 6.76094 15.4917 10.2772C12.9131 13.7936 11.837 18.1902 12.5 22.5C9.84784 22.5 7.3043 23.5535 5.42893 25.4289C3.55357 27.3043 2.5 29.8478 2.5 32.5C2.5 35.1521 3.55357 37.6957 5.42893 39.571C7.3043 41.4464 9.84784 42.5 12.5 42.5H15M22.5 35L30 27.5M30 27.5L37.5 35M30 27.5V57.5'
-                            stroke='#74777D'
-                            strokeWidth='4'
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                          />
-                        </svg>
-                        <span className='text-center text-[0.875rem] text-[#74777D]'>
-                          클릭하여 파일을 업로드하세요.
-                        </span>
+                      {/* 오른쪽: PDF 파일 업로드 영역 */}
+                      <input
+                        ref={pdfFileInputRef}
+                        type='file'
+                        accept='.pdf,application/pdf'
+                        className='hidden'
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file?.type === 'application/pdf')
+                            setPdfUploadedFile({ name: file.name });
+                          e.target.value = '';
+                        }}
+                      />
+                      <div
+                        role='button'
+                        tabIndex={0}
+                        className='group relative flex flex-col items-center justify-center gap-[0.75rem] rounded-[1rem] border border-[#CDD0D5] bg-[#FFFFFF] p-[3rem] cursor-pointer'
+                        onClick={() =>
+                          pdfUploadedFile
+                            ? undefined
+                            : pdfFileInputRef.current?.click()
+                        }
+                        onKeyDown={(e) => {
+                          if (
+                            !pdfUploadedFile &&
+                            (e.key === 'Enter' || e.key === ' ')
+                          ) {
+                            e.preventDefault();
+                            pdfFileInputRef.current?.click();
+                          }
+                        }}
+                      >
+                        {pdfUploadedFile ? (
+                          <>
+                            <PdfIcon />
+                            <span className='text-center text-[0.875rem] text-[#1A1A1A]'>
+                              {pdfUploadedFile.name.endsWith('.pdf')
+                                ? pdfUploadedFile.name
+                                : `${pdfUploadedFile.name}.pdf`}
+                            </span>
+                            <button
+                              type='button'
+                              className='absolute top-[0.75rem] right-[0.75rem] flex h-[1.5rem] w-[1.5rem] cursor-pointer items-center justify-center rounded-[0.25rem] bg-[#74777D] opacity-0 transition-opacity duration-150 group-hover:opacity-100'
+                              aria-label='파일 삭제'
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setPdfUploadedFile(null);
+                              }}
+                            >
+                              <FileCloseIcon />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <svg
+                              xmlns='http://www.w3.org/2000/svg'
+                              width='40'
+                              height='40'
+                              viewBox='0 0 60 60'
+                              fill='none'
+                            >
+                              <path
+                                d='M45 42.5C48.3152 42.5 51.4946 41.183 53.8388 38.8388C56.183 36.4946 57.5 33.3152 57.5 30C57.5 26.6848 56.183 23.5053 53.8388 21.1611C51.4946 18.8169 48.3152 17.5 45 17.5C44.337 13.1902 41.989 9.32034 38.4727 6.74172C34.9564 4.16309 30.5598 3.08693 26.25 3.74997C21.9402 4.41301 18.0704 6.76094 15.4917 10.2772C12.9131 13.7936 11.837 18.1902 12.5 22.5C9.84784 22.5 7.3043 23.5535 5.42893 25.4289C3.55357 27.3043 2.5 29.8478 2.5 32.5C2.5 35.1521 3.55357 37.6957 5.42893 39.571C7.3043 41.4464 9.84784 42.5 12.5 42.5H15M22.5 35L30 27.5M30 27.5L37.5 35M30 27.5V57.5'
+                                stroke='#74777D'
+                                strokeWidth='4'
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                              />
+                            </svg>
+                            <span className='text-center text-[0.875rem] text-[#74777D]'>
+                              클릭하여 파일을 업로드하세요.
+                            </span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
