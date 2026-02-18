@@ -22,6 +22,29 @@ body[data-banner-dismissed='true'] .banner-beta {
   display: none !important;
 }
 
+/* 1MB 초과 업로드 시 흔들림 (prefers-reduced-motion 시 비활성화) */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25%,
+  75% {
+    transform: translateX(-3px);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+}
+.animate-shake {
+  animation: shake 0.25s ease-in-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-shake {
+    animation: none;
+  }
+}
+
 /* 스크롤바 숨김 스타일링 */
 @layer utilities {
   .scrollbar-hide {

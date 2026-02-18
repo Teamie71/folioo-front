@@ -108,6 +108,7 @@ export default function CorrectionSettingsPage() {
   const [jdImageError, setJdImageError] = useState<null | 'required' | 'too_large'>(
     null,
   );
+  const [jdShakeKey, setJdShakeKey] = useState(0);
 
   // information + 이미지 모드일 때 창 어디로든 파일 드래그 들어오면 전체 페이지 드롭 오버레이 활성화
   useEffect(() => {
@@ -182,6 +183,7 @@ export default function CorrectionSettingsPage() {
     if (!isImage) return;
     if (file.size > 1024 * 1024) {
       setJdImageError('too_large');
+      setJdShakeKey((k) => k + 1);
       setInformationErrors((prev) => ({ ...prev, jobDescription: true }));
       return;
     }
@@ -430,8 +432,11 @@ export default function CorrectionSettingsPage() {
               </div>
             </div>
 
-            {/* Job Description */}
-            <div className='flex flex-col gap-[0.5rem]'>
+            {/* Job Description (1MB 초과 시 흔들림 - 클릭/드래그앤드롭 공통) */}
+            <div
+              key={jdImageError === 'too_large' ? `jd-shake-${jdShakeKey}` : 'jd-no-shake'}
+              className={`flex flex-col gap-[0.5rem] overflow-visible ${jdImageError === 'too_large' ? 'animate-shake' : ''}`}
+            >
               <div>
                 <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                   <span>Job Description</span>
