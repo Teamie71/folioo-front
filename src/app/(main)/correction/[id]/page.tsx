@@ -89,6 +89,10 @@ export default function CorrectionSettingsPage() {
   const [pdfUploadedFile, setPdfUploadedFile] = useState<{ name: string } | null>(
     null,
   );
+  const [pdfUploadError, setPdfUploadError] = useState<null | 'too_large'>(
+    null,
+  );
+  const [pdfShakeKey, setPdfShakeKey] = useState(0);
   const pdfFileInputRef = useRef<HTMLInputElement>(null);
   const [showTextPortfolioWarning, setShowTextPortfolioWarning] = useState(false);
   const [analysisInfoValue, setAnalysisInfoValue] = useState('');
@@ -187,6 +191,7 @@ export default function CorrectionSettingsPage() {
     if (type !== 'pdf') {
       setIsPdfTextExtracted(false);
       setPdfUploadedFile(null);
+      setPdfUploadError(null);
     }
   };
 
@@ -234,8 +239,14 @@ export default function CorrectionSettingsPage() {
 
   return (
     <div
-      key={jdImageError === 'too_large' || jdImageError === 'too_many' ? `jd-shake-${jdShakeKey}` : 'jd-no-shake'}
-      className={`mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem] ${jdImageError === 'too_large' || jdImageError === 'too_many' ? 'animate-shake' : ''}`}
+      key={
+        pdfUploadError === 'too_large'
+          ? `pdf-shake-${pdfShakeKey}`
+          : jdImageError === 'too_large' || jdImageError === 'too_many'
+            ? `jd-shake-${jdShakeKey}`
+            : 'no-shake'
+      }
+      className={`mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem] ${jdImageError === 'too_large' || jdImageError === 'too_many' || pdfUploadError === 'too_large' ? 'animate-shake' : ''}`}
       onDragEnter={
         step === 'information' && jdMode === 'image'
           ? (e) => {
@@ -849,9 +860,16 @@ export default function CorrectionSettingsPage() {
               {/* PDF 포트폴리오 업로드 섹션 */}
               {selectedPortfolioType === 'pdf' && (
                 <div className='mt-[4.75rem] flex flex-col gap-[1.25rem]'>
-                  <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
-                    <span>PDF 포트폴리오 업로드</span>
-                    <span className='text-[#DC0000]'>*</span>
+                  <div>
+                    <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
+                      <span>PDF 포트폴리오 업로드</span>
+                      <span className='text-[#DC0000]'>*</span>
+                    </div>
+                    {pdfUploadError === 'too_large' && (
+                      <p className='mt-[0.5rem] text-[0.875rem] text-[#DC0000]'>
+                        최대 10MB의 PDF 파일만 업로드 가능해요.
+                      </p>
+                    )}
                   </div>
                   <div className='rounded-[1rem] border border-[#E9EAEC] bg-[#FDFDFD] p-[1rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
                     <div className='grid grid-cols-2 gap-[4rem] pl-[2.75rem]'>
@@ -889,9 +907,15 @@ export default function CorrectionSettingsPage() {
                         className='hidden'
                         onChange={(e) => {
                           const file = e.target.files?.[0];
-                          if (file?.type === 'application/pdf')
-                            setPdfUploadedFile({ name: file.name });
                           e.target.value = '';
+                          if (!file || file.type !== 'application/pdf') return;
+                          if (file.size > 10 * 1024 * 1024) {
+                            setPdfUploadError('too_large');
+                            setPdfShakeKey((k) => k + 1);
+                            return;
+                          }
+                          setPdfUploadError(null);
+                          setPdfUploadedFile({ name: file.name });
                         }}
                       />
                       <div
@@ -928,6 +952,7 @@ export default function CorrectionSettingsPage() {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setPdfUploadedFile(null);
+                                setPdfUploadError(null);
                               }}
                             >
                               <FileCloseIcon />
