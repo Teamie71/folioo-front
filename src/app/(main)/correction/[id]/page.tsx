@@ -430,12 +430,8 @@ export default function CorrectionSettingsPage() {
               onClick={() => {
                 if (step === 'information') {
                   setIsQuitModalOpen(true);
-                } else if (step === 'portfolio') {
-                  setStep('information');
-                } else if (step === 'analysis') {
-                  setStep('portfolio');
-                } else if (step === 'result') {
-                  router.push('/correction');
+                } else {
+                  router.replace('/correction');
                 }
               }}
             />
@@ -448,7 +444,7 @@ export default function CorrectionSettingsPage() {
               secondaryBtnText='그만두기'
               onSecondaryClick={() => {
                 setIsQuitModalOpen(false);
-                router.push('/correction');
+                router.replace('/correction');
               }}
             />
             <CommonModal
@@ -514,7 +510,7 @@ export default function CorrectionSettingsPage() {
             secondaryBtnText='삭제'
             onSecondaryClick={() => {
               setIsDeleteModalOpen(false);
-              router.push('/correction');
+              router.replace('/correction');
             }}
           />
             <CommonModal
