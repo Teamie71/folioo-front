@@ -87,6 +87,8 @@ export default function CorrectionSettingsPage() {
   const [isStartCorrectionModalOpen, setIsStartCorrectionModalOpen] =
     useState(false);
   const [isPdfTextExtracted, setIsPdfTextExtracted] = useState(false);
+  const [isPdfExtractConfirmModalOpen, setIsPdfExtractConfirmModalOpen] =
+    useState(false);
   const [pdfUploadedFile, setPdfUploadedFile] = useState<{ name: string } | null>(
     null,
   );
@@ -434,6 +436,18 @@ export default function CorrectionSettingsPage() {
                 handleNextStep();
               }}
               className='max-w-[24.75rem] items-center px-[5rem] py-[3.75rem] text-center'
+            />
+            <CommonModal
+              open={isPdfExtractConfirmModalOpen}
+              onOpenChange={setIsPdfExtractConfirmModalOpen}
+              title='이 파일의 텍스트를 추출하시겠습니까?'
+              description='추출 시작 후 파일을 변경할 수 없어요.'
+              cancelBtnText='취소'
+              primaryBtnText='추출'
+              onPrimaryClick={() => {
+                setIsPdfExtractConfirmModalOpen(false);
+                setIsPdfTextExtracted(true);
+              }}
             />
 
             {/* JD 이미지 전체보기 뷰어 */}
@@ -986,7 +1000,9 @@ export default function CorrectionSettingsPage() {
                           </span>
                         </div>
                         <button
-                          onClick={() => pdfUploadedFile && setIsPdfTextExtracted(true)}
+                          onClick={() =>
+                            pdfUploadedFile && setIsPdfExtractConfirmModalOpen(true)
+                          }
                           disabled={!pdfUploadedFile || isPdfTextExtracted}
                           className={`self-start rounded-[3.75rem] border-none px-[2.25rem] py-[0.75rem] ${
                             !pdfUploadedFile || isPdfTextExtracted
