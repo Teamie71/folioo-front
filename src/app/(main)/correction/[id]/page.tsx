@@ -986,10 +986,10 @@ export default function CorrectionSettingsPage() {
                           </span>
                         </div>
                         <button
-                          onClick={() => setIsPdfTextExtracted(true)}
-                          disabled={isPdfTextExtracted}
+                          onClick={() => pdfUploadedFile && setIsPdfTextExtracted(true)}
+                          disabled={!pdfUploadedFile || isPdfTextExtracted}
                           className={`self-start rounded-[3.75rem] border-none px-[2.25rem] py-[0.75rem] ${
-                            isPdfTextExtracted
+                            !pdfUploadedFile || isPdfTextExtracted
                               ? 'cursor-not-allowed bg-[#CDD0D5]'
                               : 'cursor-pointer bg-[#5060C5]'
                           }`}
