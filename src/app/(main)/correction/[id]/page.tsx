@@ -1308,9 +1308,13 @@ export default function CorrectionSettingsPage() {
                         type='button'
                         className='cursor-pointer rounded-t-[1.25rem] border-none bg-[#F6F8FA] px-[3rem] py-[1rem] text-[0.875rem] font-medium text-[#9EA4A9] transition-all'
                         onClick={() => {
-                          const nextLetter = String.fromCharCode(
-                            65 + pdfActivities.length,
+                          const usedLetters = pdfActivities.map((a) =>
+                            a.label.slice(-1),
                           );
+                          const nextLetter = ['A', 'B', 'C', 'D', 'E'].find(
+                            (l) => !usedLetters.includes(l),
+                          );
+                          if (!nextLetter) return;
                           const newId = `pdf-act-${Date.now()}`;
                           setPdfActivities((prev) => [
                             ...prev,
