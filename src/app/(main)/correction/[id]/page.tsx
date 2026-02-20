@@ -33,6 +33,9 @@ const PDF_CATEGORY_NAMES = [
   '문제해결',
   '배운 점',
 ] as const;
+
+const PDF_CATEGORY_CHAR_LIMIT = 400;
+
 type PdfCategoryName = (typeof PDF_CATEGORY_NAMES)[number];
 
 type PdfActivityCategory = {
@@ -1355,6 +1358,10 @@ export default function CorrectionSettingsPage() {
                           (c) => c.name === selectedTab,
                         );
                         const bullets = category?.bullets ?? [''];
+                        const categoryCharCount = bullets.reduce(
+                          (sum, b) => sum + b.length,
+                          0,
+                        );
                         const setBullets = (next: string[]) => {
                           if (!activity || !category) return;
                           setPdfActivities((prev) =>
@@ -1374,7 +1381,8 @@ export default function CorrectionSettingsPage() {
                         };
                         bulletTextareaRefs.current = [];
                         return (
-                          <div className='flex flex-col gap-[0.5rem]'>
+                          <>
+                          <div className='flex flex-1 flex-col gap-[0.5rem]'>
                             {bullets.map((text, idx) => (
                               <div
                                 key={idx}
@@ -1396,7 +1404,16 @@ export default function CorrectionSettingsPage() {
                                   }}
                                   onChange={(e) => {
                                     const next = [...bullets];
-                                    next[idx] = e.target.value;
+                                    const restLen = next.reduce(
+                                      (s, b, i) =>
+                                        i === idx ? s : s + b.length,
+                                      0,
+                                    );
+                                    const maxLen = Math.max(
+                                      0,
+                                      PDF_CATEGORY_CHAR_LIMIT - restLen,
+                                    );
+                                    next[idx] = e.target.value.slice(0, maxLen);
                                     setBullets(next);
                                     const ta = e.target;
                                     ta.style.height = 'auto';
@@ -1462,6 +1479,12 @@ export default function CorrectionSettingsPage() {
                               </div>
                             ))}
                           </div>
+                          <div className='mt-[0.5rem] flex justify-end'>
+                            <span className='text-[0.875rem] text-[#74777D]'>
+                              {categoryCharCount} / {PDF_CATEGORY_CHAR_LIMIT}
+                            </span>
+                          </div>
+                          </>
                         );
                       })()}
                     </div>
