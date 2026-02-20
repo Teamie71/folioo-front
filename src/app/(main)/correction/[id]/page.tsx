@@ -16,6 +16,7 @@ import TextField from '@/components/TextField';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 import { CorrectionIcon } from '@/components/icons/CorrectionIcon';
 import ActivityDeleteIcon from '@/components/icons/ActivityDeleteIcon';
+import RedDotIcon from '@/components/icons/RedDotIcon';
 import { CloseIcon } from '@/components/icons/CloseIcon';
 import { FileCloseIcon } from '@/components/icons/FileCloseIcon';
 import { FileImageIcon } from '@/components/icons/FileImageIcon';
@@ -1266,13 +1267,24 @@ export default function CorrectionSettingsPage() {
                         <button
                           type='button'
                           onClick={() => setSelectedActivityId(activity.id)}
-                          className={`cursor-pointer border-none px-[2.5rem] py-[1rem] text-[1rem] font-medium transition-all ${
+                          className={`relative cursor-pointer border-none px-[2.5rem] py-[1rem] text-[1rem] font-medium transition-all ${
                             selectedActivityId === activity.id
-                              ? 'relative z-10 rounded-t-[1.25rem] bg-[#FFFFFF] text-[#5060C5] shadow-[0_0.25rem_0.5rem_0_#00000033]'
+                              ? 'z-10 rounded-t-[1.25rem] bg-[#FFFFFF] text-[#5060C5] shadow-[0_0.25rem_0.5rem_0_#00000033]'
                               : 'rounded-t-[1.25rem] bg-[#F6F8FA] text-[#9EA4A9]'
                           }`}
                         >
-                          {activity.label}
+                          <span className='relative inline-block'>
+                            {activity.label}
+                            {activity.categories.some(
+                              (c) =>
+                                c.bullets.reduce((s, b) => s + b.length, 0) >
+                                PDF_CATEGORY_CHAR_LIMIT,
+                            ) && (
+                              <span className='absolute -right-2'>
+                                <RedDotIcon />
+                              </span>
+                            )}
+                          </span>
                         </button>
                         <button
                           type='button'
@@ -1329,20 +1341,40 @@ export default function CorrectionSettingsPage() {
                   <div className='relative z-20 flex min-h-[397px] rounded-tr-[1.25rem] rounded-br-[1.25rem] rounded-bl-[1.25rem] border border-[#E9EAEC] bg-[#FFFFFF] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
                     {/* 사이드바 네비게이션 */}
                     <div className='flex flex-col'>
-                      {PDF_CATEGORY_NAMES.map((name) => (
-                        <button
-                          key={name}
-                          type='button'
-                          onClick={() => setSelectedTab(name)}
-                          className={`cursor-pointer border-b border-b-[#CDD0D5] px-[2rem] py-[0.75rem] text-center text-[1rem] transition-all ${
-                            selectedTab === name
-                              ? 'bg-[#5060C5] font-bold text-[#FFFFFF]'
-                              : 'bg-[#F6F8FA] font-medium text-[#9EA4A9]'
-                          }`}
-                        >
-                          {name}
-                        </button>
-                      ))}
+                      {PDF_CATEGORY_NAMES.map((name) => {
+                        const selectedActivity = pdfActivities.find(
+                          (a) => a.id === selectedActivityId,
+                        );
+                        const category = selectedActivity?.categories.find(
+                          (c) => c.name === name,
+                        );
+                        const categoryOverLimit =
+                          (category?.bullets.reduce(
+                            (s, b) => s + b.length,
+                            0,
+                          ) ?? 0) > PDF_CATEGORY_CHAR_LIMIT;
+                        return (
+                          <button
+                            key={name}
+                            type='button'
+                            onClick={() => setSelectedTab(name)}
+                            className={`relative cursor-pointer border-b border-b-[#CDD0D5] px-[2rem] py-[0.75rem] text-center text-[1rem] transition-all ${
+                              selectedTab === name
+                                ? 'bg-[#5060C5] font-bold text-[#FFFFFF]'
+                                : 'bg-[#F6F8FA] font-medium text-[#9EA4A9]'
+                            }`}
+                          >
+                            <span className='relative inline-block'>
+                              {name}
+                              {categoryOverLimit && (
+                                <span className='absolute -right-2'>
+                                  <RedDotIcon />
+                                </span>
+                              )}
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
 
                     {/* 구분선 */}
@@ -1404,16 +1436,7 @@ export default function CorrectionSettingsPage() {
                                   }}
                                   onChange={(e) => {
                                     const next = [...bullets];
-                                    const restLen = next.reduce(
-                                      (s, b, i) =>
-                                        i === idx ? s : s + b.length,
-                                      0,
-                                    );
-                                    const maxLen = Math.max(
-                                      0,
-                                      PDF_CATEGORY_CHAR_LIMIT - restLen,
-                                    );
-                                    next[idx] = e.target.value.slice(0, maxLen);
+                                    next[idx] = e.target.value;
                                     setBullets(next);
                                     const ta = e.target;
                                     ta.style.height = 'auto';
@@ -1506,18 +1529,36 @@ export default function CorrectionSettingsPage() {
               !(
                 selectedPortfolioType === 'pdf' &&
                 (!isPdfTextExtracted || isPdfTextExtracting)
-              ) && (
-              <div className='flex justify-center pb-[7rem]'>
-                <button
-                  onClick={handleNextStep}
-                  className='flex cursor-pointer items-center justify-center rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
-                >
-                  <span className='text-[1rem] font-bold text-[#FFFFFF]'>
-                    다음으로
-                  </span>
-                </button>
-              </div>
-            )}
+              ) &&
+              (() => {
+                const pdfCategoryOverLimit =
+                  selectedPortfolioType === 'pdf' &&
+                  pdfActivities.some((a) =>
+                    a.categories.some(
+                      (c) =>
+                        c.bullets.reduce((s, b) => s + b.length, 0) >
+                        PDF_CATEGORY_CHAR_LIMIT,
+                    ),
+                  );
+                return (
+                  <div className='flex justify-center pb-[7rem]'>
+                    <button
+                      type='button'
+                      disabled={pdfCategoryOverLimit}
+                      onClick={handleNextStep}
+                      className={`flex items-center justify-center rounded-[3.75rem] border-none px-[2.25rem] py-[0.75rem] ${
+                        pdfCategoryOverLimit
+                          ? 'cursor-not-allowed bg-[#CDD0D5]'
+                          : 'cursor-pointer bg-[#5060C5]'
+                      }`}
+                    >
+                      <span className='text-[1rem] font-bold text-[#FFFFFF]'>
+                        다음으로
+                      </span>
+                    </button>
+                  </div>
+                );
+              })()}
           </>
         ) : step === 'analysis' ? (
           <>
