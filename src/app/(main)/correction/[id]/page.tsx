@@ -6,6 +6,7 @@ import { PortfolioCard } from '@/components/PortfolioCard';
 import { PortfolioTypeCard } from '@/components/PortfolioTypeCard';
 import { BackButton } from '@/components/BackButton';
 import { DeleteButton } from '@/components/DeleteButton';
+import { CommonButton } from '@/components/CommonButton';
 import { CommonModal } from '@/components/CommonModal';
 import { InlineEdit } from '@/components/InlineEdit';
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
@@ -619,14 +620,23 @@ export default function CorrectionSettingsPage() {
                 </linearGradient>
               </defs>
             </svg>
-            <div className='flex flex-col items-center text-center'>
-              <span className='text-[1.125rem] font-bold leading-[1.3] text-#464B53]'>
+            <div className='flex flex-col items-center gap-[0.5rem] text-center'>
+              <span className='text-[1.125rem] font-bold leading-[1.3] text-[#464B53]'>
                 AI 컨설턴트가 포트폴리오 첨삭을 진행 중이에요.
               </span>
-              <span className='text-[1.125rem] font-bold leading-[1.3] text-#464B53]'>
+              <span className='text-[1.125rem] font-bold leading-[1.3] text-[#464B53]'>
                 페이지를 떠나도 작업은 계속돼요.
               </span>
             </div>
+            <CommonButton
+              variantType='Outline'
+              px='2.25rem'
+              py='0.5rem'
+              className='mt-[1rem] text-[1rem] font-semibold'
+              onClick={() => router.replace('/correction')}
+            >
+              나가기
+            </CommonButton>
           </div>
         ) : step === 'information' ? (
           <>
