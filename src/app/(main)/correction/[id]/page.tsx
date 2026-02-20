@@ -107,6 +107,9 @@ export default function CorrectionSettingsPage() {
   const [jdUploadedFiles, setJdUploadedFiles] = useState<
     Array<{ name: string; size: number; previewUrl: string }>
   >([]);
+  const [jdFileDeleteModalIndex, setJdFileDeleteModalIndex] = useState<
+    number | null
+  >(null);
   const hasJdImageUploaded = jdUploadedFiles.length >= 1;
   const [jdViewerFileIndex, setJdViewerFileIndex] = useState<number | null>(null);
   const [isJdDropOverlayActive, setIsJdDropOverlayActive] = useState(false);
@@ -388,6 +391,19 @@ export default function CorrectionSettingsPage() {
               onSecondaryClick={() => {
                 setIsQuitModalOpen(false);
                 router.push('/correction');
+              }}
+            />
+            <CommonModal
+              open={jdFileDeleteModalIndex !== null}
+              onOpenChange={(open) => !open && setJdFileDeleteModalIndex(null)}
+              title='이 파일을 정말 삭제하시겠습니까?'
+              cancelBtnText='취소'
+              secondaryBtnText='삭제'
+              onSecondaryClick={() => {
+                if (jdFileDeleteModalIndex !== null) {
+                  removeJdFileAt(jdFileDeleteModalIndex);
+                  setJdFileDeleteModalIndex(null);
+                }
               }}
             />
             <InlineEdit
@@ -686,7 +702,7 @@ export default function CorrectionSettingsPage() {
                             type='button'
                             className='absolute top-[0.75rem] right-[0.75rem] flex h-[1.5rem] w-[1.5rem] cursor-pointer items-center justify-center rounded-[0.25rem] bg-[#74777D] opacity-0 transition-opacity duration-150 group-hover:opacity-100'
                             aria-label='파일 삭제'
-                            onClick={() => removeJdFileAt(1)}
+                            onClick={() => setJdFileDeleteModalIndex(1)}
                           >
                             <FileCloseIcon />
                           </button>
@@ -812,7 +828,7 @@ export default function CorrectionSettingsPage() {
                               type='button'
                               className='absolute top-[0.75rem] right-[0.75rem] flex h-[1.5rem] w-[1.5rem] cursor-pointer items-center justify-center rounded-[0.25rem] bg-[#74777D] opacity-0 transition-opacity duration-150 group-hover:opacity-100'
                               aria-label='파일 삭제'
-                              onClick={() => removeJdFileAt(0)}
+                              onClick={() => setJdFileDeleteModalIndex(0)}
                             >
                               <FileCloseIcon />
                             </button>
