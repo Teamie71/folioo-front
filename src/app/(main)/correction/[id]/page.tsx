@@ -37,6 +37,8 @@ const PDF_CATEGORY_NAMES = [
 ] as const;
 
 const PDF_CATEGORY_CHAR_LIMIT = 400;
+const ANALYSIS_INFO_MAX_LENGTH = 1500;
+const EMPHASIS_POINTS_MAX_LENGTH = 200;
 
 type PdfCategoryName = (typeof PDF_CATEGORY_NAMES)[number];
 
@@ -153,6 +155,7 @@ export default function CorrectionSettingsPage() {
   const [showTextPortfolioWarning, setShowTextPortfolioWarning] = useState(false);
   const [analysisInfoValue, setAnalysisInfoValue] = useState('');
   const [showAnalysisInfoWarning, setShowAnalysisInfoWarning] = useState(false);
+  const [emphasisPointsValue, setEmphasisPointsValue] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [jobTitle, setJobTitle] = useState('');
   const [jobDescription, setJobDescription] = useState('');
@@ -256,14 +259,14 @@ export default function CorrectionSettingsPage() {
     router.push('/experience/settings');
   };
 
-  /** 지원 기업명/직무명: 최대 20자, 한국어·영어·숫자·공백·특수문자만 허용 */
-  const limitCompanyOrJobInput = (value: string) =>
+  /** 한국어·영어·숫자·공백·특수문자만 허용, 최대 길이 적용 (기업명/직무명/기업분석/강조포인트 공통) */
+  const limitAllowedInput = (value: string, maxLength: number) =>
     value
       .replace(
         /[^\uAC00-\uD7A3\u3130-\u318Ea-zA-Z0-9\s.,\-'()\/&·!?@#%+*<>]/g,
         '',
       )
-      .slice(0, 20);
+      .slice(0, maxLength);
 
   const handlePortfolioSelect = (type: PortfolioType) => {
     setSelectedPortfolioType(type);
@@ -658,7 +661,7 @@ export default function CorrectionSettingsPage() {
                   value={companyName}
                   maxLength={20}
                   onChange={(e) => {
-                    const next = limitCompanyOrJobInput(e.target.value);
+                    const next = limitAllowedInput(e.target.value, 20);
                     setCompanyName(next);
                     if (informationErrors.companyName)
                       setInformationErrors((prev) => ({
@@ -685,7 +688,7 @@ export default function CorrectionSettingsPage() {
                   value={jobTitle}
                   maxLength={20}
                   onChange={(e) => {
-                    const next = limitCompanyOrJobInput(e.target.value);
+                    const next = limitAllowedInput(e.target.value, 20);
                     setJobTitle(next);
                     if (informationErrors.jobTitle)
                       setInformationErrors((prev) => ({
@@ -1606,8 +1609,14 @@ export default function CorrectionSettingsPage() {
                     height='17.125rem'
                     className='rounded-[1.25rem]'
                     value={analysisInfoValue}
+                    maxLength={ANALYSIS_INFO_MAX_LENGTH}
                     onChange={(e) => {
-                      setAnalysisInfoValue(e.target.value);
+                      setAnalysisInfoValue(
+                        limitAllowedInput(
+                          e.target.value,
+                          ANALYSIS_INFO_MAX_LENGTH,
+                        ),
+                      );
                       setShowAnalysisInfoWarning(false);
                     }}
                   />
@@ -1628,6 +1637,16 @@ export default function CorrectionSettingsPage() {
                     variant='wide'
                     height='10.625rem'
                     className='rounded-[1.25rem]'
+                    value={emphasisPointsValue}
+                    maxLength={EMPHASIS_POINTS_MAX_LENGTH}
+                    onChange={(e) =>
+                      setEmphasisPointsValue(
+                        limitAllowedInput(
+                          e.target.value,
+                          EMPHASIS_POINTS_MAX_LENGTH,
+                        ),
+                      )
+                    }
                   />
                 </div>
               </div>
