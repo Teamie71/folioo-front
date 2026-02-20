@@ -107,8 +107,8 @@ export default function CorrectionSettingsPage() {
   const [jdUploadedFiles, setJdUploadedFiles] = useState<
     Array<{ name: string; size: number; previewUrl: string }>
   >([]);
-  const [jdFileDeleteModalIndex, setJdFileDeleteModalIndex] = useState<
-    number | null
+  const [fileDeleteConfirmTarget, setFileDeleteConfirmTarget] = useState<
+    { type: 'jd'; index: number } | { type: 'pdf' } | null
   >(null);
   const hasJdImageUploaded = jdUploadedFiles.length >= 1;
   const [jdViewerFileIndex, setJdViewerFileIndex] = useState<number | null>(null);
@@ -394,16 +394,20 @@ export default function CorrectionSettingsPage() {
               }}
             />
             <CommonModal
-              open={jdFileDeleteModalIndex !== null}
-              onOpenChange={(open) => !open && setJdFileDeleteModalIndex(null)}
+              open={fileDeleteConfirmTarget !== null}
+              onOpenChange={(open) => !open && setFileDeleteConfirmTarget(null)}
               title='이 파일을 정말 삭제하시겠습니까?'
               cancelBtnText='취소'
               secondaryBtnText='삭제'
               onSecondaryClick={() => {
-                if (jdFileDeleteModalIndex !== null) {
-                  removeJdFileAt(jdFileDeleteModalIndex);
-                  setJdFileDeleteModalIndex(null);
+                if (fileDeleteConfirmTarget === null) return;
+                if (fileDeleteConfirmTarget.type === 'jd') {
+                  removeJdFileAt(fileDeleteConfirmTarget.index);
+                } else {
+                  setPdfUploadedFile(null);
+                  setPdfUploadError(null);
                 }
+                setFileDeleteConfirmTarget(null);
               }}
             />
             <InlineEdit
@@ -702,7 +706,7 @@ export default function CorrectionSettingsPage() {
                             type='button'
                             className='absolute top-[0.75rem] right-[0.75rem] flex h-[1.5rem] w-[1.5rem] cursor-pointer items-center justify-center rounded-[0.25rem] bg-[#74777D] opacity-0 transition-opacity duration-150 group-hover:opacity-100'
                             aria-label='파일 삭제'
-                            onClick={() => setJdFileDeleteModalIndex(1)}
+                            onClick={() => setFileDeleteConfirmTarget({ type: 'jd', index: 1 })}
                           >
                             <FileCloseIcon />
                           </button>
@@ -828,7 +832,7 @@ export default function CorrectionSettingsPage() {
                               type='button'
                               className='absolute top-[0.75rem] right-[0.75rem] flex h-[1.5rem] w-[1.5rem] cursor-pointer items-center justify-center rounded-[0.25rem] bg-[#74777D] opacity-0 transition-opacity duration-150 group-hover:opacity-100'
                               aria-label='파일 삭제'
-                              onClick={() => setJdFileDeleteModalIndex(0)}
+                              onClick={() => setFileDeleteConfirmTarget({ type: 'jd', index: 0 })}
                             >
                               <FileCloseIcon />
                             </button>
@@ -1077,8 +1081,7 @@ export default function CorrectionSettingsPage() {
                               aria-label='파일 삭제'
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setPdfUploadedFile(null);
-                                setPdfUploadError(null);
+                                setFileDeleteConfirmTarget({ type: 'pdf' });
                               }}
                             >
                               <FileCloseIcon />
