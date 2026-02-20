@@ -1480,7 +1480,13 @@ export default function CorrectionSettingsPage() {
                             ))}
                           </div>
                           <div className='mt-[0.5rem] flex justify-end'>
-                            <span className='text-[0.875rem] text-[#74777D]'>
+                            <span
+                              className={`text-[0.875rem] ${
+                                categoryCharCount > 390
+                                  ? 'text-[#DC0000]'
+                                  : 'text-[#74777D]'
+                              }`}
+                            >
                               {categoryCharCount} / {PDF_CATEGORY_CHAR_LIMIT}
                             </span>
                           </div>
