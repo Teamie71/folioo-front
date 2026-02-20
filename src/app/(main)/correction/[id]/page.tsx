@@ -15,6 +15,7 @@ import InputArea from '@/components/InputArea';
 import TextField from '@/components/TextField';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 import { CorrectionIcon } from '@/components/icons/CorrectionIcon';
+import ActivityDeleteIcon from '@/components/icons/ActivityDeleteIcon';
 import { CloseIcon } from '@/components/icons/CloseIcon';
 import { FileCloseIcon } from '@/components/icons/FileCloseIcon';
 import { FileImageIcon } from '@/components/icons/FileImageIcon';
@@ -26,6 +27,43 @@ type Step = 'information' | 'portfolio' | 'analysis' | 'result';
 type Status = 'DRAFT' | 'ANALYZING' | 'DONE';
 type PortfolioType = 'text' | 'pdf';
 
+const PDF_CATEGORY_NAMES = [
+  '상세정보',
+  '담당업무',
+  '문제해결',
+  '배운 점',
+] as const;
+type PdfCategoryName = (typeof PDF_CATEGORY_NAMES)[number];
+
+type PdfActivityCategory = {
+  name: PdfCategoryName;
+  bullets: string[];
+};
+
+type PdfActivityBlock = {
+  id: string;
+  label: string;
+  categories: PdfActivityCategory[];
+};
+
+function createPdfCategory(name: PdfCategoryName): PdfActivityCategory {
+  return { name, bullets: [''] };
+}
+
+function createPdfActivityBlock(id: string, label: string): PdfActivityBlock {
+  return {
+    id,
+    label,
+    categories: PDF_CATEGORY_NAMES.map((name) => createPdfCategory(name)),
+  };
+}
+
+const INITIAL_PDF_ACTIVITIES: PdfActivityBlock[] = [
+  createPdfActivityBlock('pdf-act-0', '활동 A'),
+  createPdfActivityBlock('pdf-act-1', '활동 B'),
+  createPdfActivityBlock('pdf-act-2', '활동 C'),
+];
+
 export default function CorrectionSettingsPage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>('information');
@@ -33,12 +71,18 @@ export default function CorrectionSettingsPage() {
   const [jdMode, setJdMode] = useState<'text' | 'image'>('text');
   const [selectedPortfolioType, setSelectedPortfolioType] =
     useState<PortfolioType | null>(null);
-  const [selectedActivity, setSelectedActivity] = useState<'A' | 'B' | 'C'>(
-    'A',
+  const [pdfActivities, setPdfActivities] =
+    useState<PdfActivityBlock[]>(INITIAL_PDF_ACTIVITIES);
+  const [selectedActivityId, setSelectedActivityId] = useState<string>(
+    INITIAL_PDF_ACTIVITIES[0].id,
   );
-  const [selectedTab, setSelectedTab] = useState<
-    '상세정보' | '담당업무' | '문제해결' | '배운 점'
-  >('상세정보');
+  const [selectedTab, setSelectedTab] = useState<PdfCategoryName>('상세정보');
+  const [activityDeleteTargetId, setActivityDeleteTargetId] = useState<
+    string | null
+  >(null);
+  const [pdfActivityHoverId, setPdfActivityHoverId] = useState<string | null>(
+    null,
+  );
   const [isUnclassifiedOpen, setIsUnclassifiedOpen] = useState(false);
   const [selectedUnclassifiedTab, setSelectedUnclassifiedTab] = useState<
     '상세정보' | '담당업무' | '문제해결' | '배운 점'
@@ -99,6 +143,8 @@ export default function CorrectionSettingsPage() {
   const [pdfShakeKey, setPdfShakeKey] = useState(0);
   const [isPdfDropOverlayActive, setIsPdfDropOverlayActive] = useState(false);
   const pdfFileInputRef = useRef<HTMLInputElement>(null);
+  const bulletTextareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
+  const lastBulletEnterAt = useRef<number>(0);
   const [showTextPortfolioWarning, setShowTextPortfolioWarning] = useState(false);
   const [analysisInfoValue, setAnalysisInfoValue] = useState('');
   const [showAnalysisInfoWarning, setShowAnalysisInfoWarning] = useState(false);
@@ -416,6 +462,26 @@ export default function CorrectionSettingsPage() {
                   setPdfUploadError(null);
                 }
                 setFileDeleteConfirmTarget(null);
+              }}
+            />
+            <CommonModal
+              open={activityDeleteTargetId !== null}
+              onOpenChange={(open) => !open && setActivityDeleteTargetId(null)}
+              title='이 활동을 정말 삭제하시겠습니까?'
+              cancelBtnText='취소'
+              secondaryBtnText='삭제'
+              onSecondaryClick={() => {
+                if (activityDeleteTargetId === null) return;
+                setPdfActivities((prev) => {
+                  const next = prev.filter(
+                    (a) => a.id !== activityDeleteTargetId,
+                  );
+                  setSelectedActivityId((id) =>
+                    next.some((a) => a.id === id) ? id : next[0]?.id ?? id,
+                  );
+                  return next;
+                });
+                setActivityDeleteTargetId(null);
               }}
             />
             <InlineEdit
@@ -1187,112 +1253,217 @@ export default function CorrectionSettingsPage() {
                     <>
                   {/* 활동 탭 */}
                   <div className='flex'>
-                    <button
-                      onClick={() => setSelectedActivity('A')}
-                      className={`cursor-pointer border-none px-[2.5rem] py-[1rem] text-[1rem] font-medium transition-all ${
-                        selectedActivity === 'A'
-                          ? 'relative z-10 rounded-t-[1.25rem] bg-[#FFFFFF] text-[#5060C5] shadow-[0_0.25rem_0.5rem_0_#00000033]'
-                          : 'rounded-t-[1.25rem] bg-[#F6F8FA] text-[#9EA4A9]'
-                      }`}
-                    >
-                      활동 A
-                    </button>
-                    <button
-                      onClick={() => setSelectedActivity('B')}
-                      className={`cursor-pointer border-none px-[2.5rem] py-[1rem] text-[1rem] font-medium transition-all ${
-                        selectedActivity === 'B'
-                          ? 'relative z-10 rounded-t-[1.25rem] bg-[#FFFFFF] text-[#5060C5] shadow-[0_0.25rem_0.5rem_0_#00000033]'
-                          : 'rounded-t-[1.25rem] bg-[#F6F8FA] text-[#9EA4A9]'
-                      }`}
-                    >
-                      활동 B
-                    </button>
-                    <button
-                      onClick={() => setSelectedActivity('C')}
-                      className={`cursor-pointer border-none px-[2.5rem] py-[1rem] text-[1rem] font-medium transition-all ${
-                        selectedActivity === 'C'
-                          ? 'relative z-10 rounded-t-[1.25rem] bg-[#FFFFFF] text-[#5060C5] shadow-[0_0.25rem_0.5rem_0_#00000033]'
-                          : 'rounded-t-[1.25rem] bg-[#F6F8FA] text-[#9EA4A9]'
-                      }`}
-                    >
-                      활동 C
-                    </button>
-                    <button className='cursor-pointer rounded-t-[1.25rem] border-none bg-[#F6F8FA] px-[3rem] py-[1rem] text-[0.875rem] font-medium text-[#9EA4A9] transition-all'>
-                      <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        width='24'
-                        height='24'
-                        viewBox='0 0 16 16'
-                        fill='#5060C5'
+                    {pdfActivities.map((activity) => (
+                      <div
+                        key={activity.id}
+                        className='group relative flex'
+                        onMouseEnter={() => setPdfActivityHoverId(activity.id)}
+                        onMouseLeave={() => setPdfActivityHoverId(null)}
                       >
-                        <path
-                          d='M8 3.33333V12.6667M3.33333 8H12.6667'
-                          stroke='#5060C5'
-                          strokeWidth='1.5'
-                          strokeLinecap='round'
-                        />
-                      </svg>
-                    </button>
+                        <button
+                          type='button'
+                          onClick={() => setSelectedActivityId(activity.id)}
+                          className={`cursor-pointer border-none px-[2.5rem] py-[1rem] text-[1rem] font-medium transition-all ${
+                            selectedActivityId === activity.id
+                              ? 'relative z-10 rounded-t-[1.25rem] bg-[#FFFFFF] text-[#5060C5] shadow-[0_0.25rem_0.5rem_0_#00000033]'
+                              : 'rounded-t-[1.25rem] bg-[#F6F8FA] text-[#9EA4A9]'
+                          }`}
+                        >
+                          {activity.label}
+                        </button>
+                        <button
+                          type='button'
+                          aria-label='활동 삭제'
+                          className={`absolute top-[0.5rem] right-[0.5rem] z-20 flex h-[1.25rem] w-[1.25rem] cursor-pointer items-center justify-center transition-opacity duration-150 [&_svg]:h-[0.875rem] [&_svg]:w-[0.875rem] ${
+                            pdfActivityHoverId === activity.id
+                              ? 'opacity-100'
+                              : 'opacity-0'
+                          }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActivityDeleteTargetId(activity.id);
+                          }}
+                        >
+                          <ActivityDeleteIcon />
+                        </button>
+                      </div>
+                    ))}
+                    {pdfActivities.length < 5 && (
+                      <button
+                        type='button'
+                        className='cursor-pointer rounded-t-[1.25rem] border-none bg-[#F6F8FA] px-[3rem] py-[1rem] text-[0.875rem] font-medium text-[#9EA4A9] transition-all'
+                        onClick={() => {
+                          const nextLetter = String.fromCharCode(
+                            65 + pdfActivities.length,
+                          );
+                          const newId = `pdf-act-${Date.now()}`;
+                          setPdfActivities((prev) => [
+                            ...prev,
+                            createPdfActivityBlock(newId, `활동 ${nextLetter}`),
+                          ]);
+                          setSelectedActivityId(newId);
+                        }}
+                      >
+                        <svg
+                          xmlns='http://www.w3.org/2000/svg'
+                          width='24'
+                          height='24'
+                          viewBox='0 0 16 16'
+                          fill='#5060C5'
+                        >
+                          <path
+                            d='M8 3.33333V12.6667M3.33333 8H12.6667'
+                            stroke='#5060C5'
+                            strokeWidth='1.5'
+                            strokeLinecap='round'
+                          />
+                        </svg>
+                      </button>
+                    )}
                   </div>
 
                   {/* 사이드바 및 내용 영역 */}
                   <div className='relative z-20 flex min-h-[397px] rounded-tr-[1.25rem] rounded-br-[1.25rem] rounded-bl-[1.25rem] border border-[#E9EAEC] bg-[#FFFFFF] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
                     {/* 사이드바 네비게이션 */}
                     <div className='flex flex-col'>
-                      <button
-                        onClick={() => setSelectedTab('상세정보')}
-                        className={`cursor-pointer border-b border-b-[#CDD0D5] px-[2rem] py-[0.75rem] text-center text-[1rem] transition-all ${
-                          selectedTab === '상세정보'
-                            ? 'bg-[#5060C5] font-bold text-[#FFFFFF]'
-                            : 'bg-[#F6F8FA] font-medium text-[#9EA4A9]'
-                        }`}
-                      >
-                        상세정보
-                      </button>
-                      <button
-                        onClick={() => setSelectedTab('담당업무')}
-                        className={`cursor-pointer border-b border-b-[#CDD0D5] px-[2rem] py-[0.75rem] text-center text-[1rem] font-medium transition-all ${
-                          selectedTab === '담당업무'
-                            ? 'bg-[#5060C5] font-bold text-[#FFFFFF]'
-                            : 'bg-[#F6F8FA] font-medium text-[#9EA4A9]'
-                        }`}
-                      >
-                        담당업무
-                      </button>
-                      <button
-                        onClick={() => setSelectedTab('문제해결')}
-                        className={`cursor-pointer border-b border-b-[#CDD0D5] px-[2rem] py-[0.75rem] text-center text-[1rem] font-medium transition-all ${
-                          selectedTab === '문제해결'
-                            ? 'bg-[#5060C5] font-bold text-[#FFFFFF]'
-                            : 'bg-[#F6F8FA] font-medium text-[#9EA4A9]'
-                        }`}
-                      >
-                        문제해결
-                      </button>
-                      <button
-                        onClick={() => setSelectedTab('배운 점')}
-                        className={`cursor-pointer border-b border-b-[#CDD0D5] px-[2rem] py-[0.75rem] text-center text-[1rem] font-medium transition-all ${
-                          selectedTab === '배운 점'
-                            ? 'bg-[#5060C5] font-bold text-[#FFFFFF]'
-                            : 'bg-[#F6F8FA] font-medium text-[#9EA4A9]'
-                        }`}
-                      >
-                        배운 점
-                      </button>
+                      {PDF_CATEGORY_NAMES.map((name) => (
+                        <button
+                          key={name}
+                          type='button'
+                          onClick={() => setSelectedTab(name)}
+                          className={`cursor-pointer border-b border-b-[#CDD0D5] px-[2rem] py-[0.75rem] text-center text-[1rem] transition-all ${
+                            selectedTab === name
+                              ? 'bg-[#5060C5] font-bold text-[#FFFFFF]'
+                              : 'bg-[#F6F8FA] font-medium text-[#9EA4A9]'
+                          }`}
+                        >
+                          {name}
+                        </button>
+                      ))}
                     </div>
 
                     {/* 구분선 */}
                     <div className='w-[1px] bg-[#CDD0D5]' />
 
-                    {/* 내용 영역 */}
-                    <div className='flex-1 rounded-tr-[1.25rem] rounded-br-[1.25rem] bg-[#FFFFFF] px-[2.25rem] py-[1.5rem]'>
-                      <div className='flex flex-col gap-[0.5rem] text-[0.875rem] text-[#1A1A1A]'>
-                        <span>
-                          내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-                          내용내용내용내용내용내용내용
-                          내용내용내용내용내용내용내용
-                        </span>
-                      </div>
+                    {/* 내용 영역 - 불릿 포인트 에디터 */}
+                    <div className='flex flex-1 flex-col gap-[0.5rem] rounded-tr-[1.25rem] rounded-br-[1.25rem] bg-[#FFFFFF] px-[2.25rem] py-[1.5rem] text-[0.875rem] text-[#1A1A1A]'>
+                      {(() => {
+                        const activity = pdfActivities.find(
+                          (a) => a.id === selectedActivityId,
+                        );
+                        const category = activity?.categories.find(
+                          (c) => c.name === selectedTab,
+                        );
+                        const bullets = category?.bullets ?? [''];
+                        const setBullets = (next: string[]) => {
+                          if (!activity || !category) return;
+                          setPdfActivities((prev) =>
+                            prev.map((a) =>
+                              a.id !== activity.id
+                                ? a
+                                : {
+                                    ...a,
+                                    categories: a.categories.map((c) =>
+                                      c.name !== selectedTab
+                                        ? c
+                                        : { ...c, bullets: next },
+                                    ),
+                                  },
+                            ),
+                          );
+                        };
+                        bulletTextareaRefs.current = [];
+                        return (
+                          <div className='flex flex-col gap-[0.5rem]'>
+                            {bullets.map((text, idx) => (
+                              <div
+                                key={idx}
+                                className='flex items-start gap-[0.5rem]'
+                              >
+                                <span className='flex h-[1.5em] shrink-0 items-center text-[0.875rem] leading-[1.5] text-[#1A1A1A]'>
+                                  •
+                                </span>
+                                <textarea
+                                  className='min-h-[1.5rem] w-full resize-none overflow-hidden border-none bg-transparent p-0 text-[0.875rem] leading-[1.5] text-[#1A1A1A] outline-none placeholder:text-[#9EA4A9]'
+                                  placeholder='내용을 입력하세요'
+                                  value={text}
+                                  ref={(el) => {
+                                    bulletTextareaRefs.current[idx] = el;
+                                    if (el) {
+                                      el.style.height = 'auto';
+                                      el.style.height = `${el.scrollHeight}px`;
+                                    }
+                                  }}
+                                  onChange={(e) => {
+                                    const next = [...bullets];
+                                    next[idx] = e.target.value;
+                                    setBullets(next);
+                                    const ta = e.target;
+                                    ta.style.height = 'auto';
+                                    ta.style.height = `${ta.scrollHeight}px`;
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.repeat) return;
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      const now = Date.now();
+                                      if (now - lastBulletEnterAt.current < 150) return;
+                                      lastBulletEnterAt.current = now;
+                                      const next = [...bullets];
+                                      next.splice(idx + 1, 0, '');
+                                      setBullets(next);
+                                      setTimeout(() => {
+                                        bulletTextareaRefs.current[idx + 1]?.focus();
+                                      }, 0);
+                                    } else if (
+                                      e.key === 'Backspace' &&
+                                      text === '' &&
+                                      bullets.length > 1
+                                    ) {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      const next = bullets.filter(
+                                        (_, i) => i !== idx,
+                                      );
+                                      setBullets(next);
+                                      const prevIdx = idx - 1;
+                                      setTimeout(() => {
+                                        const prev =
+                                          bulletTextareaRefs.current[prevIdx];
+                                        if (prev) {
+                                          prev.focus();
+                                          const len = prev.value.length;
+                                          prev.setSelectionRange(len, len);
+                                        }
+                                      }, 0);
+                                    } else if (e.key === 'ArrowUp') {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      const prevIdx = idx - 1;
+                                      setTimeout(() => {
+                                        const prev =
+                                          bulletTextareaRefs.current[prevIdx];
+                                        if (prev && prev !== document.activeElement) prev.focus();
+                                      }, 0);
+                                    } else if (e.key === 'ArrowDown') {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      const nextIdx = idx + 1;
+                                      setTimeout(() => {
+                                        const next =
+                                          bulletTextareaRefs.current[nextIdx];
+                                        if (next && next !== document.activeElement) next.focus();
+                                      }, 0);
+                                    }
+                                  }}
+                                  rows={1}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
                     </>
