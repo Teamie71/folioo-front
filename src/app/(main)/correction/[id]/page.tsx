@@ -25,52 +25,21 @@ import { ExperienceIcon } from '@/components/icons/ExperienceIcon';
 import { FullIcon } from '@/components/icons/FullIcon';
 import { PdfIcon } from '@/components/icons/PdfIcon';
 import { useCorrectionNavbar } from '@/contexts/CorrectionNavbarContext';
-
-type Step = 'information' | 'portfolio' | 'analysis' | 'result';
-type Status = 'DRAFT' | 'ANALYZING' | 'DONE';
-type PortfolioType = 'text' | 'pdf';
-
-const PDF_CATEGORY_NAMES = [
-  '상세정보',
-  '담당업무',
-  '문제해결',
-  '배운 점',
-] as const;
-
-const PDF_CATEGORY_CHAR_LIMIT = 400;
-const ANALYSIS_INFO_MAX_LENGTH = 1500;
-const EMPHASIS_POINTS_MAX_LENGTH = 200;
-
-type PdfCategoryName = (typeof PDF_CATEGORY_NAMES)[number];
-
-type PdfActivityCategory = {
-  name: PdfCategoryName;
-  bullets: string[];
-};
-
-type PdfActivityBlock = {
-  id: string;
-  label: string;
-  categories: PdfActivityCategory[];
-};
-
-function createPdfCategory(name: PdfCategoryName): PdfActivityCategory {
-  return { name, bullets: [''] };
-}
-
-function createPdfActivityBlock(id: string, label: string): PdfActivityBlock {
-  return {
-    id,
-    label,
-    categories: PDF_CATEGORY_NAMES.map((name) => createPdfCategory(name)),
-  };
-}
-
-const INITIAL_PDF_ACTIVITIES: PdfActivityBlock[] = [
-  createPdfActivityBlock('pdf-act-0', '활동 A'),
-  createPdfActivityBlock('pdf-act-1', '활동 B'),
-  createPdfActivityBlock('pdf-act-2', '활동 C'),
-];
+import {
+  ANALYSIS_INFO_MAX_LENGTH,
+  EMPHASIS_POINTS_MAX_LENGTH,
+  INITIAL_PDF_ACTIVITIES,
+  PDF_CATEGORY_CHAR_LIMIT,
+  PDF_CATEGORY_NAMES,
+  createPdfActivityBlock,
+} from '@/features/correction/constants';
+import type {
+  PdfActivityBlock,
+  PdfCategoryName,
+  PortfolioType,
+  Status,
+  Step,
+} from '@/types/correction';
 
 export default function CorrectionSettingsPage() {
   const router = useRouter();
