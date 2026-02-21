@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/utils/utils';
 
 interface DropdownItem {
@@ -30,13 +31,35 @@ export function Dropdown({
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen && dropdownRef.current) {
+      const rect = dropdownRef.current.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.bottom + 20,
+        left: rect.left,
+      });
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleScroll = () => setIsOpen(false);
+    window.addEventListener('scroll', handleScroll, true);
+    return () => window.removeEventListener('scroll', handleScroll, true);
+  }, [isOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        !dropdownRef.current.contains(target) &&
+        menuRef.current &&
+        !menuRef.current.contains(target)
       ) {
         setIsOpen(false);
       }
@@ -101,12 +124,17 @@ export function Dropdown({
         </button>
       </div>
 
-      {/* Dropdown Menu */}
-      {isOpen && (
-        <div className={cn(
-          'absolute top-full z-50 mt-[1.25rem] w-[28.5rem] overflow-hidden rounded-[0.5rem] border border-[#CDD0D5] bg-[#FFFFFF] shadow-[0_0.25rem_0.5rem_0_#00000033]',
-          menuClassName
-        )}>
+      {/* Dropdown Menu - Portal로 body에 렌더링하여 overflow 잘림 방지 */}
+      {isOpen &&
+        createPortal(
+          <div
+            ref={menuRef}
+            className={cn(
+              'fixed z-[9999] w-[28.5rem] overflow-hidden rounded-[0.5rem] border border-[#CDD0D5] bg-[#FFFFFF] shadow-[0_0.25rem_0.5rem_0_#00000033]',
+              menuClassName,
+            )}
+            style={{ top: menuPosition.top, left: menuPosition.left }}
+          >
           <div className='flex flex-col'>
             {items.map((item, index) => {
               const isHovered = hoveredItemId === item.id;
@@ -163,8 +191,9 @@ export function Dropdown({
               );
             })}
           </div>
-        </div>
-      )}
+        </div>,
+          document.body,
+        )}
     </div>
   );
 }
