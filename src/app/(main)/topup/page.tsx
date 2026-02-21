@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { CreditExpireAlert } from '@/components/CreditExpireAlert';
 import { PaymentModal } from '@/components/PaymentModal';
@@ -40,6 +40,18 @@ export default function TopupPage() {
     useState<SelectedVoucher | null>(null);
   const [challengeModalOpen, setChallengeModalOpen] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // 피드백 모달에서 이동한 경우 브라우저 뒤로가기 차단
+  useEffect(() => {
+    if (searchParams.get('noBack') !== '1') return;
+    const handlePopState = () => {
+      window.history.pushState(null, '', window.location.href);
+    };
+    window.history.pushState(null, '', window.location.href);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [searchParams]);
 
   const benefitCards = [
     {

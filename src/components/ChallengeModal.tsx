@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
@@ -92,7 +93,13 @@ export function ChallengeModal({
           </CommonButton>
           <p className='text-[0.875rem] text-[#9EA4A9]'>
             본 이벤트는{' '}
-            <span className='cursor-pointer underline'>이용권 구매</span>에서
+            <Link
+              href='/topup'
+              className='cursor-pointer underline'
+              onClick={() => onOpenChange(false)}
+            >
+              이용권 구매
+            </Link>에서
             다시 확인 가능합니다.
           </p>
         </div>
