@@ -4,11 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { PortfolioCard } from '@/components/PortfolioCard';
 import { PortfolioTypeCard } from '@/components/PortfolioTypeCard';
-import { BackButton } from '@/components/BackButton';
-import { DeleteButton } from '@/components/DeleteButton';
 import { CommonButton } from '@/components/CommonButton';
-import { CommonModal } from '@/components/CommonModal';
-import { InlineEdit } from '@/components/InlineEdit';
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
 import { ToggleSmall } from '@/components/ToggleSmall';
 import { ToggleLarge } from '@/components/ToggleLarge';
@@ -33,6 +29,9 @@ import {
   PDF_CATEGORY_NAMES,
   createPdfActivityBlock,
 } from '@/features/correction/constants';
+import { CorrectionAnalyzingView } from '@/features/correction/components/CorrectionAnalyzingView';
+import { CorrectionLayout } from '@/features/correction/components/CorrectionLayout';
+import { CorrectionPageHeader } from '@/features/correction/components/CorrectionPageHeader';
 import type {
   PdfActivityBlock,
   PdfCategoryName,
@@ -332,16 +331,18 @@ export default function CorrectionSettingsPage() {
       setJdViewerFileIndex((i) => (i === null ? null : i - 1));
   };
 
+  const layoutKey =
+    pdfUploadError === 'too_large' || pdfUploadError === 'too_many'
+      ? `pdf-shake-${pdfShakeKey}`
+      : jdImageError === 'too_large' || jdImageError === 'too_many'
+        ? `jd-shake-${jdShakeKey}`
+        : 'no-shake';
+  const layoutClassName = `mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem] ${jdImageError === 'too_large' || jdImageError === 'too_many' || pdfUploadError === 'too_large' || pdfUploadError === 'too_many' ? 'animate-shake' : ''}`;
+
   return (
-    <div
-      key={
-        pdfUploadError === 'too_large' || pdfUploadError === 'too_many'
-          ? `pdf-shake-${pdfShakeKey}`
-          : jdImageError === 'too_large' || jdImageError === 'too_many'
-            ? `jd-shake-${jdShakeKey}`
-            : 'no-shake'
-      }
-      className={`mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem] ${jdImageError === 'too_large' || jdImageError === 'too_many' || pdfUploadError === 'too_large' || pdfUploadError === 'too_many' ? 'animate-shake' : ''}`}
+    <CorrectionLayout
+      layoutKey={layoutKey}
+      layoutClassName={layoutClassName}
       onDragEnter={
         step === 'information' && jdMode === 'image'
           ? (e) => {
@@ -355,262 +356,125 @@ export default function CorrectionSettingsPage() {
               }
             : undefined
       }
-    >
-      {/* JD 이미지 전체 페이지 드롭 오버레이 (이미지 모드 + 드래그 중일 때만) */}
-      {step === 'information' && jdMode === 'image' && isJdDropOverlayActive && (
-        <div
-          className='fixed inset-0 z-40'
-          onDragOver={(e) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'copy';
+      jdDropOverlay={{
+        active: step === 'information' && jdMode === 'image' && isJdDropOverlayActive,
+        onDrop: handleJdImageFile,
+        onClose: () => setIsJdDropOverlayActive(false),
+      }}
+      pdfDropOverlay={{
+        active:
+          step === 'portfolio' &&
+          selectedPortfolioType === 'pdf' &&
+          isPdfDropOverlayActive,
+        onDrop: handlePdfFile,
+        onClose: () => setIsPdfDropOverlayActive(false),
+      }}
+      header={
+        <CorrectionPageHeader
+          step={step}
+          onBackClick={() => {
+            if (step === 'information') {
+              setIsQuitModalOpen(true);
+            } else {
+              router.replace('/correction');
+            }
           }}
-          onDragLeave={() => setIsJdDropOverlayActive(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setIsJdDropOverlayActive(false);
-            const file = e.dataTransfer.files?.[0];
-            if (file) handleJdImageFile(file);
+          quitModal={{
+            open: isQuitModalOpen,
+            onOpenChange: setIsQuitModalOpen,
+            onConfirm: () => {
+              setIsQuitModalOpen(false);
+              router.replace('/correction');
+            },
           }}
-        />
-      )}
-
-      {/* PDF 전체 페이지 드롭 오버레이 (포트폴리오 PDF 선택 + 드래그 중일 때만) */}
-      {step === 'portfolio' &&
-        selectedPortfolioType === 'pdf' &&
-        isPdfDropOverlayActive && (
-          <div
-            className='fixed inset-0 z-40'
-            onDragOver={(e) => {
-              e.preventDefault();
-              e.dataTransfer.dropEffect = 'copy';
-            }}
-            onDragLeave={() => setIsPdfDropOverlayActive(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setIsPdfDropOverlayActive(false);
-              const file = e.dataTransfer.files?.[0];
-              if (file) {
-                // 드래그앤드롭에서도 동일하게 10MB 초과 / 2개 초과 시 흔들림+오류메시지 적용
-                handlePdfFile(file);
+          fileDeleteModal={{
+            target: fileDeleteConfirmTarget,
+            onOpenChange: (open) => !open && setFileDeleteConfirmTarget(null),
+            onConfirm: () => {
+              if (fileDeleteConfirmTarget === null) return;
+              if (fileDeleteConfirmTarget.type === 'jd') {
+                removeJdFileAt(fileDeleteConfirmTarget.index);
+              } else {
+                setPdfUploadedFile(null);
+                setPdfUploadError(null);
               }
-            }}
-          />
-        )}
-      <div className='flex flex-col gap-[0.75rem]'>
-        {/* 헤더 */}
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-[0.75rem]'>
-            <BackButton
-              onClick={() => {
-                if (step === 'information') {
-                  setIsQuitModalOpen(true);
-                } else {
-                  router.replace('/correction');
-                }
-              }}
-            />
-            <CommonModal
-              open={isQuitModalOpen}
-              onOpenChange={setIsQuitModalOpen}
-              title='이 첨삭을 정말 그만두시겠습니까?'
-              description='지금 돌아가면, 작성하신 내용이 저장되지 않아요.'
-              cancelBtnText='취소'
-              secondaryBtnText='그만두기'
-              onSecondaryClick={() => {
-                setIsQuitModalOpen(false);
-                router.replace('/correction');
-              }}
-            />
-            <CommonModal
-              open={fileDeleteConfirmTarget !== null}
-              onOpenChange={(open) => !open && setFileDeleteConfirmTarget(null)}
-              title='이 파일을 정말 삭제하시겠습니까?'
-              cancelBtnText='취소'
-              secondaryBtnText='삭제'
-              onSecondaryClick={() => {
-                if (fileDeleteConfirmTarget === null) return;
-                if (fileDeleteConfirmTarget.type === 'jd') {
-                  removeJdFileAt(fileDeleteConfirmTarget.index);
-                } else {
-                  setPdfUploadedFile(null);
-                  setPdfUploadError(null);
-                }
-                setFileDeleteConfirmTarget(null);
-              }}
-            />
-            <CommonModal
-              open={activityDeleteTargetId !== null}
-              onOpenChange={(open) => !open && setActivityDeleteTargetId(null)}
-              title='이 활동을 정말 삭제하시겠습니까?'
-              cancelBtnText='취소'
-              secondaryBtnText='삭제'
-              onSecondaryClick={() => {
-                if (activityDeleteTargetId === null) return;
-                setPdfActivities((prev) => {
-                  const next = prev.filter(
-                    (a) => a.id !== activityDeleteTargetId,
-                  );
-                  setSelectedActivityId((id) =>
-                    next.some((a) => a.id === id) ? id : next[0]?.id ?? id,
-                  );
-                  return next;
-                });
-                setActivityDeleteTargetId(null);
-              }}
-            />
-            <InlineEdit
-              title='새로운 포트폴리오 첨삭'
-              isEditing={isEditingTitle}
-              editable={step !== 'information'}
-              onEdit={() => {
-                // TODO: 포트폴리오 첨삭 명 수정 모드로 전환
-                setIsEditingTitle(true);
-              }}
-              onSave={() => {
-                // TODO: 포트폴리오 첨삭 명 저장 API 호출
-                setIsEditingTitle(false);
-              }}
-            />
-          </div>
-          {/* 삭제 버튼 (information 단계에서는 숨김) */}
-          {step !== 'information' && (
-            <DeleteButton onClick={() => setIsDeleteModalOpen(true)} />
-          )}
-          <CommonModal
-            open={isDeleteModalOpen}
-            onOpenChange={setIsDeleteModalOpen}
-            title='이 첨삭을 정말 삭제하시겠습니까?'
-            cancelBtnText='취소'
-            secondaryBtnText='삭제'
-            onSecondaryClick={() => {
+              setFileDeleteConfirmTarget(null);
+            },
+          }}
+          activityDeleteModal={{
+            targetId: activityDeleteTargetId,
+            onOpenChange: (open) => !open && setActivityDeleteTargetId(null),
+            onConfirm: () => {
+              if (activityDeleteTargetId === null) return;
+              setPdfActivities((prev) => {
+                const next = prev.filter(
+                  (a) => a.id !== activityDeleteTargetId,
+                );
+                setSelectedActivityId((id) =>
+                  next.some((a) => a.id === id) ? id : next[0]?.id ?? id,
+                );
+                return next;
+              });
+              setActivityDeleteTargetId(null);
+            },
+          }}
+          titleEdit={{
+            title: '새로운 포트폴리오 첨삭',
+            isEditing: isEditingTitle,
+            editable: step !== 'information',
+            onEdit: () => setIsEditingTitle(true),
+            onSave: () => setIsEditingTitle(false),
+          }}
+          showDeleteButton={step !== 'information'}
+          deleteModal={{
+            open: isDeleteModalOpen,
+            onOpenChange: setIsDeleteModalOpen,
+            onConfirm: () => {
               setIsDeleteModalOpen(false);
               router.replace('/correction');
-            }}
-          />
-            <CommonModal
-              open={isStartCorrectionModalOpen}
-              onOpenChange={setIsStartCorrectionModalOpen}
-              title={
-                <>
-                  포트폴리오 첨삭 1회권을 사용하여
-                  <br />
-                  진행하시겠습니까?
-                </>
-              }
-              cancelBtnText='취소'
-              primaryBtnText='진행'
-              onPrimaryClick={() => {
-                setIsStartCorrectionModalOpen(false);
-                handleNextStep();
-              }}
-              className='max-w-[24.75rem] items-center px-[5rem] py-[3.75rem] text-center'
-            />
-            <CommonModal
-              open={isPdfExtractConfirmModalOpen}
-              onOpenChange={setIsPdfExtractConfirmModalOpen}
-              title='이 파일의 텍스트를 추출하시겠습니까?'
-              description='추출 시작 후 파일을 변경할 수 없어요.'
-              cancelBtnText='취소'
-              primaryBtnText='추출'
-              onPrimaryClick={() => {
-                setIsPdfExtractConfirmModalOpen(false);
-                setIsPdfTextExtracted(true);
-                setIsPdfTextExtracting(true);
-              }}
-            />
-
-            {/* JD 이미지 전체보기 뷰어 */}
-            {jdViewerFileIndex !== null && jdUploadedFiles[jdViewerFileIndex] && (
-              <div
-                className='fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4'
-                role='dialog'
-                aria-modal='true'
-                aria-label='JD 이미지 전체보기'
-                onClick={() => setJdViewerFileIndex(null)}
-              >
-                <div
-                  className='flex max-h-full max-w-full items-center justify-center'
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <img
-                    src={jdUploadedFiles[jdViewerFileIndex].previewUrl}
-                    alt='JD 미리보기 전체'
-                    className='max-h-[90vh] max-w-full object-contain'
-                  />
-                </div>
-              </div>
-            )}
-        </div>
-
-        {step === 'result' ? (
+            },
+          }}
+          startCorrectionModal={{
+            open: isStartCorrectionModalOpen,
+            onOpenChange: setIsStartCorrectionModalOpen,
+            onConfirm: () => {
+              setIsStartCorrectionModalOpen(false);
+              handleNextStep();
+            },
+          }}
+          pdfExtractModal={{
+            open: isPdfExtractConfirmModalOpen,
+            onOpenChange: setIsPdfExtractConfirmModalOpen,
+            onConfirm: () => {
+              setIsPdfExtractConfirmModalOpen(false);
+              setIsPdfTextExtracted(true);
+              setIsPdfTextExtracting(true);
+            },
+          }}
+          jdViewer={{
+            previewUrl:
+              jdViewerFileIndex != null && jdUploadedFiles[jdViewerFileIndex]
+                ? jdUploadedFiles[jdViewerFileIndex].previewUrl
+                : null,
+            onClose: () => setJdViewerFileIndex(null),
+          }}
+        />
+      }
+      progressOrDivider={
+        step === 'result' ? (
           <div className='flex flex-col gap-[0.75rem] pb-[6.25rem]'>
             <div className='h-[1px] w-full bg-[#9EA4A9]' />
           </div>
         ) : (
           <CorrectionProgressBar step={step} status={status} />
-        )}
-      </div>
-
+        )
+      }
+    >
       <div className='flex flex-col gap-[3.75rem]'>
         {status === 'ANALYZING' ? (
-          <div className='flex flex-col items-center justify-center gap-[2rem] py-[10rem]'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              width='56'
-              height='60'
-              viewBox='0 0 56 60'
-              fill='none'
-            >
-              <path
-                opacity='0.1'
-                fillRule='evenodd'
-                clipRule='evenodd'
-                d='M28 8C22.6957 8 17.6086 10.1071 13.8579 13.8579C10.1071 17.6086 8 22.6957 8 28C8 33.3043 10.1071 38.3914 13.8579 42.1421C17.6086 45.8929 22.6957 48 28 48C33.3043 48 38.3914 45.8929 42.1421 42.1421C45.8929 38.3914 48 33.3043 48 28C48 22.6957 45.8929 17.6086 42.1421 13.8579C38.3914 10.1071 33.3043 8 28 8ZM0 28C0 12.536 12.536 0 28 0C43.464 0 56 12.536 56 28C56 43.464 43.464 56 28 56C12.536 56 0 43.464 0 28Z'
-                fill='#74777D'
-              />
-              <g
-                className='animate-spin'
-                style={{ transformOrigin: '28px 28px' }}
-              >
-                <path
-                  fillRule='evenodd'
-                  clipRule='evenodd'
-                  d='M28.0007 8.00003C22.8444 7.989 17.8852 9.9805 14.1687 13.5547C13.3987 14.2666 12.3801 14.6477 11.3319 14.6159C10.2838 14.5841 9.29007 14.142 8.56467 13.3848C7.83927 12.6276 7.44023 11.6158 7.45344 10.5673C7.46666 9.51879 7.89108 8.51738 8.63534 7.7787C13.8408 2.77773 20.7822 -0.0105164 28.0007 2.98087e-05C29.0615 2.98087e-05 30.079 0.421457 30.8291 1.1716C31.5792 1.92175 32.0007 2.93916 32.0007 4.00003C32.0007 5.0609 31.5792 6.07831 30.8291 6.82846C30.079 7.5786 29.0615 8.00003 28.0007 8.00003Z'
-                  fill='url(#paint0_linear_3242_3790)'
-                />
-              </g>
-              <defs>
-                <linearGradient
-                  id='paint0_linear_3242_3790'
-                  x1='19.7269'
-                  y1='0'
-                  x2='19.7269'
-                  y2='14.6177'
-                  gradientUnits='userSpaceOnUse'
-                >
-                  <stop stopColor='#93B3F4' />
-                  <stop offset='1' stopColor='#5060C5' />
-                </linearGradient>
-              </defs>
-            </svg>
-            <div className='flex flex-col items-center gap-[0.5rem] text-center'>
-              <span className='text-[1.125rem] font-bold leading-[1.3] text-[#464B53]'>
-                AI 컨설턴트가 포트폴리오 첨삭을 진행 중이에요.
-              </span>
-              <span className='text-[1.125rem] font-bold leading-[1.3] text-[#464B53]'>
-                페이지를 떠나도 작업은 계속돼요.
-              </span>
-            </div>
-            <CommonButton
-              variantType='Outline'
-              px='2.25rem'
-              py='0.5rem'
-              className='mt-[1rem] text-[1rem] font-semibold'
-              onClick={() => router.replace('/correction')}
-            >
-              나가기
-            </CommonButton>
-          </div>
+          <CorrectionAnalyzingView
+            onLeaveClick={() => router.replace('/correction')}
+          />
         ) : step === 'information' ? (
           <>
             {/* 지원 기업명 및 지원 직무명 입력 */}
@@ -2052,6 +1916,6 @@ export default function CorrectionSettingsPage() {
       </div>
 
       {step === 'result' && <FeedbackFloatingButton />}
-    </div>
+    </CorrectionLayout>
   );
 }
