@@ -851,12 +851,12 @@ export default function CorrectionSettingsPage() {
                               strokeLinejoin='round'
                             />
                           </svg>
-                          <div className='flex flex-col'>
+                          <div className='flex flex-col items-center'>
                             <span className='text-[0.875rem] text-[#1A1A1A] whitespace-nowrap'>
                               클릭하여 JD 파일을 업로드 하세요.
                             </span>
                             <span className='text-[0.75rem] text-[#74777D] whitespace-nowrap'>
-                              (JPG, PNG 파일만 업로드 가능, 최대 2개)
+                              (JPG, PNG 파일만 업로드 가능)
                             </span>
                           </div>
                         </div>
