@@ -301,7 +301,6 @@ export default function WithdrawPage() {
               py='0.875rem'
               onClick={handleWithdraw}
               disabled={!isAgreed || !withdrawReason}
-              className={!isAgreed || !withdrawReason ? 'opacity-50 cursor-not-allowed' : ''}
             >
               탈퇴하기
             </CommonButton>

@@ -37,11 +37,11 @@ export function CommonButton({
   const styles = {
     // Primary: 주로 사용하는 버튼
     Primary:
-      'rounded-[6.25rem] bg-[#5060C5] hover:bg-[#404D9E] text-[#ffffff] text-[1rem] font-bold cursor-pointer',
+      'rounded-[6.25rem] bg-[#5060C5] hover:bg-[#404D9E] disabled:bg-[#CDD0D5] disabled:hover:bg-[#CDD0D5] disabled:opacity-100 disabled:cursor-not-allowed text-[#ffffff] text-[1rem] font-bold cursor-pointer',
 
     // Execute: 모달에서 실행하거나 동작할 때 사용하는 버튼
     Execute:
-      'rounded-[0.5rem] bg-[#5060C5] hover:bg-[#404D9E] text-[#ffffff] text-[1rem] font-bold cursor-pointer',
+      'rounded-[0.5rem] bg-[#5060C5] hover:bg-[#404D9E] disabled:bg-[#CDD0D5] disabled:hover:bg-[#CDD0D5] disabled:opacity-100 disabled:cursor-not-allowed text-[#ffffff] text-[1rem] font-bold cursor-pointer',
 
     // Cancel: 취소 버튼
     Cancel:

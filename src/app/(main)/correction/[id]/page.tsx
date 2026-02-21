@@ -1118,11 +1118,7 @@ export default function CorrectionSettingsPage() {
                           px='2.25rem'
                           py='0.75rem'
                           disabled={!pdfUploadedFile || isPdfTextExtracted}
-                          className={`self-start rounded-[3.75rem] ${
-                            !pdfUploadedFile || isPdfTextExtracted
-                              ? 'cursor-not-allowed !bg-[#CDD0D5] hover:!bg-[#CDD0D5]'
-                              : ''
-                          }`}
+                          className='self-start rounded-[3.75rem]'
                           onClick={() =>
                             pdfUploadedFile && setIsPdfExtractConfirmModalOpen(true)
                           }
