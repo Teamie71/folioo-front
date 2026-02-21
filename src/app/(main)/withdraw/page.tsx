@@ -21,7 +21,7 @@ export default function WithdrawPage() {
 
   const withdrawReasons = [
     { id: '1', label: '이미 취업에 성공했어요.' },
-    { id: '2', label: '크레딧 금액이 너무 비싸요.' },
+    { id: '2', label: '이용권 금액이 너무 비싸요.' },
     { id: '3', label: '생성된 결과물이 마음에 들지 않아요.' },
     { id: '4', label: '기타' },
   ];
@@ -228,12 +228,12 @@ export default function WithdrawPage() {
         {withdrawReason === '2' && (
           <div className='mt-[2.5rem] pl-[1.75rem]'>
             <p className='text-[1rem] leading-[150%] text-[#000000]'>
-              Folioo에서는 이벤트를 통해서도 크레딧 충전이 가능해요.
+              Folioo에서는 이벤트를 통해서도 이용권 구매가 가능해요.
               <br />
-              크레딧 충전 페이지와 공식 인스타그램 계정 (@Folioo_AI)에 업데이트
+              이용권 구매 페이지와 공식 인스타그램 계정 (@Folioo_AI)에 업데이트
               되는 이벤트를 확인하고, 
               <br />
-              참여하여 무료 크레딧을 받아보세요!
+              참여하여 무료 이용권을 받아보세요!
             </p>
             <div className='mt-[2rem] flex flex-col gap-[0.75rem]'>
               <a
@@ -244,7 +244,7 @@ export default function WithdrawPage() {
                   // TODO: 크레딧 충전 페이지로 이동
                 }}
               >
-                크레딧 충전 페이지 확인하기
+                이용권 구매 페이지 확인하기
               </a>
               <a
                 href='#'
