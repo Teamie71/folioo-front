@@ -21,6 +21,7 @@ import RedDotIcon from '@/components/icons/RedDotIcon';
 import { CloseIcon } from '@/components/icons/CloseIcon';
 import { FileCloseIcon } from '@/components/icons/FileCloseIcon';
 import { FileImageIcon } from '@/components/icons/FileImageIcon';
+import { ExperienceIcon } from '@/components/icons/ExperienceIcon';
 import { FullIcon } from '@/components/icons/FullIcon';
 import { PdfIcon } from '@/components/icons/PdfIcon';
 import { useCorrectionNavbar } from '@/contexts/CorrectionNavbarContext';
@@ -961,15 +962,16 @@ export default function CorrectionSettingsPage() {
 
             {/* 첨삭 시작하기 버튼 */}
             <div className='flex justify-center pb-[7rem]'>
-              <button
+              <CommonButton
+                variantType='Primary'
+                px='2.25rem'
+                py='0.75rem'
+                className='gap-[0.75rem] rounded-[3.75rem] [&_svg]:h-[1.5rem] [&_svg]:w-[1.5rem]'
                 onClick={handleStartCorrectionClick}
-                className='flex cursor-pointer items-center justify-center gap-[0.75rem] rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
               >
                 <CorrectionIcon />
-                <span className='text-[1rem] font-bold text-[#FFFFFF] whitespace-nowrap'>
-                  첨삭 시작하기
-                </span>
-              </button>
+                첨삭 시작하기
+              </CommonButton>
             </div>
           </>
         ) : step === 'portfolio' ? (
@@ -1107,21 +1109,22 @@ export default function CorrectionSettingsPage() {
                             최대 10MB의 파일, 최대 5개의 활동 첨삭이 가능해요.
                           </span>
                         </div>
-                        <button
+                        <CommonButton
+                          variantType='Primary'
+                          px='2.25rem'
+                          py='0.75rem'
+                          disabled={!pdfUploadedFile || isPdfTextExtracted}
+                          className={`self-start rounded-[3.75rem] ${
+                            !pdfUploadedFile || isPdfTextExtracted
+                              ? 'cursor-not-allowed !bg-[#CDD0D5] hover:!bg-[#CDD0D5]'
+                              : ''
+                          }`}
                           onClick={() =>
                             pdfUploadedFile && setIsPdfExtractConfirmModalOpen(true)
                           }
-                          disabled={!pdfUploadedFile || isPdfTextExtracted}
-                          className={`self-start rounded-[3.75rem] border-none px-[2.25rem] py-[0.75rem] ${
-                            !pdfUploadedFile || isPdfTextExtracted
-                              ? 'cursor-not-allowed bg-[#CDD0D5]'
-                              : 'cursor-pointer bg-[#5060C5]'
-                          }`}
                         >
-                          <span className='text-[1rem] font-bold text-[#FFFFFF]'>
-                            텍스트 추출하기
-                          </span>
-                        </button>
+                          텍스트 추출하기
+                        </CommonButton>
                       </div>
 
                       {/* 오른쪽: PDF 파일 업로드 영역 */}
@@ -1555,20 +1558,20 @@ export default function CorrectionSettingsPage() {
                   );
                 return (
                   <div className='flex justify-center pb-[7rem]'>
-                    <button
-                      type='button'
+                    <CommonButton
+                      variantType='Primary'
+                      px='2.25rem'
+                      py='0.75rem'
                       disabled={pdfCategoryOverLimit}
-                      onClick={handleNextStep}
-                      className={`flex items-center justify-center rounded-[3.75rem] border-none px-[2.25rem] py-[0.75rem] ${
+                      className={
                         pdfCategoryOverLimit
-                          ? 'cursor-not-allowed bg-[#CDD0D5]'
-                          : 'cursor-pointer bg-[#5060C5]'
-                      }`}
+                          ? 'rounded-[3.75rem] cursor-not-allowed !bg-[#CDD0D5] hover:!bg-[#CDD0D5]'
+                          : 'rounded-[3.75rem]'
+                      }
+                      onClick={handleNextStep}
                     >
-                      <span className='text-[1rem] font-bold text-[#FFFFFF]'>
-                        다음으로
-                      </span>
-                    </button>
+                      다음으로
+                    </CommonButton>
                   </div>
                 );
               })()}
@@ -1654,15 +1657,16 @@ export default function CorrectionSettingsPage() {
 
             {/* 첨삭 의뢰하기 버튼 */}
             <div className='flex justify-center pt-[1.25rem] pb-[7rem]'>
-              <button
+              <CommonButton
+                variantType='Primary'
+                px='2.25rem'
+                py='0.75rem'
+                className='gap-[0.75rem] rounded-[3.75rem] [&_svg]:h-[1.5rem] [&_svg]:w-[1.5rem]'
                 onClick={handleNextStep}
-                className='flex cursor-pointer items-center justify-center rounded-[3.75rem] gap-[0.75rem]  border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
               >
                 <CorrectionIcon />
-                <span className='text-[1rem] font-bold text-[#FFFFFF] whitespace-nowrap'>
-                  첨삭 의뢰하기
-                </span>
-              </button>
+                첨삭 의뢰하기
+              </CommonButton>
             </div>
           </>
         ) : (
@@ -2061,34 +2065,16 @@ export default function CorrectionSettingsPage() {
 
                 {/* 새로운 경험 정리 시작하기 버튼 */}
                 <div className='flex justify-center pt-[1.25rem] pb-[7rem]'>
-                  <button
+                  <CommonButton
+                    variantType='Primary'
+                    px='2.25rem'
+                    py='0.75rem'
+                    className='gap-[1.25rem] rounded-[3.75rem] [&_path]:fill-white [&_svg]:h-[1.25rem] [&_svg]:w-[1.25rem]'
                     onClick={handleStartNewExperience}
-                    className='flex cursor-pointer items-center justify-center gap-[0.75rem] rounded-[3.75rem] border-none bg-[#5060C5] px-[2rem] py-[0.625rem]'
                   >
-                    <svg
-                      width='20'
-                      height='20'
-                      viewBox='0 0 20 20'
-                      fill='none'
-                      xmlns='http://www.w3.org/2000/svg'
-                    >
-                      <path
-                        d='M15 0H1.66667C0.746192 0 0 0.746192 0 1.66667V3.33333C0 4.25381 0.746192 5 1.66667 5H15C15.9205 5 16.6667 4.25381 16.6667 3.33333V1.66667C16.6667 0.746192 15.9205 0 15 0Z'
-                        fill='white'
-                      />
-                      <path
-                        d='M18.332 6.66675H4.9987C4.07822 6.66675 3.33203 7.41294 3.33203 8.33341V10.0001C3.33203 10.9206 4.07822 11.6667 4.9987 11.6667H18.332C19.2525 11.6667 19.9987 10.9206 19.9987 10.0001V8.33341C19.9987 7.41294 19.2525 6.66675 18.332 6.66675Z'
-                        fill='white'
-                      />
-                      <path
-                        d='M15 13.3333H1.66667C0.746192 13.3333 0 14.0794 0 14.9999V16.6666C0 17.5871 0.746192 18.3333 1.66667 18.3333H15C15.9205 18.3333 16.6667 17.5871 16.6667 16.6666V14.9999C16.6667 14.0794 15.9205 13.3333 15 13.3333Z'
-                        fill='white'
-                      />
-                    </svg>
-                    <span className='text-[1rem] font-bold text-[#FFFFFF]'>
-                      새로운 경험 정리 시작하기
-                    </span>
-                  </button>
+                    <ExperienceIcon />
+                    새로운 경험 정리 시작하기
+                  </CommonButton>
                 </div>
               </>
             )}
