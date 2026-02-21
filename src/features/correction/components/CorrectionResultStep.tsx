@@ -1,12 +1,14 @@
 'use client';
 
 import { CommonButton } from '@/components/CommonButton';
-import { ToggleLarge } from '@/components/ToggleLarge';
 import { ExperienceIcon } from '@/components/icons/ExperienceIcon';
 import type { Status } from '@/types/correction';
+import type { ResultButtonValue } from './CorrectionResultActivityDetail';
+import type { ResultTab } from './CorrectionResultTabs';
+import { CorrectionResultTabContent } from './CorrectionResultTabContent';
+import { CorrectionResultTabs } from './CorrectionResultTabs';
 
-type ResultTab = '지원 정보' | '총평' | '활동 A' | '활동 B';
-type ResultButtonValue = '축소 또는 제외' | '구체화하여 강조';
+export type { ResultTab, ResultButtonValue };
 
 export interface CorrectionResultStepProps {
   status: Status;
@@ -94,319 +96,21 @@ export function CorrectionResultStep({
   return (
     <>
       <div className='flex flex-col'>
-        {/* 탭 */}
-        <div className='flex'>
-          <button
-            onClick={() => onResultTabChange('지원 정보')}
-            className={`cursor-pointer rounded-t-[0.5rem] border-none px-[2.5rem] py-[0.875rem] text-[1rem] font-bold transition-all ${
-              resultTab === '지원 정보'
-                ? 'relative z-10 bg-[#FFFFFF] text-[#5060C5]'
-                : 'bg-[#F6F8FA] text-[#9EA4A9]'
-            }`}
-            style={
-              resultTab === '지원 정보'
-                ? {
-                    boxShadow: '0 -0.15rem 0.5rem 0 rgba(0,0,0,0.2)',
-                  }
-                : undefined
-            }
-          >
-            지원 정보
-          </button>
-          <button
-            onClick={() => onResultTabChange('총평')}
-            className={`cursor-pointer rounded-t-[0.5rem] border-none px-[2.5rem] py-[0.875rem] text-[1rem] font-bold transition-all ${
-              resultTab === '총평'
-                ? 'relative z-10 bg-[#FFFFFF] text-[#5060C5]'
-                : 'bg-[#F6F8FA] text-[#9EA4A9]'
-            }`}
-            style={
-              resultTab === '총평'
-                ? {
-                    boxShadow: '0 -0.15rem 0.5rem 0 rgba(0,0,0,0.2)',
-                  }
-                : undefined
-            }
-          >
-            총평
-          </button>
-          <button
-            onClick={() => onResultTabChange('활동 A')}
-            className={`cursor-pointer rounded-t-[0.5rem] border-none px-[2.5rem] py-[0.875rem] text-[1rem] font-bold transition-all ${
-              resultTab === '활동 A'
-                ? 'relative z-10 bg-[#FFFFFF] text-[#5060C5]'
-                : 'bg-[#F6F8FA] text-[#9EA4A9]'
-            }`}
-            style={
-              resultTab === '활동 A'
-                ? {
-                    boxShadow: '0 -0.15rem 0.5rem 0 rgba(0,0,0,0.2)',
-                  }
-                : undefined
-            }
-          >
-            활동 A
-          </button>
-          <button
-            onClick={() => onResultTabChange('활동 B')}
-            className={`cursor-pointer rounded-t-[0.5rem] border-none px-[2.5rem] py-[0.875rem] text-[1rem] font-bold transition-all ${
-              resultTab === '활동 B'
-                ? 'relative z-10 bg-[#FFFFFF] text-[#5060C5]'
-                : 'bg-[#F6F8FA] text-[#9EA4A9]'
-            }`}
-            style={
-              resultTab === '활동 B'
-                ? {
-                    boxShadow: '0 -0.15rem 0.5rem 0 rgba(0,0,0,0.2)',
-                  }
-                : undefined
-            }
-          >
-            활동 B
-          </button>
-        </div>
-
-        {/* 내용 영역 */}
-        <div className='relative z-20 rounded-tr-[1.25rem] rounded-br-[1.25rem] rounded-bl-[1.25rem] border border-t-0 border-[#E9EAEC] bg-[#FFFFFF] px-[2.5rem] py-[3rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
-          {resultTab === '지원 정보' && (
-            <div className='flex flex-col gap-[3.75rem]'>
-              <div className='grid grid-cols-2 gap-[1.5rem]'>
-                <div className='flex flex-col gap-[1rem]'>
-                  <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
-                    <span>지원 기업명</span>
-                  </div>
-                  <div className='rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'>
-                    삼성 SDI
-                  </div>
-                </div>
-                <div className='flex flex-col gap-[1rem]'>
-                  <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
-                    <span>지원 직무명</span>
-                  </div>
-                  <div className='rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'>
-                    품질관리
-                  </div>
-                </div>
-              </div>
-
-              <div className='flex flex-col gap-[1rem]'>
-                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
-                  <span>Job Description</span>
-                </div>
-                <div className='rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem]'>
-                  일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사
-                </div>
-              </div>
-
-              <div className='flex flex-col gap-[1rem]'>
-                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
-                  <span>기업 분석 정보</span>
-                </div>
-                <div className='rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem]'>
-                  일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사
-                </div>
-              </div>
-
-              <div className='flex flex-col gap-[1rem]'>
-                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
-                  <span>강조 포인트</span>
-                </div>
-                <div className='rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem]'>
-                  일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사
-                </div>
-              </div>
-            </div>
-          )}
-
-          {resultTab === '총평' && (
-            <div className='flex flex-col gap-[3rem]'>
-              <div className='flex flex-col gap-[1rem]'>
-                <div className='text-[1.125rem] font-bold leading-[1.3]'>총평</div>
-                <div className='rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem]'>
-                  일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십
-                </div>
-              </div>
-            </div>
-          )}
-
-          {(resultTab === '활동 A' || resultTab === '활동 B') && (
-            <div className='flex flex-col gap-[3rem]'>
-              <div className='flex flex-col gap-[1rem]'>
-                <div className='text-[1.125rem] font-bold leading-[1.3]'>
-                  상세정보
-                </div>
-                <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
-                  <div className='min-w-0 flex-1 overflow-auto'>
-                    -내용내용내용내용내용내용내용내용내용내용내용
-                    <span className='bg-[#FFF2F2]'>
-                      내용내용내용내용내용내용내용내용내용내용내용내용
-                    </span>
-                    내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-                  </div>
-                  <div className='w-[1px] flex-shrink-0 bg-[#9EA4A9]' />
-                  <div className='flex min-w-0 flex-1 flex-col gap-[2.5rem] overflow-auto'>
-                    <div className='flex gap-[0.25rem] rounded-[6.25rem] bg-[#E9EAEC] p-[0.25rem]'>
-                      <button
-                        onClick={() => setDetailInfoButton('축소 또는 제외')}
-                        className={`h-[40px] w-[211px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${
-                          detailInfoButton === '축소 또는 제외'
-                            ? 'border border-[#CDD0D5] bg-[#FFFFFF] text-[#5060C5]'
-                            : 'border border-[#E9EAEC] bg-[#E9EAEC] text-[#74777D]'
-                        }`}
-                      >
-                        축소 또는 제외
-                      </button>
-                      <button
-                        onClick={() => setDetailInfoButton('구체화하여 강조')}
-                        className={`h-[40px] w-[212px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${
-                          detailInfoButton === '구체화하여 강조'
-                            ? 'border border-[#CDD0D5] bg-[#FFFFFF] text-[#5060C5]'
-                            : 'border border-[#E9EAEC] bg-[#E9EAEC] text-[#74777D]'
-                        }`}
-                      >
-                        구체화하여 강조
-                      </button>
-                    </div>
-                    <ol className='ml-[1.5rem] flex list-decimal flex-col gap-[0.5rem]'>
-                      <li className='text-[1rem] text-[#1A1A1A]'>
-                        내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-                      </li>
-                      <li className='text-[1rem] text-[#1A1A1A]'>
-                        내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-                      </li>
-                    </ol>
-                  </div>
-                </div>
-              </div>
-
-              <div className='flex flex-col gap-[1rem]'>
-                <div className='text-[1.125rem] font-bold leading-[1.3]'>
-                  담당업무
-                </div>
-                <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
-                  <div className='min-h-[8rem] min-w-0 flex-1 overflow-auto'>
-                    -
-                    <span className='bg-[#F1FEF0]'>
-                      내용내용내용내용내용내용내용내용내용내용내용내용
-                    </span>
-                    내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-                  </div>
-                  <div className='w-[1px] flex-shrink-0 bg-[#9EA4A9]' />
-                  <div className='flex min-w-0 flex-1 flex-col gap-[2.5rem] overflow-auto'>
-                    <div className='flex gap-[0.25rem] rounded-[6.25rem] bg-[#E9EAEC] p-[0.25rem]'>
-                      <button
-                        onClick={() => setResponsibilityButton('축소 또는 제외')}
-                        className={`h-[40px] w-[211px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${
-                          responsibilityButton === '축소 또는 제외'
-                            ? 'border border-[#CDD0D5] bg-[#FFFFFF] text-[#5060C5]'
-                            : 'border border-[#E9EAEC] bg-[#E9EAEC] text-[#74777D]'
-                        }`}
-                      >
-                        축소 또는 제외
-                      </button>
-                      <button
-                        onClick={() => setResponsibilityButton('구체화하여 강조')}
-                        className={`h-[40px] w-[212px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${
-                          responsibilityButton === '구체화하여 강조'
-                            ? 'border border-[#CDD0D5] bg-[#FFFFFF] text-[#5060C5]'
-                            : 'border border-[#E9EAEC] bg-[#E9EAEC] text-[#74777D]'
-                        }`}
-                      >
-                        구체화하여 강조
-                      </button>
-                    </div>
-                    <ol className='ml-[1.5rem] flex list-decimal flex-col gap-[0.5rem]'>
-                      <li className='text-[1rem] text-[#1A1A1A]'>
-                        내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-                      </li>
-                      <li className='text-[1rem] text-[#1A1A1A]'>
-                        내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-                      </li>
-                    </ol>
-                  </div>
-                </div>
-              </div>
-
-              <div className='flex flex-col gap-[1rem]'>
-                <div className='text-[1.125rem] font-bold leading-[1.3]'>
-                  문제 해결
-                </div>
-                <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
-                  <div className='min-h-[8rem] min-w-0 flex-1 overflow-auto'>
-                    -내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-                  </div>
-                  <div className='w-[1px] flex-shrink-0 bg-[#9EA4A9]' />
-                  <div className='flex min-w-0 flex-1 flex-col gap-[2.5rem] overflow-auto'>
-                    <ToggleLarge
-                      options={[
-                        { value: '축소 또는 제외', label: '축소 또는 제외' },
-                        { value: '구체화하여 강조', label: '구체화하여 강조' },
-                      ]}
-                      value={problemSolvingButton}
-                      onChange={(value) =>
-                        setProblemSolvingButton(
-                          value as ResultButtonValue,
-                        )
-                      }
-                    />
-                    <ol className='ml-[1.5rem] flex list-decimal flex-col gap-[0.5rem]'>
-                      <li className='text-[1rem] text-[#1A1A1A]'>
-                        내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-                      </li>
-                      <li className='text-[1rem] text-[#1A1A1A]'>
-                        내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-                      </li>
-                    </ol>
-                  </div>
-                </div>
-              </div>
-
-              <div className='flex flex-col gap-[1rem]'>
-                <div className='text-[1.125rem] font-bold leading-[1.3]'>
-                  배운 점
-                </div>
-                <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
-                  <div className='min-h-[8rem] min-w-0 flex-1 overflow-auto'>
-                    -내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-                  </div>
-                  <div className='w-[1px] flex-shrink-0 bg-[#9EA4A9]' />
-                  <div className='flex min-w-0 flex-1 flex-col gap-[2.5rem] overflow-auto'>
-                    <div className='flex gap-[0.25rem] rounded-[6.25rem] bg-[#E9EAEC] p-[0.25rem]'>
-                      <button
-                        onClick={() => setLessonsButton('축소 또는 제외')}
-                        className={`h-[40px] w-[211px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${
-                          lessonsButton === '축소 또는 제외'
-                            ? 'border border-[#CDD0D5] bg-[#FFFFFF] text-[#5060C5]'
-                            : 'border border-[#E9EAEC] bg-[#E9EAEC] text-[#74777D]'
-                        }`}
-                      >
-                        축소 또는 제외
-                      </button>
-                      <button
-                        onClick={() => setLessonsButton('구체화하여 강조')}
-                        className={`h-[40px] w-[212px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${
-                          lessonsButton === '구체화하여 강조'
-                            ? 'border border-[#CDD0D5] bg-[#FFFFFF] text-[#5060C5]'
-                            : 'border border-[#E9EAEC] bg-[#E9EAEC] text-[#74777D]'
-                        }`}
-                      >
-                        구체화하여 강조
-                      </button>
-                    </div>
-                    <ol className='ml-[1.5rem] flex list-decimal flex-col gap-[0.5rem]'>
-                      <li className='text-[1rem] text-[#1A1A1A]'>
-                        내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-                      </li>
-                      <li className='text-[1rem] text-[#1A1A1A]'>
-                        내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-                      </li>
-                    </ol>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        <CorrectionResultTabs
+          resultTab={resultTab}
+          onResultTabChange={onResultTabChange}
+        />
+        <CorrectionResultTabContent
+          resultTab={resultTab}
+          detailInfoButton={detailInfoButton}
+          setDetailInfoButton={setDetailInfoButton}
+          responsibilityButton={responsibilityButton}
+          setResponsibilityButton={setResponsibilityButton}
+          problemSolvingButton={problemSolvingButton}
+          setProblemSolvingButton={setProblemSolvingButton}
+          lessonsButton={lessonsButton}
+          setLessonsButton={setLessonsButton}
+        />
       </div>
 
       <div className='flex justify-center pt-[1.25rem] pb-[6.25rem]'>
