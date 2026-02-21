@@ -66,7 +66,8 @@ export default function LayoutContent({
         validityMessage='지급된 이용권은 6개월 간 사용 가능해요.'
         buttonText='첨삭 의뢰하기 '
         onButtonClick={() => {
-          router.push('/correction');
+          const id = crypto.randomUUID();
+          router.push(`/correction/${id}`);
         }}
       />
     </CorrectionNavbarContext.Provider>
