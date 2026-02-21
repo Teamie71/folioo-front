@@ -32,7 +32,12 @@ export function PortfolioTypeCard({
       )}
       onClick={onClick}
     >
-      <div className="flex h-[80px] w-[80px] items-center justify-center">
+      <div
+        className={cn(
+          'flex h-[80px] w-[80px] items-center justify-center [&_path]:transition-colors',
+          selected ? '[&_path]:fill-[#5060C5]' : '[&_path]:fill-[#74777D]',
+        )}
+      >
         {icon}
       </div>
       <div className="flex flex-col items-center gap-[0.5rem] text-center">
