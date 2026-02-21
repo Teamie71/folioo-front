@@ -8,8 +8,6 @@ import { useCorrectionNavbar } from '@/contexts/CorrectionNavbarContext';
 import {
   INITIAL_PDF_ACTIVITIES,
   PDF_CATEGORY_CHAR_LIMIT,
-  PDF_CATEGORY_NAMES,
-  createPdfActivityBlock,
 } from '@/features/correction/constants';
 import { CorrectionAnalyzingView } from '@/features/correction/components/CorrectionAnalyzingView';
 import { CorrectionInformationStep } from '@/features/correction/components/CorrectionInformationStep';
@@ -543,9 +541,6 @@ export default function CorrectionSettingsPage() {
             onActivitySelect={setSelectedActivityId}
             selectedTab={selectedTab}
             onTabSelect={setSelectedTab}
-            PDF_CATEGORY_NAMES={PDF_CATEGORY_NAMES}
-            PDF_CATEGORY_CHAR_LIMIT={PDF_CATEGORY_CHAR_LIMIT}
-            createPdfActivityBlock={createPdfActivityBlock}
             bulletTextareaRefs={bulletTextareaRefs}
             lastBulletEnterAt={lastBulletEnterAt}
             onRequestActivityDelete={setActivityDeleteTargetId}
