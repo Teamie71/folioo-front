@@ -574,7 +574,7 @@ export default function CorrectionSettingsPage() {
         </div>
 
         {step === 'result' ? (
-          <div className='flex flex-col gap-[0.75rem] pb-[3.375rem]'>
+          <div className='flex flex-col gap-[0.75rem] pb-[6.25rem]'>
             <div className='h-[1px] w-full bg-[#9EA4A9]' />
           </div>
         ) : (
@@ -961,7 +961,7 @@ export default function CorrectionSettingsPage() {
             </div>
 
             {/* 첨삭 시작하기 버튼 */}
-            <div className='flex justify-center pb-[7rem]'>
+            <div className='flex justify-center pb-[6.25rem]'>
               <CommonButton
                 variantType='Primary'
                 px='2.25rem'
@@ -977,7 +977,9 @@ export default function CorrectionSettingsPage() {
         ) : step === 'portfolio' ? (
           <>
             {/* 포트폴리오 종류 선택 */}
-            <div className='flex flex-col gap-[1.25rem]'>
+            <div
+              className={`flex flex-col gap-[1.25rem] ${!selectedPortfolioType ? 'pb-[6.25rem]' : ''}`}
+            >
               <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                 <span>포트폴리오 종류 선택</span>
                 <span className='text-[#DC0000]'>*</span>
@@ -1084,7 +1086,9 @@ export default function CorrectionSettingsPage() {
 
               {/* PDF 포트폴리오 업로드 섹션 */}
               {selectedPortfolioType === 'pdf' && (
-                <div className='mt-[4.75rem] flex flex-col gap-[1.25rem]'>
+                <div
+                  className={`mt-[4.75rem] flex flex-col gap-[1.25rem] ${!isPdfTextExtracted || isPdfTextExtracting ? 'pb-[6.25rem]' : ''}`}
+                >
                   <div>
                     <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                       <span>PDF 포트폴리오 업로드</span>
@@ -1557,7 +1561,7 @@ export default function CorrectionSettingsPage() {
                     ),
                   );
                 return (
-                  <div className='flex justify-center pb-[7rem]'>
+                  <div className='flex justify-center pb-[6.25rem]'>
                     <CommonButton
                       variantType='Primary'
                       px='2.25rem'
@@ -1656,7 +1660,7 @@ export default function CorrectionSettingsPage() {
             </div>
 
             {/* 첨삭 의뢰하기 버튼 */}
-            <div className='flex justify-center pt-[1.25rem] pb-[7rem]'>
+            <div className='flex justify-center pt-[1.25rem] pb-[6.25rem]'>
               <CommonButton
                 variantType='Primary'
                 px='2.25rem'
@@ -2064,7 +2068,7 @@ export default function CorrectionSettingsPage() {
                 </div>
 
                 {/* 새로운 경험 정리 시작하기 버튼 */}
-                <div className='flex justify-center pt-[1.25rem] pb-[7rem]'>
+                <div className='flex justify-center pt-[1.25rem] pb-[6.25rem]'>
                   <CommonButton
                     variantType='Primary'
                     px='2.25rem'
