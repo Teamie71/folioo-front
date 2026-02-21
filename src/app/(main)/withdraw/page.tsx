@@ -7,6 +7,7 @@ import { BackButton } from '@/components/BackButton';
 import { CommonButton } from '@/components/CommonButton';
 import { Checkbox } from '@/components/ui/CheckBox';
 import { Dropdown } from '@/components/Dropdown';
+import TextField from '@/components/TextField';
 import { CommonModal } from '@/components/CommonModal';
 
 export default function WithdrawPage() {
@@ -168,7 +169,7 @@ export default function WithdrawPage() {
                 />
                 <path
                   d='M6.66699 10L9.16699 12.5L14.167 7.5'
-                  stroke={isAgreed ? '#FFFFFF' : 'transparent'}
+                  stroke={isAgreed ? '#FFFFFF' : '#9EA4A9'}
                   strokeWidth='2'
                   strokeLinecap='round'
                   strokeLinejoin='round'
@@ -285,10 +286,9 @@ export default function WithdrawPage() {
 
         {withdrawReason === '4' && (
           <div className='mt-[1.5rem] pl-[1.75rem]'>
-            <textarea
+            <TextField
               placeholder='이유를 알려주세요.'
-              className='w-full rounded-[0.5rem] border-[1px] border-[#74777D] px-[1.25rem] py-[0.75rem] text-[1rem] outline-none resize-none'
-              rows={4}
+              height='8rem'
             />
           </div>
         )}
