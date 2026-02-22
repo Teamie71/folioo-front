@@ -25,6 +25,14 @@ body {
   max-width: 100vw;
 }
 
+/* Navbar + OBT 배너 하단 고정 시 콘텐츠 상단 여백 */
+.layout-content-below-header {
+  padding-top: 140px; /* 80px + 3.75rem */
+}
+body[data-banner-dismissed='true'] .layout-content-below-header {
+  padding-top: 80px;
+}
+
 /* 배너 닫힘 시 레이아웃에서 제거 - 스크립트 먼저 실행 */
 body[data-banner-dismissed='true'] .banner-beta {
   display: none !important;

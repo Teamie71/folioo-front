@@ -49,8 +49,12 @@ export default function LayoutContent({
       value={{ setShowNavbarOnResult: useCallback((show: boolean) => setShowNavbarOnResult(show), []) }}
     >
       {!hideNavbar && <Navbar />}
-      <div className={hideNavbar ? '' : 'pt-[80px]'}>
-        {!hideNavbar && <BannerBeta />}
+      {!hideNavbar && <BannerBeta />}
+      <div
+        className={
+          hideNavbar ? '' : 'layout-content-below-header'
+        }
+      >
         {children}
       </div>
 
