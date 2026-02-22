@@ -1,4 +1,14 @@
 import { CheckSquareIcon } from "@/components/icons/CheckSquareIcon"
+import { PointIcon1 } from "./PointIcon1"
+import { PointIcon2 } from "./PointIcon2"
+import { PointIcon3 } from "./PointIcon3"
+import type { ComponentType } from "react"
+
+const pointIcons: Record<number, ComponentType> = {
+    1: PointIcon1,
+    2: PointIcon2,
+    3: PointIcon3,
+}
 
 const portfolioPoints = [
     {
@@ -18,25 +28,30 @@ const portfolioPoints = [
 export const PortfoliloPoints = () => {
     return (
         <div className="flex flex-col gap-[1.5rem] w-[46.25rem] mx-auto">
-            {portfolioPoints.map((point) => (
-                <div 
-                    key={point.number}
-                    className="flex justify-between items-center px-[2.5rem] py-[1.75rem] bg-[#FFFFFF] shadow-[2px_4px_12px_0px_rgba(0,0,0,0.2)_inset] rounded-[1.75rem]"
-                >
-                    <div className="flex flex-col gap-[0.75rem]">
-                        <div className="flex items-center gap-[0.5rem]">
-                            <CheckSquareIcon />
-                            <span className="text-[1.25rem] font-bold leading-[130%] text-[#9EA4A9]">
-                                POINT {point.number}.
-                            </span>
+            {portfolioPoints.map((point) => {
+                const PointIcon = pointIcons[point.number]
+                return (
+                    <div
+                        key={point.number}
+                        className="flex justify-between items-center px-[2.5rem] py-[1.75rem] bg-[#FFFFFF] shadow-[2px_4px_12px_0px_rgba(0,0,0,0.2)_inset] rounded-[1.75rem]"
+                    >
+                        <div className="flex flex-col gap-[0.75rem]">
+                            <div className="flex items-center gap-[0.5rem]">
+                                <CheckSquareIcon />
+                                <span className="text-[1.25rem] font-bold leading-[130%] text-[#9EA4A9]">
+                                    POINT {point.number}.
+                                </span>
+                            </div>
+                            <h3 className="text-[1.5rem] font-bold text-[#5060C5] leading-[130%]">
+                                {point.title}
+                            </h3>
                         </div>
-                        <h3 className="text-[1.5rem] font-bold text-[#5060C5] leading-[130%]">
-                            {point.title}
-                        </h3>
+                        <div className="flex shrink-0 items-center justify-center w-[6rem] h-[6rem]">
+                            {PointIcon ? <PointIcon /> : null}
+                        </div>
                     </div>
-                    <div className="w-[6rem] h-[6rem] bg-[#D9D9D9]" />
-                </div>
-            ))}
+                )
+            })}
         </div>
     )
 }
