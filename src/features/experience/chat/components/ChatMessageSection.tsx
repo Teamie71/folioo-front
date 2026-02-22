@@ -1,3 +1,7 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+import { animate } from 'framer-motion';
 import Image from 'next/image';
 import { ChatAnalogs } from './ChatAnalogs';
 
@@ -17,6 +21,31 @@ export function ChatMessageSection({
   onAIMessageClick,
   onUserMessageClick,
 }: ChatMessageSectionProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // 메시지가 추가되면(사용자 입력 등) 스크롤을 최하단으로
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const from = el.scrollTop;
+    let controls: { stop: () => void } | null = null;
+    const frameId = requestAnimationFrame(() => {
+      const to = el.scrollHeight;
+      controls = animate(from, to, {
+        type: 'tween',
+        duration: 0.75,
+        ease: 'easeOut',
+        onUpdate: (v) => {
+          el.scrollTop = v;
+        },
+      });
+    });
+    return () => {
+      cancelAnimationFrame(frameId);
+      controls?.stop();
+    };
+  }, [messages]);
+
   return (
     <div className='relative flex min-h-0 flex-1 flex-col'>
       {/* 위쪽 페이드 */}
@@ -29,7 +58,10 @@ export function ChatMessageSection({
         aria-hidden
       />
       {/* 스크롤 영역 */}
-      <div className='scrollbar-hide flex min-h-0 flex-1 flex-col gap-[3.75rem] overflow-y-auto'>
+      <div
+        ref={scrollRef}
+        className='scrollbar-hide flex min-h-0 flex-1 flex-col gap-[3.75rem] overflow-y-auto'
+      >
         <div className='flex flex-col gap-[3.75rem]'>
           {messages.map((msg, index) =>
             msg.role === 'ai' ? (
