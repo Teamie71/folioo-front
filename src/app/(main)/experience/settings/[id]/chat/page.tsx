@@ -104,8 +104,8 @@ export default function ExperienceSettingsChatPage() {
           />
         </div>
 
-        {/* 채팅 영역: 메시지 영역만 스크롤, 브라우저 바닥 10rem까지 */}
-        <div className='flex min-h-0 flex-1 flex-col overflow-hidden pb-[19.75rem]'>
+        {/* 채팅 영역: 메시지 영역만 스크롤 */}
+        <div className='flex min-h-0 flex-1 flex-col overflow-hidden pb-[14.75rem]'>
           <ChatMessageSection
             messages={messages}
             onAIMessageClick={() => setIsCompletionModalOpen(true)}
