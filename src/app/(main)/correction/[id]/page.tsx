@@ -123,11 +123,7 @@ export default function CorrectionSettingsPage() {
           pdfExtractModal={{
             open: s.isPdfExtractConfirmModalOpen,
             onOpenChange: s.setIsPdfExtractConfirmModalOpen,
-            onConfirm: () => {
-              s.setIsPdfExtractConfirmModalOpen(false);
-              s.setIsPdfTextExtracted(true);
-              s.setIsPdfTextExtracting(true);
-            },
+            onConfirm: s.handlePdfExtractConfirm,
           }}
           jdViewer={{
             previewUrl:

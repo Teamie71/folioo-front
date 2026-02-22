@@ -7,6 +7,7 @@ import {
   INITIAL_PDF_ACTIVITIES,
   PDF_CATEGORY_CHAR_LIMIT,
 } from '@/features/correction/constants';
+import { extractPdfPortfolio } from '@/services/correction';
 import type {
   PdfActivityBlock,
   PdfCategoryName,
@@ -84,6 +85,7 @@ export function useCorrectionState() {
     useState(false);
   const [pdfUploadedFile, setPdfUploadedFile] = useState<{
     name: string;
+    file: File;
   } | null>(null);
   const [pdfUploadError, setPdfUploadError] = useState<
     null | 'too_large' | 'too_many'
@@ -151,11 +153,25 @@ export function useCorrectionState() {
     setShowNavbarOnResult?.(step === 'result');
   }, [step, setShowNavbarOnResult]);
 
-  useEffect(() => {
-    if (!isPdfTextExtracting) return;
-    const timer = setTimeout(() => setIsPdfTextExtracting(false), 2500);
-    return () => clearTimeout(timer);
-  }, [isPdfTextExtracting]);
+  const handlePdfExtractConfirm = useCallback(async () => {
+    if (!pdfUploadedFile) return;
+    setIsPdfExtractConfirmModalOpen(false);
+    setIsPdfTextExtracting(true);
+    try {
+      await extractPdfPortfolio(pdfUploadedFile.file);
+      setIsPdfTextExtracted(true);
+      // result가 PdfActivityBlock[] 형태면 setPdfActivities로 확장 가능
+    } catch (err) {
+      const message =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { error?: { reason?: string } } } })
+              .response?.data?.error?.reason
+          : '텍스트 추출에 실패했습니다.';
+      alert(message ?? '텍스트 추출에 실패했습니다.');
+    } finally {
+      setIsPdfTextExtracting(false);
+    }
+  }, [pdfUploadedFile]);
 
   const handleStartCorrectionClick = useCallback(() => {
     const companyNameEmpty = !companyName.trim();
@@ -236,7 +252,7 @@ export function useCorrectionState() {
         return prev;
       }
       setPdfUploadError(null);
-      return { name: file.name };
+      return { name: file.name, file };
     });
   }, []);
 
@@ -414,6 +430,7 @@ export function useCorrectionState() {
     handleStartNewExperience,
     handlePortfolioSelect,
     handlePdfFile,
+    handlePdfExtractConfirm,
     handleJdImageFile,
     handlePasteJdImageFromClipboard,
     removeJdFileAt,
