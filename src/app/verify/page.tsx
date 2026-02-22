@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import InputArea from '@/components/InputArea';
-// import { EventModal } from '@/components/EventModal';
 import { OBTEventModal } from '@/components/OBT/OBTEventModal';
+import { sendAuthSms } from '@/services/auth';
 import { useRouter } from 'next/navigation';
 
 const TIMER_INITIAL = 299; // 04:59
@@ -66,12 +66,16 @@ export default function VerifyPage() {
               py='0.5rem'
               className='rounded-[6.25rem] disabled:cursor-not-allowed disabled:bg-[#CDD0D5] disabled:hover:bg-[#CDD0D5]'
               disabled={phoneNumber.length !== PHONE_MAX_LENGTH}
-              onClick={() => {
-                // TODO: 인증 번호 발송 API 연동
-                setCodeSent(true);
-                setTimer(TIMER_INITIAL);
-                setOtp(Array(OTP_LENGTH).fill(''));
-                setIsError(false);
+              onClick={async () => {
+                try {
+                  await sendAuthSms({ phoneNum: phoneNumber });
+                  setCodeSent(true);
+                  setTimer(TIMER_INITIAL);
+                  setOtp(Array(OTP_LENGTH).fill(''));
+                  setIsError(false);
+                } catch {
+                  // 실패 시 화면 유지
+                }
               }}
             >
               인증 번호 발송
@@ -82,9 +86,10 @@ export default function VerifyPage() {
     );
   }
 
-  // 2단계: 인증번호 입력 (제공해주신 UI 반영)
+  // 2단계: 인증번호 입력
   return (
     <VerifyOtpStep
+      phoneNumber={phoneNumber}
       otp={otp}
       setOtp={setOtp}
       timer={timer}
@@ -97,6 +102,7 @@ export default function VerifyPage() {
 }
 
 function VerifyOtpStep({
+  phoneNumber,
   otp,
   setOtp,
   timer,
@@ -105,6 +111,7 @@ function VerifyOtpStep({
   setIsError,
   formatTime,
 }: {
+  phoneNumber: string;
   otp: string[];
   setOtp: React.Dispatch<React.SetStateAction<string[]>>;
   timer: number;
@@ -149,11 +156,15 @@ function VerifyOtpStep({
     }
   };
 
-  const handleResend = () => {
-    // TODO: 재발송 API 연동
-    setTimer(TIMER_INITIAL);
-    setOtp(Array(OTP_LENGTH).fill(''));
-    setIsError(false);
+  const handleResend = async () => {
+    try {
+      await sendAuthSms({ phoneNum: phoneNumber });
+      setTimer(TIMER_INITIAL);
+      setOtp(Array(OTP_LENGTH).fill(''));
+      setIsError(false);
+    } catch {
+      // 실패 시 화면 유지
+    }
   };
 
   const handleVerify = () => {
