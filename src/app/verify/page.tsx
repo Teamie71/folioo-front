@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import InputArea from '@/components/InputArea';
 import { OBTEventModal } from '@/components/OBT/OBTEventModal';
-import { sendAuthSms } from '@/services/auth';
+import { sendAuthSms, verifyAuthSms } from '@/services/auth';
 import { useRouter } from 'next/navigation';
 
 const TIMER_INITIAL = 299; // 04:59
@@ -167,14 +167,17 @@ function VerifyOtpStep({
     }
   };
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     const fullCode = otp.join('');
     if (fullCode.length !== OTP_LENGTH) return;
-    // TODO: 인증번호 일치 여부 API로 확인
-    if (fullCode === '000000') {
+    try {
+      await verifyAuthSms({
+        phoneNum: phoneNumber,
+        verifyToken: fullCode,
+      });
       setIsError(false);
       setEventModalOpen(true);
-    } else {
+    } catch {
       setIsError(true);
     }
   };
