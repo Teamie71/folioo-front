@@ -80,7 +80,7 @@ export default function ExperienceSettingsChatLoadingPage() {
           </div>
 
           <span className='mt-[] text-center text-[1.125rem] leading-[130%] font-bold'>
-            AI 컨설턴트 가 텍스트형 포트폴리오를 생성 중이에요.
+            AI 컨설턴트가 텍스트형 포트폴리오를 생성 중이에요.
             <br />
             페이지를 떠나도 작업은 계속돼요.
           </span>
