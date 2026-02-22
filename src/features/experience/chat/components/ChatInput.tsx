@@ -17,16 +17,16 @@ const ALLOWED_FILE_TYPES = [
 ];
 const MAX_CHARS = 400;
 
-interface ChatInputProps {
-  value?: string;
-  onChange?: (value: string) => void;
-  onSend?: () => void;
-}
-
-interface FileItem {
+export interface FileItem {
   id: string;
   file: File;
   preview?: string;
+}
+
+interface ChatInputProps {
+  value?: string;
+  onChange?: (value: string) => void;
+  onSend?: (payload: { content: string; files: FileItem[] }) => void;
 }
 
 const MAX_TITLE_LENGTH = 20;
@@ -212,6 +212,13 @@ export const ChatInput = ({
     [onChange],
   );
 
+  const handleSend = () => {
+    const content = contentRef.current?.textContent?.trim() ?? '';
+    if (!content && files.length === 0) return;
+    onSend?.({ content, files });
+    setFiles([]);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLSpanElement>) => {
     if (e.key === 'Escape' && mentionOpen) {
       e.preventDefault();
@@ -220,7 +227,7 @@ export const ChatInput = ({
     }
     if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
-      onSend?.();
+      handleSend();
     }
   };
 
@@ -392,7 +399,7 @@ export const ChatInput = ({
         />
         <div className='flex shrink-0 items-center gap-[0.5rem]'>
           <ChatFileUploader onFileSelect={handleFileSelect} />
-          <ChatSendButton onClick={onSend} />
+          <ChatSendButton onClick={handleSend} />
         </div>
       </div>
     </div>
