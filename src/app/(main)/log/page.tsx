@@ -234,6 +234,7 @@ export default function LogPage() {
               <input
                 className='w-[32.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
                 placeholder='검색어를 입력하세요.'
+                maxLength={100}
               />
               <div className='absolute right-[1.25rem]'>
                 <SearchButton />
