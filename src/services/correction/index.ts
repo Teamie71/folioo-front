@@ -66,6 +66,22 @@ function mapToPdfActivityBlock(
   };
 }
 
+/** PDF 포트폴리오 활동 블록 추가 */
+export async function postExternalPortfolio(
+  correctionId: number,
+  index: number,
+): Promise<PdfActivityBlock> {
+  const response = await apiClient.post<
+    ApiResponse<StructuredPortfolioResDTO>
+  >('/external-portfolios', { correctionId });
+
+  if (response.data.isSuccess && response.data.result != null) {
+    return mapToPdfActivityBlock(response.data.result, index);
+  }
+
+  throw new Error('활동 블록 추가에 실패했습니다.');
+}
+
 /** PDF 포트폴리오 텍스트 정리 결과 조회 */
 export async function getExternalPortfolios(
   correctionId: number,

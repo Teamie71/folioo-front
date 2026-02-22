@@ -246,6 +246,7 @@ export default function CorrectionSettingsPage() {
             isPdfTextExtracting={s.isPdfTextExtracting}
             pdfActivities={s.pdfActivities}
             setPdfActivities={s.setPdfActivities}
+            onAddActivity={s.handleAddPdfActivity}
             selectedActivityId={s.selectedActivityId}
             onActivitySelect={s.setSelectedActivityId}
             selectedTab={s.selectedTab}
