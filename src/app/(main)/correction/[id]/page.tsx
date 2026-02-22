@@ -247,6 +247,7 @@ export default function CorrectionSettingsPage() {
             pdfActivities={s.pdfActivities}
             setPdfActivities={s.setPdfActivities}
             onAddActivity={s.handleAddPdfActivity}
+            onActivityChange={s.handlePdfActivityChange}
             selectedActivityId={s.selectedActivityId}
             onActivitySelect={s.setSelectedActivityId}
             selectedTab={s.selectedTab}

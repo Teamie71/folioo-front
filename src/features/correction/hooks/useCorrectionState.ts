@@ -10,7 +10,9 @@ import {
 import {
   extractPdfPortfolio,
   getExternalPortfolios,
+  patchExternalPortfolio,
   postExternalPortfolio,
+  toPatchBody,
 } from '@/services/correction';
 import type {
   PdfActivityBlock,
@@ -205,6 +207,25 @@ export function useCorrectionState(correctionId?: string | null) {
       alert(msg ?? '활동 블록 추가에 실패했습니다.');
     }
   }, [correctionId, pdfActivities.length]);
+
+  const debouncedPatchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handlePdfActivityChange = useCallback((activity: PdfActivityBlock) => {
+    if (activity.portfolioId == null) return;
+    if (debouncedPatchRef.current) clearTimeout(debouncedPatchRef.current);
+    debouncedPatchRef.current = setTimeout(() => {
+      debouncedPatchRef.current = null;
+      patchExternalPortfolio(activity.portfolioId!, toPatchBody(activity)).catch(
+        (err) => {
+          const msg =
+            err && typeof err === 'object' && 'response' in err
+              ? (err as { response?: { data?: { error?: { reason?: string } } } })
+                  .response?.data?.error?.reason
+              : '포트폴리오 수정에 실패했습니다.';
+          alert(msg ?? '포트폴리오 수정에 실패했습니다.');
+        },
+      );
+    }, 500);
+  }, []);
 
   const handleStartCorrectionClick = useCallback(() => {
     const companyNameEmpty = !companyName.trim();
@@ -465,6 +486,7 @@ export function useCorrectionState(correctionId?: string | null) {
     handlePdfFile,
     handlePdfExtractConfirm,
     handleAddPdfActivity,
+    handlePdfActivityChange,
     handleJdImageFile,
     handlePasteJdImageFromClipboard,
     removeJdFileAt,

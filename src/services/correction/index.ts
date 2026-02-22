@@ -3,6 +3,7 @@ import type { ApiResponse } from '@/types/api/common';
 import type {
   ExtractPdfResponse,
   GetExternalPortfoliosResponse,
+  PatchExternalPortfolioRequest,
   StructuredPortfolioResDTO,
 } from '@/types/api/correction';
 import type { PdfActivityBlock, PdfCategoryName } from '@/types/correction';
@@ -44,12 +45,31 @@ const CATEGORY_ORDER: PdfCategoryName[] = [
   '배운 점',
 ];
 
+/** bullets → API 필드 (줄바꿈으로 join) */
+function fromBullets(bullets: string[]): string {
+  return bullets.filter(Boolean).join('\n') || '';
+}
+
+/** PdfActivityBlock → PATCH body */
+export function toPatchBody(block: PdfActivityBlock): PatchExternalPortfolioRequest {
+  const bulletsMap = Object.fromEntries(
+    block.categories.map((c) => [c.name, c.bullets]),
+  ) as Record<PdfCategoryName, string[]>;
+  return {
+    name: block.label,
+    description: fromBullets(bulletsMap['상세정보'] ?? ['']),
+    responsibilities: fromBullets(bulletsMap['담당업무'] ?? ['']),
+    problemSolving: fromBullets(bulletsMap['문제해결'] ?? ['']),
+    learnings: fromBullets(bulletsMap['배운 점'] ?? ['']),
+  };
+}
+
 /** API 응답 항목 → PdfActivityBlock (name→활동 탭 제목, description→상세정보, responsibilities→담당업무, problemSolving→문제해결, learnings→배운 점) */
 function mapToPdfActivityBlock(
   dto: StructuredPortfolioResDTO,
   index: number,
 ): PdfActivityBlock {
-  const id = `pdf-act-${index}`;
+  const id = `pdf-act-${dto.portfolioId ?? index}`;
   const bulletsMap: Record<PdfCategoryName, string[]> = {
     상세정보: toBullets(dto.description),
     담당업무: toBullets(dto.responsibilities),
@@ -63,6 +83,7 @@ function mapToPdfActivityBlock(
       name,
       bullets: bulletsMap[name],
     })),
+    portfolioId: dto.portfolioId,
   };
 }
 
@@ -80,6 +101,20 @@ export async function postExternalPortfolio(
   }
 
   throw new Error('활동 블록 추가에 실패했습니다.');
+}
+
+/** PDF 포트폴리오 텍스트 정리 결과 수정 */
+export async function patchExternalPortfolio(
+  portfolioId: number,
+  body: PatchExternalPortfolioRequest,
+): Promise<void> {
+  const response = await apiClient.patch<
+    ApiResponse<StructuredPortfolioResDTO>
+  >(`/external-portfolios/${portfolioId}`, body);
+
+  if (!response.data.isSuccess) {
+    throw new Error('포트폴리오 수정에 실패했습니다.');
+  }
 }
 
 /** PDF 포트폴리오 텍스트 정리 결과 조회 */

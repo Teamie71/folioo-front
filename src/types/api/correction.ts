@@ -13,3 +13,12 @@ export interface StructuredPortfolioResDTO {
 
 /** GET /external-portfolios - result 타입 */
 export type GetExternalPortfoliosResponse = StructuredPortfolioResDTO[];
+
+/** PATCH /external-portfolios/{portfolioId} - request body */
+export interface PatchExternalPortfolioRequest {
+  name: string;
+  description: string;
+  responsibilities: string;
+  problemSolving: string;
+  learnings: string;
+}
