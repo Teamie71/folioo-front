@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { ChatAnalogs } from './ChatAnalogs';
 
 export type ChatMessage = {
@@ -35,10 +36,15 @@ export function ChatMessageSection({
               <button
                 key={`ai-${index}`}
                 type='button'
-                className='flex cursor-pointer gap-[1.5rem] text-left'
+                className='flex cursor-pointer items-start gap-[1.5rem] text-left'
                 onClick={onAIMessageClick}
               >
-                <div className='h-[3rem] w-[3rem] flex-shrink-0 bg-[#D9D9D9]' />
+                <Image
+                  src='/ChataiIcon.svg'
+                  alt='AI Message Icon'
+                  width={48}
+                  height={48}
+                />
                 <div className='font-regular max-w-[53.75rem] rounded-tl-[0.25rem] rounded-tr-[2rem] rounded-br-[2rem] rounded-bl-[2rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2.25rem] py-[1.75rem] text-[1rem] whitespace-pre-wrap text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
                   {msg.content}
                   <ChatAnalogs />
