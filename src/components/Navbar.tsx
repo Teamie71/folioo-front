@@ -4,12 +4,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
+import { ProfileModal } from '@/components/ProfileModal';
 import { cn } from '@/utils/utils';
 
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const linkClass = (href: string) =>
     cn(
@@ -60,7 +62,7 @@ export default function Navbar() {
                   이용권 구매
                 </Link>
                 <button
-                  onClick={handleLogin}
+                  onClick={() => setIsProfileModalOpen(true)}
                   className='flex cursor-pointer items-center gap-[0.25rem] border-none bg-transparent outline-none focus:outline-none'
                 >
                   <svg
@@ -94,6 +96,10 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+      <ProfileModal
+        open={isProfileModalOpen}
+        onOpenChange={setIsProfileModalOpen}
+      />
     </nav>
   );
 }
