@@ -132,7 +132,7 @@ export default function LogPage() {
     resetForm();
   };
   return (
-    <div className='flex flex-col gap-[4.5rem] pb-[4.5rem]'>
+    <div className='flex flex-col gap-[4.5rem] pb-[15rem]'>
       {/* 인사이트 로그 헤더 */}
       <div className='mx-auto flex h-[15.625rem] w-full min-w-[66rem] flex-col justify-center bg-[#F6F5FF]'>
         <div className='mx-auto flex min-w-[66rem] flex-col items-start gap-[1rem]'>
@@ -188,6 +188,7 @@ export default function LogPage() {
                 placeholder='제목 입력'
                 value={formData.title}
                 onChange={(e) => setFormField('title', e.target.value)}
+                maxLength={20}
               />
             </div>
 
@@ -233,6 +234,7 @@ export default function LogPage() {
               <input
                 className='w-[32.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
                 placeholder='검색어를 입력하세요.'
+                maxLength={100}
               />
               <div className='absolute right-[1.25rem]'>
                 <SearchButton />
@@ -242,7 +244,9 @@ export default function LogPage() {
             {/* 카테고리 선택 */}
             <div className='relative flex items-center'>
               <div className='w-[15.375rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'>
-                <span className='text-[1rem] text-[#74777D]'>
+                <span
+                  className={`text-[1rem] ${categories.find((cat) => cat.id === selectedCategoryId) ? 'text-[#000000]' : 'text-[#74777D]'}`}
+                >
                   {categories.find((cat) => cat.id === selectedCategoryId)
                     ?.label || '카테고리 선택'}
                 </span>
@@ -260,7 +264,9 @@ export default function LogPage() {
             {/* 활동 분류 선택 */}
             <div className='relative flex items-center'>
               <div className='w-[15.375rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'>
-                <span className='text-[1rem] text-[#74777D]'>
+                <span
+                  className={`text-[1rem] ${activities.find((act) => act.id === selectedActivityId) ? 'text-[#000000]' : 'text-[#74777D]'}`}
+                >
                   {activities.find((act) => act.id === selectedActivityId)
                     ?.label || '활동 분류 선택'}
                 </span>
@@ -280,7 +286,7 @@ export default function LogPage() {
         {/* 카드 */}
         <div className='grid grid-cols-2 gap-[1.5rem]'>
           {logCards.length === 0 ? (
-            <div className='col-span-2 mt-[5rem] flex items-center justify-center text-center text-[1.125rem] leading-[130%] font-bold text-[#000000]'>
+            <div className='col-span-2 mt-[5rem] flex items-center justify-center text-center text-[1.125rem] leading-[130%] font-bold text-[#9EA4A9]'>
               아직 작성한 로그가 없어요 <br />
               로그를 작성하고 인사이트를 기록해보세요!
             </div>

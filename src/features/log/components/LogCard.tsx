@@ -72,18 +72,18 @@ export function LogCard({
 
       {/* 내용 + 태그 */}
       <div className='flex flex-col gap-[1.25rem]'>
-        {/* 내용 */}
-        <div className='line-height-[150%] text-[1rem] whitespace-pre-line text-[#1A1A1A]'>
+        {/* 내용: 3줄까지만 표시, 나머지 말줄임 */}
+        <div className='line-height-[150%] line-clamp-3 text-[1rem] whitespace-pre-line text-[#1A1A1A]'>
           {content}
         </div>
 
         {/* 태그 */}
         <div className='flex items-center gap-[0.5rem]'>
-          <div className='rounded-[3.75rem] border border-[#CDD0D5] px-[0.625rem] py-[0.25rem] text-[0.875rem] text-[#1A1A1A]'>
+          <div className='rounded-[3.75rem] border border-[#CDD0D5] bg-[#FFFFFF] px-[0.625rem] py-[0.25rem] text-[0.875rem] text-[#1A1A1A]'>
             {activityName}
           </div>
 
-          <div className='flex items-center gap-[0.5rem] rounded-[3.75rem] border border-[#CDD0D5] px-[0.625rem] py-[0.25rem] text-[0.875rem] text-[#1A1A1A]'>
+          <div className='flex items-center gap-[0.5rem] rounded-[3.75rem] border border-[#CDD0D5] bg-[#FFFFFF] px-[0.625rem] py-[0.25rem] text-[0.875rem] text-[#1A1A1A]'>
             {getCategoryIcon(category)}
             <span>{category}</span>
           </div>

@@ -17,22 +17,41 @@ const ALLOWED_FILE_TYPES = [
 ];
 const MAX_CHARS = 400;
 
-interface ChatInputProps {
-  value?: string;
-  onChange?: (value: string) => void;
-  onSend?: () => void;
-}
-
-interface FileItem {
+export interface FileItem {
   id: string;
   file: File;
   preview?: string;
 }
 
+interface ChatInputProps {
+  value?: string;
+  onChange?: (value: string) => void;
+  onSend?: (payload: { content: string; files: FileItem[] }) => void;
+}
+
+const MAX_TITLE_LENGTH = 20;
+
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/* 제목만 생략, 확장자(.pdf, .jpg 등)는 항상 표시 */
+function truncateFileName(
+  name: string,
+  maxTitleLen: number = MAX_TITLE_LENGTH,
+): string {
+  const lastDot = name.lastIndexOf('.');
+  if (lastDot <= 0) {
+    return name.length <= maxTitleLen
+      ? name
+      : `${name.slice(0, maxTitleLen)}...`;
+  }
+  const title = name.slice(0, lastDot);
+  const ext = name.slice(lastDot);
+  if (title.length <= maxTitleLen) return name;
+  return `${title.slice(0, maxTitleLen)}...${ext}`;
 }
 
 function getFileIcon(file: File) {
@@ -193,6 +212,13 @@ export const ChatInput = ({
     [onChange],
   );
 
+  const handleSend = () => {
+    const content = contentRef.current?.textContent?.trim() ?? '';
+    if (!content && files.length === 0) return;
+    onSend?.({ content, files });
+    setFiles([]);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLSpanElement>) => {
     if (e.key === 'Escape' && mentionOpen) {
       e.preventDefault();
@@ -201,7 +227,7 @@ export const ChatInput = ({
     }
     if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
-      onSend?.();
+      handleSend();
     }
   };
 
@@ -325,8 +351,11 @@ export const ChatInput = ({
 
                 {/* 파일 정보 */}
                 <div className='flex flex-col'>
-                  <span className='text-[1rem] font-semibold text-[#1A1A1A]'>
-                    {fileItem.file.name}
+                  <span
+                    className='truncate text-[1rem] font-semibold text-[#1A1A1A]'
+                    title={fileItem.file.name}
+                  >
+                    {truncateFileName(fileItem.file.name)}
                   </span>
                   <span className='text-[0.75rem] text-[#74777D]'>
                     {formatFileSize(fileItem.file.size)}
@@ -370,7 +399,7 @@ export const ChatInput = ({
         />
         <div className='flex shrink-0 items-center gap-[0.5rem]'>
           <ChatFileUploader onFileSelect={handleFileSelect} />
-          <ChatSendButton onClick={onSend} />
+          <ChatSendButton onClick={handleSend} />
         </div>
       </div>
     </div>

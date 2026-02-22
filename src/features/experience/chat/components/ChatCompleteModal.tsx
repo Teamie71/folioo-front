@@ -22,7 +22,11 @@ export const ChatCompleteModal = ({
 }: ChatCompleteModalProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='w-[41.375rem] items-center gap-[1.75rem] px-[5rem] py-[3.75rem] text-center [&>button:last-child]:hidden'>
+      <DialogContent
+        className='w-[41.375rem] items-center gap-[1.75rem] px-[5rem] py-[3.75rem] text-center [&>button:last-child]:hidden'
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader className='flex flex-col items-center justify-center gap-[1rem]'>
           <DialogTitle className='text-center text-[1.125rem] leading-[130%] font-bold text-[#1A1A1A]'>
             대화의 모든 단계가 완료되었어요!
@@ -32,7 +36,7 @@ export const ChatCompleteModal = ({
 
         <div className='flex justify-center gap-[1.5rem]'>
           <button
-            className='w-[14.875rem] cursor-pointer rounded-[0.5rem] border border-[#74777D] bg-white px-[2.25rem] py-[0.75rem] text-[0.875rem] text-[#1A1A1A]'
+            className='w-[14.875rem] cursor-pointer rounded-[0.5rem] border border-[#74777D] bg-white px-[2.25rem] py-[0.75rem] text-[0.875rem] text-[#1A1A1A] hover:bg-[#F6F8FA]'
             onClick={onEndConversation}
           >
             대화 종료하고
@@ -40,7 +44,7 @@ export const ChatCompleteModal = ({
             텍스트형 포트폴리오 생성하기
           </button>
           <button
-            className='w-[14.875rem] cursor-pointer rounded-[0.5rem] border border-[#74777D] bg-white px-[2.25rem] py-[0.75rem] text-[0.875rem] text-[#1A1A1A]'
+            className='w-[14.875rem] cursor-pointer rounded-[0.5rem] border border-[#74777D] bg-white px-[2.25rem] py-[0.75rem] text-[0.875rem] text-[#1A1A1A] hover:bg-[#F6F8FA]'
             onClick={onContinueWithCredits}
           >
             3턴의 대화 계속하기

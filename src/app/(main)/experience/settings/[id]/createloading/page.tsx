@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { StepProgressBar } from '@/components/StepProgressBar';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
+import { InlineEdit } from '@/components/InlineEdit';
 import { useExperienceStore } from '@/store/useExperienceStore';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
@@ -15,14 +16,25 @@ import Link from 'next/link';
 export default function ExperienceSettingsChatLoadingPage() {
   const params = useParams();
   const router = useRouter();
+  const id = typeof params.id === 'string' ? params.id : '';
   const removeExperience = useExperienceStore(
     (state) => state.removeExperience,
   );
-  const experienceCards = useExperienceStore((state) => state.experienceCards);
+  const updateExperienceTitle = useExperienceStore(
+    (state) => state.updateExperienceTitle,
+  );
+  const storeTitle = useExperienceStore(
+    (state) =>
+      state.experienceCards.find((c) => c.id === id)?.title ??
+      '새로운 경험 정리',
+  );
 
-  const id = typeof params.id === 'string' ? params.id : '';
-  const title =
-    experienceCards.find((card) => card.id === id)?.title ?? '새로운 경험 정리';
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [experienceTitle, setExperienceTitle] = useState(storeTitle);
+
+  useEffect(() => {
+    setExperienceTitle(storeTitle);
+  }, [id, storeTitle]);
 
   useEffect(() => {
     if (id) setExperienceReturnPath(id, 'createloading');
@@ -40,9 +52,16 @@ export default function ExperienceSettingsChatLoadingPage() {
         <div className='flex w-full shrink-0 items-center justify-between'>
           <div className='flex items-center gap-[0.5rem]'>
             <BackButton href='/experience' />
-            <span className='rounded-[0.375rem] border border-transparent py-[0.5rem] pr-0 pl-[0.75rem] text-[1.25rem] font-bold'>
-              {title}
-            </span>
+            <InlineEdit
+              title={experienceTitle}
+              isEditing={isEditingTitle}
+              onEdit={() => setIsEditingTitle(true)}
+              onSave={(newTitle) => {
+                setExperienceTitle(newTitle);
+                updateExperienceTitle(id, newTitle);
+                setIsEditingTitle(false);
+              }}
+            />
           </div>
 
           <DeleteModalButton
@@ -80,7 +99,7 @@ export default function ExperienceSettingsChatLoadingPage() {
           </div>
 
           <span className='mt-[] text-center text-[1.125rem] leading-[130%] font-bold'>
-            AI 컨설턴트 가 텍스트형 포트폴리오를 생성 중이에요.
+            AI 컨설턴트가 텍스트형 포트폴리오를 생성 중이에요.
             <br />
             페이지를 떠나도 작업은 계속돼요.
           </span>

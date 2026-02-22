@@ -57,7 +57,7 @@ export function CommonButton({
 
     // Gradient: 그라디언트 배경 버튼
     Gradient:
-      'rounded-[6.25rem] bg-gradient-to-b from-[#93B3F4] to-[#5060C5] text-[#ffffff] text-[1rem] font-bold cursor-pointer',
+      'rounded-[6.25rem] bg-gradient-to-b from-[#93B3F4] to-[#5060C5] text-[#ffffff] text-[1rem] font-bold cursor-pointer hover:from-[#5060C5] hover:to-[#5060C5] hover:shadow-[0px_4px_15px_0px_rgba(80,96,197,0.5)]',
   };
 
   // px, py 값을 그대로 사용

@@ -13,7 +13,7 @@ export const BannerBeta = () => {
   };
 
   return (
-    <div className='banner-beta flex h-[3.75rem] w-full bg-[#F6F5FF]'>
+    <div className='banner-beta fixed left-0 right-0 top-[80px] z-40 flex h-[3.75rem] w-full bg-[#F6F5FF]'>
       <div className='mx-auto flex min-w-[66rem] items-center justify-between'>
         <div className='flex items-center gap-[1.25rem]'>
           <div className='rounded-[3.75rem] bg-white px-[1.75rem] py-[0.25rem] text-[1rem] font-semibold text-[#5060C5]'>

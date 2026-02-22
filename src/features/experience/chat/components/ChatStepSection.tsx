@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { ChatStepBubble } from './ChatStepBubble';
-import { ChatInput } from './ChatInput';
+import { ChatInput, type FileItem } from './ChatInput';
 
 const STEP_INTERVAL_MS = 2000;
 const FADE_DURATION_MS = 500;
@@ -10,7 +10,7 @@ const FADE_DURATION_MS = 500;
 interface ChatStepSectionProps {
   inputValue?: string;
   onInputChange?: (value: string) => void;
-  onSend?: () => void;
+  onSend?: (payload: { content: string; files: FileItem[] }) => void;
 }
 
 export const ChatStepSection = ({

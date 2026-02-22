@@ -74,7 +74,7 @@ export function SingleButtonGroup({
                 'font-regular flex cursor-pointer items-center gap-[1rem] rounded-[3.75rem] border-[0.0625rem] border-[#9EA4A9] bg-[#FDFDFD] px-[1.5rem] py-[1.125rem] text-[1rem] text-[#1A1A1A]',
 
                 // 선택된 상태 효과
-                'data-[state=on]:border-[0.125rem] data-[state=on]:border-[#5060C5] data-[state=on]:bg-[#F6F5FF] data-[state=on]:px-[1.43125rem] data-[state=on]:py-[0.3125rem] data-[state=on]:text-[#5060C5]',
+                'data-[state=on]:border-[0.125rem] data-[state=on]:border-[#5060C5] data-[state=on]:bg-[#F6F5FF] data-[state=on]:px-[1.43125rem] data-[state=on]:py-[0.3125rem] data-[state=on]:font-semibold data-[state=on]:text-[#5060C5]',
               )}
               style={
                 {

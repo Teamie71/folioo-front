@@ -9,8 +9,12 @@ import { DeleteModalButton } from '@/components/DeleteModalButton';
 import { CommonModal } from '@/components/CommonModal';
 import { InlineEdit } from '@/components/InlineEdit';
 import { useExperienceStore } from '@/store/useExperienceStore';
-import { ChatMessageSection } from '@/features/experience/chat/components/ChatMessageSection';
+import {
+  ChatMessageSection,
+  type ChatMessage,
+} from '@/features/experience/chat/components/ChatMessageSection';
 import { ChatStepSection } from '@/features/experience/chat/components/ChatStepSection';
+import type { FileItem } from '@/features/experience/chat/components/ChatInput';
 import { ChatCompleteModal } from '@/features/experience/chat/components/ChatCompleteModal';
 
 export default function ExperienceSettingsChatPage() {
@@ -34,9 +38,9 @@ export default function ExperienceSettingsChatPage() {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [experienceTitle, setExperienceTitle] = useState(storeTitle);
   const [inputValue, setInputValue] = useState('');
-  const [messages, setMessages] = useState<
-    Array<{ role: 'ai' | 'user'; content: string }>
-  >([{ role: 'ai', content: '내용' }]);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    { role: 'ai', content: '내용' },
+  ]);
 
   useEffect(() => {
     setExperienceTitle(storeTitle);
@@ -55,12 +59,16 @@ export default function ExperienceSettingsChatPage() {
     };
   }, []);
 
-  const handleSend = () => {
-    const trimmed = inputValue.trim();
-    if (!trimmed) return;
+  const handleSend = (payload: { content: string; files: FileItem[] }) => {
+    const fileInfos = payload.files.map((f) => ({
+      name: f.file.name,
+      size: f.file.size,
+      type: f.file.type,
+      preview: f.preview,
+    }));
     setMessages((prev) => [
       ...prev,
-      { role: 'user', content: trimmed },
+      { role: 'user', content: payload.content, files: fileInfos },
       { role: 'ai', content: '내용' },
     ]);
     setInputValue('');
@@ -104,8 +112,8 @@ export default function ExperienceSettingsChatPage() {
           />
         </div>
 
-        {/* 채팅 영역: 메시지 영역만 스크롤, 브라우저 바닥 10rem까지 */}
-        <div className='flex min-h-0 flex-1 flex-col overflow-hidden pb-[19.75rem]'>
+        {/* 채팅 영역: 메시지 영역만 스크롤 */}
+        <div className='flex min-h-0 flex-1 flex-col overflow-hidden pb-[14.75rem]'>
           <ChatMessageSection
             messages={messages}
             onAIMessageClick={() => setIsCompletionModalOpen(true)}
@@ -146,7 +154,7 @@ export default function ExperienceSettingsChatPage() {
           <>
             AI 컨설턴트가 충분한 정보를 학습했어요!
             <br />
-            대화 내용을 바탕으로 텍스트형 포트폴리오 생성을 시작할게요
+            대화 내용을 바탕으로 텍스트형 포트폴리오 생성을 시작할게요.
           </>
         }
       />

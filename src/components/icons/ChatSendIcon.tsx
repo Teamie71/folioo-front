@@ -13,7 +13,7 @@ export function ChatSendIcon({ className }: ChatSendIconProps) {
         viewBox='0 0 32 32'
         fill='none'
       >
-        <circle cx='16' cy='16' r='16' fill='#5060C5' />
+        <circle cx='16' cy='16' r='16' fill='currentColor' />
       </svg>
       <svg
         className='absolute'

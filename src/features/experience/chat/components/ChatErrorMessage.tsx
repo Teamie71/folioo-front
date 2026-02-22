@@ -29,13 +29,15 @@ export const ChatErrorMessage = ({
   return (
     <div className={wrapperClass}>
       <div
-        className='flex w-fit max-w-full items-center gap-2 rounded-2xl bg-[#F7F8FA] px-4 py-3 shadow-[0px_2px_8px_0px_rgba(0,0,0,0.08)]'
+        className='flex w-fit max-w-full items-center gap-2 rounded-2xl bg-[#F6F5FF] px-4 py-3 shadow-[0px_2px_8px_0px_rgba(0,0,0,0.08)]'
         role='alert'
       >
         <span className='flex h-6 w-6 shrink-0 items-center justify-center'>
           <ChatErrorIcon />
         </span>
-        <span className='text-sm font-medium text-[#1F2937]'>{message}</span>
+        <span className='text-[1rem] font-semibold text-[#1F2937]'>
+          {message}
+        </span>
       </div>
     </div>
   );
