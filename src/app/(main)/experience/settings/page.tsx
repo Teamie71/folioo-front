@@ -39,7 +39,9 @@ export default function ExperienceSettingsPage() {
       <ExperienceSettingsForm errors={errors} />
 
       {/* AI 대화 시작 */}
-      <ExperienceSettingsChatStart onValidationError={setErrors} />
+      <div className='mt-[5rem] flex justify-center'>
+        <ExperienceSettingsChatStart onValidationError={setErrors} />
+      </div>
 
       {/* 취소 모달 */}
       <CommonModal
