@@ -31,7 +31,7 @@ export default function ExperiencePage() {
       </div>
 
       {/* 나의 경험 */}
-      <div className='mx-auto flex w-[66rem] flex-col gap-[3rem]'>
+      <div className='mx-auto flex w-[66rem] flex-col gap-[3rem] pb-[15rem]'>
         <div className='flex flex-col gap-[2rem]'>
           <span className='text-[1.25rem] font-bold'>나의 경험</span>
 
