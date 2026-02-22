@@ -8,6 +8,7 @@ import {
   PDF_CATEGORY_CHAR_LIMIT,
 } from '@/features/correction/constants';
 import {
+  deleteExternalPortfolio,
   extractPdfPortfolio,
   getExternalPortfolios,
   patchExternalPortfolio,
@@ -183,6 +184,33 @@ export function useCorrectionState(correctionId?: string | null) {
       setIsPdfTextExtracting(false);
     }
   }, [pdfUploadedFile, correctionId]);
+
+  const handleDeletePdfActivity = useCallback(async () => {
+    const targetId = activityDeleteTargetId;
+    if (targetId === null) return;
+    const activity = pdfActivities.find((a) => a.id === targetId);
+    if (activity?.portfolioId != null) {
+      try {
+        await deleteExternalPortfolio(activity.portfolioId);
+      } catch (err) {
+        const msg =
+          err && typeof err === 'object' && 'response' in err
+            ? (err as { response?: { data?: { error?: { reason?: string } } } })
+                .response?.data?.error?.reason
+            : '포트폴리오 삭제에 실패했습니다.';
+        alert(msg ?? '포트폴리오 삭제에 실패했습니다.');
+        return;
+      }
+    }
+    setPdfActivities((prev) => {
+      const next = prev.filter((a) => a.id !== targetId);
+      setSelectedActivityId((id) =>
+        next.some((a) => a.id === id) ? id : next[0]?.id ?? id,
+      );
+      return next;
+    });
+    setActivityDeleteTargetId(null);
+  }, [activityDeleteTargetId, pdfActivities]);
 
   const handleAddPdfActivity = useCallback(async () => {
     const id = correctionId != null ? Number(correctionId) : null;
@@ -485,6 +513,7 @@ export function useCorrectionState(correctionId?: string | null) {
     handlePortfolioSelect,
     handlePdfFile,
     handlePdfExtractConfirm,
+    handleDeletePdfActivity,
     handleAddPdfActivity,
     handlePdfActivityChange,
     handleJdImageFile,

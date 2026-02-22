@@ -90,19 +90,7 @@ export default function CorrectionSettingsPage() {
           activityDeleteModal={{
             targetId: s.activityDeleteTargetId,
             onOpenChange: (open) => !open && s.setActivityDeleteTargetId(null),
-            onConfirm: () => {
-              if (s.activityDeleteTargetId === null) return;
-              s.setPdfActivities((prev) => {
-                const next = prev.filter(
-                  (a) => a.id !== s.activityDeleteTargetId,
-                );
-                s.setSelectedActivityId((id) =>
-                  next.some((a) => a.id === id) ? id : next[0]?.id ?? id,
-                );
-                return next;
-              });
-              s.setActivityDeleteTargetId(null);
-            },
+            onConfirm: s.handleDeletePdfActivity,
           }}
           titleEdit={{
             title: '새로운 포트폴리오 첨삭',

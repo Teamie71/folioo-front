@@ -117,6 +117,19 @@ export async function patchExternalPortfolio(
   }
 }
 
+/** PDF 포트폴리오 텍스트 정리 결과 삭제 */
+export async function deleteExternalPortfolio(
+  portfolioId: number,
+): Promise<void> {
+  const response = await apiClient.delete<ApiResponse<string>>(
+    `/external-portfolios/${portfolioId}`,
+  );
+
+  if (!response.data.isSuccess) {
+    throw new Error('포트폴리오 삭제에 실패했습니다.');
+  }
+}
+
 /** PDF 포트폴리오 텍스트 정리 결과 조회 */
 export async function getExternalPortfolios(
   correctionId: number,
