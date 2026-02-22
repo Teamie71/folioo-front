@@ -14,6 +14,30 @@ export interface StructuredPortfolioResDTO {
 /** GET /external-portfolios - result 타입 */
 export type GetExternalPortfoliosResponse = StructuredPortfolioResDTO[];
 
+/** POST /portfolio-corrections - request body */
+export type JobDescriptionType = 'TEXT' | 'IMAGE';
+
+export interface CreateCorrectionReqDTO {
+  jobDescriptionType: JobDescriptionType;
+  companyName: string;
+  positionName: string;
+  jobDescription?: string;
+}
+
+/** POST /portfolio-corrections - result 타입 */
+export type CreateCorrectionResponse = string;
+
+/** GET /portfolio-corrections - 목록 항목 */
+export interface PortfolioCorrectionListItem {
+  id: number;
+  title: string;
+  positionName: string;
+  createdAt: string;
+}
+
+/** GET /portfolio-corrections - result 타입 */
+export type GetPortfolioCorrectionsResponse = PortfolioCorrectionListItem[];
+
 /** PATCH /external-portfolios/{portfolioId} - request body */
 export interface PatchExternalPortfolioRequest {
   name: string;

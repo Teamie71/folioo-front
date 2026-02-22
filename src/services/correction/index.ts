@@ -1,12 +1,45 @@
 import apiClient from '@/lib/axios';
 import type { ApiResponse } from '@/types/api/common';
 import type {
+  CreateCorrectionReqDTO,
+  CreateCorrectionResponse,
   ExtractPdfResponse,
   GetExternalPortfoliosResponse,
+  GetPortfolioCorrectionsResponse,
   PatchExternalPortfolioRequest,
   StructuredPortfolioResDTO,
 } from '@/types/api/correction';
 import type { PdfActivityBlock, PdfCategoryName } from '@/types/correction';
+
+/** 첨삭 의뢰하기 (티켓 1장 사용) */
+export async function createPortfolioCorrection(
+  body: CreateCorrectionReqDTO,
+): Promise<CreateCorrectionResponse> {
+  const response = await apiClient.post<
+    ApiResponse<CreateCorrectionResponse>
+  >('/portfolio-corrections', body);
+
+  if (response.data.isSuccess && response.data.result != null) {
+    return response.data.result;
+  }
+
+  throw new Error('첨삭 의뢰에 실패했습니다.');
+}
+
+/** 첨삭 목록 조회 (keyword: 제목 검색) */
+export async function getPortfolioCorrections(
+  keyword?: string,
+): Promise<GetPortfolioCorrectionsResponse> {
+  const response = await apiClient.get<
+    ApiResponse<GetPortfolioCorrectionsResponse>
+  >('/portfolio-corrections', { params: keyword ? { keyword } : undefined });
+
+  if (response.data.isSuccess && response.data.result != null) {
+    return response.data.result;
+  }
+
+  throw new Error('첨삭 목록을 불러오는데 실패했습니다.');
+}
 
 /** PDF 텍스트 추출 */
 export async function extractPdfPortfolio(

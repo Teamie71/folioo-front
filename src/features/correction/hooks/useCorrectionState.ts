@@ -8,6 +8,7 @@ import {
   PDF_CATEGORY_CHAR_LIMIT,
 } from '@/features/correction/constants';
 import {
+  createPortfolioCorrection,
   deleteExternalPortfolio,
   extractPdfPortfolio,
   getExternalPortfolios,
@@ -173,13 +174,8 @@ export function useCorrectionState(correctionId?: string | null) {
         setPdfActivities(activities);
         if (activities.length > 0) setSelectedActivityId(activities[0].id);
       }
-    } catch (err) {
-      const message =
-        err && typeof err === 'object' && 'response' in err
-          ? (err as { response?: { data?: { error?: { reason?: string } } } })
-              .response?.data?.error?.reason
-          : '텍스트 추출에 실패했습니다.';
-      alert(message ?? '텍스트 추출에 실패했습니다.');
+    } catch {
+      // 실패 시 상태만 복구
     } finally {
       setIsPdfTextExtracting(false);
     }
@@ -192,13 +188,7 @@ export function useCorrectionState(correctionId?: string | null) {
     if (activity?.portfolioId != null) {
       try {
         await deleteExternalPortfolio(activity.portfolioId);
-      } catch (err) {
-        const msg =
-          err && typeof err === 'object' && 'response' in err
-            ? (err as { response?: { data?: { error?: { reason?: string } } } })
-                .response?.data?.error?.reason
-            : '포트폴리오 삭제에 실패했습니다.';
-        alert(msg ?? '포트폴리오 삭제에 실패했습니다.');
+      } catch {
         return;
       }
     }
@@ -214,25 +204,14 @@ export function useCorrectionState(correctionId?: string | null) {
 
   const handleAddPdfActivity = useCallback(async () => {
     const id = correctionId != null ? Number(correctionId) : null;
-    if (id == null || Number.isNaN(id)) {
-      alert('첨삭 ID가 없습니다.');
-      return;
-    }
-    if (pdfActivities.length >= 5) {
-      alert('포트폴리오 첨삭은 최대 5개의 활동블록(포트폴리오)을 가질 수 있습니다.');
-      return;
-    }
+    if (id == null || Number.isNaN(id)) return;
+    if (pdfActivities.length >= 5) return;
     try {
       const newBlock = await postExternalPortfolio(id, pdfActivities.length);
       setPdfActivities((prev) => [...prev, newBlock]);
       setSelectedActivityId(newBlock.id);
-    } catch (err) {
-      const msg =
-        err && typeof err === 'object' && 'response' in err
-          ? (err as { response?: { data?: { error?: { reason?: string } } } })
-              .response?.data?.error?.reason
-          : '활동 블록 추가에 실패했습니다.';
-      alert(msg ?? '활동 블록 추가에 실패했습니다.');
+    } catch {
+      // 실패 시 무시
     }
   }, [correctionId, pdfActivities.length]);
 
@@ -243,14 +222,7 @@ export function useCorrectionState(correctionId?: string | null) {
     debouncedPatchRef.current = setTimeout(() => {
       debouncedPatchRef.current = null;
       patchExternalPortfolio(activity.portfolioId!, toPatchBody(activity)).catch(
-        (err) => {
-          const msg =
-            err && typeof err === 'object' && 'response' in err
-              ? (err as { response?: { data?: { error?: { reason?: string } } } })
-                  .response?.data?.error?.reason
-              : '포트폴리오 수정에 실패했습니다.';
-          alert(msg ?? '포트폴리오 수정에 실패했습니다.');
-        },
+        () => {},
       );
     }, 500);
   }, []);
@@ -274,6 +246,25 @@ export function useCorrectionState(correctionId?: string | null) {
     jdMode,
     hasJdImageUploaded,
   ]);
+
+  const handleStartCorrectionConfirm = useCallback(async () => {
+    const body = {
+      jobDescriptionType: jdMode === 'text' ? ('TEXT' as const) : ('IMAGE' as const),
+      companyName: companyName.trim(),
+      positionName: jobTitle.trim(),
+      ...(jdMode === 'text'
+        ? { jobDescription: jobDescription.trim() }
+        : { jobDescription: '' }),
+    };
+    // IMAGE 모드에서 이미지 전송이 필요하면 백엔드 스펙에 맞게 multipart 등 추가
+    try {
+      await createPortfolioCorrection(body);
+      setIsStartCorrectionModalOpen(false);
+      setStep('portfolio');
+    } catch {
+      // 실패 시 모달 유지
+    }
+  }, [jdMode, companyName, jobTitle, jobDescription]);
 
   const handleNextStep = useCallback(() => {
     if (step === 'information') {
@@ -508,6 +499,7 @@ export function useCorrectionState(correctionId?: string | null) {
     setJdUploadedFiles,
     limitAllowedInput,
     handleStartCorrectionClick,
+    handleStartCorrectionConfirm,
     handleNextStep,
     handleStartNewExperience,
     handlePortfolioSelect,
