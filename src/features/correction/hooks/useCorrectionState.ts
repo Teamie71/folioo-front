@@ -7,7 +7,7 @@ import {
   INITIAL_PDF_ACTIVITIES,
   PDF_CATEGORY_CHAR_LIMIT,
 } from '@/features/correction/constants';
-import { extractPdfPortfolio } from '@/services/correction';
+import { extractPdfPortfolio, getExternalPortfolios } from '@/services/correction';
 import type {
   PdfActivityBlock,
   PdfCategoryName,
@@ -37,7 +37,7 @@ function limitAllowedInput(value: string, maxLength: number): string {
     .slice(0, maxLength);
 }
 
-export function useCorrectionState() {
+export function useCorrectionState(correctionId?: string | null) {
   const router = useRouter();
   const [step, setStep] = useState<Step>('information');
   const [status, setStatus] = useState<Status>('DRAFT');
@@ -160,7 +160,12 @@ export function useCorrectionState() {
     try {
       await extractPdfPortfolio(pdfUploadedFile.file);
       setIsPdfTextExtracted(true);
-      // result가 PdfActivityBlock[] 형태면 setPdfActivities로 확장 가능
+      const id = correctionId != null ? Number(correctionId) : null;
+      if (id != null && !Number.isNaN(id)) {
+        const activities = await getExternalPortfolios(id);
+        setPdfActivities(activities);
+        if (activities.length > 0) setSelectedActivityId(activities[0].id);
+      }
     } catch (err) {
       const message =
         err && typeof err === 'object' && 'response' in err
@@ -171,7 +176,7 @@ export function useCorrectionState() {
     } finally {
       setIsPdfTextExtracting(false);
     }
-  }, [pdfUploadedFile]);
+  }, [pdfUploadedFile, correctionId]);
 
   const handleStartCorrectionClick = useCallback(() => {
     const companyNameEmpty = !companyName.trim();

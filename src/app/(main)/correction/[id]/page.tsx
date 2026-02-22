@@ -1,5 +1,6 @@
 'use client';
 
+import { useParams } from 'next/navigation';
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 import { CorrectionAnalyzingView } from '@/features/correction/components/CorrectionAnalyzingView';
@@ -12,7 +13,14 @@ import { CorrectionResultStep } from '@/features/correction/components/Correctio
 import { useCorrectionState } from '@/features/correction/hooks/useCorrectionState';
 
 export default function CorrectionSettingsPage() {
-  const s = useCorrectionState();
+  const params = useParams();
+  const correctionId =
+    params?.id == null
+      ? undefined
+      : Array.isArray(params.id)
+        ? params.id[0]
+        : params.id;
+  const s = useCorrectionState(correctionId);
 
   return (
     <CorrectionLayout
