@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { CreditExpireAlert } from '@/components/CreditExpireAlert';
@@ -34,7 +34,7 @@ const PORTFOLIO_VOUCHERS: VoucherOption[] = [
 
 type SelectedVoucher = { type: VoucherType; option: VoucherOption };
 
-export default function TopupPage() {
+function TopupPageContent() {
   const currentCredits = 1; // TODO: 실제 사용자 데이터로 교체
   const [selectedVoucher, setSelectedVoucher] =
     useState<SelectedVoucher | null>(null);
@@ -265,6 +265,14 @@ export default function TopupPage() {
         }}
       />
     </>
+  );
+}
+
+export default function TopupPage() {
+  return (
+    <Suspense fallback={null}>
+      <TopupPageContent />
+    </Suspense>
   );
 }
 
