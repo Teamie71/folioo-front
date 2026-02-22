@@ -8,6 +8,7 @@ import {
   PDF_CATEGORY_CHAR_LIMIT,
 } from '@/features/correction/constants';
 import {
+  createPortfolioCorrection,
   deleteExternalPortfolio,
   extractPdfPortfolio,
   getExternalPortfolios,
@@ -275,6 +276,30 @@ export function useCorrectionState(correctionId?: string | null) {
     hasJdImageUploaded,
   ]);
 
+  const handleStartCorrectionConfirm = useCallback(async () => {
+    const body = {
+      jobDescriptionType: jdMode === 'text' ? ('TEXT' as const) : ('IMAGE' as const),
+      companyName: companyName.trim(),
+      positionName: jobTitle.trim(),
+      ...(jdMode === 'text'
+        ? { jobDescription: jobDescription.trim() }
+        : { jobDescription: '' }),
+    };
+    // IMAGE 모드에서 이미지 전송이 필요하면 백엔드 스펙에 맞게 multipart 등 추가
+    try {
+      await createPortfolioCorrection(body);
+      setIsStartCorrectionModalOpen(false);
+      setStep('portfolio');
+    } catch (err) {
+      const msg =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { error?: { reason?: string } } } })
+              .response?.data?.error?.reason
+          : '첨삭 의뢰에 실패했습니다.';
+      alert(msg ?? '첨삭 의뢰에 실패했습니다.');
+    }
+  }, [jdMode, companyName, jobTitle, jobDescription]);
+
   const handleNextStep = useCallback(() => {
     if (step === 'information') {
       setStep('portfolio');
@@ -508,6 +533,7 @@ export function useCorrectionState(correctionId?: string | null) {
     setJdUploadedFiles,
     limitAllowedInput,
     handleStartCorrectionClick,
+    handleStartCorrectionConfirm,
     handleNextStep,
     handleStartNewExperience,
     handlePortfolioSelect,

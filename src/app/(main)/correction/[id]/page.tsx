@@ -111,10 +111,7 @@ export default function CorrectionSettingsPage() {
           startCorrectionModal={{
             open: s.isStartCorrectionModalOpen,
             onOpenChange: s.setIsStartCorrectionModalOpen,
-            onConfirm: () => {
-              s.setIsStartCorrectionModalOpen(false);
-              s.handleNextStep();
-            },
+            onConfirm: s.handleStartCorrectionConfirm,
           }}
           pdfExtractModal={{
             open: s.isPdfExtractConfirmModalOpen,
