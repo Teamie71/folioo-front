@@ -74,6 +74,7 @@ export function ActivitySelect({
           width='28.5rem'
           value={value}
           onChange={handleInputChange}
+          maxLength={20}
           rightElement={
             <DropdownButton
               items={activitiesWithHandlers}

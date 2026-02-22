@@ -188,6 +188,7 @@ export default function LogPage() {
                 placeholder='제목 입력'
                 value={formData.title}
                 onChange={(e) => setFormField('title', e.target.value)}
+                maxLength={20}
               />
             </div>
 

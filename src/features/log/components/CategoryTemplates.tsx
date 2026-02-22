@@ -3,6 +3,9 @@
 import InputArea from '@/components/InputArea';
 import TextField from '@/components/TextField';
 
+const MAX_CONTENT_LENGTH = 250;
+const COUNT_WARN_THRESHOLD = 240;
+
 // 템플릿 미사용 폼
 interface NoTemplateFormProps {
   content: string;
@@ -34,9 +37,15 @@ export function NoTemplateForm({
           height='13.75rem'
           placeholder='오늘은 어떤 인사이트를 얻으셨나요?'
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={(e) =>
+            setContent(e.target.value.slice(0, MAX_CONTENT_LENGTH))
+          }
         />
-        <span className='mt-[0.5rem] text-right'>{content.length}/250</span>
+        <span
+          className={`mt-[0.5rem] text-right ${content.length >= COUNT_WARN_THRESHOLD ? 'text-[#DC0000]' : ''}`}
+        >
+          {content.length}/{MAX_CONTENT_LENGTH}
+        </span>
       </div>
     </div>
   );
@@ -69,6 +78,18 @@ export function InterpersonTemplateForm({
     data.response.length +
     data.result.length +
     data.lesson.length;
+  const otherLength =
+    data.response.length + data.result.length + data.lesson.length;
+  const maxSituation = MAX_CONTENT_LENGTH - otherLength;
+  const maxResponse =
+    MAX_CONTENT_LENGTH -
+    (data.situation.length + data.result.length + data.lesson.length);
+  const maxResult =
+    MAX_CONTENT_LENGTH -
+    (data.situation.length + data.response.length + data.lesson.length);
+  const maxLesson =
+    MAX_CONTENT_LENGTH -
+    (data.situation.length + data.response.length + data.result.length);
 
   return (
     <div className='flex flex-col gap-[1.25rem]'>
@@ -92,7 +113,12 @@ export function InterpersonTemplateForm({
               className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
               placeholder='누구와, 어떤 상황이 발생했나요?'
               value={data.situation}
-              onChange={(e) => setData({ ...data, situation: e.target.value })}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  situation: e.target.value.slice(0, maxSituation),
+                })
+              }
             />
           </div>
 
@@ -103,7 +129,12 @@ export function InterpersonTemplateForm({
               className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
               placeholder='나는 어떻게 대응했나요?'
               value={data.response}
-              onChange={(e) => setData({ ...data, response: e.target.value })}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  response: e.target.value.slice(0, maxResponse),
+                })
+              }
             />
           </div>
 
@@ -114,7 +145,12 @@ export function InterpersonTemplateForm({
               className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
               placeholder='어떤 결과가 나타났나요?'
               value={data.result}
-              onChange={(e) => setData({ ...data, result: e.target.value })}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  result: e.target.value.slice(0, maxResult),
+                })
+              }
             />
           </div>
 
@@ -125,12 +161,21 @@ export function InterpersonTemplateForm({
               className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
               placeholder='무엇을 배웠고, 앞으로는 비슷한 상황에서 어떻게 대응할건가요?'
               value={data.lesson}
-              onChange={(e) => setData({ ...data, lesson: e.target.value })}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  lesson: e.target.value.slice(0, maxLesson),
+                })
+              }
             />
           </div>
         </div>
 
-        <span className='text-right'>{totalLength}/250</span>
+        <span
+          className={`text-right ${totalLength >= COUNT_WARN_THRESHOLD ? 'text-[#DC0000]' : ''}`}
+        >
+          {totalLength}/{MAX_CONTENT_LENGTH}
+        </span>
       </div>
     </div>
   );
@@ -163,6 +208,18 @@ export function ProblemSolveTemplateForm({
     data.attempt.length +
     data.result.length +
     data.lesson.length;
+  const maxProblem =
+    MAX_CONTENT_LENGTH -
+    (data.attempt.length + data.result.length + data.lesson.length);
+  const maxAttempt =
+    MAX_CONTENT_LENGTH -
+    (data.problem.length + data.result.length + data.lesson.length);
+  const maxResultPs =
+    MAX_CONTENT_LENGTH -
+    (data.problem.length + data.attempt.length + data.lesson.length);
+  const maxLessonPs =
+    MAX_CONTENT_LENGTH -
+    (data.problem.length + data.attempt.length + data.result.length);
 
   return (
     <div className='flex flex-col gap-[1.25rem]'>
@@ -186,7 +243,12 @@ export function ProblemSolveTemplateForm({
               width='51.25rem'
               placeholder='어떤 상황에서, 어떤 문제가 발생했나요?'
               value={data.problem}
-              onChange={(e) => setData({ ...data, problem: e.target.value })}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  problem: e.target.value.slice(0, maxProblem),
+                })
+              }
             />
           </div>
 
@@ -197,7 +259,12 @@ export function ProblemSolveTemplateForm({
               width='51.25rem'
               placeholder='문제를 해결하기 위해 어떤 시도를 해보았나요?'
               value={data.attempt}
-              onChange={(e) => setData({ ...data, attempt: e.target.value })}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  attempt: e.target.value.slice(0, maxAttempt),
+                })
+              }
             />
           </div>
 
@@ -208,7 +275,12 @@ export function ProblemSolveTemplateForm({
               width='51.25rem'
               placeholder='어떤 결과가 나타났나요?'
               value={data.result}
-              onChange={(e) => setData({ ...data, result: e.target.value })}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  result: e.target.value.slice(0, maxResultPs),
+                })
+              }
             />
           </div>
 
@@ -219,12 +291,21 @@ export function ProblemSolveTemplateForm({
               width='51.25rem'
               placeholder='무엇을 배웠고, 앞으로는 비슷한 상황에서 어떻게 대응할건가요?'
               value={data.lesson}
-              onChange={(e) => setData({ ...data, lesson: e.target.value })}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  lesson: e.target.value.slice(0, maxLessonPs),
+                })
+              }
             />
           </div>
         </div>
 
-        <span className='text-right'>{totalLength}/250</span>
+        <span
+          className={`text-right ${totalLength >= COUNT_WARN_THRESHOLD ? 'text-[#DC0000]' : ''}`}
+        >
+          {totalLength}/{MAX_CONTENT_LENGTH}
+        </span>
       </div>
     </div>
   );
@@ -247,6 +328,12 @@ export function LearningTemplateForm({
   contentError,
 }: LearningTemplateFormProps) {
   const totalLength = data.path.length + data.learned.length + data.plan.length;
+  const maxPath =
+    MAX_CONTENT_LENGTH - (data.learned.length + data.plan.length);
+  const maxLearned =
+    MAX_CONTENT_LENGTH - (data.path.length + data.plan.length);
+  const maxPlan =
+    MAX_CONTENT_LENGTH - (data.path.length + data.learned.length);
 
   return (
     <div className='flex flex-col gap-[1.25rem]'>
@@ -270,7 +357,12 @@ export function LearningTemplateForm({
               width='51.25rem'
               placeholder='어떤 매체를 통해, 무엇을 계기로 학습을 진행했나요?'
               value={data.path}
-              onChange={(e) => setData({ ...data, path: e.target.value })}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  path: e.target.value.slice(0, maxPath),
+                })
+              }
             />
           </div>
 
@@ -281,7 +373,12 @@ export function LearningTemplateForm({
               width='51.25rem'
               placeholder='어떤 지식 또는 스킬을 배웠나요?'
               value={data.learned}
-              onChange={(e) => setData({ ...data, learned: e.target.value })}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  learned: e.target.value.slice(0, maxLearned),
+                })
+              }
             />
           </div>
 
@@ -292,12 +389,21 @@ export function LearningTemplateForm({
               width='51.25rem'
               placeholder='앞으로 어디에, 어떻게 적용해 볼 건가요?'
               value={data.plan}
-              onChange={(e) => setData({ ...data, plan: e.target.value })}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  plan: e.target.value.slice(0, maxPlan),
+                })
+              }
             />
           </div>
         </div>
 
-        <span className='text-right'>{totalLength}/250</span>
+        <span
+          className={`text-right ${totalLength >= COUNT_WARN_THRESHOLD ? 'text-[#DC0000]' : ''}`}
+        >
+          {totalLength}/{MAX_CONTENT_LENGTH}
+        </span>
       </div>
     </div>
   );
@@ -330,6 +436,18 @@ export function ReferenceTemplateForm({
     data.content.length +
     data.thought.length +
     data.plan.length;
+  const maxSource =
+    MAX_CONTENT_LENGTH -
+    (data.content.length + data.thought.length + data.plan.length);
+  const maxContentRef =
+    MAX_CONTENT_LENGTH -
+    (data.source.length + data.thought.length + data.plan.length);
+  const maxThought =
+    MAX_CONTENT_LENGTH -
+    (data.source.length + data.content.length + data.plan.length);
+  const maxPlanRef =
+    MAX_CONTENT_LENGTH -
+    (data.source.length + data.content.length + data.thought.length);
 
   return (
     <div className='flex flex-col gap-[1.25rem]'>
@@ -353,7 +471,12 @@ export function ReferenceTemplateForm({
               width='51.25rem'
               placeholder='어디서 얻은 레퍼런스인가요?'
               value={data.source}
-              onChange={(e) => setData({ ...data, source: e.target.value })}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  source: e.target.value.slice(0, maxSource),
+                })
+              }
             />
           </div>
 
@@ -364,7 +487,12 @@ export function ReferenceTemplateForm({
               width='51.25rem'
               placeholder='어떤 점이 인상 깊었나요?'
               value={data.content}
-              onChange={(e) => setData({ ...data, content: e.target.value })}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  content: e.target.value.slice(0, maxContentRef),
+                })
+              }
             />
           </div>
 
@@ -375,7 +503,12 @@ export function ReferenceTemplateForm({
               width='51.25rem'
               placeholder='이 레퍼런스를 보고 어떤 생각이 들었나요?'
               value={data.thought}
-              onChange={(e) => setData({ ...data, thought: e.target.value })}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  thought: e.target.value.slice(0, maxThought),
+                })
+              }
             />
           </div>
 
@@ -386,12 +519,21 @@ export function ReferenceTemplateForm({
               width='51.25rem'
               placeholder='앞으로 어디에, 어떻게 적용해 볼 건가요?'
               value={data.plan}
-              onChange={(e) => setData({ ...data, plan: e.target.value })}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  plan: e.target.value.slice(0, maxPlanRef),
+                })
+              }
             />
           </div>
         </div>
 
-        <span className='text-right'>{totalLength}/250</span>
+        <span
+          className={`text-right ${totalLength >= COUNT_WARN_THRESHOLD ? 'text-[#DC0000]' : ''}`}
+        >
+          {totalLength}/{MAX_CONTENT_LENGTH}
+        </span>
       </div>
     </div>
   );
