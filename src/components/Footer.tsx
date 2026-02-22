@@ -20,12 +20,14 @@ export default function Footer() {
               </Link>
             </div>
 
-            <button
-              type='button'
-              className='cursor-pointer rounded-[0.375rem] border-[0.09375rem] border-[#9EA4A9] px-[1.5rem] py-[0.375rem] text-[1rem] font-semibold'
+            <a
+              href='https://docs.google.com/forms/d/e/1FAIpQLSfy8hyVhhXV-Z_uTleskSlSILYyfVDlAy_eO_ixFqjjzo6gew/viewform?usp=dialog'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='cursor-pointer rounded-[0.375rem] border-[0.09375rem] border-[#9EA4A9] bg-[#ffffff] px-[1.5rem] py-[0.375rem] text-[1rem] font-semibold hover:bg-[#F6F8FA]'
             >
               서비스 피드백 남기기
-            </button>
+            </a>
           </div>
 
           <div className='w-full border border-[#CDD0D5]' />
@@ -33,12 +35,7 @@ export default function Footer() {
 
         <div className='flex w-full justify-between'>
           <div className='flex flex-col gap-[1.5rem]'>
-            <Image
-              src='/MainLogo.svg'
-              alt='MainLogo'
-              width={128}
-              height={32}
-            />
+            <Image src='/MainLogo.svg' alt='MainLogo' width={128} height={32} />
 
             <div className='flex flex-col gap-[0.5rem] text-[0.875rem] leading-[150%] text-[#74777D]'>
               <div className='flex items-center gap-[1.5rem]'>
