@@ -242,7 +242,9 @@ export default function LogPage() {
             {/* 카테고리 선택 */}
             <div className='relative flex items-center'>
               <div className='w-[15.375rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'>
-                <span className='text-[1rem] text-[#74777D]'>
+                <span
+                  className={`text-[1rem] ${categories.find((cat) => cat.id === selectedCategoryId) ? 'text-[#000000]' : 'text-[#74777D]'}`}
+                >
                   {categories.find((cat) => cat.id === selectedCategoryId)
                     ?.label || '카테고리 선택'}
                 </span>
@@ -260,7 +262,9 @@ export default function LogPage() {
             {/* 활동 분류 선택 */}
             <div className='relative flex items-center'>
               <div className='w-[15.375rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'>
-                <span className='text-[1rem] text-[#74777D]'>
+                <span
+                  className={`text-[1rem] ${activities.find((act) => act.id === selectedActivityId) ? 'text-[#000000]' : 'text-[#74777D]'}`}
+                >
                   {activities.find((act) => act.id === selectedActivityId)
                     ?.label || '활동 분류 선택'}
                 </span>
