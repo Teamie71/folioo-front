@@ -280,7 +280,7 @@ export default function LogPage() {
         {/* 카드 */}
         <div className='grid grid-cols-2 gap-[1.5rem]'>
           {logCards.length === 0 ? (
-            <div className='col-span-2 mt-[5rem] flex items-center justify-center text-center text-[1.125rem] leading-[130%] font-bold text-[#000000]'>
+            <div className='col-span-2 mt-[5rem] flex items-center justify-center text-center text-[1.125rem] leading-[130%] font-bold text-[#9EA4A9]'>
               아직 작성한 로그가 없어요 <br />
               로그를 작성하고 인사이트를 기록해보세요!
             </div>
