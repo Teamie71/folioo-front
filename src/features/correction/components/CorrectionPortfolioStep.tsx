@@ -34,6 +34,8 @@ export interface CorrectionPortfolioStepProps {
   isPdfTextExtracting: boolean;
   pdfActivities: PdfActivityBlock[];
   setPdfActivities: React.Dispatch<React.SetStateAction<PdfActivityBlock[]>>;
+  onAddActivity: () => Promise<void>;
+  onActivityChange?: (activity: PdfActivityBlock) => void;
   selectedActivityId: string;
   onActivitySelect: (id: string) => void;
   selectedTab: PdfCategoryName;
@@ -64,6 +66,8 @@ export function CorrectionPortfolioStep({
   isPdfTextExtracting,
   pdfActivities,
   setPdfActivities,
+  onAddActivity,
+  onActivityChange,
   selectedActivityId,
   onActivitySelect,
   selectedTab,
@@ -118,6 +122,8 @@ export function CorrectionPortfolioStep({
                 isPdfTextExtracting={isPdfTextExtracting}
                 pdfActivities={pdfActivities}
                 setPdfActivities={setPdfActivities}
+                onAddActivity={onAddActivity}
+                onActivityChange={onActivityChange}
                 selectedActivityId={selectedActivityId}
                 onActivitySelect={onActivitySelect}
                 selectedTab={selectedTab}

@@ -11,6 +11,7 @@ import type { PdfActivityBlock, PdfCategoryName } from '@/types/correction';
 export interface CorrectionPdfBulletEditorProps {
   pdfActivities: PdfActivityBlock[];
   setPdfActivities: React.Dispatch<React.SetStateAction<PdfActivityBlock[]>>;
+  onActivityChange?: (activity: PdfActivityBlock) => void;
   selectedActivityId: string;
   selectedTab: PdfCategoryName;
   onTabSelect: (tab: PdfCategoryName) => void;
@@ -21,6 +22,7 @@ export interface CorrectionPdfBulletEditorProps {
 export function CorrectionPdfBulletEditor({
   pdfActivities,
   setPdfActivities,
+  onActivityChange,
   selectedActivityId,
   selectedTab,
   onTabSelect,
@@ -33,18 +35,16 @@ export function CorrectionPdfBulletEditor({
 
   const setBullets = (next: string[]) => {
     if (!activity || !category) return;
-    setPdfActivities((prev) =>
-      prev.map((a) =>
-        a.id !== activity.id
-          ? a
-          : {
-              ...a,
-              categories: a.categories.map((c) =>
-                c.name !== selectedTab ? c : { ...c, bullets: next },
-              ),
-            },
+    const nextActivity: PdfActivityBlock = {
+      ...activity,
+      categories: activity.categories.map((c) =>
+        c.name !== selectedTab ? c : { ...c, bullets: next },
       ),
+    };
+    setPdfActivities((prev) =>
+      prev.map((a) => (a.id !== activity.id ? a : nextActivity)),
     );
+    onActivityChange?.(nextActivity);
   };
 
   const categoryCharCount = bullets.reduce((sum, b) => sum + b.length, 0);

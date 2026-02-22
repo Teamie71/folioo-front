@@ -2,10 +2,7 @@
 
 import ActivityDeleteIcon from '@/components/icons/ActivityDeleteIcon';
 import RedDotIcon from '@/components/icons/RedDotIcon';
-import {
-  PDF_CATEGORY_CHAR_LIMIT,
-  createPdfActivityBlock,
-} from '@/features/correction/constants';
+import { PDF_CATEGORY_CHAR_LIMIT } from '@/features/correction/constants';
 import type { PdfActivityBlock } from '@/types/correction';
 
 export interface CorrectionPdfActivityTabsProps {
@@ -13,6 +10,7 @@ export interface CorrectionPdfActivityTabsProps {
   selectedActivityId: string;
   onActivitySelect: (id: string) => void;
   setPdfActivities: React.Dispatch<React.SetStateAction<PdfActivityBlock[]>>;
+  onAddActivity: () => Promise<void>;
   onRequestActivityDelete: (activityId: string) => void;
   pdfActivityHoverId: string | null;
   setPdfActivityHoverId: (id: string | null) => void;
@@ -23,6 +21,7 @@ export function CorrectionPdfActivityTabs({
   selectedActivityId,
   onActivitySelect,
   setPdfActivities,
+  onAddActivity,
   onRequestActivityDelete,
   pdfActivityHoverId,
   setPdfActivityHoverId,
@@ -77,19 +76,7 @@ export function CorrectionPdfActivityTabs({
         <button
           type='button'
           className='cursor-pointer rounded-t-[1.25rem] border-none bg-[#F6F8FA] px-[3rem] py-[1rem] text-[0.875rem] font-medium text-[#9EA4A9] transition-all'
-          onClick={() => {
-            const usedLetters = pdfActivities.map((a) => a.label.slice(-1));
-            const nextLetter = ['A', 'B', 'C', 'D', 'E'].find(
-              (l) => !usedLetters.includes(l),
-            );
-            if (!nextLetter) return;
-            const newId = `pdf-act-${Date.now()}`;
-            setPdfActivities((prev) => [
-              ...prev,
-              createPdfActivityBlock(newId, `활동 ${nextLetter}`),
-            ]);
-            onActivitySelect(newId);
-          }}
+          onClick={() => onAddActivity()}
         >
           <svg
             xmlns='http://www.w3.org/2000/svg'

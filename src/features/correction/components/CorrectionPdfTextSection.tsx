@@ -9,6 +9,8 @@ export interface CorrectionPdfTextSectionProps {
   isPdfTextExtracting: boolean;
   pdfActivities: PdfActivityBlock[];
   setPdfActivities: React.Dispatch<React.SetStateAction<PdfActivityBlock[]>>;
+  onAddActivity: () => Promise<void>;
+  onActivityChange?: (activity: PdfActivityBlock) => void;
   selectedActivityId: string;
   onActivitySelect: (id: string) => void;
   selectedTab: PdfCategoryName;
@@ -24,6 +26,8 @@ export function CorrectionPdfTextSection({
   isPdfTextExtracting,
   pdfActivities,
   setPdfActivities,
+  onAddActivity,
+  onActivityChange,
   selectedActivityId,
   onActivitySelect,
   selectedTab,
@@ -98,6 +102,7 @@ export function CorrectionPdfTextSection({
             selectedActivityId={selectedActivityId}
             onActivitySelect={onActivitySelect}
             setPdfActivities={setPdfActivities}
+            onAddActivity={onAddActivity}
             onRequestActivityDelete={onRequestActivityDelete}
             pdfActivityHoverId={pdfActivityHoverId}
             setPdfActivityHoverId={setPdfActivityHoverId}
@@ -105,6 +110,7 @@ export function CorrectionPdfTextSection({
           <CorrectionPdfBulletEditor
             pdfActivities={pdfActivities}
             setPdfActivities={setPdfActivities}
+            onActivityChange={onActivityChange}
             selectedActivityId={selectedActivityId}
             selectedTab={selectedTab}
             onTabSelect={onTabSelect}

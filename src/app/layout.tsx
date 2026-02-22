@@ -1,5 +1,6 @@
 import '../styles/globals.css';
 import localFont from 'next/font/local';
+import { QueryProvider } from '@/contexts/QueryProvider';
 
 const pretendard = localFont({
   src: './fonts/PretendardVariable.woff2',
@@ -30,7 +31,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: bannerScript }}
           suppressHydrationWarning
         />
-        {children}
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );

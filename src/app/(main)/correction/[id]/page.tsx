@@ -1,5 +1,6 @@
 'use client';
 
+import { useParams } from 'next/navigation';
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 import { CorrectionAnalyzingView } from '@/features/correction/components/CorrectionAnalyzingView';
@@ -12,7 +13,14 @@ import { CorrectionResultStep } from '@/features/correction/components/Correctio
 import { useCorrectionState } from '@/features/correction/hooks/useCorrectionState';
 
 export default function CorrectionSettingsPage() {
-  const s = useCorrectionState();
+  const params = useParams();
+  const correctionId =
+    params?.id == null
+      ? undefined
+      : Array.isArray(params.id)
+        ? params.id[0]
+        : params.id;
+  const s = useCorrectionState(correctionId);
 
   return (
     <CorrectionLayout
@@ -82,19 +90,7 @@ export default function CorrectionSettingsPage() {
           activityDeleteModal={{
             targetId: s.activityDeleteTargetId,
             onOpenChange: (open) => !open && s.setActivityDeleteTargetId(null),
-            onConfirm: () => {
-              if (s.activityDeleteTargetId === null) return;
-              s.setPdfActivities((prev) => {
-                const next = prev.filter(
-                  (a) => a.id !== s.activityDeleteTargetId,
-                );
-                s.setSelectedActivityId((id) =>
-                  next.some((a) => a.id === id) ? id : next[0]?.id ?? id,
-                );
-                return next;
-              });
-              s.setActivityDeleteTargetId(null);
-            },
+            onConfirm: s.handleDeletePdfActivity,
           }}
           titleEdit={{
             title: '새로운 포트폴리오 첨삭',
@@ -123,11 +119,7 @@ export default function CorrectionSettingsPage() {
           pdfExtractModal={{
             open: s.isPdfExtractConfirmModalOpen,
             onOpenChange: s.setIsPdfExtractConfirmModalOpen,
-            onConfirm: () => {
-              s.setIsPdfExtractConfirmModalOpen(false);
-              s.setIsPdfTextExtracted(true);
-              s.setIsPdfTextExtracting(true);
-            },
+            onConfirm: s.handlePdfExtractConfirm,
           }}
           jdViewer={{
             previewUrl:
@@ -242,6 +234,8 @@ export default function CorrectionSettingsPage() {
             isPdfTextExtracting={s.isPdfTextExtracting}
             pdfActivities={s.pdfActivities}
             setPdfActivities={s.setPdfActivities}
+            onAddActivity={s.handleAddPdfActivity}
+            onActivityChange={s.handlePdfActivityChange}
             selectedActivityId={s.selectedActivityId}
             onActivitySelect={s.setSelectedActivityId}
             selectedTab={s.selectedTab}

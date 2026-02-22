@@ -25,4 +25,6 @@ export type PdfActivityBlock = {
   id: string;
   label: string;
   categories: PdfActivityCategory[];
+  /** API portfolioId (PATCH 시 필요) */
+  portfolioId?: number;
 };
