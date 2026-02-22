@@ -80,7 +80,7 @@ export default function ExperienceSettingsPortfolioPage() {
               />
 
               {/* 구분선 */}
-              <div className='h-[2rem] w-[0.125rem] border-none bg-[#1A1A1A]' />
+              <div className='h-[1.5rem] w-[0.125rem] border-none bg-[#9EA4A9]' />
 
               <DeleteModalButton
                 title='이 경험 정리를 정말 삭제하시겠습니까?'
