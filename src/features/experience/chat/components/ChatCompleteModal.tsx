@@ -22,7 +22,11 @@ export const ChatCompleteModal = ({
 }: ChatCompleteModalProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='w-[41.375rem] items-center gap-[1.75rem] px-[5rem] py-[3.75rem] text-center [&>button:last-child]:hidden'>
+      <DialogContent
+        className='w-[41.375rem] items-center gap-[1.75rem] px-[5rem] py-[3.75rem] text-center [&>button:last-child]:hidden'
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader className='flex flex-col items-center justify-center gap-[1rem]'>
           <DialogTitle className='text-center text-[1.125rem] leading-[130%] font-bold text-[#1A1A1A]'>
             대화의 모든 단계가 완료되었어요!
