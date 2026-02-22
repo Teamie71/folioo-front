@@ -1,13 +1,14 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { CommonModal } from '@/components/CommonModal';
-import { Stamp } from '@/components/icons/Stamp';
-import { BigStamp } from '@/components/icons/BigStamp';
+import { Stamp } from '@/components/icons/StampIcon';
+import { BigStamp } from '@/components/icons/BigStampIcon';
 import { cn } from '@/utils/utils';
-import { ChevronDown } from '@/components/icons/ChevronDown';
+import { ChevronDown } from '@/components/icons/ChevronDownIcon';
 import { EventModal } from '@/components/EventModal';
 
 const ChevronDownIcon = ({ className }: { className?: string }) => (
@@ -35,7 +36,7 @@ export function ChallengeModal({
   const [eventModalOpen, setEventModalOpen] = useState(false);
 
   const handleEventModalButtonClick = () => {
-    router.push('/experience');
+    router.push('/experience/settings');
   };
 
   const handleLogClick = () => {
@@ -60,6 +61,18 @@ export function ChallengeModal({
       : '오늘의 로그 작성하기 →';
   const handlePrimaryClick = isRewardReady ? handleRewardClick : hasWrittenToday ? handleConfirm : handleLogClick;
 
+  const titleText = isRewardReady
+    ? '인사이트 로그 작성 챌린지 성공!'
+    : hasWrittenToday
+      ? '인사이트 로그 작성 챌린지 참여 완료!'
+      : '인사이트 로그 작성 챌린지';
+
+  const descriptionText = isRewardReady
+    ? '보상을 받고, 작성한 인사이트를 활용해 풍부한 경험 정리를 진행해보세요.'
+    : hasWrittenToday
+      ? `${10 - currentCount}개의 로그를 더 작성하고, 경험 정리 1회권을 받으세요.`
+      : '4월 한 달간, 인사이트 로그 10개를 꾸준히 작성하시면 경험 정리 1회권을 드려요!';
+
   return (
     <>
     <CommonModal
@@ -80,7 +93,13 @@ export function ChallengeModal({
           </CommonButton>
           <p className='text-[0.875rem] text-[#9EA4A9]'>
             본 이벤트는{' '}
-            <span className='cursor-pointer underline'>이용권 구매</span>에서
+            <Link
+              href='/topup'
+              className='cursor-pointer underline'
+              onClick={() => onOpenChange(false)}
+            >
+              이용권 구매
+            </Link>에서
             다시 확인 가능합니다.
           </p>
         </div>
@@ -89,10 +108,10 @@ export function ChallengeModal({
       title={
         <div className='flex flex-col gap-[1.5rem]'>
           <h2 className='text-[1.5rem] font-bold text-[#1A1A1A] text-left'>
-            인사이트 로그 작성 챌린지
+            {titleText}
           </h2>
           <p className='text-[1rem] font-medium text-[#1A1A1A]'>
-            4월 한 달간, 인사이트 로그 10개를 꾸준히 작성하시면 경험 정리 1회권을 드려요!
+            {descriptionText}
           </p>
         </div>
       }
@@ -142,9 +161,9 @@ export function ChallengeModal({
           <button
             type='button'
             onClick={() => setIsOpen(!isOpen)}
-            className='flex items-center gap-1 text-[1rem] font-bold text-[#1A1A1A]'
+            className='flex items-center gap-1 text-[1rem] font-bold text-[#1A1A1A] cursor-pointer'
           >
-            <ChevronDownIcon className={cn('transition-transform duration-300', isOpen && 'rotate-180')} />
+            <ChevronDownIcon className={cn('transition-transform duration-300', !isOpen && '-rotate-90')} />
             리워드 지급 및 인정 기준
           </button>
           {isOpen && (

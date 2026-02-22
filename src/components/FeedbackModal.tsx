@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { CommonModal } from '@/components/CommonModal';
 
@@ -16,6 +17,13 @@ export function FeedbackModal({
   isFirstFeedback,
   onFeedbackClick,
 }: FeedbackModalProps) {
+  const router = useRouter();
+
+  const handleTopupClick = () => {
+    onOpenChange(false);
+    router.replace('/topup?noBack=1');
+  };
+
   return (
     <CommonModal
       open={open}
@@ -38,7 +46,13 @@ export function FeedbackModal({
               무의미한 피드백 (뜻을 알 수 없는 무의미한 문자 반복 등)은
               미참여로 분류되며, <br />
               본 이벤트는{' '}
-              <span className='cursor-pointer underline'>이용권 구매</span>에서
+              <button
+              type='button'
+              className='cursor-pointer underline bg-transparent border-none p-0 text-inherit'
+              onClick={handleTopupClick}
+            >
+              이용권 구매
+            </button>에서
               다시 확인 가능합니다.
             </p>
           )}

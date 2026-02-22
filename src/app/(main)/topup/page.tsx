@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { CreditExpireAlert } from '@/components/CreditExpireAlert';
 import { PaymentModal } from '@/components/PaymentModal';
-import { TicketIcon } from '@/components/icons/TicketIcon';
 import Image from 'next/image';
 import { ChallengeModal } from '@/components/ChallengeModal';
 import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
+import { BigTicketIcon } from '@/components/icons/BigTicketIcon';
+import { BigCalendarIcon } from '@/components/icons/BigCalendarIcon';
 
 type VoucherType = 'experience' | 'portfolio';
 
@@ -39,18 +40,23 @@ export default function TopupPage() {
     useState<SelectedVoucher | null>(null);
   const [challengeModalOpen, setChallengeModalOpen] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // 피드백 모달에서 이동한 경우 브라우저 뒤로가기 차단
+  useEffect(() => {
+    if (searchParams.get('noBack') !== '1') return;
+    const handlePopState = () => {
+      window.history.pushState(null, '', window.location.href);
+    };
+    window.history.pushState(null, '', window.location.href);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [searchParams]);
 
   const benefitCards = [
     {
-      id: 'phone',
-      icon: <TicketIcon />,
-      title: '휴대폰 번호 인증하고, 무료 이용권으로 시작하세요!',
-      description: '3초만에 인증하고, Folioo와 커리어 기록을 진행해보세요.',
-      cta: '번호 인증하기',
-    },
-    {
       id: 'review',
-      icon: <TicketIcon />,
+      icon: <BigTicketIcon />,
       title: 'Folioo 사용 후기를 남기면, 원하는 이용권이 하나 더!',
       description:
         '첫 피드백을 남겨주시면, 감사의 마음을 담아 원하시는 무료 이용권을 드려요.',
@@ -58,7 +64,7 @@ export default function TopupPage() {
     },
     {
       id: 'cta',
-      icon: <TicketIcon />,
+      icon: <BigCalendarIcon />,
       title: '제목제목제목',
       description: '설명설명설명',
       cta: 'CTA',

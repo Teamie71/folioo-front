@@ -56,7 +56,7 @@ export function CreditExpireAlert({
         px={px}
         py={py}
         className={cn(
-          '!flex !items-center gap-[0.75rem] !rounded-[0.5rem] !border-[#DC0000] !bg-[#FFF2F2] !text-[1rem] !font-normal whitespace-nowrap !text-[#1A1A1A] [&_svg]:!h-[1.75rem] [&_svg]:!w-[1.75rem]',
+          '!flex !items-center gap-[0.75rem] !rounded-[0.5rem] !border-[#CDD0D5] !bg-[#FFF2F2] !text-[1rem] !font-normal whitespace-nowrap !text-[#1A1A1A] [&_svg]:!h-[1.75rem] [&_svg]:!w-[1.75rem]',
           className,
         )}
         onClick={() => setIsOpen(!isOpen)}

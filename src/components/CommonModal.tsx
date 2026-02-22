@@ -139,7 +139,7 @@ export function CommonModal({
                 {/* cancelBtnText 렌더링 */}
                 {cancelBtnText && (
                   <button
-                    className='w-[6.75rem] cursor-pointer rounded-[0.5rem] border-[0.1rem] border-[#74777D] py-[0.5rem] text-[1rem]'
+                    className='w-[6.75rem] cursor-pointer rounded-[0.5rem] border-[0.1rem] border-[#74777D] py-[0.5rem] text-[1rem] transition-colors hover:bg-[#F6F8FA]'
                     onClick={onCancelClick || (() => onOpenChange(false))}
                   >
                     {cancelBtnText}
@@ -148,7 +148,7 @@ export function CommonModal({
                 {/* secondaryBtnText 렌더링 (cancelBtnText와 독립적으로 사용 가능) */}
                 {secondaryBtnText && (
                   <button
-                    className='w-[6.75rem] cursor-pointer rounded-[0.5rem] border-[0.1rem] border-[#74777D] py-[0.5rem] text-[1rem]'
+                    className='w-[6.75rem] cursor-pointer rounded-[0.5rem] border-[0.1rem] border-[#74777D] py-[0.5rem] text-[1rem] transition-colors hover:bg-[#F6F8FA]'
                     onClick={onSecondaryClick || (() => onOpenChange(false))}
                   >
                     {secondaryBtnText}
@@ -157,7 +157,7 @@ export function CommonModal({
                 {/* primaryBtnText 렌더링 */}
                 {primaryBtnText && (
                   <button
-                    className='w-[6.75rem] cursor-pointer rounded-[0.5rem] bg-[#5060C5] py-[0.5rem] text-[1rem] font-semibold text-[#FFFFFF]'
+                    className='w-[6.75rem] cursor-pointer rounded-[0.5rem] bg-[#5060C5] py-[0.5rem] text-[1rem] font-semibold text-[#FFFFFF] transition-colors hover:bg-[#404D9E]'
                     onClick={onPrimaryClick}
                   >
                     {primaryBtnText}

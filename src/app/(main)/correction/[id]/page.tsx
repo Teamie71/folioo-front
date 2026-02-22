@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { PortfolioCard } from '@/components/PortfolioCard';
 import { PortfolioTypeCard } from '@/components/PortfolioTypeCard';
 import { BackButton } from '@/components/BackButton';
 import { DeleteButton } from '@/components/DeleteButton';
+import { CommonButton } from '@/components/CommonButton';
 import { CommonModal } from '@/components/CommonModal';
 import { InlineEdit } from '@/components/InlineEdit';
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
@@ -15,10 +16,61 @@ import InputArea from '@/components/InputArea';
 import TextField from '@/components/TextField';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 import { CorrectionIcon } from '@/components/icons/CorrectionIcon';
+import ActivityDeleteIcon from '@/components/icons/ActivityDeleteIcon';
+import RedDotIcon from '@/components/icons/RedDotIcon';
+import { CloseIcon } from '@/components/icons/CloseIcon';
+import { FileCloseIcon } from '@/components/icons/FileCloseIcon';
+import { FileImageIcon } from '@/components/icons/FileImageIcon';
+import { ExperienceIcon } from '@/components/icons/ExperienceIcon';
+import { FullIcon } from '@/components/icons/FullIcon';
+import { PdfIcon } from '@/components/icons/PdfIcon';
+import { useCorrectionNavbar } from '@/contexts/CorrectionNavbarContext';
 
 type Step = 'information' | 'portfolio' | 'analysis' | 'result';
 type Status = 'DRAFT' | 'ANALYZING' | 'DONE';
 type PortfolioType = 'text' | 'pdf';
+
+const PDF_CATEGORY_NAMES = [
+  '상세정보',
+  '담당업무',
+  '문제해결',
+  '배운 점',
+] as const;
+
+const PDF_CATEGORY_CHAR_LIMIT = 400;
+const ANALYSIS_INFO_MAX_LENGTH = 1500;
+const EMPHASIS_POINTS_MAX_LENGTH = 200;
+
+type PdfCategoryName = (typeof PDF_CATEGORY_NAMES)[number];
+
+type PdfActivityCategory = {
+  name: PdfCategoryName;
+  bullets: string[];
+};
+
+type PdfActivityBlock = {
+  id: string;
+  label: string;
+  categories: PdfActivityCategory[];
+};
+
+function createPdfCategory(name: PdfCategoryName): PdfActivityCategory {
+  return { name, bullets: [''] };
+}
+
+function createPdfActivityBlock(id: string, label: string): PdfActivityBlock {
+  return {
+    id,
+    label,
+    categories: PDF_CATEGORY_NAMES.map((name) => createPdfCategory(name)),
+  };
+}
+
+const INITIAL_PDF_ACTIVITIES: PdfActivityBlock[] = [
+  createPdfActivityBlock('pdf-act-0', '활동 A'),
+  createPdfActivityBlock('pdf-act-1', '활동 B'),
+  createPdfActivityBlock('pdf-act-2', '활동 C'),
+];
 
 export default function CorrectionSettingsPage() {
   const router = useRouter();
@@ -27,12 +79,18 @@ export default function CorrectionSettingsPage() {
   const [jdMode, setJdMode] = useState<'text' | 'image'>('text');
   const [selectedPortfolioType, setSelectedPortfolioType] =
     useState<PortfolioType | null>(null);
-  const [selectedActivity, setSelectedActivity] = useState<'A' | 'B' | 'C'>(
-    'A',
+  const [pdfActivities, setPdfActivities] =
+    useState<PdfActivityBlock[]>(INITIAL_PDF_ACTIVITIES);
+  const [selectedActivityId, setSelectedActivityId] = useState<string>(
+    INITIAL_PDF_ACTIVITIES[0].id,
   );
-  const [selectedTab, setSelectedTab] = useState<
-    '상세정보' | '담당업무' | '문제해결' | '배운 점'
-  >('상세정보');
+  const [selectedTab, setSelectedTab] = useState<PdfCategoryName>('상세정보');
+  const [activityDeleteTargetId, setActivityDeleteTargetId] = useState<
+    string | null
+  >(null);
+  const [pdfActivityHoverId, setPdfActivityHoverId] = useState<string | null>(
+    null,
+  );
   const [isUnclassifiedOpen, setIsUnclassifiedOpen] = useState(false);
   const [selectedUnclassifiedTab, setSelectedUnclassifiedTab] = useState<
     '상세정보' | '담당업무' | '문제해결' | '배운 점'
@@ -81,9 +139,95 @@ export default function CorrectionSettingsPage() {
   const [isStartCorrectionModalOpen, setIsStartCorrectionModalOpen] =
     useState(false);
   const [isPdfTextExtracted, setIsPdfTextExtracted] = useState(false);
+  const [isPdfTextExtracting, setIsPdfTextExtracting] = useState(false);
+  const [isPdfExtractConfirmModalOpen, setIsPdfExtractConfirmModalOpen] =
+    useState(false);
+  const [pdfUploadedFile, setPdfUploadedFile] = useState<{ name: string } | null>(
+    null,
+  );
+  const [pdfUploadError, setPdfUploadError] = useState<
+    null | 'too_large' | 'too_many'
+  >(null);
+  const [pdfShakeKey, setPdfShakeKey] = useState(0);
+  const [isPdfDropOverlayActive, setIsPdfDropOverlayActive] = useState(false);
+  const pdfFileInputRef = useRef<HTMLInputElement>(null);
+  const bulletTextareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
+  const lastBulletEnterAt = useRef<number>(0);
   const [showTextPortfolioWarning, setShowTextPortfolioWarning] = useState(false);
   const [analysisInfoValue, setAnalysisInfoValue] = useState('');
   const [showAnalysisInfoWarning, setShowAnalysisInfoWarning] = useState(false);
+  const [emphasisPointsValue, setEmphasisPointsValue] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [jobTitle, setJobTitle] = useState('');
+  const [jobDescription, setJobDescription] = useState('');
+  const [jdUploadedFiles, setJdUploadedFiles] = useState<
+    Array<{ name: string; size: number; previewUrl: string }>
+  >([]);
+  const [fileDeleteConfirmTarget, setFileDeleteConfirmTarget] = useState<
+    { type: 'jd'; index: number } | { type: 'pdf' } | null
+  >(null);
+  const hasJdImageUploaded = jdUploadedFiles.length >= 1;
+  const [jdViewerFileIndex, setJdViewerFileIndex] = useState<number | null>(null);
+  const [isJdDropOverlayActive, setIsJdDropOverlayActive] = useState(false);
+  const jdFileInputRef = useRef<HTMLInputElement>(null);
+  const [informationErrors, setInformationErrors] = useState<{
+    companyName: boolean;
+    jobTitle: boolean;
+    jobDescription: boolean;
+  }>({ companyName: false, jobTitle: false, jobDescription: false });
+  const [jdImageError, setJdImageError] = useState<
+    null | 'required' | 'too_large' | 'too_many'
+  >(null);
+  const [jdShakeKey, setJdShakeKey] = useState(0);
+
+  // information + 이미지 모드일 때 창 어디로든 파일 드래그 들어오면 전체 페이지 드롭 오버레이 활성화
+  useEffect(() => {
+    if (step !== 'information' || jdMode !== 'image') return;
+    const onDragEnter = (e: DragEvent) => {
+      if (e.dataTransfer?.types.includes('Files'))
+        setIsJdDropOverlayActive(true);
+    };
+    document.addEventListener('dragenter', onDragEnter);
+    return () => document.removeEventListener('dragenter', onDragEnter);
+  }, [step, jdMode]);
+
+  // portfolio + PDF 선택 시 창 어디로든 파일 드래그 들어오면 전체 페이지 드롭 오버레이 활성화
+  useEffect(() => {
+    if (step !== 'portfolio' || selectedPortfolioType !== 'pdf') return;
+    const onDragEnter = (e: DragEvent) => {
+      if (e.dataTransfer?.types.includes('Files'))
+        setIsPdfDropOverlayActive(true);
+    };
+    document.addEventListener('dragenter', onDragEnter);
+    return () => document.removeEventListener('dragenter', onDragEnter);
+  }, [step, selectedPortfolioType]);
+
+  // 첨삭 결과 단계에서만 Navbar 표시
+  const { setShowNavbarOnResult } = useCorrectionNavbar() ?? {};
+  useEffect(() => {
+    setShowNavbarOnResult?.(step === 'result');
+  }, [step, setShowNavbarOnResult]);
+
+  // PDF 텍스트 추출 로딩 시뮬레이션
+  useEffect(() => {
+    if (!isPdfTextExtracting) return;
+    const timer = setTimeout(() => setIsPdfTextExtracting(false), 2500);
+    return () => clearTimeout(timer);
+  }, [isPdfTextExtracting]);
+
+  const handleStartCorrectionClick = () => {
+    const companyNameEmpty = !companyName.trim();
+    const jobTitleEmpty = !jobTitle.trim();
+    const jobDescriptionEmpty =
+      jdMode === 'text' ? !jobDescription.trim() : !hasJdImageUploaded;
+    const hasError = companyNameEmpty || jobTitleEmpty || jobDescriptionEmpty;
+    setInformationErrors({
+      companyName: companyNameEmpty,
+      jobTitle: jobTitleEmpty,
+      jobDescription: jobDescriptionEmpty,
+    });
+    if (!hasError) setIsStartCorrectionModalOpen(true);
+  };
 
   const handleNextStep = () => {
     if (step === 'information') {
@@ -116,22 +260,186 @@ export default function CorrectionSettingsPage() {
     router.push('/experience/settings');
   };
 
+  /** 한국어·영어·숫자·공백·특수문자만 허용, 최대 길이 적용 (기업명/직무명/기업분석/강조포인트 공통) */
+  const limitAllowedInput = (value: string, maxLength: number) =>
+    value
+      .replace(
+        /[^\uAC00-\uD7A3\u3130-\u318Ea-zA-Z0-9\s.,\-'()\/&·!?@#%+*<>]/g,
+        '',
+      )
+      .slice(0, maxLength);
+
   const handlePortfolioSelect = (type: PortfolioType) => {
     setSelectedPortfolioType(type);
     setShowTextPortfolioWarning(false);
     // 포트폴리오 타입 전환 시 텍스트형 선택 상태 초기화
     setSelectedTextPortfolioIds([]);
     // PDF에서 다른 타입으로 전환 시 텍스트 추출 상태 초기화
-    if (type !== 'pdf') setIsPdfTextExtracted(false);
+    if (type !== 'pdf') {
+      setIsPdfTextExtracted(false);
+      setPdfUploadedFile(null);
+      setPdfUploadError(null);
+    }
+  };
+
+  const handlePdfFile = (file: File) => {
+    if (file.type !== 'application/pdf') return;
+    if (file.size > 10 * 1024 * 1024) {
+      setPdfUploadError('too_large');
+      setPdfShakeKey((k) => k + 1);
+      return;
+    }
+    if (pdfUploadedFile) {
+      setPdfUploadError('too_many');
+      setPdfShakeKey((k) => k + 1);
+      return;
+    }
+    setPdfUploadError(null);
+    setPdfUploadedFile({ name: file.name });
+  };
+
+  const handleJdImageFile = (file: File) => {
+    const isImage =
+      file.type === 'image/png' ||
+      file.type === 'image/jpeg' ||
+      /\.(png|jpe?g)$/i.test(file.name);
+    if (!isImage) return;
+    if (file.size > 1024 * 1024) {
+      setJdImageError('too_large');
+      setJdShakeKey((k) => k + 1);
+      setInformationErrors((prev) => ({ ...prev, jobDescription: true }));
+      return;
+    }
+    if (jdUploadedFiles.length >= 2) {
+      setJdImageError('too_many');
+      setJdShakeKey((k) => k + 1);
+      setInformationErrors((prev) => ({ ...prev, jobDescription: true }));
+      return;
+    }
+    setJdImageError(null);
+    setInformationErrors((prev) => ({ ...prev, jobDescription: false }));
+    setJdUploadedFiles((prev) => [
+      ...prev,
+      {
+        name: file.name,
+        size: file.size,
+        previewUrl: URL.createObjectURL(file),
+      },
+    ]);
+  };
+
+  const handlePasteJdImageFromClipboard = async () => {
+    try {
+      const items = await navigator.clipboard.read();
+      for (const item of items) {
+        for (const type of item.types) {
+          if (type === 'image/png' || type === 'image/jpeg') {
+            const blob = await item.getType(type);
+            const baseName =
+              jdUploadedFiles.length === 0
+                ? 'pasted-image'
+                : `pasted-image-${jdUploadedFiles.length + 1}`;
+            const ext = type === 'image/png' ? 'png' : 'jpg';
+            const file = new File([blob], `${baseName}.${ext}`, { type });
+            handleJdImageFile(file);
+            return;
+          }
+        }
+      }
+    } catch {
+      // 권한 거부 또는 클립보드에 이미지 없음
+    }
+  };
+
+  const removeJdFileAt = (index: number) => {
+    setJdUploadedFiles((prev) => {
+      const next = prev.filter((_, i) => i !== index);
+      if (prev[index]?.previewUrl) URL.revokeObjectURL(prev[index].previewUrl);
+      return next;
+    });
+    setJdImageError(null);
+    if (jdViewerFileIndex === index) setJdViewerFileIndex(null);
+    else if (jdViewerFileIndex !== null && jdViewerFileIndex > index)
+      setJdViewerFileIndex((i) => (i === null ? null : i - 1));
   };
 
   return (
-    <div className='mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem]'>
+    <div
+      key={
+        pdfUploadError === 'too_large' || pdfUploadError === 'too_many'
+          ? `pdf-shake-${pdfShakeKey}`
+          : jdImageError === 'too_large' || jdImageError === 'too_many'
+            ? `jd-shake-${jdShakeKey}`
+            : 'no-shake'
+      }
+      className={`mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem] ${jdImageError === 'too_large' || jdImageError === 'too_many' || pdfUploadError === 'too_large' || pdfUploadError === 'too_many' ? 'animate-shake' : ''}`}
+      onDragEnter={
+        step === 'information' && jdMode === 'image'
+          ? (e) => {
+              if (e.dataTransfer.types.includes('Files'))
+                setIsJdDropOverlayActive(true);
+            }
+          : step === 'portfolio' && selectedPortfolioType === 'pdf'
+            ? (e) => {
+                if (e.dataTransfer.types.includes('Files'))
+                  setIsPdfDropOverlayActive(true);
+              }
+            : undefined
+      }
+    >
+      {/* JD 이미지 전체 페이지 드롭 오버레이 (이미지 모드 + 드래그 중일 때만) */}
+      {step === 'information' && jdMode === 'image' && isJdDropOverlayActive && (
+        <div
+          className='fixed inset-0 z-40'
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+          }}
+          onDragLeave={() => setIsJdDropOverlayActive(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setIsJdDropOverlayActive(false);
+            const file = e.dataTransfer.files?.[0];
+            if (file) handleJdImageFile(file);
+          }}
+        />
+      )}
+
+      {/* PDF 전체 페이지 드롭 오버레이 (포트폴리오 PDF 선택 + 드래그 중일 때만) */}
+      {step === 'portfolio' &&
+        selectedPortfolioType === 'pdf' &&
+        isPdfDropOverlayActive && (
+          <div
+            className='fixed inset-0 z-40'
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = 'copy';
+            }}
+            onDragLeave={() => setIsPdfDropOverlayActive(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setIsPdfDropOverlayActive(false);
+              const file = e.dataTransfer.files?.[0];
+              if (file) {
+                // 드래그앤드롭에서도 동일하게 10MB 초과 / 2개 초과 시 흔들림+오류메시지 적용
+                handlePdfFile(file);
+              }
+            }}
+          />
+        )}
       <div className='flex flex-col gap-[0.75rem]'>
         {/* 헤더 */}
         <div className='flex items-center justify-between'>
           <div className='flex items-center gap-[0.75rem]'>
-            <BackButton onClick={() => setIsQuitModalOpen(true)} />
+            <BackButton
+              onClick={() => {
+                if (step === 'information') {
+                  setIsQuitModalOpen(true);
+                } else {
+                  router.replace('/correction');
+                }
+              }}
+            />
             <CommonModal
               open={isQuitModalOpen}
               onOpenChange={setIsQuitModalOpen}
@@ -141,7 +449,44 @@ export default function CorrectionSettingsPage() {
               secondaryBtnText='그만두기'
               onSecondaryClick={() => {
                 setIsQuitModalOpen(false);
-                router.push('/correction');
+                router.replace('/correction');
+              }}
+            />
+            <CommonModal
+              open={fileDeleteConfirmTarget !== null}
+              onOpenChange={(open) => !open && setFileDeleteConfirmTarget(null)}
+              title='이 파일을 정말 삭제하시겠습니까?'
+              cancelBtnText='취소'
+              secondaryBtnText='삭제'
+              onSecondaryClick={() => {
+                if (fileDeleteConfirmTarget === null) return;
+                if (fileDeleteConfirmTarget.type === 'jd') {
+                  removeJdFileAt(fileDeleteConfirmTarget.index);
+                } else {
+                  setPdfUploadedFile(null);
+                  setPdfUploadError(null);
+                }
+                setFileDeleteConfirmTarget(null);
+              }}
+            />
+            <CommonModal
+              open={activityDeleteTargetId !== null}
+              onOpenChange={(open) => !open && setActivityDeleteTargetId(null)}
+              title='이 활동을 정말 삭제하시겠습니까?'
+              cancelBtnText='취소'
+              secondaryBtnText='삭제'
+              onSecondaryClick={() => {
+                if (activityDeleteTargetId === null) return;
+                setPdfActivities((prev) => {
+                  const next = prev.filter(
+                    (a) => a.id !== activityDeleteTargetId,
+                  );
+                  setSelectedActivityId((id) =>
+                    next.some((a) => a.id === id) ? id : next[0]?.id ?? id,
+                  );
+                  return next;
+                });
+                setActivityDeleteTargetId(null);
               }}
             />
             <InlineEdit
@@ -170,7 +515,7 @@ export default function CorrectionSettingsPage() {
             secondaryBtnText='삭제'
             onSecondaryClick={() => {
               setIsDeleteModalOpen(false);
-              router.push('/correction');
+              router.replace('/correction');
             }}
           />
             <CommonModal
@@ -191,10 +536,45 @@ export default function CorrectionSettingsPage() {
               }}
               className='max-w-[24.75rem] items-center px-[5rem] py-[3.75rem] text-center'
             />
+            <CommonModal
+              open={isPdfExtractConfirmModalOpen}
+              onOpenChange={setIsPdfExtractConfirmModalOpen}
+              title='이 파일의 텍스트를 추출하시겠습니까?'
+              description='추출 시작 후 파일을 변경할 수 없어요.'
+              cancelBtnText='취소'
+              primaryBtnText='추출'
+              onPrimaryClick={() => {
+                setIsPdfExtractConfirmModalOpen(false);
+                setIsPdfTextExtracted(true);
+                setIsPdfTextExtracting(true);
+              }}
+            />
+
+            {/* JD 이미지 전체보기 뷰어 */}
+            {jdViewerFileIndex !== null && jdUploadedFiles[jdViewerFileIndex] && (
+              <div
+                className='fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4'
+                role='dialog'
+                aria-modal='true'
+                aria-label='JD 이미지 전체보기'
+                onClick={() => setJdViewerFileIndex(null)}
+              >
+                <div
+                  className='flex max-h-full max-w-full items-center justify-center'
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <img
+                    src={jdUploadedFiles[jdViewerFileIndex].previewUrl}
+                    alt='JD 미리보기 전체'
+                    className='max-h-[90vh] max-w-full object-contain'
+                  />
+                </div>
+              </div>
+            )}
         </div>
 
         {step === 'result' ? (
-          <div className='flex flex-col gap-[0.75rem] pb-[3.375rem]'>
+          <div className='flex flex-col gap-[0.75rem] pb-[6.25rem]'>
             <div className='h-[1px] w-full bg-[#9EA4A9]' />
           </div>
         ) : (
@@ -244,47 +624,99 @@ export default function CorrectionSettingsPage() {
                 </linearGradient>
               </defs>
             </svg>
-            <div className='flex flex-col items-center text-center'>
-              <span className='text-[1.125rem] font-bold text-#464B53]'>
+            <div className='flex flex-col items-center gap-[0.5rem] text-center'>
+              <span className='text-[1.125rem] font-bold leading-[1.3] text-[#464B53]'>
                 AI 컨설턴트가 포트폴리오 첨삭을 진행 중이에요.
               </span>
-              <span className='text-[1.125rem] font-bold text-#464B53]'>
+              <span className='text-[1.125rem] font-bold leading-[1.3] text-[#464B53]'>
                 페이지를 떠나도 작업은 계속돼요.
               </span>
             </div>
+            <CommonButton
+              variantType='Outline'
+              px='2.25rem'
+              py='0.5rem'
+              className='mt-[1rem] text-[1rem] font-semibold'
+              onClick={() => router.replace('/correction')}
+            >
+              나가기
+            </CommonButton>
           </div>
         ) : step === 'information' ? (
           <>
             {/* 지원 기업명 및 지원 직무명 입력 */}
             <div className='grid grid-cols-2 gap-[1.5rem]'>
               {/* 지원 기업명 입력 */}
-              <div className='flex flex-col gap-[1rem]'>
-                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+              <div className='flex flex-col gap-[0.5rem]'>
+                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                   <span>지원 기업명</span>
                   <span className='text-[#DC0000]'>*</span>
                 </div>
-                <InputArea placeholder='기업명을 입력해주세요.' />
+                {informationErrors.companyName && (
+                  <p className='text-[0.875rem] text-[#DC0000]'>
+                    지원 기업명을 입력해주세요.
+                  </p>
+                )}
+                <InputArea
+                  placeholder='기업명을 입력해주세요.'
+                  value={companyName}
+                  maxLength={20}
+                  onChange={(e) => {
+                    const next = limitAllowedInput(e.target.value, 20);
+                    setCompanyName(next);
+                    if (informationErrors.companyName)
+                      setInformationErrors((prev) => ({
+                        ...prev,
+                        companyName: false,
+                      }));
+                  }}
+                />
               </div>
 
               {/* 지원 직무명 입력 */}
-              <div className='flex flex-col gap-[1rem]'>
-                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+              <div className='flex flex-col gap-[0.5rem]'>
+                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                   <span>지원 직무명</span>
                   <span className='text-[#DC0000]'>*</span>
                 </div>
-                <InputArea placeholder='직무명을 입력해주세요.' />
+                {informationErrors.jobTitle && (
+                  <p className='text-[0.875rem] text-[#DC0000]'>
+                    지원 직무명을 입력해주세요.
+                  </p>
+                )}
+                <InputArea
+                  placeholder='직무명을 입력해주세요.'
+                  value={jobTitle}
+                  maxLength={20}
+                  onChange={(e) => {
+                    const next = limitAllowedInput(e.target.value, 20);
+                    setJobTitle(next);
+                    if (informationErrors.jobTitle)
+                      setInformationErrors((prev) => ({
+                        ...prev,
+                        jobTitle: false,
+                      }));
+                  }}
+                />
               </div>
             </div>
 
-            {/* Job Description */}
-            <div className='flex flex-col gap-[1rem]'>
+            {/* Job Description (1MB 초과 시 흔들림 - 클릭/드래그앤드롭 공통) */}
+            <div
+              key={jdImageError === 'too_large' ? `jd-shake-${jdShakeKey}` : 'jd-no-shake'}
+              className={`flex flex-col gap-[0.5rem] overflow-visible ${jdImageError === 'too_large' ? 'animate-shake' : ''}`}
+            >
               <div>
-                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                   <span>Job Description</span>
                   <span className='text-[#DC0000]'>*</span>
                 </div>
-                <div className='flex items-center justify-between'>
-                  <span className='font-regular text-[0.875rem] text-[#74777D]'>
+                <div
+                  className={`flex items-center justify-between ${
+                    informationErrors.jobDescription ? 'mb-0' : 'mb-[1.25rem]'
+                  }`}
+                >
+                  <span className='font-regular text-[0.875rem] leading-[1.5] text-[#74777D]'>
                     JD는 채용공고에 명시된 직무 설명서로, 주로 담당할 업무,
                     자격요건, 우대사항 등이 포함돼요.
                   </span>
@@ -294,111 +726,261 @@ export default function CorrectionSettingsPage() {
                       { value: 'image', label: '이미지' },
                     ]}
                     value={jdMode}
-                    onChange={(value) => setJdMode(value as 'text' | 'image')}
+                    onChange={(value) => {
+                      setJdMode(value as 'text' | 'image');
+                      if (value === 'image') {
+                        setJdImageError(null);
+                        setJdViewerFileIndex(null);
+                        setJdUploadedFiles((prev) => {
+                          prev.forEach((f) => {
+                            if (f.previewUrl) URL.revokeObjectURL(f.previewUrl);
+                          });
+                          return [];
+                        });
+                      }
+                    }}
                   />
                 </div>
+                {informationErrors.jobDescription && (
+                  <p className='text-[0.875rem] text-[#DC0000]'>
+                    {jdMode === 'text'
+                      ? 'Job Description을 입력해주세요.'
+                      : jdImageError === 'too_large' || jdImageError === 'too_many'
+                        ? '1MB 이하의 이미지 파일만 업로드 가능하며, 최대 2개까지만 업로드 가능해요.'
+                        : 'Job Description 이미지를 업로드해주세요.'}
+                  </p>
+                )}
               </div>
               <div className='flex flex-col gap-[0.75rem]'>
                 {jdMode === 'text' ? (
                   <TextField
                     variant='wide'
                     height='23.5rem'
-                    className='rounded-[1.25rem]'
+                    className='rounded-[1.25rem] px-[1.625rem] py-[1.25rem]'
                     placeholder='채용공고의 JD를 복사 후 붙여넣기 해주세요.'
+                    value={jobDescription}
+                    maxLength={700}
+                    onChange={(e) => {
+                      setJobDescription(e.target.value.slice(0, 700));
+                      if (informationErrors.jobDescription)
+                        setInformationErrors((prev) => ({
+                          ...prev,
+                          jobDescription: false,
+                        }));
+                    }}
                   />
                 ) : (
                   <div className='flex gap-[1.5rem]'>
-                    {/* 왼쪽: 파일 업로드 옵션들 (회색 배경 섹션) */}
-                    <div className='flex flex-1 flex-col gap-[1rem] rounded-[1.25rem] bg-[#F6F8FA] p-[1.75rem]'>
-                      {/* 첫 번째: JD 파일 업로드 */}
-                      <div className='flex items-center gap-[3.625rem] rounded-[1rem] border border-[#E9EAEC] bg-[#FFFFFF] px-[4.75rem] py-[2.25rem] shadow-sm'>
-                        <svg
-                          xmlns='http://www.w3.org/2000/svg'
-                          width='40'
-                          height='40'
-                          viewBox='0 0 60 60'
-                          fill='none'
-                        >
-                          <path
-                            d='M45 42.5C48.3152 42.5 51.4946 41.183 53.8388 38.8388C56.183 36.4946 57.5 33.3152 57.5 30C57.5 26.6848 56.183 23.5053 53.8388 21.1611C51.4946 18.8169 48.3152 17.5 45 17.5C44.337 13.1902 41.989 9.32034 38.4727 6.74172C34.9564 4.16309 30.5598 3.08693 26.25 3.74997C21.9402 4.41301 18.0704 6.76094 15.4917 10.2772C12.9131 13.7936 11.837 18.1902 12.5 22.5C9.84784 22.5 7.3043 23.5535 5.42893 25.4289C3.55357 27.3043 2.5 29.8478 2.5 32.5C2.5 35.1521 3.55357 37.6957 5.42893 39.571C7.3043 41.4464 9.84784 42.5 12.5 42.5H15M22.5 35L30 27.5M30 27.5L37.5 35M30 27.5V57.5'
-                            stroke='#9EA4A9'
-                            strokeWidth='4'
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                          />
-                        </svg>
-                        <div className='flex flex-col'>
-                          <span className='text-[0.875rem] text-[#1A1A1A]'>
-                            클릭하여 JD 파일을 업로드 하세요.
-                          </span>
-                          <span className='text-[0.75rem] text-[#74777D]'>
-                            (JPG, PNG 파일만 업로드 가능)
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* 구분선 */}
-                      <div className='relative flex w-full items-center px-[1rem] py-[0.5rem]'>
-                        <div className='h-[1px] w-full bg-[#CDD0D5]' />
-                        <div className='absolute left-1/2 flex h-[2.75rem] w-[3.75rem] -translate-x-1/2 items-center justify-center bg-[#F6F8FA] text-center text-[0.875rem] text-[#1A1A1A]'>
-                          또는
-                        </div>
-                      </div>
-
-                      {/* 두 번째: 복사한 JD 이미지 업로드 */}
-                      <div className='flex items-center gap-[2rem] rounded-[1rem] border border-[#E9EAEC] bg-[#FFFFFF] px-[4.75rem] py-[2.25rem] shadow-sm'>
-                        <svg
-                          width='40'
-                          height='40'
-                          viewBox='0 0 60 60'
-                          fill='none'
-                          xmlns='http://www.w3.org/2000/svg'
-                        >
-                          <path
-                            d='M3.21484 10.2338V7.5C3.21484 6.50544 3.60993 5.55161 4.31319 4.84835C5.01645 4.14509 5.97028 3.75 6.96484 3.75H14.4648V7.5H6.96484V52.5H21.9648V56.25H6.96484C5.97028 56.25 5.01645 55.8549 4.31319 55.1516C3.60993 54.4484 3.21484 53.4946 3.21484 52.5V10.2338ZM48.2148 18.75V7.5C48.2148 6.50544 47.8198 5.55161 47.1165 4.84835C46.4132 4.14509 45.4594 3.75 44.4648 3.75H36.9648V7.5H44.4648V18.75H48.2148ZM44.4648 22.5H51.9648V56.25H25.7148V22.5H44.4648ZM44.4648 18.75H25.7148C24.7203 18.75 23.7665 19.1451 23.0632 19.8484C22.3599 20.5516 21.9648 21.5054 21.9648 22.5V56.25C21.9648 57.2446 22.3599 58.1984 23.0632 58.9016C23.7665 59.6049 24.7203 60 25.7148 60H51.9648C52.9594 60 53.9132 59.6049 54.6165 58.9016C55.3198 58.1984 55.7148 57.2446 55.7148 56.25V22.5C55.7148 21.5054 55.3198 20.5516 54.6165 19.8484C53.9132 19.1451 52.9594 18.75 51.9648 18.75H44.4648Z'
-                            fill='#9EA4A9'
-                          />
-                          <path
-                            d='M29.4648 37.5H48.2148V33.75H29.4648V37.5ZM29.4648 30H48.2148V26.25H29.4648V30ZM29.4648 45H48.2148V41.25H29.4648V45ZM29.4648 52.5H48.2148V48.75H29.4648V52.5ZM36.9648 7.5V3.75C36.9648 2.75544 36.5698 1.80161 35.8665 1.09835C35.1632 0.395088 34.2094 0 33.2148 0L18.2148 0C17.2203 0 16.2665 0.395088 15.5632 1.09835C14.8599 1.80161 14.4648 2.75544 14.4648 3.75V7.5H18.2148V3.75H33.2148V7.5H36.9648ZM14.4648 11.25H36.9648V7.5H14.4648V11.25Z'
-                            fill='#9EA4A9'
-                          />
-                        </svg>
-                        <span className='text-[0.875rem] text-[#1A1A1A]'>
-                          클릭하여 복사한 JD 이미지를 업로드 하세요.
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* 오른쪽: 드롭존/미리보기 영역 (섹션 밖) */}
-                    <div
-                      className='flex flex-1 items-center justify-center rounded-[1rem] border-2 border-dashed bg-[#FDFDFD]'
-                      style={{
-                        borderColor: '#CDD0D5',
+                    <input
+                      ref={jdFileInputRef}
+                      type='file'
+                      accept='.jpg,.jpeg,.png,image/jpeg,image/png'
+                      className='hidden'
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleJdImageFile(file);
+                        e.target.value = '';
                       }}
-                    ></div>
+                    />
+                    {/* 왼쪽: 업로드 카드(0~1개일 때) 또는 두 번째 파일 미리보기(2개일 때) */}
+                    {jdUploadedFiles.length >= 2 ? (
+                      <div className='flex h-[19.125rem] w-[32.25rem] shrink-0 flex-col overflow-hidden rounded-[1rem] border border-[#9EA4A9] bg-[#FFFFFF]'>
+                        <div className='group relative h-[15rem] shrink-0 overflow-hidden bg-[#FFFFFF] p-[1rem] transition-colors hover:bg-[#E9EAEC]'>
+                          <img
+                            src={jdUploadedFiles[1].previewUrl}
+                            alt='JD 미리보기 2'
+                            className='h-full w-full object-contain object-left-top'
+                          />
+                          <button
+                            type='button'
+                            className='absolute top-[0.75rem] right-[0.75rem] flex h-[1.5rem] w-[1.5rem] cursor-pointer items-center justify-center rounded-[0.25rem] bg-[#74777D] opacity-0 transition-opacity duration-150 group-hover:opacity-100'
+                            aria-label='파일 삭제'
+                            onClick={() => setFileDeleteConfirmTarget({ type: 'jd', index: 1 })}
+                          >
+                            <FileCloseIcon />
+                          </button>
+                          <button
+                            type='button'
+                            className='absolute bottom-[0.75rem] right-[0.75rem] flex h-[1.5rem] w-[1.5rem] cursor-pointer items-center justify-center rounded-[0.25rem] bg-[#FFFFFF] shadow-[0_0_8px_0_rgba(0,0,0,0.25)]'
+                            aria-label='전체화면'
+                            onClick={() => setJdViewerFileIndex(1)}
+                          >
+                            <FullIcon />
+                          </button>
+                        </div>
+                        <div className='h-[1px] w-full bg-[#E9EAEC]' />
+                        <div className='flex items-center gap-[0.75rem] border-t border-[#9EA4A9] px-[1rem] py-[0.75rem]'>
+                          <div className='flex h-[2.5rem] w-[2.5rem] items-center justify-center rounded-[0.375rem]'>
+                            <FileImageIcon />
+                          </div>
+                          <div className='min-w-0 flex-1 overflow-hidden'>
+                            <p className='truncate text-[0.875rem] font-bold text-[#1A1A1A]'>
+                              {jdUploadedFiles[1].name}
+                            </p>
+                            <p className='mt-[0.125rem] text-[0.75rem] text-[#74777D]'>
+                              {jdUploadedFiles[1].size >= 1024 * 1024
+                                ? `${(jdUploadedFiles[1].size / 1024 / 1024).toFixed(1)} MB`
+                                : `${(jdUploadedFiles[1].size / 1024).toFixed(1)} KB`}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className='flex flex-1 flex-col gap-[0.5rem] rounded-[1.25rem] bg-[#F6F8FA] px-[1.5rem] py-[1.25rem]'>
+                        <div
+                          role='button'
+                          tabIndex={0}
+                          className='flex cursor-pointer items-center gap-[3.625rem] rounded-[1rem] border border-[#E9EAEC] bg-[#FFFFFF] px-[4.75rem] py-[2.25rem] shadow-sm'
+                          onClick={() => jdFileInputRef.current?.click()}
+                          onKeyDown={(e) =>
+                            e.key === 'Enter' && jdFileInputRef.current?.click()
+                          }
+                        >
+                          <svg
+                            xmlns='http://www.w3.org/2000/svg'
+                            width='40'
+                            height='40'
+                            viewBox='0 0 60 60'
+                            fill='none'
+                          >
+                            <path
+                              d='M45 42.5C48.3152 42.5 51.4946 41.183 53.8388 38.8388C56.183 36.4946 57.5 33.3152 57.5 30C57.5 26.6848 56.183 23.5053 53.8388 21.1611C51.4946 18.8169 48.3152 17.5 45 17.5C44.337 13.1902 41.989 9.32034 38.4727 6.74172C34.9564 4.16309 30.5598 3.08693 26.25 3.74997C21.9402 4.41301 18.0704 6.76094 15.4917 10.2772C12.9131 13.7936 11.837 18.1902 12.5 22.5C9.84784 22.5 7.3043 23.5535 5.42893 25.4289C3.55357 27.3043 2.5 29.8478 2.5 32.5C2.5 35.1521 3.55357 37.6957 5.42893 39.571C7.3043 41.4464 9.84784 42.5 12.5 42.5H15M22.5 35L30 27.5M30 27.5L37.5 35M30 27.5V57.5'
+                              stroke='#9EA4A9'
+                              strokeWidth='4'
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                            />
+                          </svg>
+                          <div className='flex flex-col items-center'>
+                            <span className='text-[0.875rem] text-[#1A1A1A] whitespace-nowrap'>
+                              클릭하여 JD 파일을 업로드 하세요.
+                            </span>
+                            <span className='text-[0.75rem] text-[#74777D] whitespace-nowrap'>
+                              (JPG, PNG 파일만 업로드 가능)
+                            </span>
+                          </div>
+                        </div>
+                        <div className='relative flex w-full items-center px-[1rem] py-[0.5rem]'>
+                          <div className='h-[1px] w-full bg-[#CDD0D5]' />
+                          <div className='absolute left-1/2 flex h-[1.25rem] w-[3.5rem] -translate-x-1/2 items-center justify-center bg-[#F6F8FA] text-center text-[0.875rem] text-[#1A1A1A]'>
+                            또는
+                          </div>
+                        </div>
+                        <div
+                          role='button'
+                          tabIndex={0}
+                          className='flex cursor-pointer items-center gap-[2rem] rounded-[1rem] border border-[#E9EAEC] bg-[#FFFFFF] px-[4.75rem] py-[2.25rem] shadow-sm'
+                          onClick={() => handlePasteJdImageFromClipboard()}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              handlePasteJdImageFromClipboard();
+                            }
+                          }}
+                        >
+                          <svg
+                            width='40'
+                            height='40'
+                            viewBox='0 0 60 60'
+                            fill='none'
+                            xmlns='http://www.w3.org/2000/svg'
+                          >
+                            <path
+                              d='M3.21484 10.2338V7.5C3.21484 6.50544 3.60993 5.55161 4.31319 4.84835C5.01645 4.14509 5.97028 3.75 6.96484 3.75H14.4648V7.5H6.96484V52.5H21.9648V56.25H6.96484C5.97028 56.25 5.01645 55.8549 4.31319 55.1516C3.60993 54.4484 3.21484 53.4946 3.21484 52.5V10.2338ZM48.2148 18.75V7.5C48.2148 6.50544 47.8198 5.55161 47.1165 4.84835C46.4132 4.14509 45.4594 3.75 44.4648 3.75H36.9648V7.5H44.4648V18.75H48.2148ZM44.4648 22.5H51.9648V56.25H25.7148V22.5H44.4648ZM44.4648 18.75H25.7148C24.7203 18.75 23.7665 19.1451 23.0632 19.8484C22.3599 20.5516 21.9648 21.5054 21.9648 22.5V56.25C21.9648 57.2446 22.3599 58.1984 23.0632 58.9016C23.7665 59.6049 24.7203 60 25.7148 60H51.9648C52.9594 60 53.9132 59.6049 54.6165 58.9016C55.3198 58.1984 55.7148 57.2446 55.7148 56.25V22.5C55.7148 21.5054 55.3198 20.5516 54.6165 19.8484C53.9132 19.1451 52.9594 18.75 51.9648 18.75H44.4648Z'
+                              fill='#9EA4A9'
+                            />
+                            <path
+                              d='M29.4648 37.5H48.2148V33.75H29.4648V37.5ZM29.4648 30H48.2148V26.25H29.4648V30ZM29.4648 45H48.2148V41.25H29.4648V45ZM29.4648 52.5H48.2148V48.75H29.4648V52.5ZM36.9648 7.5V3.75C36.9648 2.75544 36.5698 1.80161 35.8665 1.09835C35.1632 0.395088 34.2094 0 33.2148 0L18.2148 0C17.2203 0 16.2665 0.395088 15.5632 1.09835C14.8599 1.80161 14.4648 2.75544 14.4648 3.75V7.5H18.2148V3.75H33.2148V7.5H36.9648ZM14.4648 11.25H36.9648V7.5H14.4648V11.25Z'
+                              fill='#9EA4A9'
+                            />
+                          </svg>
+                          <span className='text-[0.875rem] text-[#1A1A1A] whitespace-nowrap'>
+                            클릭하여 복사한 JD 이미지를 업로드 하세요.
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 오른쪽: 드롭존(0개일 때) 또는 첫 번째 파일 미리보기(1개 이상) */}
+                    <div
+                      className={`flex h-[19.125rem] w-[32.25rem] shrink-0 flex-col overflow-hidden rounded-[1rem] bg-[#FFFFFF] ${
+                        jdUploadedFiles.length >= 1
+                          ? 'border border-[#9EA4A9]'
+                          : 'border border-dashed border-[#CDD0D5]'
+                      }`}
+                    >
+                      {jdUploadedFiles.length >= 1 ? (
+                        <>
+                          <div className='group relative h-[15rem] shrink-0 overflow-hidden bg-[#FFFFFF] p-[1rem] transition-colors hover:bg-[#E9EAEC]'>
+                            <img
+                              src={jdUploadedFiles[0].previewUrl}
+                              alt='JD 미리보기 1'
+                              className='h-full w-full object-contain object-left-top'
+                            />
+                            <button
+                              type='button'
+                              className='absolute top-[0.75rem] right-[0.75rem] flex h-[1.5rem] w-[1.5rem] cursor-pointer items-center justify-center rounded-[0.25rem] bg-[#74777D] opacity-0 transition-opacity duration-150 group-hover:opacity-100'
+                              aria-label='파일 삭제'
+                              onClick={() => setFileDeleteConfirmTarget({ type: 'jd', index: 0 })}
+                            >
+                              <FileCloseIcon />
+                            </button>
+                            <button
+                              type='button'
+                              className='absolute bottom-[0.75rem] right-[0.75rem] flex h-[1.5rem] w-[1.5rem] cursor-pointer items-center justify-center rounded-[0.25rem] bg-[#FFFFFF] shadow-[0_0_8px_0_rgba(0,0,0,0.25)]'
+                              aria-label='전체화면'
+                              onClick={() => setJdViewerFileIndex(0)}
+                            >
+                              <FullIcon />
+                            </button>
+                          </div>
+                          <div className='h-[1px] w-full bg-[#E9EAEC]' />
+                          <div className='flex items-center gap-[0.75rem] border-t border-[#9EA4A9] px-[1rem] py-[0.75rem]'>
+                            <div className='flex h-[2.5rem] w-[2.5rem] items-center justify-center rounded-[0.375rem]'>
+                              <FileImageIcon />
+                            </div>
+                            <div className='min-w-0 flex-1 overflow-hidden'>
+                              <p className='truncate text-[0.875rem] font-bold text-[#1A1A1A]'>
+                                {jdUploadedFiles[0].name}
+                              </p>
+                              <p className='mt-[0.125rem] text-[0.75rem] text-[#74777D]'>
+                                {jdUploadedFiles[0].size >= 1024 * 1024
+                                  ? `${(jdUploadedFiles[0].size / 1024 / 1024).toFixed(1)} MB`
+                                  : `${(jdUploadedFiles[0].size / 1024).toFixed(1)} KB`}
+                              </p>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className='flex h-full w-full rounded-[1rem]' />
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
             </div>
 
             {/* 첨삭 시작하기 버튼 */}
-            <div className='flex justify-center pb-[7rem]'>
-              <button
-                onClick={() => setIsStartCorrectionModalOpen(true)}
-                className='flex cursor-pointer items-center justify-center gap-[0.75rem] rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
+            <div className='flex justify-center pb-[6.25rem]'>
+              <CommonButton
+                variantType='Primary'
+                px='2.25rem'
+                py='0.75rem'
+                className='gap-[0.75rem] rounded-[3.75rem] [&_svg]:h-[1.5rem] [&_svg]:w-[1.5rem]'
+                onClick={handleStartCorrectionClick}
               >
                 <CorrectionIcon />
-                <span className='text-[1rem] font-bold text-[#FFFFFF] whitespace-nowrap'>
-                  첨삭 시작하기
-                </span>
-              </button>
+                첨삭 시작하기
+              </CommonButton>
             </div>
           </>
         ) : step === 'portfolio' ? (
           <>
             {/* 포트폴리오 종류 선택 */}
-            <div className='flex flex-col gap-[1.25rem]'>
-              <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+            <div
+              className={`flex flex-col gap-[1.25rem] ${!selectedPortfolioType ? 'pb-[6.25rem]' : ''}`}
+            >
+              <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                 <span>포트폴리오 종류 선택</span>
                 <span className='text-[#DC0000]'>*</span>
               </div>
@@ -458,7 +1040,7 @@ export default function CorrectionSettingsPage() {
                 // TODO: 실제 데이터 연동 시 textPortfolios를 API 데이터로 교체
                 // TODO: 선택된 포트폴리오 ID를 다음 단계 API에 전달
                 <div className='mt-[4.75rem] flex flex-col'>
-                  <div className='flex items-center text-[1.125rem] font-bold'>
+                  <div className='flex items-center text-[1.125rem] font-bold leading-[1.3]'>
                     <span>텍스트형 포트폴리오 선택</span>
                   </div>
                   <span className='pt-[0.25rem] text-[0.875rem] text-[#74777D]'>
@@ -504,10 +1086,19 @@ export default function CorrectionSettingsPage() {
 
               {/* PDF 포트폴리오 업로드 섹션 */}
               {selectedPortfolioType === 'pdf' && (
-                <div className='mt-[4.75rem] flex flex-col gap-[1.25rem]'>
-                  <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
-                    <span>PDF 포트폴리오 업로드</span>
-                    <span className='text-[#DC0000]'>*</span>
+                <div
+                  className={`mt-[4.75rem] flex flex-col gap-[1.25rem] ${!isPdfTextExtracted || isPdfTextExtracting ? 'pb-[6.25rem]' : ''}`}
+                >
+                  <div>
+                    <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
+                      <span>PDF 포트폴리오 업로드</span>
+                      <span className='text-[#DC0000]'>*</span>
+                    </div>
+                    {pdfUploadError === 'too_large' && (
+                      <p className='mt-[0.5rem] text-[0.875rem] text-[#DC0000]'>
+                        최대 10MB의 PDF 파일만 업로드 가능해요.
+                      </p>
+                    )}
                   </div>
                   <div className='rounded-[1rem] border border-[#E9EAEC] bg-[#FDFDFD] p-[1rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
                     <div className='grid grid-cols-2 gap-[4rem] pl-[2.75rem]'>
@@ -519,44 +1110,96 @@ export default function CorrectionSettingsPage() {
                             첨삭을 진행해요.
                           </span>
                           <span className='text-[0.875rem] text-[#1A1A1A]'>
-                            최대 10MB의 파일, 최대 5개의 파일을 첨삭이 가능해요.
+                            최대 10MB의 파일, 최대 5개의 활동 첨삭이 가능해요.
                           </span>
                         </div>
-                        <button
-                          onClick={() => setIsPdfTextExtracted(true)}
-                          disabled={isPdfTextExtracted}
-                          className={`self-start rounded-[3.75rem] border-none px-[2.25rem] py-[0.75rem] ${
-                            isPdfTextExtracted
-                              ? 'cursor-not-allowed bg-[#CDD0D5]'
-                              : 'cursor-pointer bg-[#5060C5]'
-                          }`}
+                        <CommonButton
+                          variantType='Primary'
+                          px='2.25rem'
+                          py='0.75rem'
+                          disabled={!pdfUploadedFile || isPdfTextExtracted}
+                          className='self-start rounded-[3.75rem]'
+                          onClick={() =>
+                            pdfUploadedFile && setIsPdfExtractConfirmModalOpen(true)
+                          }
                         >
-                          <span className='text-[1rem] font-bold text-[#FFFFFF]'>
-                            텍스트 추출하기
-                          </span>
-                        </button>
+                          텍스트 추출하기
+                        </CommonButton>
                       </div>
 
-                      {/* 오른쪽: 파일 업로드 영역 */}
-                      <div className='flex flex-col items-center justify-center gap-[0.75rem] rounded-[1rem] border border-[#CDD0D5] bg-[#FFFFFF] p-[3rem]'>
-                        <svg
-                          xmlns='http://www.w3.org/2000/svg'
-                          width='40'
-                          height='40'
-                          viewBox='0 0 60 60'
-                          fill='none'
-                        >
-                          <path
-                            d='M45 42.5C48.3152 42.5 51.4946 41.183 53.8388 38.8388C56.183 36.4946 57.5 33.3152 57.5 30C57.5 26.6848 56.183 23.5053 53.8388 21.1611C51.4946 18.8169 48.3152 17.5 45 17.5C44.337 13.1902 41.989 9.32034 38.4727 6.74172C34.9564 4.16309 30.5598 3.08693 26.25 3.74997C21.9402 4.41301 18.0704 6.76094 15.4917 10.2772C12.9131 13.7936 11.837 18.1902 12.5 22.5C9.84784 22.5 7.3043 23.5535 5.42893 25.4289C3.55357 27.3043 2.5 29.8478 2.5 32.5C2.5 35.1521 3.55357 37.6957 5.42893 39.571C7.3043 41.4464 9.84784 42.5 12.5 42.5H15M22.5 35L30 27.5M30 27.5L37.5 35M30 27.5V57.5'
-                            stroke='#74777D'
-                            strokeWidth='4'
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                          />
-                        </svg>
-                        <span className='text-center text-[0.875rem] text-[#74777D]'>
-                          클릭하여 파일을 업로드하세요.
-                        </span>
+                      {/* 오른쪽: PDF 파일 업로드 영역 */}
+                      <input
+                        ref={pdfFileInputRef}
+                        type='file'
+                        accept='.pdf,application/pdf'
+                        className='hidden'
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          e.target.value = '';
+                          if (file) handlePdfFile(file);
+                        }}
+                      />
+                      <div
+                        role='button'
+                        tabIndex={0}
+                        className='group relative flex flex-col items-center justify-center gap-[0.75rem] rounded-[1rem] border border-[#CDD0D5] bg-[#FFFFFF] p-[3rem] cursor-pointer'
+                        onClick={() =>
+                          pdfUploadedFile
+                            ? undefined
+                            : pdfFileInputRef.current?.click()
+                        }
+                        onKeyDown={(e) => {
+                          if (
+                            !pdfUploadedFile &&
+                            (e.key === 'Enter' || e.key === ' ')
+                          ) {
+                            e.preventDefault();
+                            pdfFileInputRef.current?.click();
+                          }
+                        }}
+                      >
+                        {pdfUploadedFile ? (
+                          <>
+                            <PdfIcon />
+                            <span className='text-center text-[0.875rem] text-[#1A1A1A]'>
+                              {pdfUploadedFile.name.endsWith('.pdf')
+                                ? pdfUploadedFile.name
+                                : `${pdfUploadedFile.name}.pdf`}
+                            </span>
+                            <button
+                              type='button'
+                              className='absolute top-[0.75rem] right-[0.75rem] flex h-[1.5rem] w-[1.5rem] cursor-pointer items-center justify-center rounded-[0.25rem] bg-[#74777D] opacity-0 transition-opacity duration-150 group-hover:opacity-100'
+                              aria-label='파일 삭제'
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setFileDeleteConfirmTarget({ type: 'pdf' });
+                              }}
+                            >
+                              <FileCloseIcon />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <svg
+                              xmlns='http://www.w3.org/2000/svg'
+                              width='40'
+                              height='40'
+                              viewBox='0 0 60 60'
+                              fill='none'
+                            >
+                              <path
+                                d='M45 42.5C48.3152 42.5 51.4946 41.183 53.8388 38.8388C56.183 36.4946 57.5 33.3152 57.5 30C57.5 26.6848 56.183 23.5053 53.8388 21.1611C51.4946 18.8169 48.3152 17.5 45 17.5C44.337 13.1902 41.989 9.32034 38.4727 6.74172C34.9564 4.16309 30.5598 3.08693 26.25 3.74997C21.9402 4.41301 18.0704 6.76094 15.4917 10.2772C12.9131 13.7936 11.837 18.1902 12.5 22.5C9.84784 22.5 7.3043 23.5535 5.42893 25.4289C3.55357 27.3043 2.5 29.8478 2.5 32.5C2.5 35.1521 3.55357 37.6957 5.42893 39.571C7.3043 41.4464 9.84784 42.5 12.5 42.5H15M22.5 35L30 27.5M30 27.5L37.5 35M30 27.5V57.5'
+                                stroke='#74777D'
+                                strokeWidth='4'
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                              />
+                            </svg>
+                            <span className='text-center text-[0.875rem] text-[#74777D]'>
+                              클릭하여 파일을 업로드하세요.
+                            </span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -566,7 +1209,7 @@ export default function CorrectionSettingsPage() {
               {/* PDF 포트폴리오 텍스트 정리 섹션 */}
               {selectedPortfolioType === 'pdf' && isPdfTextExtracted && (
                 <div className='mt-[3.75rem] flex flex-col'>
-                  <div className='mb-[0.5rem] flex items-center text-[1.125rem] font-bold'>
+                  <div className='mb-[0.5rem] flex items-center text-[1.125rem] font-bold leading-[1.3]'>
                     <span>PDF 포트폴리오 텍스트 정리</span>
                   </div>
                   <div className='mb-[2.5rem] flex flex-col'>
@@ -580,140 +1223,365 @@ export default function CorrectionSettingsPage() {
                     </span>
                   </div>
 
-                  {/* 활동 탭 */}
-                  <div className='flex'>
-                    <button
-                      onClick={() => setSelectedActivity('A')}
-                      className={`cursor-pointer border-none px-[2.5rem] py-[1rem] text-[1rem] font-medium transition-all ${
-                        selectedActivity === 'A'
-                          ? 'relative z-10 rounded-t-[1.25rem] bg-[#FFFFFF] text-[#5060C5] shadow-[0_0.25rem_0.5rem_0_#00000033]'
-                          : 'rounded-t-[1.25rem] bg-[#F6F8FA] text-[#9EA4A9]'
-                      }`}
-                    >
-                      활동 A
-                    </button>
-                    <button
-                      onClick={() => setSelectedActivity('B')}
-                      className={`cursor-pointer border-none px-[2.5rem] py-[1rem] text-[1rem] font-medium transition-all ${
-                        selectedActivity === 'B'
-                          ? 'relative z-10 rounded-t-[1.25rem] bg-[#FFFFFF] text-[#5060C5] shadow-[0_0.25rem_0.5rem_0_#00000033]'
-                          : 'rounded-t-[1.25rem] bg-[#F6F8FA] text-[#9EA4A9]'
-                      }`}
-                    >
-                      활동 B
-                    </button>
-                    <button
-                      onClick={() => setSelectedActivity('C')}
-                      className={`cursor-pointer border-none px-[2.5rem] py-[1rem] text-[1rem] font-medium transition-all ${
-                        selectedActivity === 'C'
-                          ? 'relative z-10 rounded-t-[1.25rem] bg-[#FFFFFF] text-[#5060C5] shadow-[0_0.25rem_0.5rem_0_#00000033]'
-                          : 'rounded-t-[1.25rem] bg-[#F6F8FA] text-[#9EA4A9]'
-                      }`}
-                    >
-                      활동 C
-                    </button>
-                    <button className='cursor-pointer rounded-t-[1.25rem] border-none bg-[#F6F8FA] px-[3rem] py-[1rem] text-[0.875rem] font-medium text-[#9EA4A9] transition-all'>
+                  {isPdfTextExtracting ? (
+                    <div className='flex flex-col items-center justify-center gap-[2rem] py-[4rem]'>
                       <svg
                         xmlns='http://www.w3.org/2000/svg'
-                        width='24'
-                        height='24'
-                        viewBox='0 0 16 16'
-                        fill='#5060C5'
+                        width='56'
+                        height='60'
+                        viewBox='0 0 56 60'
+                        fill='none'
                       >
                         <path
-                          d='M8 3.33333V12.6667M3.33333 8H12.6667'
-                          stroke='#5060C5'
-                          strokeWidth='1.5'
-                          strokeLinecap='round'
+                          opacity='0.1'
+                          fillRule='evenodd'
+                          clipRule='evenodd'
+                          d='M28 8C22.6957 8 17.6086 10.1071 13.8579 13.8579C10.1071 17.6086 8 22.6957 8 28C8 33.3043 10.1071 38.3914 13.8579 42.1421C17.6086 45.8929 22.6957 48 28 48C33.3043 48 38.3914 45.8929 42.1421 42.1421C45.8929 38.3914 48 33.3043 48 28C48 22.6957 45.8929 17.6086 42.1421 13.8579C38.3914 10.1071 33.3043 8 28 8ZM0 28C0 12.536 12.536 0 28 0C43.464 0 56 12.536 56 28C56 43.464 43.464 56 28 56C12.536 56 0 43.464 0 28Z'
+                          fill='#74777D'
                         />
+                        <g
+                          className='animate-spin'
+                          style={{ transformOrigin: '28px 28px' }}
+                        >
+                          <path
+                            fillRule='evenodd'
+                            clipRule='evenodd'
+                            d='M28.0007 8.00003C22.8444 7.989 17.8852 9.9805 14.1687 13.5547C13.3987 14.2666 12.3801 14.6477 11.3319 14.6159C10.2838 14.5841 9.29007 14.142 8.56467 13.3848C7.83927 12.6276 7.44023 11.6158 7.45344 10.5673C7.46666 9.51879 7.89108 8.51738 8.63534 7.7787C13.8408 2.77773 20.7822 -0.0105164 28.0007 2.98087e-05C29.0615 2.98087e-05 30.079 0.421457 30.8291 1.1716C31.5792 1.92175 32.0007 2.93916 32.0007 4.00003C32.0007 5.0609 31.5792 6.07831 30.8291 6.82846C30.079 7.5786 29.0615 8.00003 28.0007 8.00003Z'
+                            fill='url(#paint0_linear_pdf_extract)'
+                          />
+                        </g>
+                        <defs>
+                          <linearGradient
+                            id='paint0_linear_pdf_extract'
+                            x1='19.7269'
+                            y1='0'
+                            x2='19.7269'
+                            y2='14.6177'
+                            gradientUnits='userSpaceOnUse'
+                          >
+                            <stop stopColor='#93B3F4' />
+                            <stop offset='1' stopColor='#5060C5' />
+                          </linearGradient>
+                        </defs>
                       </svg>
-                    </button>
+                    </div>
+                  ) : (
+                    <>
+                  {/* 활동 탭 */}
+                  <div className='flex'>
+                    {pdfActivities.map((activity) => (
+                      <div
+                        key={activity.id}
+                        className='group relative flex'
+                        onMouseEnter={() => setPdfActivityHoverId(activity.id)}
+                        onMouseLeave={() => setPdfActivityHoverId(null)}
+                      >
+                        <button
+                          type='button'
+                          onClick={() => setSelectedActivityId(activity.id)}
+                          className={`relative cursor-pointer border-none px-[2.5rem] py-[1rem] text-[1rem] font-medium transition-all ${
+                            selectedActivityId === activity.id
+                              ? 'z-10 rounded-t-[1.25rem] bg-[#FFFFFF] text-[#5060C5] shadow-[0_0.25rem_0.5rem_0_#00000033]'
+                              : 'rounded-t-[1.25rem] bg-[#F6F8FA] text-[#9EA4A9]'
+                          }`}
+                        >
+                          <span className='relative inline-block'>
+                            {activity.label}
+                            {activity.categories.some(
+                              (c) =>
+                                c.bullets.reduce((s, b) => s + b.length, 0) >
+                                PDF_CATEGORY_CHAR_LIMIT,
+                            ) && (
+                              <span className='absolute -right-2'>
+                                <RedDotIcon />
+                              </span>
+                            )}
+                          </span>
+                        </button>
+                        <button
+                          type='button'
+                          aria-label='활동 삭제'
+                          className={`absolute top-[0.5rem] right-[0.5rem] z-20 flex h-[1.25rem] w-[1.25rem] cursor-pointer items-center justify-center transition-opacity duration-150 [&_svg]:h-[0.875rem] [&_svg]:w-[0.875rem] ${
+                            pdfActivityHoverId === activity.id
+                              ? 'opacity-100'
+                              : 'opacity-0'
+                          }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActivityDeleteTargetId(activity.id);
+                          }}
+                        >
+                          <ActivityDeleteIcon />
+                        </button>
+                      </div>
+                    ))}
+                    {pdfActivities.length < 5 && (
+                      <button
+                        type='button'
+                        className='cursor-pointer rounded-t-[1.25rem] border-none bg-[#F6F8FA] px-[3rem] py-[1rem] text-[0.875rem] font-medium text-[#9EA4A9] transition-all'
+                        onClick={() => {
+                          const usedLetters = pdfActivities.map((a) =>
+                            a.label.slice(-1),
+                          );
+                          const nextLetter = ['A', 'B', 'C', 'D', 'E'].find(
+                            (l) => !usedLetters.includes(l),
+                          );
+                          if (!nextLetter) return;
+                          const newId = `pdf-act-${Date.now()}`;
+                          setPdfActivities((prev) => [
+                            ...prev,
+                            createPdfActivityBlock(newId, `활동 ${nextLetter}`),
+                          ]);
+                          setSelectedActivityId(newId);
+                        }}
+                      >
+                        <svg
+                          xmlns='http://www.w3.org/2000/svg'
+                          width='24'
+                          height='24'
+                          viewBox='0 0 16 16'
+                          fill='#5060C5'
+                        >
+                          <path
+                            d='M8 3.33333V12.6667M3.33333 8H12.6667'
+                            stroke='#5060C5'
+                            strokeWidth='1.5'
+                            strokeLinecap='round'
+                          />
+                        </svg>
+                      </button>
+                    )}
                   </div>
 
                   {/* 사이드바 및 내용 영역 */}
                   <div className='relative z-20 flex min-h-[397px] rounded-tr-[1.25rem] rounded-br-[1.25rem] rounded-bl-[1.25rem] border border-[#E9EAEC] bg-[#FFFFFF] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
                     {/* 사이드바 네비게이션 */}
                     <div className='flex flex-col'>
-                      <button
-                        onClick={() => setSelectedTab('상세정보')}
-                        className={`cursor-pointer border-b border-b-[#CDD0D5] px-[2rem] py-[0.75rem] text-center text-[1rem] transition-all ${
-                          selectedTab === '상세정보'
-                            ? 'bg-[#5060C5] font-bold text-[#FFFFFF]'
-                            : 'bg-[#F6F8FA] font-medium text-[#9EA4A9]'
-                        }`}
-                      >
-                        상세정보
-                      </button>
-                      <button
-                        onClick={() => setSelectedTab('담당업무')}
-                        className={`cursor-pointer border-b border-b-[#CDD0D5] px-[2rem] py-[0.75rem] text-center text-[1rem] font-medium transition-all ${
-                          selectedTab === '담당업무'
-                            ? 'bg-[#5060C5] font-bold text-[#FFFFFF]'
-                            : 'bg-[#F6F8FA] font-medium text-[#9EA4A9]'
-                        }`}
-                      >
-                        담당업무
-                      </button>
-                      <button
-                        onClick={() => setSelectedTab('문제해결')}
-                        className={`cursor-pointer border-b border-b-[#CDD0D5] px-[2rem] py-[0.75rem] text-center text-[1rem] font-medium transition-all ${
-                          selectedTab === '문제해결'
-                            ? 'bg-[#5060C5] font-bold text-[#FFFFFF]'
-                            : 'bg-[#F6F8FA] font-medium text-[#9EA4A9]'
-                        }`}
-                      >
-                        문제해결
-                      </button>
-                      <button
-                        onClick={() => setSelectedTab('배운 점')}
-                        className={`cursor-pointer border-b border-b-[#CDD0D5] px-[2rem] py-[0.75rem] text-center text-[1rem] font-medium transition-all ${
-                          selectedTab === '배운 점'
-                            ? 'bg-[#5060C5] font-bold text-[#FFFFFF]'
-                            : 'bg-[#F6F8FA] font-medium text-[#9EA4A9]'
-                        }`}
-                      >
-                        배운 점
-                      </button>
+                      {PDF_CATEGORY_NAMES.map((name) => {
+                        const selectedActivity = pdfActivities.find(
+                          (a) => a.id === selectedActivityId,
+                        );
+                        const category = selectedActivity?.categories.find(
+                          (c) => c.name === name,
+                        );
+                        const categoryOverLimit =
+                          (category?.bullets.reduce(
+                            (s, b) => s + b.length,
+                            0,
+                          ) ?? 0) > PDF_CATEGORY_CHAR_LIMIT;
+                        return (
+                          <button
+                            key={name}
+                            type='button'
+                            onClick={() => setSelectedTab(name)}
+                            className={`relative cursor-pointer border-b border-b-[#CDD0D5] px-[2rem] py-[0.75rem] text-center text-[1rem] transition-all ${
+                              selectedTab === name
+                                ? 'bg-[#5060C5] font-bold text-[#FFFFFF]'
+                                : 'bg-[#F6F8FA] font-medium text-[#9EA4A9]'
+                            }`}
+                          >
+                            <span className='relative inline-block'>
+                              {name}
+                              {categoryOverLimit && (
+                                <span className='absolute -right-2'>
+                                  <RedDotIcon />
+                                </span>
+                              )}
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
 
                     {/* 구분선 */}
                     <div className='w-[1px] bg-[#CDD0D5]' />
 
-                    {/* 내용 영역 */}
-                    <div className='flex-1 rounded-tr-[1.25rem] rounded-br-[1.25rem] bg-[#FFFFFF] px-[2.25rem] py-[1.5rem]'>
-                      <div className='flex flex-col gap-[0.5rem] text-[0.875rem] text-[#1A1A1A]'>
-                        <span>
-                          내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-                          내용내용내용내용내용내용내용
-                          내용내용내용내용내용내용내용
-                        </span>
-                      </div>
+                    {/* 내용 영역 - 불릿 포인트 에디터 */}
+                    <div className='flex flex-1 flex-col gap-[0.5rem] rounded-tr-[1.25rem] rounded-br-[1.25rem] bg-[#FFFFFF] px-[2.25rem] py-[1.5rem] text-[0.875rem] text-[#1A1A1A]'>
+                      {(() => {
+                        const activity = pdfActivities.find(
+                          (a) => a.id === selectedActivityId,
+                        );
+                        const category = activity?.categories.find(
+                          (c) => c.name === selectedTab,
+                        );
+                        const bullets = category?.bullets ?? [''];
+                        const categoryCharCount = bullets.reduce(
+                          (sum, b) => sum + b.length,
+                          0,
+                        );
+                        const setBullets = (next: string[]) => {
+                          if (!activity || !category) return;
+                          setPdfActivities((prev) =>
+                            prev.map((a) =>
+                              a.id !== activity.id
+                                ? a
+                                : {
+                                    ...a,
+                                    categories: a.categories.map((c) =>
+                                      c.name !== selectedTab
+                                        ? c
+                                        : { ...c, bullets: next },
+                                    ),
+                                  },
+                            ),
+                          );
+                        };
+                        bulletTextareaRefs.current = [];
+                        return (
+                          <>
+                          <div className='flex flex-1 flex-col gap-[0.5rem]'>
+                            {bullets.map((text, idx) => (
+                              <div
+                                key={idx}
+                                className='flex items-start gap-[0.5rem]'
+                              >
+                                <span className='flex h-[1.5em] shrink-0 items-center text-[0.875rem] leading-[1.5] text-[#1A1A1A]'>
+                                  •
+                                </span>
+                                <textarea
+                                  className='min-h-[1.5rem] w-full resize-none overflow-hidden border-none bg-transparent p-0 text-[0.875rem] leading-[1.5] text-[#1A1A1A] outline-none placeholder:text-[#9EA4A9]'
+                                  placeholder='내용을 입력하세요'
+                                  value={text}
+                                  ref={(el) => {
+                                    bulletTextareaRefs.current[idx] = el;
+                                    if (el) {
+                                      el.style.height = 'auto';
+                                      el.style.height = `${el.scrollHeight}px`;
+                                    }
+                                  }}
+                                  onChange={(e) => {
+                                    const next = [...bullets];
+                                    next[idx] = e.target.value;
+                                    setBullets(next);
+                                    const ta = e.target;
+                                    ta.style.height = 'auto';
+                                    ta.style.height = `${ta.scrollHeight}px`;
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.repeat) return;
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      const now = Date.now();
+                                      if (now - lastBulletEnterAt.current < 150) return;
+                                      lastBulletEnterAt.current = now;
+                                      const next = [...bullets];
+                                      next.splice(idx + 1, 0, '');
+                                      setBullets(next);
+                                      setTimeout(() => {
+                                        bulletTextareaRefs.current[idx + 1]?.focus();
+                                      }, 0);
+                                    } else if (
+                                      e.key === 'Backspace' &&
+                                      text === '' &&
+                                      bullets.length > 1
+                                    ) {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      const next = bullets.filter(
+                                        (_, i) => i !== idx,
+                                      );
+                                      setBullets(next);
+                                      const prevIdx = idx - 1;
+                                      setTimeout(() => {
+                                        const prev =
+                                          bulletTextareaRefs.current[prevIdx];
+                                        if (prev) {
+                                          prev.focus();
+                                          const len = prev.value.length;
+                                          prev.setSelectionRange(len, len);
+                                        }
+                                      }, 0);
+                                    } else if (e.key === 'ArrowUp') {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      const prevIdx = idx - 1;
+                                      setTimeout(() => {
+                                        const prev =
+                                          bulletTextareaRefs.current[prevIdx];
+                                        if (prev && prev !== document.activeElement) prev.focus();
+                                      }, 0);
+                                    } else if (e.key === 'ArrowDown') {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      const nextIdx = idx + 1;
+                                      setTimeout(() => {
+                                        const next =
+                                          bulletTextareaRefs.current[nextIdx];
+                                        if (next && next !== document.activeElement) next.focus();
+                                      }, 0);
+                                    }
+                                  }}
+                                  rows={1}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                          <div className='mt-[0.5rem] flex justify-end'>
+                            <span
+                              className={`text-[0.875rem] ${
+                                categoryCharCount > 390
+                                  ? 'text-[#DC0000]'
+                                  : 'text-[#74777D]'
+                              }`}
+                            >
+                              {categoryCharCount} / {PDF_CATEGORY_CHAR_LIMIT}
+                            </span>
+                          </div>
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
+                    </>
+                  )}
                 </div>
               )}
             </div>
 
             {/* 다음으로 버튼 */}
-            {selectedPortfolioType && (
-              <div className='flex justify-center pb-[7rem]'>
-                <button
-                  onClick={handleNextStep}
-                  className='flex cursor-pointer items-center justify-center rounded-[3.75rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
-                >
-                  <span className='text-[1rem] font-bold text-[#FFFFFF]'>
-                    다음으로
-                  </span>
-                </button>
-              </div>
-            )}
+            {selectedPortfolioType &&
+              !(
+                selectedPortfolioType === 'pdf' &&
+                (!isPdfTextExtracted || isPdfTextExtracting)
+              ) &&
+              (() => {
+                const pdfCategoryOverLimit =
+                  selectedPortfolioType === 'pdf' &&
+                  pdfActivities.some((a) =>
+                    a.categories.some(
+                      (c) =>
+                        c.bullets.reduce((s, b) => s + b.length, 0) >
+                        PDF_CATEGORY_CHAR_LIMIT,
+                    ),
+                  );
+                return (
+                  <div className='flex justify-center pb-[6.25rem]'>
+                    <CommonButton
+                      variantType='Primary'
+                      px='2.25rem'
+                      py='0.75rem'
+                      disabled={pdfCategoryOverLimit}
+                      className={
+                        pdfCategoryOverLimit
+                          ? 'rounded-[3.75rem] cursor-not-allowed !bg-[#CDD0D5] hover:!bg-[#CDD0D5]'
+                          : 'rounded-[3.75rem]'
+                      }
+                      onClick={handleNextStep}
+                    >
+                      다음으로
+                    </CommonButton>
+                  </div>
+                );
+              })()}
           </>
         ) : step === 'analysis' ? (
           <>
             <div className='flex flex-col gap-[5rem]'>
               {/* 기업 분석 정보 섹션 */}
               <div className='flex flex-col gap-[0.375rem]'>
-                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                   <span>기업 분석 정보</span>
                   <span className='text-[#DC0000]'>*</span>
                 </div>
@@ -744,8 +1612,14 @@ export default function CorrectionSettingsPage() {
                     height='17.125rem'
                     className='rounded-[1.25rem]'
                     value={analysisInfoValue}
+                    maxLength={ANALYSIS_INFO_MAX_LENGTH}
                     onChange={(e) => {
-                      setAnalysisInfoValue(e.target.value);
+                      setAnalysisInfoValue(
+                        limitAllowedInput(
+                          e.target.value,
+                          ANALYSIS_INFO_MAX_LENGTH,
+                        ),
+                      );
                       setShowAnalysisInfoWarning(false);
                     }}
                   />
@@ -754,7 +1628,7 @@ export default function CorrectionSettingsPage() {
 
               {/* 강조 포인트 섹션 */}
               <div className='flex flex-col gap-[0.375rem]'>
-                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                   <span>강조 포인트</span>
                 </div>
                 <div className='flex flex-col'>
@@ -766,22 +1640,33 @@ export default function CorrectionSettingsPage() {
                     variant='wide'
                     height='10.625rem'
                     className='rounded-[1.25rem]'
+                    value={emphasisPointsValue}
+                    maxLength={EMPHASIS_POINTS_MAX_LENGTH}
+                    onChange={(e) =>
+                      setEmphasisPointsValue(
+                        limitAllowedInput(
+                          e.target.value,
+                          EMPHASIS_POINTS_MAX_LENGTH,
+                        ),
+                      )
+                    }
                   />
                 </div>
               </div>
             </div>
 
             {/* 첨삭 의뢰하기 버튼 */}
-            <div className='flex justify-center pt-[1.25rem] pb-[7rem]'>
-              <button
+            <div className='flex justify-center pt-[1.25rem] pb-[6.25rem]'>
+              <CommonButton
+                variantType='Primary'
+                px='2.25rem'
+                py='0.75rem'
+                className='gap-[0.75rem] rounded-[3.75rem] [&_svg]:h-[1.5rem] [&_svg]:w-[1.5rem]'
                 onClick={handleNextStep}
-                className='flex cursor-pointer items-center justify-center rounded-[3.75rem] gap-[0.75rem]  border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'
               >
                 <CorrectionIcon />
-                <span className='text-[1rem] font-bold text-[#FFFFFF] whitespace-nowrap'>
-                  첨삭 의뢰하기
-                </span>
-              </button>
+                첨삭 의뢰하기
+              </CommonButton>
             </div>
           </>
         ) : (
@@ -829,7 +1714,7 @@ export default function CorrectionSettingsPage() {
                   </defs>
                 </svg>
                 <div className='flex flex-col items-center gap-[0.5rem] text-center'>
-                  <span className='text-[1.25rem] font-bold text-[#1A1A1A]'>
+                  <span className='text-[1.25rem] font-bold leading-[1.3] text-[#1A1A1A]'>
                     AI 컨설턴트가 포트폴리오 첨삭을 진행 중이에요.
                   </span>
                   <span className='text-[1rem] text-[#74777D]'>
@@ -920,7 +1805,7 @@ export default function CorrectionSettingsPage() {
                         {/* 지원 기업명 및 지원 직무명 */}
                         <div className='grid grid-cols-2 gap-[1.5rem]'>
                           <div className='flex flex-col gap-[1rem]'>
-                            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                               <span>지원 기업명</span>
                             </div>
                             <div className='rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'>
@@ -928,7 +1813,7 @@ export default function CorrectionSettingsPage() {
                             </div>
                           </div>
                           <div className='flex flex-col gap-[1rem]'>
-                            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                            <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                               <span>지원 직무명</span>
                             </div>
                             <div className='rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'>
@@ -939,7 +1824,7 @@ export default function CorrectionSettingsPage() {
 
                         {/* Job Description */}
                         <div className='flex flex-col gap-[1rem]'>
-                          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                             <span>Job Description</span>
                           </div>
                           <div className='rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem]'>
@@ -949,7 +1834,7 @@ export default function CorrectionSettingsPage() {
 
                         {/* 기업 분석 정보 */}
                         <div className='flex flex-col gap-[1rem]'>
-                          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                             <span>기업 분석 정보</span>
                           </div>
                           <div className='rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem]'>
@@ -959,7 +1844,7 @@ export default function CorrectionSettingsPage() {
 
                         {/* 강조 포인트 */}
                         <div className='flex flex-col gap-[1rem]'>
-                          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+                          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
                             <span>강조 포인트</span>
                           </div>
                           <div className='rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem]'>
@@ -973,7 +1858,7 @@ export default function CorrectionSettingsPage() {
                     {resultTab === '총평' && (
                       <div className='flex flex-col gap-[3rem]'>
                         <div className='flex flex-col gap-[1rem]'>
-                          <div className='text-[1.125rem] font-bold'>총평</div>
+                          <div className='text-[1.125rem] font-bold leading-[1.3]'>총평</div>
                           <div className='rounded-[1.25rem] border border-[#74777D] px-[1.5rem] py-[1.25rem]'>
                             일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십
                           </div>
@@ -986,7 +1871,7 @@ export default function CorrectionSettingsPage() {
                       <div className='flex flex-col gap-[3rem]'>
                         {/* 상세정보 */}
                         <div className='flex flex-col gap-[1rem]'>
-                          <div className='text-[1.125rem] font-bold'>
+                          <div className='text-[1.125rem] font-bold leading-[1.3]'>
                             상세정보
                           </div>
                           <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
@@ -1039,7 +1924,7 @@ export default function CorrectionSettingsPage() {
 
                         {/* 담당업무 */}
                         <div className='flex flex-col gap-[1rem]'>
-                          <div className='text-[1.125rem] font-bold'>
+                          <div className='text-[1.125rem] font-bold leading-[1.3]'>
                             담당업무
                           </div>
                           <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
@@ -1092,7 +1977,7 @@ export default function CorrectionSettingsPage() {
 
                         {/* 문제 해결 */}
                         <div className='flex flex-col gap-[1rem]'>
-                          <div className='text-[1.125rem] font-bold'>
+                          <div className='text-[1.125rem] font-bold leading-[1.3]'>
                             문제 해결
                           </div>
                           <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
@@ -1127,7 +2012,7 @@ export default function CorrectionSettingsPage() {
 
                         {/* 배운 점 */}
                         <div className='flex flex-col gap-[1rem]'>
-                          <div className='text-[1.125rem] font-bold'>
+                          <div className='text-[1.125rem] font-bold leading-[1.3]'>
                             배운 점
                           </div>
                           <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
@@ -1179,35 +2064,17 @@ export default function CorrectionSettingsPage() {
                 </div>
 
                 {/* 새로운 경험 정리 시작하기 버튼 */}
-                <div className='flex justify-center pt-[1.25rem] pb-[7rem]'>
-                  <button
+                <div className='flex justify-center pt-[1.25rem] pb-[6.25rem]'>
+                  <CommonButton
+                    variantType='Primary'
+                    px='2.25rem'
+                    py='0.75rem'
+                    className='gap-[1.25rem] rounded-[3.75rem] [&_path]:fill-white [&_svg]:h-[1.25rem] [&_svg]:w-[1.25rem]'
                     onClick={handleStartNewExperience}
-                    className='flex cursor-pointer items-center justify-center gap-[0.75rem] rounded-[3.75rem] border-none bg-[#5060C5] px-[2rem] py-[0.625rem]'
                   >
-                    <svg
-                      width='20'
-                      height='20'
-                      viewBox='0 0 20 20'
-                      fill='none'
-                      xmlns='http://www.w3.org/2000/svg'
-                    >
-                      <path
-                        d='M15 0H1.66667C0.746192 0 0 0.746192 0 1.66667V3.33333C0 4.25381 0.746192 5 1.66667 5H15C15.9205 5 16.6667 4.25381 16.6667 3.33333V1.66667C16.6667 0.746192 15.9205 0 15 0Z'
-                        fill='white'
-                      />
-                      <path
-                        d='M18.332 6.66675H4.9987C4.07822 6.66675 3.33203 7.41294 3.33203 8.33341V10.0001C3.33203 10.9206 4.07822 11.6667 4.9987 11.6667H18.332C19.2525 11.6667 19.9987 10.9206 19.9987 10.0001V8.33341C19.9987 7.41294 19.2525 6.66675 18.332 6.66675Z'
-                        fill='white'
-                      />
-                      <path
-                        d='M15 13.3333H1.66667C0.746192 13.3333 0 14.0794 0 14.9999V16.6666C0 17.5871 0.746192 18.3333 1.66667 18.3333H15C15.9205 18.3333 16.6667 17.5871 16.6667 16.6666V14.9999C16.6667 14.0794 15.9205 13.3333 15 13.3333Z'
-                        fill='white'
-                      />
-                    </svg>
-                    <span className='text-[1rem] font-bold text-[#FFFFFF]'>
-                      새로운 경험 정리 시작하기
-                    </span>
-                  </button>
+                    <ExperienceIcon />
+                    새로운 경험 정리 시작하기
+                  </CommonButton>
                 </div>
               </>
             )}

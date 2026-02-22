@@ -7,6 +7,7 @@ import { BackButton } from '@/components/BackButton';
 import { CommonButton } from '@/components/CommonButton';
 import { Checkbox } from '@/components/ui/CheckBox';
 import { Dropdown } from '@/components/Dropdown';
+import TextField from '@/components/TextField';
 import { CommonModal } from '@/components/CommonModal';
 
 export default function WithdrawPage() {
@@ -20,7 +21,7 @@ export default function WithdrawPage() {
 
   const withdrawReasons = [
     { id: '1', label: '이미 취업에 성공했어요.' },
-    { id: '2', label: '크레딧 금액이 너무 비싸요.' },
+    { id: '2', label: '이용권 금액이 너무 비싸요.' },
     { id: '3', label: '생성된 결과물이 마음에 들지 않아요.' },
     { id: '4', label: '기타' },
   ];
@@ -121,7 +122,7 @@ export default function WithdrawPage() {
               </svg>
             </div>
             <p className='text-[1.125rem] font-semibold leading-[150%] text-[#000000]'>
-              인증된 휴대폰번호는 재가입 시 사용할 수 없어요.
+              인증된 휴대폰번호는 재가입 시 사용해도 가입 선물이 제공되지 않아요.
             </p>
           </div>
           </div>
@@ -161,13 +162,14 @@ export default function WithdrawPage() {
               <g clipPath='url(#clip0_3242_4761)'>
                 <path
                   d='M10.0003 18.3334C11.0949 18.3348 12.1789 18.1198 13.1901 17.701C14.2014 17.2821 15.1198 16.6675 15.8928 15.8926C16.6678 15.1196 17.2823 14.2011 17.7012 13.1899C18.1201 12.1787 18.335 11.0946 18.3337 10.0001C18.335 8.90554 18.1201 7.82152 17.7012 6.81029C17.2823 5.79907 16.6678 4.88058 15.8928 4.10759C15.1198 3.33265 14.2014 2.7181 13.1901 2.29922C12.1789 1.88034 11.0949 1.6654 10.0003 1.66675C8.90579 1.6654 7.82176 1.88034 6.81054 2.29922C5.79931 2.7181 4.88082 3.33265 4.10783 4.10759C3.3329 4.88058 2.71834 5.79907 2.29946 6.81029C1.88059 7.82152 1.66565 8.90554 1.667 10.0001C1.66565 11.0946 1.88059 12.1787 2.29946 13.1899C2.71834 14.2011 3.3329 15.1196 4.10783 15.8926C4.88082 16.6675 5.79931 17.2821 6.81054 17.701C7.82176 18.1198 8.90579 18.3348 10.0003 18.3334Z'
+                  fill={isAgreed ? '#5060C5' : 'none'}
                   stroke={isAgreed ? '#5060C5' : '#9EA4A9'}
                   strokeWidth='2'
                   strokeLinejoin='round'
                 />
                 <path
                   d='M6.66699 10L9.16699 12.5L14.167 7.5'
-                  stroke={isAgreed ? '#5060C5' : '#9EA4A9'}
+                  stroke={isAgreed ? '#FFFFFF' : '#9EA4A9'}
                   strokeWidth='2'
                   strokeLinecap='round'
                   strokeLinejoin='round'
@@ -226,12 +228,12 @@ export default function WithdrawPage() {
         {withdrawReason === '2' && (
           <div className='mt-[2.5rem] pl-[1.75rem]'>
             <p className='text-[1rem] leading-[150%] text-[#000000]'>
-              Folioo에서는 이벤트를 통해서도 크레딧 충전이 가능해요.
+              Folioo에서는 이벤트를 통해서도 이용권 구매가 가능해요.
               <br />
-              크레딧 충전 페이지와 공식 인스타그램 계정 (@Folioo_AI)에 업데이트
+              이용권 구매 페이지와 공식 인스타그램 계정 (@Folioo_AI)에 업데이트
               되는 이벤트를 확인하고, 
               <br />
-              참여하여 무료 크레딧을 받아보세요!
+              참여하여 무료 이용권을 받아보세요!
             </p>
             <div className='mt-[2rem] flex flex-col gap-[0.75rem]'>
               <a
@@ -242,7 +244,7 @@ export default function WithdrawPage() {
                   // TODO: 크레딧 충전 페이지로 이동
                 }}
               >
-                크레딧 충전 페이지 확인하기
+                이용권 구매 페이지 확인하기
               </a>
               <a
                 href='#'
@@ -284,10 +286,9 @@ export default function WithdrawPage() {
 
         {withdrawReason === '4' && (
           <div className='mt-[1.5rem] pl-[1.75rem]'>
-            <textarea
+            <TextField
               placeholder='이유를 알려주세요.'
-              className='w-full rounded-[0.5rem] border-[1px] border-[#74777D] px-[1.25rem] py-[0.75rem] text-[1rem] outline-none resize-none'
-              rows={4}
+              height='8rem'
             />
           </div>
         )}
@@ -300,7 +301,6 @@ export default function WithdrawPage() {
               py='0.875rem'
               onClick={handleWithdraw}
               disabled={!isAgreed || !withdrawReason}
-              className={!isAgreed || !withdrawReason ? 'opacity-50 cursor-not-allowed' : ''}
             >
               탈퇴하기
             </CommonButton>

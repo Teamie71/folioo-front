@@ -46,7 +46,7 @@ export function PortfolioCard({
       <CardContent>
         <CardTitle>{title}</CardTitle>
         <CardFooter>
-          <div className='rounded-[6.25rem] border border-[#CDD0D5] px-[0.75rem] py-[0.25rem] text-[0.875rem]'>
+          <div className='rounded-[6.25rem] border border-[#CDD0D5] bg-[#FFFFFF] px-[0.75rem] py-[0.25rem] text-[0.875rem]'>
             {tag}
           </div>
           <span className='text-[1rem] text-[#74777D]'>{date}</span>

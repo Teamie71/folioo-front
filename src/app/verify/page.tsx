@@ -9,11 +9,24 @@ import { useRouter } from 'next/navigation';
 
 const TIMER_INITIAL = 299; // 04:59
 const OTP_LENGTH = 6;
+const PHONE_MAX_LENGTH = 11;
 
 function formatTime(seconds: number) {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${String(mins).padStart(2, '0')} : ${String(secs).padStart(2, '0')}`;
+}
+
+/** 숫자만 추출하여 최대 11자로 제한 */
+function parsePhoneDigits(value: string): string {
+  return value.replace(/\D/g, '').slice(0, PHONE_MAX_LENGTH);
+}
+
+/** XXX-XXXX-XXXX 형태로 포맷 */
+function formatPhoneDisplay(digits: string): string {
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
 }
 
 export default function VerifyPage() {
@@ -33,24 +46,26 @@ export default function VerifyPage() {
               휴대폰 번호 인증
             </h1>
             <p className='text-[1.125rem] text-[#464B53]'>
-              3초만에 회원가입 완료하고, 무료 이용권을 받으세요!
+              3초만에 회원가입 완료하고, 무료 이용권으로 시작하세요!
             </p>
           </div>
 
           <div className='flex flex-col items-center gap-[2.5rem]'>
             <InputArea
               type='tel'
+              inputMode='numeric'
               placeholder='휴대폰 번호를 입력해주세요.'
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
+              value={formatPhoneDisplay(phoneNumber)}
+              onChange={(e) => setPhoneNumber(parsePhoneDigits(e.target.value))}
               variant='default'
-              className='w-full max-w-[28rem] text-center'
+              className='w-full max-w-[28rem] font-semibold text-center'
             />
             <CommonButton
               variantType='Execute'
               px='1.75rem'
               py='0.5rem'
-              className='rounded-[6.25rem]'
+              className='rounded-[6.25rem] disabled:cursor-not-allowed disabled:bg-[#CDD0D5] disabled:hover:bg-[#CDD0D5]'
+              disabled={phoneNumber.length !== PHONE_MAX_LENGTH}
               onClick={() => {
                 // TODO: 인증 번호 발송 API 연동
                 setCodeSent(true);
@@ -109,13 +124,28 @@ function VerifyOtpStep({
   }, [setTimer]);
 
   const handleChange = (value: string, index: number) => {
-    if (/[^0-9]/.test(value)) return;
+    if (value !== '' && /[^0-9]/.test(value)) return;
     const newOtp = [...otp];
-    newOtp[index] = value.slice(-1);
+    newOtp[index] = value === '' ? '' : value.slice(-1);
     setOtp(newOtp);
     if (value && index < 5) {
       const nextInput = document.getElementById(`otp-${index + 1}`);
       nextInput?.focus();
+    }
+    if (value === '' && index > 0) {
+      const prevInput = document.getElementById(`otp-${index - 1}`);
+      prevInput?.focus();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      e.preventDefault();
+      const newOtp = [...otp];
+      newOtp[index - 1] = '';
+      setOtp(newOtp);
+      const prevInput = document.getElementById(`otp-${index - 1}`);
+      prevInput?.focus();
     }
   };
 
@@ -163,7 +193,8 @@ function VerifyOtpStep({
                   maxLength={1}
                   value={digit}
                   onChange={(e) => handleChange(e.target.value, index)}
-                  className='h-[3rem] w-[3rem] rounded-[6px] border border-[#74777D] text-center text-[20px] outline-none focus:border-[#5060C5]'
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  className='h-[3rem] w-[3rem] rounded-[6px] border font-bold border-[#74777D] text-center text-[20px] outline-none focus:border-[#5060C5]'
                 />
               ))}
             </div>
@@ -220,7 +251,7 @@ function VerifyOtpStep({
         validityMessage='잔여 이용권은 매주 월요일 자정 소멸되고, 새로운 주차의 이용권이 다시 지급돼요.'
         buttonText='경험 정리하기'
         onButtonClick={() => {
-          router.push('/experience');
+          router.push('/experience/settings');
         }}
       />
     </>
