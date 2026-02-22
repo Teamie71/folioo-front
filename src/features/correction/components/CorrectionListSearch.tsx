@@ -1,6 +1,14 @@
 'use client';
 
-export function CorrectionListSearch() {
+export interface CorrectionListSearchProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+export function CorrectionListSearch({
+  value,
+  onChange,
+}: CorrectionListSearchProps) {
   return (
     <div className='flex flex-col gap-[2rem]'>
       <span className='text-[1.25rem] font-bold'>나의 첨삭</span>
@@ -8,6 +16,8 @@ export function CorrectionListSearch() {
         <input
           className='w-full rounded-[6.25rem] border border-[#74777D] bg-white px-[1.25rem] py-[0.75rem] text-[1rem]'
           placeholder='검색어를 입력하세요.'
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
         />
         <svg
           className='absolute right-[1.25rem] cursor-pointer'

@@ -5,6 +5,7 @@ import type {
   CreateCorrectionResponse,
   ExtractPdfResponse,
   GetExternalPortfoliosResponse,
+  GetPortfolioCorrectionsResponse,
   PatchExternalPortfolioRequest,
   StructuredPortfolioResDTO,
 } from '@/types/api/correction';
@@ -23,6 +24,21 @@ export async function createPortfolioCorrection(
   }
 
   throw new Error('첨삭 의뢰에 실패했습니다.');
+}
+
+/** 첨삭 목록 조회 (keyword: 제목 검색) */
+export async function getPortfolioCorrections(
+  keyword?: string,
+): Promise<GetPortfolioCorrectionsResponse> {
+  const response = await apiClient.get<
+    ApiResponse<GetPortfolioCorrectionsResponse>
+  >('/portfolio-corrections', { params: keyword ? { keyword } : undefined });
+
+  if (response.data.isSuccess && response.data.result != null) {
+    return response.data.result;
+  }
+
+  throw new Error('첨삭 목록을 불러오는데 실패했습니다.');
 }
 
 /** PDF 텍스트 추출 */

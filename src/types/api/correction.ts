@@ -27,6 +27,17 @@ export interface CreateCorrectionReqDTO {
 /** POST /portfolio-corrections - result 타입 */
 export type CreateCorrectionResponse = string;
 
+/** GET /portfolio-corrections - 목록 항목 */
+export interface PortfolioCorrectionListItem {
+  id: number;
+  title: string;
+  positionName: string;
+  createdAt: string;
+}
+
+/** GET /portfolio-corrections - result 타입 */
+export type GetPortfolioCorrectionsResponse = PortfolioCorrectionListItem[];
+
 /** PATCH /external-portfolios/{portfolioId} - request body */
 export interface PatchExternalPortfolioRequest {
   name: string;
