@@ -43,9 +43,11 @@ export default function LandingPage() {
               Folioo의 AI 컨설턴트가 당신의 경험과 역량을 가장 효과적으로 활용할
               수 있도록 도와드려요.
             </p>
-            <CommonButton variantType='Gradient' px='2.25rem' py='0.75rem'>
-              무료로 시작하기 →
-            </CommonButton>
+            <Link href='/login'>
+              <CommonButton variantType='Gradient' px='2.25rem' py='0.75rem'>
+                무료로 시작하기 →
+              </CommonButton>
+            </Link>
           </motion.div>
           <motion.div
             className='flex gap-[1.5rem]'
