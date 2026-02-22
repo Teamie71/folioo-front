@@ -73,7 +73,7 @@ export function LogCard({
       {/* 내용 + 태그 */}
       <div className='flex flex-col gap-[1.25rem]'>
         {/* 내용 */}
-        <div className='line-height-[150%] text-[1rem] whitespace-pre-line text-[#1A1A1A]'>
+        <div className='line-height-[150%] line-clamp-2 text-[1rem] whitespace-pre-line text-[#1A1A1A]'>
           {content}
         </div>
 
