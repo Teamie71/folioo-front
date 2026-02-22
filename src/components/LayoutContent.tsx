@@ -12,7 +12,11 @@ import {
 import { CorrectionNavbarContext } from '@/contexts/CorrectionNavbarContext';
 
 const HIDE_NAVBAR_PATTERNS = [/^\/correction\/[^/]+$/];
-
+function isExperienceSettingsPathWithoutNavbar(pathname: string) {
+  return (
+    /^\/experience\/settings/.test(pathname) && !pathname.includes('/portfolio')
+  );
+}
 function isCorrectionDetailPath(pathname: string) {
   return /^\/correction\/[^/]+$/.test(pathname);
 }
@@ -30,7 +34,8 @@ export default function LayoutContent({
   const isCorrectionDetail = isCorrectionDetailPath(pathname ?? '');
   const hideNavbar = isCorrectionDetail
     ? !showNavbarOnResult
-    : HIDE_NAVBAR_PATTERNS.some((p) => p.test(pathname ?? ''));
+    : HIDE_NAVBAR_PATTERNS.some((p) => p.test(pathname ?? '')) ||
+      isExperienceSettingsPathWithoutNavbar(pathname ?? '');
 
   useEffect(() => {
     if (!isCorrectionDetail) setShowNavbarOnResult(false);
@@ -46,15 +51,16 @@ export default function LayoutContent({
 
   return (
     <CorrectionNavbarContext.Provider
-      value={{ setShowNavbarOnResult: useCallback((show: boolean) => setShowNavbarOnResult(show), []) }}
+      value={{
+        setShowNavbarOnResult: useCallback(
+          (show: boolean) => setShowNavbarOnResult(show),
+          [],
+        ),
+      }}
     >
       {!hideNavbar && <Navbar />}
       {!hideNavbar && <BannerBeta />}
-      <div
-        className={
-          hideNavbar ? '' : 'layout-content-below-header'
-        }
-      >
+      <div className={hideNavbar ? '' : 'layout-content-below-header'}>
         {children}
       </div>
 
