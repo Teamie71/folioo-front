@@ -24,7 +24,11 @@ export const ChatFileUploader = ({ onFileSelect }: ChatFileUploaderProps) => {
 
   return (
     <div className='mr-[2rem] flex items-center justify-center'>
-      <button type='button' onClick={handleClick} className='cursor-pointer'>
+      <button
+        type='button'
+        onClick={handleClick}
+        className='cursor-pointer text-[#9EA4A9] transition-colors hover:text-[#000000]'
+      >
         <FileUploaderIcon />
       </button>
       <input
