@@ -1,5 +1,6 @@
 'use client';
 
+import { getMe } from '@/services/user';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
@@ -18,6 +19,7 @@ export default function LoginCallbackPage() {
   useEffect(() => {
     const accessToken = searchParams.get(ACCESS_TOKEN_PARAM);
     const refreshToken = searchParams.get(REFRESH_TOKEN_PARAM);
+    const redirectTo = searchParams.get('redirect_to') ?? '/';
 
     if (accessToken) {
       setAccessToken(accessToken);
@@ -26,8 +28,18 @@ export default function LoginCallbackPage() {
       setRefreshTokenCookie(refreshToken);
     }
 
-    const redirectTo = searchParams.get('redirect_to') ?? '/';
-    router.replace(redirectTo);
+    if (!accessToken) {
+      router.replace(redirectTo);
+      return;
+    }
+
+    getMe()
+      .then(() => {
+        router.replace(redirectTo);
+      })
+      .catch(() => {
+        router.replace(redirectTo);
+      });
   }, [searchParams, setAccessToken, setRefreshTokenCookie, router]);
 
   return (
