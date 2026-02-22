@@ -7,12 +7,14 @@ import { ReactNode } from 'react';
 
 interface ContentCardProps {
   title: string;
-  /** 카드 중앙에 표시할 아이콘(SVG) 또는 컴포넌트 */
+  /* 카드 중앙에 표시할 아이콘(SVG) 또는 컴포넌트 */
   icon?: ReactNode;
   description: ReactNode;
   buttonText: string;
-  /** 버튼 클릭 시 이동할 경로. 지정 시 버튼이 해당 경로로 링크됩니다 */
+  /* 버튼 클릭 시 이동할 경로 */
   buttonHref?: string;
+  /* 지정 시 새로 렌더링*/
+  customButton?: ReactNode;
 }
 
 export const ContentCard = ({
@@ -21,6 +23,7 @@ export const ContentCard = ({
   buttonText,
   icon,
   buttonHref,
+  customButton,
 }: ContentCardProps) => {
   return (
     <motion.div
@@ -41,7 +44,9 @@ export const ContentCard = ({
           {description}
         </p>
       </div>
-      {buttonHref ? (
+      {customButton ? (
+        customButton
+      ) : buttonHref ? (
         <Link
           href={buttonHref}
           className='inline-flex cursor-pointer items-center justify-center rounded-[6.25rem] border-[0.09375rem] border-[#5060C5] bg-[#F6F5FF] px-[2.25rem] py-[0.5rem] text-[1rem] font-semibold text-[#5060C5] hover:bg-[#EEEDF7]'

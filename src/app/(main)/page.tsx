@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { ContentCard } from '@/features/landing/components/ContentCard';
 import { CommonButton } from '@/components/CommonButton';
+import { StartCorrectionButton } from '@/features/landing/components/StartCorrectionButton';
 import { ExperienceCard } from '@/features/landing/components/ExperienceCard';
 import { ExperienceHIW } from '@/features/landing/components/ExperienceHIW';
 import { PortfolioComments } from '@/features/landing/components/PortfolioProblems';
@@ -93,7 +94,7 @@ export default function LandingPage() {
                 </>
               }
               buttonText='대화 시작하기 →'
-              buttonHref='/experience'
+              buttonHref='/experience/settings'
             />
             <ContentCard
               title='포트폴리오 첨삭'
@@ -112,7 +113,15 @@ export default function LandingPage() {
                 </>
               }
               buttonText='첨삭 의뢰하기 →'
-              buttonHref='/correction'
+              customButton={
+                <StartCorrectionButton
+                  variantType='Outline'
+                  px='2.25rem'
+                  py='0.5rem'
+                >
+                  첨삭 의뢰하기 →
+                </StartCorrectionButton>
+              }
             />
           </motion.div>
         </section>
@@ -137,9 +146,15 @@ export default function LandingPage() {
                   <br />
                   나를 증명하는 스토리로
                 </h1>
-                <CommonButton variantType='Gradient' px='2.25rem' py='0.75rem'>
-                  로그 작성하기 →
-                </CommonButton>
+                <Link href='/log'>
+                  <CommonButton
+                    variantType='Gradient'
+                    px='2.25rem'
+                    py='0.75rem'
+                  >
+                    로그 작성하기 →
+                  </CommonButton>
+                </Link>
               </div>
             </div>
 
@@ -198,9 +213,15 @@ export default function LandingPage() {
                   컨설턴트와의 체계적인 대화를 <br />
                   바로 쓸 수 있는 포트폴리오로
                 </h1>
-                <CommonButton variantType='Gradient' px='2.25rem' py='0.75rem'>
-                  대화 시작하기 →
-                </CommonButton>
+                <Link href='/experience/settings'>
+                  <CommonButton
+                    variantType='Gradient'
+                    px='2.25rem'
+                    py='0.75rem'
+                  >
+                    대화 시작하기 →
+                  </CommonButton>
+                </Link>
               </div>
             </div>
 
@@ -281,9 +302,7 @@ export default function LandingPage() {
                   <br />
                   공고마다 빠르게, 맞춤 전략으로
                 </h1>
-                <CommonButton variantType='Gradient' px='2.25rem' py='0.75rem'>
-                  첨삭 의뢰하기 →
-                </CommonButton>
+                <StartCorrectionButton>첨삭 의뢰하기 →</StartCorrectionButton>
               </div>
             </motion.div>
 
