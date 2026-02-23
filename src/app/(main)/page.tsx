@@ -9,9 +9,30 @@ import { ExperienceHIW } from '@/features/landing/components/ExperienceHIW';
 import { PortfolioComments } from '@/features/landing/components/PortfolioProblems';
 import { PortfoliloPoints } from '@/features/landing/components/PortfolioPoints';
 import { PortfolioHIW } from '@/features/landing/components/PortfolioHIW';
+import { useAuthStore } from '@/store/useAuthStore';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Footer from '@/components/Footer';
+
+/* 로그인 상태일 때는 버튼 미노출 */
+function LoginEntryButton() {
+  const router = useRouter();
+  const accessToken = useAuthStore((s) => s.accessToken);
+
+  if (accessToken != null) return null;
+
+  return (
+    <CommonButton
+      variantType='Gradient'
+      px='2.25rem'
+      py='0.75rem'
+      onClick={() => router.push('/login')}
+    >
+      무료로 시작하기 →
+    </CommonButton>
+  );
+}
 
 export default function LandingPage() {
   return (
@@ -44,11 +65,7 @@ export default function LandingPage() {
               Folioo의 AI 컨설턴트가 당신의 경험과 역량을 가장 효과적으로 활용할
               수 있도록 도와드려요.
             </p>
-            <Link href='/login'>
-              <CommonButton variantType='Gradient' px='2.25rem' py='0.75rem'>
-                무료로 시작하기 →
-              </CommonButton>
-            </Link>
+            <LoginEntryButton />
           </motion.div>
           <motion.div
             className='flex gap-[1.5rem]'

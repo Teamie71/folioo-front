@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
 import Navbar from '@/components/Navbar';
-import { BannerBeta } from '@/components/BannerBeta';
+import { BannerBeta } from '@/components/OBT/OBTBanner';
 import { OBTEventModal } from '@/components/OBT/OBTEventModal';
 import {
   shouldGrantWeeklyVoucher,

@@ -35,7 +35,11 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
           프로필
         </DialogTitle>
 
-        <DialogDescription className='flex w-[33rem] flex-col gap-[1.5rem]'>
+        <DialogDescription className='sr-only'>
+          프로필 정보
+        </DialogDescription>
+
+        <div className='flex w-[33rem] flex-col gap-[1.5rem]'>
           <div className='rounded-[1.25rem] bg-[#FDFDFD] px-[1.75rem] py-[1.5rem]'>
             <div className='flex flex-col gap-[1rem]'>
               <div className='flex items-center justify-between'>
@@ -113,7 +117,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
               </button>
             </div>
           </div>
-        </DialogDescription>
+        </div>
       </DialogContent>
     </Dialog>
   );
