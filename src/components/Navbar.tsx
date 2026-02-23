@@ -5,13 +5,18 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { ProfileModal } from '@/components/ProfileModal';
+import { useAuthStore } from '@/store/useAuthStore';
 import { cn } from '@/utils/utils';
 
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const sessionRestoreAttempted = useAuthStore((s) => s.sessionRestoreAttempted);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
+  const isLoggedIn = accessToken != null;
+  const showAuthArea = sessionRestoreAttempted;
 
   const linkClass = (href: string) =>
     cn(
@@ -22,7 +27,6 @@ export default function Navbar() {
     );
 
   const handleLogin = () => {
-    setIsLoggedIn(true);
     router.push('/login');
   };
 
@@ -56,7 +60,9 @@ export default function Navbar() {
           </div>
 
           <div className='flex items-center'>
-            {isLoggedIn ? (
+            {!showAuthArea ? (
+              <div className='h-[36px] w-[80px]' aria-hidden />
+            ) : isLoggedIn ? (
               <div className='flex items-center gap-[40px]'>
                 <Link href='/topup' className={linkClass('/topup')}>
                   이용권 구매
