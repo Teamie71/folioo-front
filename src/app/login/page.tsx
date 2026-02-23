@@ -1,10 +1,50 @@
+'use client';
+
 import { GoogleLoginButton } from '@/features/login/GoogleLoginButton';
 import { KakaoLoginButton } from '@/features/login/KakaoLoginButton';
 import { NaverLoginButton } from '@/features/login/NaverLoginButton';
+import { useAuthStore } from '@/store/useAuthStore';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
+/* 이미 로그인된 상태에서 로그인 페이지 진입 시 이전 페이지로 리다이렉트 */
+function useRedirectIfLoggedIn() {
+  const router = useRouter();
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const sessionRestoreAttempted = useAuthStore(
+    (s) => s.sessionRestoreAttempted,
+  );
+
+  useEffect(() => {
+    if (!sessionRestoreAttempted || accessToken == null) return;
+
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+    } else {
+      router.replace('/');
+    }
+  }, [sessionRestoreAttempted, accessToken, router]);
+}
 
 export default function Login() {
+  useRedirectIfLoggedIn();
+
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const sessionRestoreAttempted = useAuthStore(
+    (s) => s.sessionRestoreAttempted,
+  );
+  const showLogin = !sessionRestoreAttempted || accessToken == null;
+
+  if (!showLogin) {
+    return (
+      <div className='flex min-h-screen items-center justify-center'>
+        <p className='text-[1rem] text-[#666]'>이동 중...</p>
+      </div>
+    );
+  }
+
   return (
     <div className='mx-auto flex min-h-screen w-full flex-col items-center justify-center gap-[3.75rem]'>
       <div className='flex flex-col items-center justify-center gap-[3.75rem]'>
