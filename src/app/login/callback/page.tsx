@@ -4,7 +4,7 @@ import { refreshAccessToken } from '@/services/auth';
 import { getMe } from '@/services/user';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 
 /* 백엔드가 리다이렉트할 때 쿼리로 넘기는 access_token 키 */
 const ACCESS_TOKEN_PARAM = 'access_token';
@@ -13,7 +13,7 @@ const REFRESH_TOKEN_PARAM = 'refresh_token';
 /* 백엔드가 OAuth 콜백 후 리다이렉트할 때 사용 (refreshToken은 httpOnly 쿠키로 설정) */
 const STATUS_PARAM = 'status';
 
-export default function LoginCallbackPage() {
+function LoginCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setAccessToken = useAuthStore((s) => s.setAccessToken);
@@ -65,5 +65,19 @@ export default function LoginCallbackPage() {
     <div className='flex min-h-screen items-center justify-center'>
       <p className='text-[1rem] text-[#666]'>로그인 처리 중...</p>
     </div>
+  );
+}
+
+export default function LoginCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className='flex min-h-screen items-center justify-center'>
+          <p className='text-[1rem] text-[#1A1A1A]'>로그인 처리 중...</p>
+        </div>
+      }
+    >
+      <LoginCallbackContent />
+    </Suspense>
   );
 }
