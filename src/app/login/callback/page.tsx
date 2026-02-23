@@ -1,14 +1,17 @@
 'use client';
 
+import { refreshAccessToken } from '@/services/auth';
 import { getMe } from '@/services/user';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
-/* 백엔드가 리다이렉트할 때 쿼리로 넘기는 access_token 키  */
+/* 백엔드가 리다이렉트할 때 쿼리로 넘기는 access_token 키 */
 const ACCESS_TOKEN_PARAM = 'access_token';
 /* 백엔드가 리다이렉트할 때 쿼리로 넘기는 refresh_token 키 (선택, URL로 넘어오면 쿠키에 저장) */
 const REFRESH_TOKEN_PARAM = 'refresh_token';
+/* 백엔드가 OAuth 콜백 후 리다이렉트할 때 사용 (refreshToken은 httpOnly 쿠키로 설정) */
+const STATUS_PARAM = 'status';
 
 export default function LoginCallbackPage() {
   const router = useRouter();
@@ -17,29 +20,45 @@ export default function LoginCallbackPage() {
   const setRefreshTokenCookie = useAuthStore((s) => s.setRefreshTokenCookie);
 
   useEffect(() => {
-    const accessToken = searchParams.get(ACCESS_TOKEN_PARAM);
-    const refreshToken = searchParams.get(REFRESH_TOKEN_PARAM);
+    const accessTokenFromUrl = searchParams.get(ACCESS_TOKEN_PARAM);
+    const refreshTokenFromUrl = searchParams.get(REFRESH_TOKEN_PARAM);
+    const status = searchParams.get(STATUS_PARAM);
     const redirectTo = searchParams.get('redirect_to') ?? '/';
 
-    if (accessToken) {
-      setAccessToken(accessToken);
-    }
-    if (refreshToken) {
-      setRefreshTokenCookie(refreshToken);
+    if (refreshTokenFromUrl) {
+      setRefreshTokenCookie(refreshTokenFromUrl);
     }
 
-    if (!accessToken) {
-      router.replace(redirectTo);
-      return;
-    }
+    const runAuthFlow = async () => {
+      let accessToken: string | null = accessTokenFromUrl;
 
-    getMe()
-      .then(() => {
+      // 서버가 ?status=success 로 리다이렉트한 경우
+      // 쿠키에 refreshToken이 있음 -> refresh로 accessToken 발급
+      if (!accessToken && status === 'success') {
+        try {
+          accessToken = await refreshAccessToken();
+          setAccessToken(accessToken);
+        } catch {
+          router.replace(redirectTo);
+          return;
+        }
+      } else if (accessToken) {
+        setAccessToken(accessToken);
+      }
+
+      if (!accessToken) {
         router.replace(redirectTo);
-      })
-      .catch(() => {
+        return;
+      }
+
+      try {
+        await getMe();
+      } finally {
         router.replace(redirectTo);
-      });
+      }
+    };
+
+    runAuthFlow();
   }, [searchParams, setAccessToken, setRefreshTokenCookie, router]);
 
   return (
