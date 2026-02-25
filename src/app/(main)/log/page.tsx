@@ -19,8 +19,9 @@ import {
 } from '@/features/log/components/CategorySector';
 import { LogCard } from '@/features/log/components/LogCard';
 import { LogDetailModal } from '@/features/log/components/LogCardDetailModal';
-import { SearchIcon } from 'lucide-react';
 import { DropdownButton } from '@/components/DropdownButton';
+import { useActivityTags } from '@/features/log/hooks/useActivityTags';
+import { useLogFormSubmit } from '@/features/log/hooks/useLogFormSubmit';
 import {
   useLogStore,
   type TemplateType as StoreTemplateType,
@@ -40,15 +41,10 @@ export default function LogPage() {
     setSelectedCategoryId,
     setSelectedActivityId,
     setFormField,
-    resetForm,
-    validateForm,
-    getFormattedContent,
   } = useLogStore();
 
-  // 에러 상태
-  const [errors, setErrors] = useState<
-    Partial<Record<'title' | 'category' | 'content', string>>
-  >({});
+  const { activities } = useActivityTags();
+  const { errors, isSubmitting, handleSubmit } = useLogFormSubmit();
 
   // 모달 상태
   const [selectedLog, setSelectedLog] = useState<LogCardData | null>(null);
@@ -98,39 +94,6 @@ export default function LogPage() {
     { id: 'etc', label: '기타', icon: <EtcIcon /> },
   ];
 
-  const activities = [
-    { id: '1', label: '활동 A' },
-    { id: '2', label: '활동 B' },
-  ];
-
-  // 폼 제출 핸들러
-  const handleSubmit = () => {
-    // 유효성 검사
-    const validation = validateForm();
-
-    if (!validation.isValid) {
-      setErrors(validation.errors as typeof errors);
-      return;
-    }
-
-    // 에러 초기화
-    setErrors({});
-
-    // 로그 생성
-    const newLog = {
-      id: Date.now().toString(),
-      title: formData.title,
-      activityName: formData.activityName || '미분류',
-      category: formData.category,
-      content: formData.content,
-      date: new Date().toISOString().split('T')[0],
-    };
-
-    addLog(newLog);
-
-    // 폼 초기화
-    resetForm();
-  };
   return (
     <div className='flex flex-col gap-[4.5rem] pb-[15rem]'>
       {/* 인사이트 로그 헤더 */}
@@ -160,8 +123,9 @@ export default function LogPage() {
             px='2.25rem'
             py='0.75rem'
             onClick={handleSubmit}
+            disabled={isSubmitting}
           >
-            로그 등록하기
+            {isSubmitting ? '등록 중...' : '로그 등록하기'}
           </CommonButton>
         </div>
 
