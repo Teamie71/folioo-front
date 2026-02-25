@@ -20,6 +20,7 @@ import {
 } from '@/features/log/components/CategorySector';
 import { LogCard } from '@/features/log/components/LogCard';
 import { LogDetailModal } from '@/features/log/components/LogCardDetailModal';
+import { LogCompleteModal } from '@/features/log/components/LogCompleteModal';
 import { LogDeleteModal } from '@/features/log/components/LogDeleteModal';
 import { DropdownButton } from '@/components/DropdownButton';
 import { INSIGHTS_QUERY_KEY } from '@/features/log/constants';
@@ -51,8 +52,10 @@ export default function LogPage() {
     categoryId: selectedCategoryId,
     activityId: selectedActivityId,
   });
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const { errors, isSubmitting, handleSubmit } = useLogFormSubmit(
     logCards.map((log) => log.title),
+    { onLogCreated: () => setIsCompleteModalOpen(true) },
   );
 
   // 모달 상태
@@ -346,6 +349,12 @@ export default function LogPage() {
           category={selectedLog.category}
         />
       )}
+
+      {/* 로그 등록 완료 모달 */}
+      <LogCompleteModal
+        open={isCompleteModalOpen}
+        onOpenChange={setIsCompleteModalOpen}
+      />
 
       {/* 로그 삭제 확인 모달 */}
       <LogDeleteModal

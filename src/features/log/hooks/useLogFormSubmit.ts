@@ -16,8 +16,16 @@ export type LogFormErrors = Partial<
   Record<'title' | 'category' | 'content', string>
 >;
 
+export interface UseLogFormSubmitOptions {
+  onLogCreated?: () => void;
+}
+
 /* 로그 등록 폼 제출 (활동명 없으면 태그 생성 후 로그 생성, Orval API 연동) */
-export function useLogFormSubmit(existingTitles: string[] = []) {
+export function useLogFormSubmit(
+  existingTitles: string[] = [],
+  options: UseLogFormSubmitOptions = {},
+) {
+  const { onLogCreated } = options;
   const {
     formData,
     validateForm,
@@ -66,12 +74,11 @@ export function useLogFormSubmit(existingTitles: string[] = []) {
         activityIds,
       });
 
-      // 로그 추가
       addLog(toLogCardData(result));
-      // 폼 초기화
       resetForm();
       await queryClient.invalidateQueries({ queryKey: ACTIVITY_TAGS_QUERY_KEY });
       await queryClient.invalidateQueries({ queryKey: INSIGHTS_QUERY_KEY });
+      onLogCreated?.();
     } catch (err) {
       // 에러 반환
       const message =
