@@ -46,12 +46,14 @@ export default function LogPage() {
   const queryClient = useQueryClient();
   const [keyword, setKeyword] = useState('');
   const { activities } = useActivityTags();
-  const { errors, isSubmitting, handleSubmit } = useLogFormSubmit();
   const { logCards, isLoading } = useLogs({
     keyword,
     categoryId: selectedCategoryId,
     activityId: selectedActivityId,
   });
+  const { errors, isSubmitting, handleSubmit } = useLogFormSubmit(
+    logCards.map((log) => log.title),
+  );
 
   // 모달 상태
   const [selectedLog, setSelectedLog] = useState<LogCardData | null>(null);
@@ -204,6 +206,11 @@ export default function LogPage() {
               value={formData.activityName}
               onChange={(value) => setFormField('activityName', value)}
               dropdownItems={activities}
+              activityCountError={
+                activities.length > 10
+                  ? '최대 10개까지만 등록 가능해요.'
+                  : null
+              }
             />
           </div>
 

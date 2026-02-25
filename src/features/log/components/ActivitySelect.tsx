@@ -17,14 +17,17 @@ const INPUT_OPTION_ID = '__input__';
 interface ActivitySelectProps {
   value?: string;
   onChange?: (value: string) => void;
-  /* 드롭다운에 쓸 목록 (API 활동 태그). 없으면 스토어 activities 사용 */
+  /** 드롭다운에 쓸 목록 (API 활동 태그). 없으면 스토어 activities 사용 */
   dropdownItems?: { id: string; label: string }[];
+  /** 활동 개수 초과 시 표시할 메시지 (예: 10개 초과 시) */
+  activityCountError?: string | null;
 }
 
 export function ActivitySelect({
   value = '',
   onChange,
   dropdownItems,
+  activityCountError,
 }: ActivitySelectProps = {}) {
   const { activities: storeActivities, removeActivity } = useLogStore();
   const queryClient = useQueryClient();
@@ -113,8 +116,13 @@ export function ActivitySelect({
   return (
     <>
       <div className='flex flex-col gap-[0.5rem]'>
-        <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+        <div className='flex items-center gap-[0.5rem] text-[1.125rem] font-bold'>
           <span>활동명</span>
+          {activityCountError && (
+            <p className='font-regular text-[0.875rem] text-[#DC0000]'>
+              {activityCountError}
+            </p>
+          )}
         </div>
         <InputArea
           placeholder='활동명 입력 또는 선택'

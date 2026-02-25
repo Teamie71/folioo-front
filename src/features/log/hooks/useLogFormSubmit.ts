@@ -17,7 +17,7 @@ export type LogFormErrors = Partial<
 >;
 
 /* 로그 등록 폼 제출 (활동명 없으면 태그 생성 후 로그 생성, Orval API 연동) */
-export function useLogFormSubmit() {
+export function useLogFormSubmit(existingTitles: string[] = []) {
   const {
     formData,
     validateForm,
@@ -27,27 +27,26 @@ export function useLogFormSubmit() {
     resetForm,
   } = useLogStore();
 
-  // React Query 클라이언트
   const queryClient = useQueryClient();
   const { activityTags } = useActivityTags();
 
-  // 에러 상태
   const [errors, setErrors] = useState<LogFormErrors>({});
-
-  // 제출 상태
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    // 폼 검증
     const validation = validateForm();
 
-    // 검증 실패 시 에러 반환
     if (!validation.isValid) {
       setErrors(validation.errors as LogFormErrors);
       return;
     }
 
-    // 에러 초기화
+    const titleTrim = formData.title?.trim() ?? '';
+    if (existingTitles.some((t) => t.trim() === titleTrim)) {
+      setErrors({ title: '이미 존재하는 제목이에요.' });
+      return;
+    }
+
     setErrors({});
     setIsSubmitting(true);
 
