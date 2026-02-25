@@ -3,6 +3,7 @@ import type {
   ActivityNameReqDTO,
   ActivityNameResDTO,
   CreateInsightLogReqDTO,
+  ErrorPayload,
   InsightControllerCreateActivityTag200,
   InsightControllerCreateLog200,
   InsightControllerGetActivityTags200,
@@ -37,6 +38,27 @@ export async function createInsightLog(
   }
 }
 
+/* 로그 목록 조회 쿼리 파라미터 */
+export interface GetLogsParams {
+  keyword?: string;
+  category?: string;
+  activityId?: number;
+}
+
+/* 로그 목록 조회 (Orval InsightControllerGetLogs200, result는 InsightLogResDTO[]) */
+export async function getLogs(
+  params?: GetLogsParams,
+): Promise<(InsightLogResDTO & { id?: number })[]> {
+  const response = await apiClient.get<InsightControllerGetLogs200>(
+    '/insights',
+    { params: params ?? {} },
+  );
+  if (response.data.isSuccess && response.data.result != null) {
+    return response.data.result;
+  }
+  throw new Error('로그 목록을 불러오는데 실패했습니다.');
+}
+
 /* 활동 분류 태그 생성 (Orval ActivityNameReqDTO, 200 시 ActivityNameResDTO 반환, 409 중복) */
 export async function createActivityTag(
   body: ActivityNameReqDTO,
@@ -67,23 +89,19 @@ export async function getActivityTags() {
   throw new Error('활동 태그 목록을 불러오는데 실패했습니다.');
 }
 
-/* 로그 목록 조회 쿼리 파라미터 */
-export interface GetLogsParams {
-  keyword?: string;
-  category?: string;
-  activityId?: number;
-}
-
-/* 로그 목록 조회 (Orval InsightControllerGetLogs200, result는 InsightLogResDTO[]) */
-export async function getLogs(
-  params?: GetLogsParams,
-): Promise<(InsightLogResDTO & { id?: number })[]> {
-  const response = await apiClient.get<InsightControllerGetLogs200>(
-    '/insights',
-    { params: params ?? {} },
-  );
-  if (response.data.isSuccess && response.data.result != null) {
-    return response.data.result;
+/* 활동 분류 태그 삭제 Orval API, 해당 태그 로그는 미분류로 변경) */
+export async function deleteActivityTag(tagId: number): Promise<void> {
+  try {
+    const response = await apiClient.delete<{
+      isSuccess?: boolean;
+      result?: string | null;
+      error?: ErrorPayload | null;
+    }>(`/insights/tags/${tagId}`);
+    if (!response.data.isSuccess) {
+      const reason = response.data.error?.reason;
+      throw new Error(reason ?? '활동 태그 삭제에 실패했습니다.');
+    }
+  } catch (err: unknown) {
+    throw new Error(getApiErrorMessage(err, '활동 태그 삭제에 실패했습니다.'));
   }
-  throw new Error('로그 목록을 불러오는데 실패했습니다.');
 }

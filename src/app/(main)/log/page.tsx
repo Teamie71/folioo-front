@@ -161,6 +161,7 @@ export default function LogPage() {
             <ActivitySelect
               value={formData.activityName}
               onChange={(value) => setFormField('activityName', value)}
+              dropdownItems={activities}
             />
           </div>
 
