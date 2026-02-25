@@ -19,6 +19,7 @@ import {
 } from '@/features/log/components/CategorySector';
 import { LogCard } from '@/features/log/components/LogCard';
 import { LogDetailModal } from '@/features/log/components/LogCardDetailModal';
+import { LogDeleteModal } from '@/features/log/components/LogDeleteModal';
 import { DropdownButton } from '@/components/DropdownButton';
 import { useActivityTags } from '@/features/log/hooks/useActivityTags';
 import { useLogFormSubmit } from '@/features/log/hooks/useLogFormSubmit';
@@ -53,6 +54,7 @@ export default function LogPage() {
   // 모달 상태
   const [selectedLog, setSelectedLog] = useState<LogCardData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // 카드 클릭 핸들러
   const handleCardClick = (log: LogCardData) => {
@@ -66,10 +68,15 @@ export default function LogPage() {
     setSelectedLog(null);
   };
 
-  const handleDeleteLog = () => {
+  const handleOpenDeleteModal = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDeleteLog = () => {
     if (selectedLog) {
       removeLog(selectedLog.id);
       handleCloseModal();
+      setIsDeleteModalOpen(false);
     }
   };
 
@@ -283,7 +290,7 @@ export default function LogPage() {
         <LogDetailModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          onDelete={handleDeleteLog}
+          onDelete={handleOpenDeleteModal}
           onSave={handleSaveLog}
           title={selectedLog.title}
           date={selectedLog.date}
@@ -292,6 +299,13 @@ export default function LogPage() {
           category={selectedLog.category}
         />
       )}
+
+      {/* 로그 삭제 확인 모달 */}
+      <LogDeleteModal
+        open={isDeleteModalOpen}
+        onOpenChange={setIsDeleteModalOpen}
+        onConfirm={handleConfirmDeleteLog}
+      />
     </div>
   );
 }
