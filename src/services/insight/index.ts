@@ -6,6 +6,7 @@ import type {
   InsightControllerCreateActivityTag200,
   InsightControllerCreateLog200,
   InsightControllerGetActivityTags200,
+  InsightControllerGetLogs200,
   InsightLogResDTO,
 } from '@/api/models';
 import type { CommonResponse } from '@/api/models';
@@ -64,4 +65,25 @@ export async function getActivityTags() {
     return response.data.result;
   }
   throw new Error('활동 태그 목록을 불러오는데 실패했습니다.');
+}
+
+/* 로그 목록 조회 쿼리 파라미터 */
+export interface GetLogsParams {
+  keyword?: string;
+  category?: string;
+  activityId?: number;
+}
+
+/* 로그 목록 조회 (Orval InsightControllerGetLogs200, result는 InsightLogResDTO[]) */
+export async function getLogs(
+  params?: GetLogsParams,
+): Promise<(InsightLogResDTO & { id?: number })[]> {
+  const response = await apiClient.get<InsightControllerGetLogs200>(
+    '/insights',
+    { params: params ?? {} },
+  );
+  if (response.data.isSuccess && response.data.result != null) {
+    return response.data.result;
+  }
+  throw new Error('로그 목록을 불러오는데 실패했습니다.');
 }

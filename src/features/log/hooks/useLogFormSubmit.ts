@@ -6,7 +6,10 @@ import type { CreateInsightLogReqDTOCategory } from '@/api/models';
 import { createActivityTag, createInsightLog } from '@/services/insight';
 import { useLogStore } from '@/store/useLogStore';
 import { toLogCardData } from '@/features/log/utils/toLogCardData';
-import { ACTIVITY_TAGS_QUERY_KEY } from '@/features/log/constants';
+import {
+  ACTIVITY_TAGS_QUERY_KEY,
+  INSIGHTS_QUERY_KEY,
+} from '@/features/log/constants';
 import { useActivityTags } from '@/features/log/hooks/useActivityTags';
 
 export type LogFormErrors = Partial<
@@ -68,10 +71,8 @@ export function useLogFormSubmit() {
       addLog(toLogCardData(result));
       // 폼 초기화
       resetForm();
-      // 활동 태그 목록 무효화
-      await queryClient.invalidateQueries({
-        queryKey: ACTIVITY_TAGS_QUERY_KEY,
-      });
+      await queryClient.invalidateQueries({ queryKey: ACTIVITY_TAGS_QUERY_KEY });
+      await queryClient.invalidateQueries({ queryKey: INSIGHTS_QUERY_KEY });
     } catch (err) {
       // 에러 반환
       const message =

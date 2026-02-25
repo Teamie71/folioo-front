@@ -22,6 +22,7 @@ import { LogDetailModal } from '@/features/log/components/LogCardDetailModal';
 import { DropdownButton } from '@/components/DropdownButton';
 import { useActivityTags } from '@/features/log/hooks/useActivityTags';
 import { useLogFormSubmit } from '@/features/log/hooks/useLogFormSubmit';
+import { useLogs } from '@/features/log/hooks/useLogs';
 import {
   useLogStore,
   type TemplateType as StoreTemplateType,
@@ -29,13 +30,10 @@ import {
 } from '@/store/useLogStore';
 
 export default function LogPage() {
-  // Zustand store
   const {
-    logCards,
     selectedCategoryId,
     selectedActivityId,
     formData,
-    addLog,
     updateLog,
     removeLog,
     setSelectedCategoryId,
@@ -43,8 +41,14 @@ export default function LogPage() {
     setFormField,
   } = useLogStore();
 
+  const [keyword, setKeyword] = useState('');
   const { activities } = useActivityTags();
   const { errors, isSubmitting, handleSubmit } = useLogFormSubmit();
+  const { logCards, isLoading } = useLogs({
+    keyword,
+    categoryId: selectedCategoryId,
+    activityId: selectedActivityId,
+  });
 
   // 모달 상태
   const [selectedLog, setSelectedLog] = useState<LogCardData | null>(null);
@@ -62,7 +66,6 @@ export default function LogPage() {
     setSelectedLog(null);
   };
 
-  // 로그 삭제 핸들러
   const handleDeleteLog = () => {
     if (selectedLog) {
       removeLog(selectedLog.id);
@@ -70,14 +73,12 @@ export default function LogPage() {
     }
   };
 
-  // 로그 수정 핸들러
   const handleSaveLog = (data: { title: string; content: string }) => {
     if (selectedLog) {
       updateLog(selectedLog.id, {
         title: data.title,
         content: data.content,
       });
-      // selectedLog도 업데이트
       setSelectedLog({
         ...selectedLog,
         title: data.title,
@@ -199,6 +200,8 @@ export default function LogPage() {
                 className='w-[32.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
                 placeholder='검색어를 입력하세요.'
                 maxLength={100}
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
               />
               <div className='absolute right-[1.25rem]'>
                 <SearchButton />
@@ -249,7 +252,11 @@ export default function LogPage() {
 
         {/* 카드 */}
         <div className='grid grid-cols-2 gap-[1.5rem]'>
-          {logCards.length === 0 ? (
+          {isLoading ? (
+            <div className='col-span-2 mt-[5rem] text-center text-[1.125rem] text-[#9EA4A9]'>
+              로딩 중...
+            </div>
+          ) : logCards.length === 0 ? (
             <div className='col-span-2 mt-[5rem] flex items-center justify-center text-center text-[1.125rem] leading-[130%] font-bold text-[#9EA4A9]'>
               아직 작성한 로그가 없어요 <br />
               로그를 작성하고 인사이트를 기록해보세요!
