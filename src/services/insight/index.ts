@@ -9,7 +9,9 @@ import type {
   InsightControllerDeleteLog200,
   InsightControllerGetActivityTags200,
   InsightControllerGetLogs200,
+  InsightControllerUpdateLog200,
   InsightLogResDTO,
+  UpdateInsightReqDTO,
 } from '@/api/models';
 import type { CommonResponse } from '@/api/models';
 
@@ -58,6 +60,26 @@ export async function getLogs(
     return response.data.result;
   }
   throw new Error('로그 목록을 불러오는데 실패했습니다.');
+}
+
+/* 인사이트 로그 수정 Orval API */
+export async function updateInsightLog(
+  insightId: number,
+  body: UpdateInsightReqDTO,
+): Promise<InsightLogResDTO> {
+  try {
+    const response = await apiClient.patch<InsightControllerUpdateLog200>(
+      `/insights/${insightId}`,
+      body,
+    );
+    if (response.data.isSuccess && response.data.result != null) {
+      return response.data.result;
+    }
+    const errorPayload = response.data.error as { reason?: string } | null;
+    throw new Error(errorPayload?.reason ?? '로그 수정에 실패했습니다.');
+  } catch (err: unknown) {
+    throw new Error(getApiErrorMessage(err, '로그 수정에 실패했습니다.'));
+  }
 }
 
 /* 활동 분류 태그 생성 (Orval ActivityNameReqDTO, 200 시 ActivityNameResDTO 반환, 409 중복) */

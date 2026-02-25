@@ -58,7 +58,9 @@ interface LogDetailModalProps {
   onClose: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
-  onSave?: (data: { title: string; content: string }) => void;
+  onSave?: (data: { title: string; content: string }) => void | Promise<void>;
+  isSaving?: boolean;
+  saveError?: string | null;
   title: string;
   date: string;
   content: string;
@@ -72,6 +74,8 @@ export function LogDetailModal({
   onEdit,
   onDelete,
   onSave,
+  isSaving = false,
+  saveError,
   title,
   date,
   content,
@@ -96,8 +100,8 @@ export function LogDetailModal({
     onEdit?.();
   };
 
-  const handleSave = () => {
-    onSave?.({ title: editTitle, content: editContent });
+  const handleSave = async () => {
+    await onSave?.({ title: editTitle, content: editContent });
     setIsEditing(false);
   };
 
@@ -222,14 +226,18 @@ export function LogDetailModal({
               </div>
             </div>
 
-            <div className='flex w-full translate-y-[-0.75rem] justify-end'>
+            <div className='flex w-full translate-y-[-0.75rem] flex-col items-end gap-2'>
+              {saveError && (
+                <p className='w-full text-sm text-[#DC0000]'>{saveError}</p>
+              )}
               <CommonButton
                 variantType='Primary'
                 px='1.5rem'
                 py='0.375rem'
                 onClick={handleSave}
+                disabled={isSaving}
               >
-                수정 완료
+                {isSaving ? '저장 중...' : '수정 완료'}
               </CommonButton>
             </div>
           </>

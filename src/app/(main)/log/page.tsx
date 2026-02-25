@@ -26,7 +26,7 @@ import { INSIGHTS_QUERY_KEY } from '@/features/log/constants';
 import { useActivityTags } from '@/features/log/hooks/useActivityTags';
 import { useLogFormSubmit } from '@/features/log/hooks/useLogFormSubmit';
 import { useLogs } from '@/features/log/hooks/useLogs';
-import { deleteInsightLog } from '@/services/insight';
+import { deleteInsightLog, updateInsightLog } from '@/services/insight';
 import {
   useLogStore,
   type TemplateType as StoreTemplateType,
@@ -38,7 +38,6 @@ export default function LogPage() {
     selectedCategoryId,
     selectedActivityId,
     formData,
-    updateLog,
     setSelectedCategoryId,
     setSelectedActivityId,
     setFormField,
@@ -60,6 +59,8 @@ export default function LogPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeletingLog, setIsDeletingLog] = useState(false);
   const [deleteLogError, setDeleteLogError] = useState<string | null>(null);
+  const [isSavingLog, setIsSavingLog] = useState(false);
+  const [saveLogError, setSaveLogError] = useState<string | null>(null);
 
   // 카드 클릭 핸들러
   const handleCardClick = (log: LogCardData) => {
@@ -73,18 +74,31 @@ export default function LogPage() {
     setSelectedLog(null);
   };
 
-  // 로그 수정 핸들러
-  const handleSaveLog = (data: { title: string; content: string }) => {
-    if (selectedLog) {
-      updateLog(selectedLog.id, {
+  // 로그 수정 핸들러 (수정 API 호출 후 목록 무효화)
+  const handleSaveLog = async (data: { title: string; content: string }) => {
+    if (!selectedLog) return;
+    const insightId = Number(selectedLog.id);
+    if (Number.isNaN(insightId)) return;
+    setIsSavingLog(true);
+    setSaveLogError(null);
+    try {
+      await updateInsightLog(insightId, {
         title: data.title,
-        content: data.content,
+        description: data.content,
       });
+      await queryClient.invalidateQueries({ queryKey: INSIGHTS_QUERY_KEY });
       setSelectedLog({
         ...selectedLog,
         title: data.title,
         content: data.content,
       });
+    } catch (err) {
+      setSaveLogError(
+        err instanceof Error ? err.message : '로그 수정에 실패했습니다.',
+      );
+      throw err;
+    } finally {
+      setIsSavingLog(false);
     }
   };
 
@@ -310,9 +324,14 @@ export default function LogPage() {
       {selectedLog && (
         <LogDetailModal
           isOpen={isModalOpen}
-          onClose={handleCloseModal}
+          onClose={() => {
+            setSaveLogError(null);
+            handleCloseModal();
+          }}
           onDelete={handleOpenDeleteModal}
           onSave={handleSaveLog}
+          isSaving={isSavingLog}
+          saveError={saveLogError}
           title={selectedLog.title}
           date={selectedLog.date}
           content={selectedLog.content}
