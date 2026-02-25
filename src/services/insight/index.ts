@@ -6,6 +6,7 @@ import type {
   ErrorPayload,
   InsightControllerCreateActivityTag200,
   InsightControllerCreateLog200,
+  InsightControllerDeleteLog200,
   InsightControllerGetActivityTags200,
   InsightControllerGetLogs200,
   InsightLogResDTO,
@@ -89,7 +90,23 @@ export async function getActivityTags() {
   throw new Error('활동 태그 목록을 불러오는데 실패했습니다.');
 }
 
-/* 활동 분류 태그 삭제 Orval API, 해당 태그 로그는 미분류로 변경) */
+/* 인사이트 로그 삭제 Orval API */
+export async function deleteInsightLog(insightId: number): Promise<void> {
+  try {
+    const response = await apiClient.delete<InsightControllerDeleteLog200>(
+      `/insights/${insightId}`,
+    );
+    if (!response.data.isSuccess) {
+      const reason = (response.data.error as { reason?: string } | null)
+        ?.reason;
+      throw new Error(reason ?? '로그 삭제에 실패했습니다.');
+    }
+  } catch (err: unknown) {
+    throw new Error(getApiErrorMessage(err, '로그 삭제에 실패했습니다.'));
+  }
+}
+
+/* 활동 분류 태그 삭제 (Orval API, 해당 태그 로그는 미분류로 변경) */
 export async function deleteActivityTag(tagId: number): Promise<void> {
   try {
     const response = await apiClient.delete<{

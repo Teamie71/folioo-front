@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { CommonButton } from '@/components/CommonButton';
 import EtcIcon from '@/components/icons/EtcIcon';
 import { InsightLogIcon } from '@/components/icons/InsightLogIcon';
@@ -21,9 +22,11 @@ import { LogCard } from '@/features/log/components/LogCard';
 import { LogDetailModal } from '@/features/log/components/LogCardDetailModal';
 import { LogDeleteModal } from '@/features/log/components/LogDeleteModal';
 import { DropdownButton } from '@/components/DropdownButton';
+import { INSIGHTS_QUERY_KEY } from '@/features/log/constants';
 import { useActivityTags } from '@/features/log/hooks/useActivityTags';
 import { useLogFormSubmit } from '@/features/log/hooks/useLogFormSubmit';
 import { useLogs } from '@/features/log/hooks/useLogs';
+import { deleteInsightLog } from '@/services/insight';
 import {
   useLogStore,
   type TemplateType as StoreTemplateType,
@@ -36,12 +39,12 @@ export default function LogPage() {
     selectedActivityId,
     formData,
     updateLog,
-    removeLog,
     setSelectedCategoryId,
     setSelectedActivityId,
     setFormField,
   } = useLogStore();
 
+  const queryClient = useQueryClient();
   const [keyword, setKeyword] = useState('');
   const { activities } = useActivityTags();
   const { errors, isSubmitting, handleSubmit } = useLogFormSubmit();
@@ -55,6 +58,8 @@ export default function LogPage() {
   const [selectedLog, setSelectedLog] = useState<LogCardData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeletingLog, setIsDeletingLog] = useState(false);
+  const [deleteLogError, setDeleteLogError] = useState<string | null>(null);
 
   // 카드 클릭 핸들러
   const handleCardClick = (log: LogCardData) => {
@@ -68,18 +73,7 @@ export default function LogPage() {
     setSelectedLog(null);
   };
 
-  const handleOpenDeleteModal = () => {
-    setIsDeleteModalOpen(true);
-  };
-
-  const handleConfirmDeleteLog = () => {
-    if (selectedLog) {
-      removeLog(selectedLog.id);
-      handleCloseModal();
-      setIsDeleteModalOpen(false);
-    }
-  };
-
+  // 로그 수정 핸들러
   const handleSaveLog = (data: { title: string; content: string }) => {
     if (selectedLog) {
       updateLog(selectedLog.id, {
@@ -91,6 +85,33 @@ export default function LogPage() {
         title: data.title,
         content: data.content,
       });
+    }
+  };
+
+  // 로그 삭제 모달 열기 핸들러
+  const handleOpenDeleteModal = () => {
+    setDeleteLogError(null);
+    setIsDeleteModalOpen(true);
+  };
+
+  // 로그 삭제 확인 핸들러
+  const handleConfirmDeleteLog = async () => {
+    if (!selectedLog) return;
+    const insightId = Number(selectedLog.id);
+    if (Number.isNaN(insightId)) return;
+    setIsDeletingLog(true);
+    setDeleteLogError(null);
+    try {
+      await deleteInsightLog(insightId);
+      await queryClient.invalidateQueries({ queryKey: INSIGHTS_QUERY_KEY });
+      handleCloseModal();
+      setIsDeleteModalOpen(false);
+    } catch (err) {
+      setDeleteLogError(
+        err instanceof Error ? err.message : '로그 삭제에 실패했습니다.',
+      );
+    } finally {
+      setIsDeletingLog(false);
     }
   };
 
@@ -303,8 +324,13 @@ export default function LogPage() {
       {/* 로그 삭제 확인 모달 */}
       <LogDeleteModal
         open={isDeleteModalOpen}
-        onOpenChange={setIsDeleteModalOpen}
+        onOpenChange={(open) => {
+          if (!open) setDeleteLogError(null);
+          setIsDeleteModalOpen(open);
+        }}
         onConfirm={handleConfirmDeleteLog}
+        isDeleting={isDeletingLog}
+        errorMessage={deleteLogError}
       />
     </div>
   );
