@@ -1,10 +1,10 @@
 import type { InsightLogResDTO } from '@/api/models';
 import type { LogCardData } from '@/store/useLogStore';
 
-/* API 로그 생성 응답(InsightLogResDTO) → 스토어 LogCardData */
-export function toLogCardData(
-  result: InsightLogResDTO & { id?: number },
-): LogCardData {
+type InsightLogItem = InsightLogResDTO & { id?: number };
+
+/* API 로그 응답(InsightLogResDTO) → 로그 카드 데이터 */
+export function toLogCardData(result: InsightLogItem): LogCardData {
   const date =
     result.createdAt?.split('T')[0] ?? new Date().toISOString().split('T')[0];
   return {
@@ -15,4 +15,9 @@ export function toLogCardData(
     content: result.description,
     date,
   };
+}
+
+/* 로그 목록 조회 API result[] → LogCardData[] */
+export function toLogCardDataList(items: InsightLogItem[]): LogCardData[] {
+  return items.map(toLogCardData);
 }
