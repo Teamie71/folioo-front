@@ -14,8 +14,10 @@ export function KakaoLoginButton() {
     }
 
     // 로그인은 Orval 코드를 쓰지 않고 브라우저를 직접 이동시키는 방식
-    // Axios가 아닌 window.location.href를 사용
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    // 배포 시 NEXT_PUBLIC_APP_URL https://folioo.ai.kr
+    const origin =
+      process.env.NEXT_PUBLIC_APP_URL ||
+      (typeof window !== 'undefined' ? window.location.origin : '');
     const returnPath =
       typeof window !== 'undefined'
         ? window.location.pathname + window.location.search || '/'

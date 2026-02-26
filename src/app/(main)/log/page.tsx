@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { CommonButton } from '@/components/CommonButton';
 import EtcIcon from '@/components/icons/EtcIcon';
 import { InsightLogIcon } from '@/components/icons/InsightLogIcon';
@@ -19,8 +20,14 @@ import {
 } from '@/features/log/components/CategorySector';
 import { LogCard } from '@/features/log/components/LogCard';
 import { LogDetailModal } from '@/features/log/components/LogCardDetailModal';
-import { SearchIcon } from 'lucide-react';
+import { LogCompleteModal } from '@/features/log/components/LogCompleteModal';
+import { LogDeleteModal } from '@/features/log/components/LogDeleteModal';
 import { DropdownButton } from '@/components/DropdownButton';
+import { INSIGHTS_QUERY_KEY } from '@/features/log/constants';
+import { useActivityTags } from '@/features/log/hooks/useActivityTags';
+import { useLogFormSubmit } from '@/features/log/hooks/useLogFormSubmit';
+import { useLogs } from '@/features/log/hooks/useLogs';
+import { deleteInsightLog, updateInsightLog } from '@/services/insight';
 import {
   useLogStore,
   type TemplateType as StoreTemplateType,
@@ -28,31 +35,37 @@ import {
 } from '@/store/useLogStore';
 
 export default function LogPage() {
-  // Zustand store
   const {
-    logCards,
     selectedCategoryId,
     selectedActivityId,
     formData,
-    addLog,
-    updateLog,
-    removeLog,
     setSelectedCategoryId,
     setSelectedActivityId,
     setFormField,
-    resetForm,
-    validateForm,
-    getFormattedContent,
   } = useLogStore();
 
-  // 에러 상태
-  const [errors, setErrors] = useState<
-    Partial<Record<'title' | 'category' | 'content', string>>
-  >({});
+  const queryClient = useQueryClient();
+  const [keyword, setKeyword] = useState('');
+  const { activities } = useActivityTags();
+  const { logCards, isLoading } = useLogs({
+    keyword,
+    categoryId: selectedCategoryId,
+    activityId: selectedActivityId,
+  });
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+  const { errors, isSubmitting, handleSubmit } = useLogFormSubmit(
+    logCards.map((log) => log.title),
+    { onLogCreated: () => setIsCompleteModalOpen(true) },
+  );
 
   // 모달 상태
   const [selectedLog, setSelectedLog] = useState<LogCardData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeletingLog, setIsDeletingLog] = useState(false);
+  const [deleteLogError, setDeleteLogError] = useState<string | null>(null);
+  const [isSavingLog, setIsSavingLog] = useState(false);
+  const [saveLogError, setSaveLogError] = useState<string | null>(null);
 
   // 카드 클릭 핸들러
   const handleCardClick = (log: LogCardData) => {
@@ -66,27 +79,58 @@ export default function LogPage() {
     setSelectedLog(null);
   };
 
-  // 로그 삭제 핸들러
-  const handleDeleteLog = () => {
-    if (selectedLog) {
-      removeLog(selectedLog.id);
-      handleCloseModal();
-    }
-  };
-
-  // 로그 수정 핸들러
-  const handleSaveLog = (data: { title: string; content: string }) => {
-    if (selectedLog) {
-      updateLog(selectedLog.id, {
+  // 로그 수정 핸들러 (수정 API 호출 후 목록 무효화)
+  const handleSaveLog = async (data: { title: string; content: string }) => {
+    if (!selectedLog) return;
+    const insightId = Number(selectedLog.id);
+    if (Number.isNaN(insightId)) return;
+    setIsSavingLog(true);
+    setSaveLogError(null);
+    try {
+      await updateInsightLog(insightId, {
         title: data.title,
-        content: data.content,
+        description: data.content,
       });
-      // selectedLog도 업데이트
+      await queryClient.invalidateQueries({ queryKey: INSIGHTS_QUERY_KEY });
       setSelectedLog({
         ...selectedLog,
         title: data.title,
         content: data.content,
       });
+    } catch (err) {
+      setSaveLogError(
+        err instanceof Error ? err.message : '로그 수정에 실패했습니다.',
+      );
+      throw err;
+    } finally {
+      setIsSavingLog(false);
+    }
+  };
+
+  // 로그 삭제 모달 열기 핸들러
+  const handleOpenDeleteModal = () => {
+    setDeleteLogError(null);
+    setIsDeleteModalOpen(true);
+  };
+
+  // 로그 삭제 확인 핸들러
+  const handleConfirmDeleteLog = async () => {
+    if (!selectedLog) return;
+    const insightId = Number(selectedLog.id);
+    if (Number.isNaN(insightId)) return;
+    setIsDeletingLog(true);
+    setDeleteLogError(null);
+    try {
+      await deleteInsightLog(insightId);
+      await queryClient.invalidateQueries({ queryKey: INSIGHTS_QUERY_KEY });
+      handleCloseModal();
+      setIsDeleteModalOpen(false);
+    } catch (err) {
+      setDeleteLogError(
+        err instanceof Error ? err.message : '로그 삭제에 실패했습니다.',
+      );
+    } finally {
+      setIsDeletingLog(false);
     }
   };
 
@@ -98,39 +142,6 @@ export default function LogPage() {
     { id: 'etc', label: '기타', icon: <EtcIcon /> },
   ];
 
-  const activities = [
-    { id: '1', label: '활동 A' },
-    { id: '2', label: '활동 B' },
-  ];
-
-  // 폼 제출 핸들러
-  const handleSubmit = () => {
-    // 유효성 검사
-    const validation = validateForm();
-
-    if (!validation.isValid) {
-      setErrors(validation.errors as typeof errors);
-      return;
-    }
-
-    // 에러 초기화
-    setErrors({});
-
-    // 로그 생성
-    const newLog = {
-      id: Date.now().toString(),
-      title: formData.title,
-      activityName: formData.activityName || '미분류',
-      category: formData.category,
-      content: formData.content,
-      date: new Date().toISOString().split('T')[0],
-    };
-
-    addLog(newLog);
-
-    // 폼 초기화
-    resetForm();
-  };
   return (
     <div className='flex flex-col gap-[4.5rem] pb-[15rem]'>
       {/* 인사이트 로그 헤더 */}
@@ -160,8 +171,9 @@ export default function LogPage() {
             px='2.25rem'
             py='0.75rem'
             onClick={handleSubmit}
+            disabled={isSubmitting}
           >
-            로그 등록하기
+            {isSubmitting ? '등록 중...' : '로그 등록하기'}
           </CommonButton>
         </div>
 
@@ -196,6 +208,12 @@ export default function LogPage() {
             <ActivitySelect
               value={formData.activityName}
               onChange={(value) => setFormField('activityName', value)}
+              dropdownItems={activities}
+              activityCountError={
+                activities.length > 10
+                  ? '최대 10개까지만 등록 가능해요.'
+                  : null
+              }
             />
           </div>
 
@@ -235,6 +253,8 @@ export default function LogPage() {
                 className='w-[32.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
                 placeholder='검색어를 입력하세요.'
                 maxLength={100}
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
               />
               <div className='absolute right-[1.25rem]'>
                 <SearchButton />
@@ -285,10 +305,20 @@ export default function LogPage() {
 
         {/* 카드 */}
         <div className='grid grid-cols-2 gap-[1.5rem]'>
-          {logCards.length === 0 ? (
+          {isLoading ? (
+            <div className='col-span-2 mt-[5rem] text-center text-[1.125rem] text-[#9EA4A9]'>
+              로딩 중...
+            </div>
+          ) : logCards.length === 0 ? (
             <div className='col-span-2 mt-[5rem] flex items-center justify-center text-center text-[1.125rem] leading-[130%] font-bold text-[#9EA4A9]'>
-              아직 작성한 로그가 없어요 <br />
-              로그를 작성하고 인사이트를 기록해보세요!
+              {keyword.trim() || selectedCategoryId || selectedActivityId ? (
+                <>앗, 일치하는 결과가 없어요.</>
+              ) : (
+                <>
+                  아직 작성한 로그가 없어요 <br />
+                  로그를 작성하고 인사이트를 기록해보세요!
+                </>
+              )}
             </div>
           ) : (
             logCards.map((log) => (
@@ -310,9 +340,14 @@ export default function LogPage() {
       {selectedLog && (
         <LogDetailModal
           isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          onDelete={handleDeleteLog}
+          onClose={() => {
+            setSaveLogError(null);
+            handleCloseModal();
+          }}
+          onDelete={handleOpenDeleteModal}
           onSave={handleSaveLog}
+          isSaving={isSavingLog}
+          saveError={saveLogError}
           title={selectedLog.title}
           date={selectedLog.date}
           content={selectedLog.content}
@@ -320,6 +355,24 @@ export default function LogPage() {
           category={selectedLog.category}
         />
       )}
+
+      {/* 로그 등록 완료 모달 */}
+      <LogCompleteModal
+        open={isCompleteModalOpen}
+        onOpenChange={setIsCompleteModalOpen}
+      />
+
+      {/* 로그 삭제 확인 모달 */}
+      <LogDeleteModal
+        open={isDeleteModalOpen}
+        onOpenChange={(open) => {
+          if (!open) setDeleteLogError(null);
+          setIsDeleteModalOpen(open);
+        }}
+        onConfirm={handleConfirmDeleteLog}
+        isDeleting={isDeletingLog}
+        errorMessage={deleteLogError}
+      />
     </div>
   );
 }

@@ -1,56 +1,110 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { DropdownButton } from '@/components/DropdownButton';
 import { CommonModal } from '@/components/CommonModal';
 import InputArea from '@/components/InputArea';
 import { useLogStore } from '@/store/useLogStore';
+import { deleteActivityTag } from '@/services/insight';
+import {
+  ACTIVITY_TAGS_QUERY_KEY,
+  INSIGHTS_QUERY_KEY,
+} from '@/features/log/constants';
+
+const INPUT_OPTION_ID = '__input__';
 
 interface ActivitySelectProps {
   value?: string;
   onChange?: (value: string) => void;
+  /** 드롭다운에 쓸 목록 (API 활동 태그). 없으면 스토어 activities 사용 */
+  dropdownItems?: { id: string; label: string }[];
+  /** 활동 개수 초과 시 표시할 메시지 (예: 10개 초과 시) */
+  activityCountError?: string | null;
 }
 
 export function ActivitySelect({
   value = '',
   onChange,
+  dropdownItems,
+  activityCountError,
 }: ActivitySelectProps = {}) {
-  const { activities, removeActivity } = useLogStore();
+  const { activities: storeActivities, removeActivity } = useLogStore();
+  const queryClient = useQueryClient();
   const [selectedActivityId, setSelectedActivityId] = useState('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  // 삭제 버튼 클릭 시 모달 열기
-  const handleDelete = (id: string) => {
+  const baseItems = dropdownItems ?? storeActivities;
+
+  const hasInputAsOption =
+    value?.trim() && !baseItems.some((a) => a.label === value.trim());
+  const dropdownList = useMemo(() => {
+    const inputOption = hasInputAsOption
+      ? [{ id: INPUT_OPTION_ID, label: value.trim() as string }]
+      : [];
+    return [...inputOption, ...baseItems];
+  }, [hasInputAsOption, value, baseItems]);
+
+  const activitiesWithHandlers = useMemo(
+    () =>
+      dropdownList.map((a) => ({
+        ...a,
+        onDelete: a.id !== INPUT_OPTION_ID ? handleDelete : undefined,
+      })),
+    [dropdownList],
+  );
+
+  function handleDelete(id: string) {
     setDeleteTargetId(id);
     setIsDeleteModalOpen(true);
-  };
+  }
 
-  // 실제 삭제 실행
-  const confirmDelete = () => {
-    if (deleteTargetId) {
+  const confirmDelete = async () => {
+    if (!deleteTargetId) return;
+    const tagIdNum = Number(deleteTargetId);
+    if (Number.isNaN(tagIdNum)) {
       removeActivity(deleteTargetId);
-      // 삭제된 항목이 선택된 항목이면 선택 해제
       if (selectedActivityId === deleteTargetId) {
         setSelectedActivityId('');
         onChange?.('');
       }
+      setIsDeleteModalOpen(false);
+      setDeleteTargetId(null);
+      return;
     }
-    setIsDeleteModalOpen(false);
-    setDeleteTargetId(null);
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteActivityTag(tagIdNum);
+      const deletedLabel =
+        dropdownList.find((a) => a.id === deleteTargetId)?.label ?? '';
+      if (selectedActivityId === deleteTargetId || value === deletedLabel) {
+        setSelectedActivityId('');
+        onChange?.('');
+      }
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ACTIVITY_TAGS_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: INSIGHTS_QUERY_KEY }),
+      ]);
+      setIsDeleteModalOpen(false);
+      setDeleteTargetId(null);
+    } catch (err) {
+      setDeleteError(
+        err instanceof Error ? err.message : '활동 태그 삭제에 실패했습니다.',
+      );
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
-  const activitiesWithHandlers = activities.map((activity) => ({
-    ...activity,
-    onDelete: handleDelete,
-  }));
-
-  // 드롭다운에서 항목 선택 시
   const handleActivitySelect = (id: string) => {
     setSelectedActivityId(id);
-    const selectedActivity = activities.find((activity) => activity.id === id);
-    if (selectedActivity) {
-      onChange?.(selectedActivity.label);
+    const selected = dropdownList.find((a) => a.id === id);
+    if (selected) {
+      onChange?.(selected.label);
     }
   };
 
@@ -59,15 +113,16 @@ export function ActivitySelect({
     onChange?.(e.target.value);
   };
 
-  const deleteTargetActivity = activities.find(
-    (activity) => activity.id === deleteTargetId,
-  );
-
   return (
     <>
       <div className='flex flex-col gap-[0.5rem]'>
-        <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+        <div className='flex items-center gap-[0.5rem] text-[1.125rem] font-bold'>
           <span>활동명</span>
+          {activityCountError && (
+            <p className='font-regular text-[0.875rem] text-[#DC0000]'>
+              {activityCountError}
+            </p>
+          )}
         </div>
         <InputArea
           placeholder='활동명 입력 또는 선택'
@@ -89,17 +144,28 @@ export function ActivitySelect({
       {/* 삭제 확인 모달 */}
       <CommonModal
         open={isDeleteModalOpen}
-        onOpenChange={setIsDeleteModalOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteError(null);
+            setDeleteTargetId(null);
+          }
+          setIsDeleteModalOpen(open);
+        }}
         title='이 활동 분류를 정말 삭제하시겠습니까?'
         description='해당 태그로 등록된 인사이트 로그가 미분류로 변경돼요.'
-        secondaryBtnText='삭제'
+        secondaryBtnText={isDeleting ? '삭제 중...' : '삭제'}
         cancelBtnText='취소'
-        onSecondaryClick={confirmDelete}
+        onSecondaryClick={isDeleting ? () => {} : confirmDelete}
         onCancelClick={() => {
           setIsDeleteModalOpen(false);
           setDeleteTargetId(null);
+          setDeleteError(null);
         }}
-      />
+      >
+        {deleteError && (
+          <p className='mt-2 text-sm text-[#DC0000]'>{deleteError}</p>
+        )}
+      </CommonModal>
     </>
   );
 }
