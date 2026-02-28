@@ -249,7 +249,9 @@ export function LogDetailModal({
                 px='1.5rem'
                 py='0.375rem'
                 onClick={handleSave}
-                disabled={isSaving}
+                disabled={
+                  isSaving || !editTitle.trim() || !editContent.trim()
+                }
               >
                 {isSaving ? '저장 중...' : '수정 완료'}
               </CommonButton>
