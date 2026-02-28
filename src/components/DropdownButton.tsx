@@ -59,6 +59,20 @@ export const DropdownButton = ({
 
   return (
     <div className={cn('relative', className)} ref={dropdownRef}>
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            [data-selected='true'] svg path[fill],
+            [data-selected='true'] svg g path[fill] {
+              fill: #5060C5 !important;
+            }
+            [data-selected='true'] svg path[stroke],
+            [data-selected='true'] svg g path[stroke] {
+              stroke: #5060C5 !important;
+            }
+          `,
+        }}
+      />
       <button
         onClick={() => setIsOpen(!isOpen)}
         className='flex cursor-pointer items-center border-none bg-transparent text-[#1A1A1A]'
@@ -92,17 +106,19 @@ export const DropdownButton = ({
               const hasDelete = !!item.onDelete;
               const isFirst = index === 0;
               const isLast = index === items.length - 1;
+              const isSelected = value === item.id;
 
               return (
                 <div
                   key={item.id}
+                  data-selected={isSelected ? 'true' : 'false'}
                   className={cn(
                     'group relative flex cursor-pointer items-center justify-between px-[1.25rem] py-[0.75rem] transition-colors',
-                    isHovered && 'bg-[#F6F5FF]',
-                    isHovered &&
+                    (isHovered || isSelected) && 'bg-[#F6F5FF]',
+                    (isHovered || isSelected) &&
                       isFirst &&
                       'rounded-tl-[0.5rem] rounded-tr-[0.5rem]',
-                    isHovered &&
+                    (isHovered || isSelected) &&
                       isLast &&
                       'rounded-br-[0.5rem] rounded-bl-[0.5rem]',
                   )}
@@ -112,11 +128,23 @@ export const DropdownButton = ({
                 >
                   <div className='flex items-center gap-[0.75rem]'>
                     {item.icon && (
-                      <div className='flex flex-shrink-0 items-center justify-center'>
+                      <div
+                        className={cn(
+                          'flex flex-shrink-0 items-center justify-center',
+                          isSelected && 'text-[#5060C5]',
+                        )}
+                      >
                         {item.icon}
                       </div>
                     )}
-                    <span className='text-[1rem] text-[#1A1A1A]'>
+                    <span
+                      className={cn(
+                        'text-[1rem]',
+                        isSelected
+                          ? 'font-semibold text-[#5060C5]'
+                          : 'text-[#1A1A1A]',
+                      )}
+                    >
                       {item.label}
                     </span>
                   </div>
