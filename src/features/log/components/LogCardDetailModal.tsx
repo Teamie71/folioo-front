@@ -166,7 +166,10 @@ export function LogDetailModal({
           {isEditing ? (
             <InputArea
               value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
+              onChange={(e) =>
+                setEditTitle(e.target.value.slice(0, 20))
+              }
+              maxLength={20}
               className='flex-1 text-[1.125rem] font-bold'
             />
           ) : (
