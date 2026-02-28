@@ -75,9 +75,14 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
               <p className='text-[1.125rem] leading-[150%] text-[#1A1A1A]'>
                 이용권 거래 내역
               </p>
-              <button className='scale-x-[-1] cursor-pointer'>
+              <Link
+                href='/invoice'
+                className='scale-x-[-1] cursor-pointer'
+                aria-label='이용권 거래 내역'
+                onClick={() => onOpenChange(false)}
+              >
                 <ChevronLeftIcon />
-              </button>
+              </Link>
             </div>
 
             <div className='w-full border border-[#CDD0D5]' />
@@ -126,7 +131,14 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
                 <p className='text-[1.125rem] leading-[150%] text-[#1A1A1A]'>
                   마케팅 정보 수신 동의
                 </p>
-                <ToggleOnOff checked={profile?.isMarketingAgreed ?? false} />
+                <ToggleOnOff
+                  checked={profile?.isMarketingAgreed ?? false}
+                  onCheckedChange={(next) =>
+                    setProfile((prev) =>
+                      prev ? { ...prev, isMarketingAgreed: next } : null,
+                    )
+                  }
+                />
               </div>
             </div>
 
