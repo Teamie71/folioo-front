@@ -153,7 +153,7 @@ export function ActivitySelect({
         }}
         title='이 활동 분류를 정말 삭제하시겠습니까?'
         description='해당 태그로 등록된 인사이트 로그가 미분류로 변경돼요.'
-        secondaryBtnText={isDeleting ? '삭제 중...' : '삭제'}
+        secondaryBtnText='삭제'
         cancelBtnText='취소'
         onSecondaryClick={isDeleting ? () => {} : confirmDelete}
         onCancelClick={() => {
