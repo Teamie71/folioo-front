@@ -73,7 +73,7 @@ export default function LayoutContent({
         reward='경험 정리 2회권 + 포트폴리오 첨삭 6회권'
         rewardMessage='{reward}이 지급되었어요.'
         subMessage='Folioo와 함께 경험을 강력한 서류로 만들어보세요.'
-        validityMessage='지급된 이용권은 6개월 간 사용 가능해요.'
+        validityMessage='지급된 이용권은 일요일까지 사용 가능해요.'
         buttonText='첨삭 의뢰하기 '
         onButtonClick={() => {
           const id = crypto.randomUUID();
