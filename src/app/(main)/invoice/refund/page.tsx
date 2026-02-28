@@ -72,10 +72,6 @@ export default function InvoiceRefundPage() {
                 <span>총 결제 금액</span>
                 <span>00,000원</span>
               </div>
-              <div className='flex justify-between text-[1.125rem]'>
-                <span>사용 완료한 금액</span>
-                <span>-00,000원</span>
-              </div>
             </div>
           </div>
         </div>
