@@ -304,13 +304,13 @@ export const useLogStore = create<LogStore>()(
             case '대인관계':
               formattedContent = [
                 state.interpersonData.situation &&
-                  `상황 - ${toLine(state.interpersonData.situation)}`,
+                  `상황/대상 - ${toLine(state.interpersonData.situation)}`,
                 state.interpersonData.response &&
-                  `나의 반응 - ${toLine(state.interpersonData.response)}`,
+                  `대응 - ${toLine(state.interpersonData.response)}`,
                 state.interpersonData.result &&
                   `결과 - ${toLine(state.interpersonData.result)}`,
                 state.interpersonData.lesson &&
-                  `배운 점 - ${toLine(state.interpersonData.lesson)}`,
+                  `배운 점/계획 - ${toLine(state.interpersonData.lesson)}`,
               ]
                 .filter(Boolean)
                 .join('\n');
@@ -318,13 +318,13 @@ export const useLogStore = create<LogStore>()(
             case '문제해결':
               formattedContent = [
                 state.problemSolveData.problem &&
-                  `문제 - ${toLine(state.problemSolveData.problem)}`,
+                  `문제 상황 - ${toLine(state.problemSolveData.problem)}`,
                 state.problemSolveData.attempt &&
-                  `시도 - ${toLine(state.problemSolveData.attempt)}`,
+                  `해결 시도 - ${toLine(state.problemSolveData.attempt)}`,
                 state.problemSolveData.result &&
                   `결과 - ${toLine(state.problemSolveData.result)}`,
                 state.problemSolveData.lesson &&
-                  `배운 점 - ${toLine(state.problemSolveData.lesson)}`,
+                  `배운 점/계획 - ${toLine(state.problemSolveData.lesson)}`,
               ]
                 .filter(Boolean)
                 .join('\n');
@@ -348,7 +348,7 @@ export const useLogStore = create<LogStore>()(
                 state.referenceData.content &&
                   `내용 - ${toLine(state.referenceData.content)}`,
                 state.referenceData.thought &&
-                  `생각 - ${toLine(state.referenceData.thought)}`,
+                  `나의 생각 - ${toLine(state.referenceData.thought)}`,
                 state.referenceData.plan &&
                   `적용 계획 - ${toLine(state.referenceData.plan)}`,
               ]

@@ -6,6 +6,60 @@ import TextField from '@/components/TextField';
 const MAX_CONTENT_LENGTH = 250;
 const COUNT_WARN_THRESHOLD = 240;
 
+/* 템플릿별 고정 라벨 문자열(스토어 포맷과 동일). 선택 시 항상 글자수에 포함됨 */
+const TEMPLATE_LABELS = {
+  interperson: ['상황/대상 - ', '대응 - ', '결과 - ', '배운 점/계획 - '],
+  problemSolve: ['문제 상황 - ', '해결 시도 - ', '결과 - ', '배운 점/계획 - '],
+  learning: ['학습 경로 - ', '배운 내용 - ', '적용 계획 - '],
+  reference: ['출처 - ', '내용 - ', '나의 생각 - ', '적용 계획 - '],
+} as const;
+
+/* 고정 라벨 + 줄바꿈 길이 (템플릿 선택 시 무조건 글자수에 포함) */
+function getTemplateLabelLength(type: keyof typeof TEMPLATE_LABELS): number {
+  const labels = TEMPLATE_LABELS[type];
+  return labels.join('\n').length;
+}
+
+/* 라벨 길이 + 입력 내용 길이. 라벨은 항상 포함 */
+function getFormattedLength(
+  type: keyof typeof TEMPLATE_LABELS,
+  data: Record<string, string>,
+): number {
+  const toLine = (v: string) => (v || '').replace(/\n/g, '');
+  const labelLength = getTemplateLabelLength(type);
+  let contentLength = 0;
+  switch (type) {
+    case 'interperson':
+      contentLength =
+        toLine(data.situation).length +
+        toLine(data.response).length +
+        toLine(data.result).length +
+        toLine(data.lesson).length;
+      break;
+    case 'problemSolve':
+      contentLength =
+        toLine(data.problem).length +
+        toLine(data.attempt).length +
+        toLine(data.result).length +
+        toLine(data.lesson).length;
+      break;
+    case 'learning':
+      contentLength =
+        toLine(data.path).length +
+        toLine(data.learned).length +
+        toLine(data.plan).length;
+      break;
+    case 'reference':
+      contentLength =
+        toLine(data.source).length +
+        toLine(data.content).length +
+        toLine(data.thought).length +
+        toLine(data.plan).length;
+      break;
+  }
+  return labelLength + contentLength;
+}
+
 // 템플릿 미사용 폼
 interface NoTemplateFormProps {
   content: string;
@@ -73,23 +127,19 @@ export function InterpersonTemplateForm({
   setData,
   contentError,
 }: InterpersonTemplateFormProps) {
-  const totalLength =
-    data.situation.length +
-    data.response.length +
-    data.result.length +
-    data.lesson.length;
-  const otherLength =
-    data.response.length + data.result.length + data.lesson.length;
-  const maxSituation = MAX_CONTENT_LENGTH - otherLength;
+  const totalLength = getFormattedLength('interperson', data);
+  const maxSituation =
+    MAX_CONTENT_LENGTH -
+    getFormattedLength('interperson', { ...data, situation: '' });
   const maxResponse =
     MAX_CONTENT_LENGTH -
-    (data.situation.length + data.result.length + data.lesson.length);
+    getFormattedLength('interperson', { ...data, response: '' });
   const maxResult =
     MAX_CONTENT_LENGTH -
-    (data.situation.length + data.response.length + data.lesson.length);
+    getFormattedLength('interperson', { ...data, result: '' });
   const maxLesson =
     MAX_CONTENT_LENGTH -
-    (data.situation.length + data.response.length + data.result.length);
+    getFormattedLength('interperson', { ...data, lesson: '' });
 
   return (
     <div className='flex flex-col gap-[1.25rem]'>
@@ -203,23 +253,19 @@ export function ProblemSolveTemplateForm({
   setData,
   contentError,
 }: ProblemSolveTemplateFormProps) {
-  const totalLength =
-    data.problem.length +
-    data.attempt.length +
-    data.result.length +
-    data.lesson.length;
+  const totalLength = getFormattedLength('problemSolve', data);
   const maxProblem =
     MAX_CONTENT_LENGTH -
-    (data.attempt.length + data.result.length + data.lesson.length);
+    getFormattedLength('problemSolve', { ...data, problem: '' });
   const maxAttempt =
     MAX_CONTENT_LENGTH -
-    (data.problem.length + data.result.length + data.lesson.length);
+    getFormattedLength('problemSolve', { ...data, attempt: '' });
   const maxResultPs =
     MAX_CONTENT_LENGTH -
-    (data.problem.length + data.attempt.length + data.lesson.length);
+    getFormattedLength('problemSolve', { ...data, result: '' });
   const maxLessonPs =
     MAX_CONTENT_LENGTH -
-    (data.problem.length + data.attempt.length + data.result.length);
+    getFormattedLength('problemSolve', { ...data, lesson: '' });
 
   return (
     <div className='flex flex-col gap-[1.25rem]'>
@@ -327,13 +373,14 @@ export function LearningTemplateForm({
   setData,
   contentError,
 }: LearningTemplateFormProps) {
-  const totalLength = data.path.length + data.learned.length + data.plan.length;
+  const totalLength = getFormattedLength('learning', data);
   const maxPath =
-    MAX_CONTENT_LENGTH - (data.learned.length + data.plan.length);
+    MAX_CONTENT_LENGTH - getFormattedLength('learning', { ...data, path: '' });
   const maxLearned =
-    MAX_CONTENT_LENGTH - (data.path.length + data.plan.length);
+    MAX_CONTENT_LENGTH -
+    getFormattedLength('learning', { ...data, learned: '' });
   const maxPlan =
-    MAX_CONTENT_LENGTH - (data.path.length + data.learned.length);
+    MAX_CONTENT_LENGTH - getFormattedLength('learning', { ...data, plan: '' });
 
   return (
     <div className='flex flex-col gap-[1.25rem]'>
@@ -431,23 +478,18 @@ export function ReferenceTemplateForm({
   setData,
   contentError,
 }: ReferenceTemplateFormProps) {
-  const totalLength =
-    data.source.length +
-    data.content.length +
-    data.thought.length +
-    data.plan.length;
+  const totalLength = getFormattedLength('reference', data);
   const maxSource =
     MAX_CONTENT_LENGTH -
-    (data.content.length + data.thought.length + data.plan.length);
+    getFormattedLength('reference', { ...data, source: '' });
   const maxContentRef =
     MAX_CONTENT_LENGTH -
-    (data.source.length + data.thought.length + data.plan.length);
+    getFormattedLength('reference', { ...data, content: '' });
   const maxThought =
     MAX_CONTENT_LENGTH -
-    (data.source.length + data.content.length + data.plan.length);
+    getFormattedLength('reference', { ...data, thought: '' });
   const maxPlanRef =
-    MAX_CONTENT_LENGTH -
-    (data.source.length + data.content.length + data.thought.length);
+    MAX_CONTENT_LENGTH - getFormattedLength('reference', { ...data, plan: '' });
 
   return (
     <div className='flex flex-col gap-[1.25rem]'>
