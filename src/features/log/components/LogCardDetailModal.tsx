@@ -16,41 +16,15 @@ import { cn } from '@/utils/utils';
 const MAX_CONTENT_LENGTH = 250;
 const COUNT_WARN_THRESHOLD = 240;
 
-/* 카운팅 로직: 템플릿과 동일하게 라벨 제외 입력값 합만 표시. 태그 미포함. */
-function getContentUserLength(content: string): number {
-  if (!content.trim()) return 0;
-  return content.split('\n').reduce((sum, line) => {
-    const sep = line.indexOf(' - ');
-    if (sep >= 0) return sum + line.slice(sep + 3).length;
-    return sum + line.length;
-  }, 0);
+/* 수정 모달: 라벨 포함 전체 글자수(엔터 1자 포함). 템플릿과 동일한 방식 */
+function getContentFullLength(content: string): number {
+  return content.length;
 }
 
-/** content를 라벨+텍스트 세그먼트로 파싱. 250자 초과 시 마지막 세그먼트 텍스트를 잘라서 다시 조합. */
-function enforceContentUserMax(content: string, max: number): string {
-  const lines = content.split('\n');
-  const segments: { label: string; text: string }[] = lines.map((line) => {
-    const sep = line.indexOf(' - ');
-    if (sep >= 0)
-      return { label: line.slice(0, sep), text: line.slice(sep + 3) };
-    return { label: '', text: line };
-  });
-  const total = segments.reduce((s, seg) => s + seg.text.length, 0);
-  if (total <= max) return content;
-  let remain = total - max;
-  for (let i = segments.length - 1; i >= 0 && remain > 0; i--) {
-    const len = segments[i].text.length;
-    if (len <= remain) {
-      segments[i].text = '';
-      remain -= len;
-    } else {
-      segments[i].text = segments[i].text.slice(0, len - remain);
-      remain = 0;
-    }
-  }
-  return segments
-    .map((s) => (s.label ? `${s.label} - ${s.text}` : s.text))
-    .join('\n');
+/* 250자 초과 시 앞쪽 250자만 유지 (라벨 포함 전체 기준) */
+function enforceContentMaxLength(content: string, max: number): string {
+  if (content.length <= max) return content;
+  return content.slice(0, max);
 }
 
 interface LogDetailModalProps {
@@ -106,7 +80,7 @@ export function LogDetailModal({
   };
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setEditContent(enforceContentUserMax(e.target.value, MAX_CONTENT_LENGTH));
+    setEditContent(enforceContentMaxLength(e.target.value, MAX_CONTENT_LENGTH));
   };
 
   const handleCancel = () => {
@@ -166,9 +140,7 @@ export function LogDetailModal({
           {isEditing ? (
             <InputArea
               value={editTitle}
-              onChange={(e) =>
-                setEditTitle(e.target.value.slice(0, 20))
-              }
+              onChange={(e) => setEditTitle(e.target.value.slice(0, 20))}
               maxLength={20}
               className='flex-1 text-[1.125rem] font-bold'
             />
@@ -194,6 +166,45 @@ export function LogDetailModal({
               variant='wide'
               value={editContent}
               onChange={handleContentChange}
+              onKeyDown={(e) => {
+                if (editContent.length >= MAX_CONTENT_LENGTH) {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    return;
+                  }
+                  if (
+                    e.key.length === 1 &&
+                    !e.ctrlKey &&
+                    !e.metaKey &&
+                    !e.altKey
+                  ) {
+                    const el = e.currentTarget;
+                    const newContent =
+                      editContent.slice(0, el.selectionStart) +
+                      e.key +
+                      editContent.slice(el.selectionEnd);
+                    if (newContent.length > MAX_CONTENT_LENGTH) {
+                      e.preventDefault();
+                    }
+                  }
+                }
+              }}
+              onPaste={(e) => {
+                const el = e.currentTarget;
+                const pasted = e.clipboardData.getData('text/plain');
+                const merged =
+                  editContent.slice(0, el.selectionStart) +
+                  pasted +
+                  editContent.slice(el.selectionEnd);
+                const truncated = enforceContentMaxLength(
+                  merged,
+                  MAX_CONTENT_LENGTH,
+                );
+                if (truncated !== merged) {
+                  e.preventDefault();
+                  setEditContent(truncated);
+                }
+              }}
               placeholder='내용을 입력하세요.'
             />
           ) : (
@@ -221,11 +232,11 @@ export function LogDetailModal({
               <div
                 className={cn(
                   'text-right text-[0.875rem]',
-                  getContentUserLength(editContent) >= COUNT_WARN_THRESHOLD &&
+                  getContentFullLength(editContent) >= COUNT_WARN_THRESHOLD &&
                     'text-[#DC0000]',
                 )}
               >
-                {getContentUserLength(editContent)}/{MAX_CONTENT_LENGTH}
+                {getContentFullLength(editContent)}/{MAX_CONTENT_LENGTH}
               </div>
             </div>
 
