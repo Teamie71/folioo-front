@@ -9,8 +9,8 @@ import {
 } from '@/components/ui/Dialog';
 import { getMe } from '@/services/user';
 import type { UserProfile } from '@/types/api/user';
+import { ProfileEditButton } from '@/components/ProfileEditButton';
 import { ChevronLeftIcon } from './icons/ChevronLeftIcon';
-import { ModifyIcon } from './icons/ModifyIcon';
 import { ToggleOnOff } from './ToggleOnOff';
 
 interface ProfileModalProps {
@@ -43,10 +43,14 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
           <div className='rounded-[1.25rem] bg-[#FDFDFD] px-[1.75rem] py-[1.5rem]'>
             <div className='flex flex-col gap-[1rem]'>
               <div className='flex items-center justify-between'>
-                <p className='text-[1.125rem] leading-[130%] font-bold text-[#1A1A1A]'>
-                  {profile?.name ?? '-'}
-                </p>
-                <ModifyIcon />
+                <ProfileEditButton
+                  value={profile?.name ?? ''}
+                  onSave={(newName) =>
+                    setProfile((prev) =>
+                      prev ? { ...prev, name: newName } : null,
+                    )
+                  }
+                />
               </div>
 
               <div className='flex flex-col gap-[0.25rem]'>
