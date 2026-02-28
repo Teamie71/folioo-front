@@ -59,26 +59,26 @@ export function LogCard({
 
   return (
     <div
-      className='flex cursor-pointer flex-col gap-[1.5rem] rounded-[1.25rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.5rem] shadow-[0px_4px_8px_0px_#00000033] transition-shadow hover:shadow-[0px_6px_12px_0px_#00000033]'
+      className='flex h-[13.625rem] w-[32.25rem] cursor-pointer flex-col gap-[1.5rem] rounded-[1.25rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.5rem] shadow-[0px_4px_8px_0px_#00000033] transition-shadow hover:shadow-[0px_6px_12px_0px_#00000033]'
       onClick={onClick}
     >
       {/* 제목, 날짜 */}
       <div className='flex items-center justify-between'>
-        <span className='text-[1.125rem] font-bold text-[#1A1A1A]'>
+        <span className='text-[1.125rem] font-medium text-[#1A1A1A]'>
           {title}
         </span>
         <span className='text-[1rem] text-[#74777D]'>{date}</span>
       </div>
 
       {/* 내용 + 태그 */}
-      <div className='flex flex-col gap-[1.25rem]'>
+      <div className='flex min-h-0 flex-1 flex-col gap-[1.25rem]'>
         {/* 내용: 3줄까지만 표시, 나머지 말줄임 */}
-        <div className='line-height-[150%] line-clamp-3 text-[1rem] whitespace-pre-line text-[#1A1A1A]'>
+        <div className='line-height-[150%] line-clamp-3 min-h-0 flex-1 text-[1rem] whitespace-pre-line text-[#1A1A1A]'>
           {content}
         </div>
 
         {/* 태그 */}
-        <div className='flex items-center gap-[0.5rem]'>
+        <div className='mt-auto flex items-center gap-[0.5rem]'>
           <div className='rounded-[3.75rem] border border-[#CDD0D5] bg-[#FFFFFF] px-[0.625rem] py-[0.25rem] text-[0.875rem] text-[#1A1A1A]'>
             {activityName}
           </div>
