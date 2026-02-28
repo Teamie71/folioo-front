@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { CommonButton } from '@/components/CommonButton';
+import { ButtonSpinnerIcon } from '@/components/icons/ButtonSpinnerIcon';
 import EtcIcon from '@/components/icons/EtcIcon';
 import { InsightLogIcon } from '@/components/icons/InsightLogIcon';
 import InterpersonIcon from '@/components/icons/InterpersonIcon';
@@ -35,7 +36,6 @@ import {
 } from '@/store/useLogStore';
 
 export default function LogPage() {
-
   const {
     selectedCategoryId,
     selectedActivityId,
@@ -155,7 +155,10 @@ export default function LogPage() {
     { id: 'etc', label: '기타', icon: <EtcIcon /> },
   ];
 
-  const activityFilterItems = [{ id: '', label: '활동 분류 선택' }, ...activities];
+  const activityFilterItems = [
+    { id: '', label: '활동 분류 선택' },
+    ...activities,
+  ];
 
   return (
     <div className='flex flex-col gap-[4.5rem] pb-[15rem]'>
@@ -185,10 +188,22 @@ export default function LogPage() {
             variantType='Primary'
             px='2.25rem'
             py='0.75rem'
+            style={{ width: '10rem', height: '3rem' }}
+            className={
+              isSubmitting
+                ? '!bg-[#5060C5] disabled:!bg-[#5060C5] disabled:hover:!bg-[#404D9E]'
+                : undefined
+            }
             onClick={handleSubmit}
             disabled={isSubmitting}
           >
-            {isSubmitting ? '등록 중...' : '로그 등록하기'}
+            {isSubmitting ? (
+              <span className='flex items-center justify-center'>
+                <ButtonSpinnerIcon size={32} />
+              </span>
+            ) : (
+              '로그 등록하기'
+            )}
           </CommonButton>
         </div>
 
@@ -306,8 +321,9 @@ export default function LogPage() {
                 <span
                   className={`text-[1rem] ${selectedActivityId ? 'text-[#000000]' : 'text-[#74777D]'}`}
                 >
-                  {activityFilterItems.find((act) => act.id === selectedActivityId)
-                    ?.label || '활동 분류 선택'}
+                  {activityFilterItems.find(
+                    (act) => act.id === selectedActivityId,
+                  )?.label || '활동 분류 선택'}
                 </span>
               </div>
               <div className='absolute right-[1.25rem]'>
@@ -326,7 +342,9 @@ export default function LogPage() {
         <div className='grid grid-cols-2 gap-[1.5rem]'>
           {logCards.length === 0 ? (
             <div className='col-span-2 mt-[5rem] flex items-center justify-center text-center text-[1.125rem] leading-[130%] font-bold text-[#9EA4A9]'>
-              {submittedKeyword.trim() || selectedCategoryId || selectedActivityId ? (
+              {submittedKeyword.trim() ||
+              selectedCategoryId ||
+              selectedActivityId ? (
                 <>앗, 일치하는 결과가 없어요.</>
               ) : (
                 <>

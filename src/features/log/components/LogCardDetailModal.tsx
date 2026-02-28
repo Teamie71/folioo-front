@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/Dialog';
 import { ModalFunctionButton } from '@/components/ModalFunctionButton';
 import { CommonButton } from '@/components/CommonButton';
+import { ButtonSpinnerIcon } from '@/components/icons/ButtonSpinnerIcon';
 import InputArea from '@/components/InputArea';
 import TextField from '@/components/TextField';
 import InterpersonIcon from '@/components/icons/InterpersonIcon';
@@ -248,12 +249,22 @@ export function LogDetailModal({
                 variantType='Primary'
                 px='1.5rem'
                 py='0.375rem'
+                style={{ width: '6.75rem', height: '2.25rem' }}
+                className={
+                  isSaving
+                    ? '!bg-[#5060C5] disabled:!bg-[#5060C5] disabled:hover:!bg-[#404D9E]'
+                    : undefined
+                }
                 onClick={handleSave}
                 disabled={
                   isSaving || !editTitle.trim() || !editContent.trim()
                 }
               >
-                {isSaving ? '저장 중...' : '수정 완료'}
+                {isSaving ? (
+                  <ButtonSpinnerIcon size={24} />
+                ) : (
+                  '수정 완료'
+                )}
               </CommonButton>
             </div>
           </>
