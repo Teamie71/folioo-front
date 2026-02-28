@@ -120,6 +120,7 @@ interface LogStore {
     data: ReferenceData | ((prev: ReferenceData) => ReferenceData),
   ) => void;
   getFormattedContent: () => string;
+  getCurrentTemplateFields: () => string[];
 
   // 로그 Actions
   addLog: (log: LogCardData) => void;
@@ -252,10 +253,7 @@ export const useLogStore = create<LogStore>()(
       setIsTemplateEnabled: (enabled) =>
         set((state) => {
           if (!enabled) {
-            return {
-              isTemplateEnabled: false,
-              selectedTemplate: 'none',
-            };
+            return { isTemplateEnabled: false };
           }
           return { isTemplateEnabled: enabled };
         }),
@@ -363,6 +361,47 @@ export const useLogStore = create<LogStore>()(
         }
 
         return formattedContent;
+      },
+
+      getCurrentTemplateFields: () => {
+        const state = get();
+        if (
+          state.selectedTemplate === 'none' ||
+          state.selectedTemplate === '기타'
+        ) {
+          return [state.noTemplateContent];
+        }
+        switch (state.selectedTemplate) {
+          case '대인관계':
+            return [
+              state.interpersonData.situation,
+              state.interpersonData.response,
+              state.interpersonData.result,
+              state.interpersonData.lesson,
+            ];
+          case '문제해결':
+            return [
+              state.problemSolveData.problem,
+              state.problemSolveData.attempt,
+              state.problemSolveData.result,
+              state.problemSolveData.lesson,
+            ];
+          case '학습':
+            return [
+              state.learningData.path,
+              state.learningData.learned,
+              state.learningData.plan,
+            ];
+          case '레퍼런스':
+            return [
+              state.referenceData.source,
+              state.referenceData.content,
+              state.referenceData.thought,
+              state.referenceData.plan,
+            ];
+          default:
+            return [state.noTemplateContent];
+        }
       },
 
       // 로그 Actions
