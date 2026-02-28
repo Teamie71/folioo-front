@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import { BackButton } from '@/components/BackButton';
 import { PaymentIcon } from '@/components/icons/PaymentIcon';
+import { BankDropdown } from '@/features/invoice/refund/components/BankDropdown';
 import { RefundReasonDropdown } from '@/features/invoice/refund/components/RefundReasonDropdown';
 
 export default function InvoiceRefundPage() {
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
+  const [selectedBank, setSelectedBank] = useState<string | null>(null);
 
   return (
     <div className='mx-auto flex w-[66rem] min-w-[66rem] flex-col gap-[3.75rem] pt-[3.75rem] pb-[6.25rem]'>
@@ -95,9 +97,7 @@ export default function InvoiceRefundPage() {
             <span className='text-[1.125rem] font-semibold text-[#1A1A1A]'>
               은행명
             </span>
-            <button className='w-[28.75rem] cursor-pointer rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-start text-[#74777D]'>
-              선택
-            </button>
+            <BankDropdown value={selectedBank} onChange={setSelectedBank} />
           </div>
 
           {/* 예금주 */}
