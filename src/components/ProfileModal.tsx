@@ -10,6 +10,7 @@ import {
 import { getMe } from '@/services/user';
 import type { UserProfile } from '@/types/api/user';
 import { ProfileEditButton } from '@/components/ProfileEditButton';
+import Link from 'next/link';
 import { ChevronLeftIcon } from './icons/ChevronLeftIcon';
 import { ToggleOnOff } from './ToggleOnOff';
 
@@ -35,9 +36,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
           프로필
         </DialogTitle>
 
-        <DialogDescription className='sr-only'>
-          프로필 정보
-        </DialogDescription>
+        <DialogDescription className='sr-only'>프로필 정보</DialogDescription>
 
         <div className='flex w-[33rem] flex-col gap-[1.5rem]'>
           <div className='rounded-[1.25rem] bg-[#FDFDFD] px-[1.75rem] py-[1.5rem]'>
@@ -86,20 +85,41 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
             <div className='flex flex-col gap-[2rem]'>
               <div className='flex items-center justify-between'>
                 <p className='text-[1.125rem] leading-[150%] text-[#1A1A1A]'>
+                  서비스 이용 약관
+                </p>
+                <Link
+                  href='/tos'
+                  className='scale-x-[-1] cursor-pointer'
+                  aria-label='서비스 이용 약관'
+                >
+                  <ChevronLeftIcon />
+                </Link>
+              </div>
+
+              <div className='flex items-center justify-between'>
+                <p className='text-[1.125rem] leading-[150%] text-[#1A1A1A]'>
                   개인정보 처리방침
                 </p>
-                <button className='scale-x-[-1] cursor-pointer'>
+                <Link
+                  href='/privacy'
+                  className='scale-x-[-1] cursor-pointer'
+                  aria-label='개인정보 처리방침'
+                >
                   <ChevronLeftIcon />
-                </button>
+                </Link>
               </div>
 
               <div className='flex items-center justify-between'>
                 <p className='text-[1.125rem] leading-[150%] text-[#1A1A1A]'>
                   마케팅 정보 수신
                 </p>
-                <button className='scale-x-[-1] cursor-pointer'>
+                <Link
+                  href='/marketing'
+                  className='scale-x-[-1] cursor-pointer'
+                  aria-label='마케팅 정보 수신'
+                >
                   <ChevronLeftIcon />
-                </button>
+                </Link>
               </div>
 
               <div className='flex items-center justify-between'>

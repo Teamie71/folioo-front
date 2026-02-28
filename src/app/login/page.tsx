@@ -67,12 +67,18 @@ export default function Login() {
         >
           서비스 이용 약관
         </Link>
-        <button className='cursor-pointer text-[1rem] text-[#000000]'>
+        <Link
+          href='/privacy'
+          className='cursor-pointer text-[1rem] text-[#000000]'
+        >
           개인정보 처리방침
-        </button>
-        <button className='cursor-pointer text-[1rem] text-[#000000]'>
+        </Link>
+        <Link
+          href='/marketing'
+          className='cursor-pointer text-[1rem] text-[#000000]'
+        >
           마케팅 정보 수신
-        </button>
+        </Link>
       </div>
     </div>
   );

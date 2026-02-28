@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import { BackButton } from '@/components/BackButton';
@@ -130,16 +131,9 @@ export default function WithdrawPage() {
           {/* 개인정보처리방침 링크 */}
           <div className='mt-[1.25rem] h-[1.5rem] text-[1rem] text-[#74777D] pl-[1.75rem] leading-[1.5rem]'>
           개인정보 관련 자세한 규정은{' '}
-          <a
-            href='#'
-            className='underline'
-            onClick={(e) => {
-              e.preventDefault();
-              // TODO: 개인정보처리방침 페이지 경로로 이동
-            }}
-          >
+          <Link href='/privacy' className='underline'>
             개인정보처리방침
-          </a>
+          </Link>
           을 확인해주세요.
           </div>
 
