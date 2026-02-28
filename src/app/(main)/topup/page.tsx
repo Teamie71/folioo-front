@@ -178,6 +178,14 @@ function TopupPageContent() {
                     router.push('/verify');
                     return;
                   }
+                  if (card.id === 'review') {
+                    window.open(
+                      'https://docs.google.com/forms/d/e/1FAIpQLSfy8hyVhhXV-Z_uTleskSlSILYyfVDlAy_eO_ixFqjjzo6gew/viewform',
+                      '_blank',
+                      'noopener,noreferrer',
+                    );
+                    return;
+                  }
                   if (card.id === 'cta') {
                     setChallengeModalOpen(true);
                     return;
