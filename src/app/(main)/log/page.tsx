@@ -35,6 +35,7 @@ import {
 } from '@/store/useLogStore';
 
 export default function LogPage() {
+
   const {
     selectedCategoryId,
     selectedActivityId,
@@ -60,7 +61,12 @@ export default function LogPage() {
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const { errors, isSubmitting, handleSubmit } = useLogFormSubmit(
     logCards.map((log) => log.title),
-    { onLogCreated: () => setIsCompleteModalOpen(true) },
+    {
+      onLogCreated: () => {
+        useLogStore.getState().resetForm();
+        setIsCompleteModalOpen(true);
+      },
+    },
   );
 
   // 모달 상태

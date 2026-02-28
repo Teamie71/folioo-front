@@ -296,7 +296,7 @@ export function InsightTemplateSelector({
           {/* 템플릿 선택 버튼 */}
           <SingleButtonGroup
             options={templateOptions}
-            value={selectedTemplate !== 'none' ? selectedTemplate : undefined}
+            value={selectedTemplate === 'none' ? '' : selectedTemplate}
             onValueChange={handleTemplateChange}
           />
         </div>
