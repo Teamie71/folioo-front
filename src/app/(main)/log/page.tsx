@@ -45,13 +45,18 @@ export default function LogPage() {
   } = useLogStore();
 
   const queryClient = useQueryClient();
-  const [keyword, setKeyword] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [submittedKeyword, setSubmittedKeyword] = useState('');
   const { activities } = useActivityTags();
   const { logCards, isLoading } = useLogs({
-    keyword,
+    keyword: submittedKeyword,
     categoryId: selectedCategoryId,
     activityId: selectedActivityId,
   });
+
+  const applySearch = () => {
+    setSubmittedKeyword(searchInput.trim());
+  };
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const { errors, isSubmitting, handleSubmit } = useLogFormSubmit(
     logCards.map((log) => log.title),
@@ -246,17 +251,23 @@ export default function LogPage() {
         <div className='flex flex-col gap-[2.25rem]'>
           <span className='text-[1.25rem] font-bold'>나의 로그</span>
           <div className='flex items-center gap-[1.5rem]'>
-            {/* 검색 */}
+            {/* 검색: Enter 또는 검색 아이콘 클릭 시 제목/내용 기준 검색, 공란 시 전체 표시 */}
             <div className='relative flex items-center'>
               <input
                 className='w-[32.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
                 placeholder='검색어를 입력하세요.'
                 maxLength={100}
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    applySearch();
+                  }
+                }}
               />
               <div className='absolute right-[1.25rem]'>
-                <SearchButton />
+                <SearchButton onClick={applySearch} />
               </div>
             </div>
 
@@ -304,13 +315,9 @@ export default function LogPage() {
 
         {/* 카드 */}
         <div className='grid grid-cols-2 gap-[1.5rem]'>
-          {isLoading ? (
-            <div className='col-span-2 mt-[5rem] text-center text-[1.125rem] text-[#9EA4A9]'>
-              로딩 중...
-            </div>
-          ) : logCards.length === 0 ? (
+          {logCards.length === 0 ? (
             <div className='col-span-2 mt-[5rem] flex items-center justify-center text-center text-[1.125rem] leading-[130%] font-bold text-[#9EA4A9]'>
-              {keyword.trim() || selectedCategoryId || selectedActivityId ? (
+              {submittedKeyword.trim() || selectedCategoryId || selectedActivityId ? (
                 <>앗, 일치하는 결과가 없어요.</>
               ) : (
                 <>
