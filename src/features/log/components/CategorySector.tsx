@@ -55,6 +55,20 @@ export function InsightTemplateSelector({
     return 4;
   };
 
+  /* 라벨을 제거하고 내용만 반환 */
+  const stripTemplateLabels = (text: string): string => {
+    if (!text.trim()) return text;
+    return text
+      .split('\n')
+      .map((line) => {
+        const sep = ' - ';
+        const idx = line.indexOf(sep);
+        if (idx !== -1) return line.slice(idx + sep.length).trim();
+        return line.trim();
+      })
+      .join('\n');
+  };
+
   /* 이전 템플릿 → 새 템플릿으로 필드 배열 마이그레이션 (4→3 시 하단 2개를 하단 1개로) */
   const migrateFields = (
     prev: TemplateType,
@@ -64,11 +78,14 @@ export function InsightTemplateSelector({
     const prevN = getTemplateItemCount(prev);
     const nextN = getTemplateItemCount(next);
     if (prevN === 0 || nextN === 0) return fields;
-    // 4항목 → 3항목: 4개 항목 중 아래 2개(3번째·4번째)를 3개 항목의 아래 1개에 띄어쓰기 한 번으로 합침
+    // 4항목 → 3항목: 항목 내용이 3개뿐이면(4번째 비어 있음) 1·2·3번 그대로 유지. 4번째에 내용 있으면 하단 2개 합쳐서 맨 아래에
     if (prevN === 4 && nextN === 3) {
-      const third = fields[2]?.trim() ?? '';
       const fourth = fields[3]?.trim() ?? '';
-      const bottomOne = [third, fourth].filter(Boolean).join(' ');
+      if (!fourth) {
+        return [fields[0] ?? '', fields[1] ?? '', fields[2] ?? ''];
+      }
+      const third = fields[2]?.trim() ?? '';
+      const bottomOne = [third, fourth].filter(Boolean).join('');
       return [fields[0] ?? '', fields[1] ?? '', bottomOne];
     }
     // 3항목 → 4항목: 1,2,3 → 1,2,3, ''
@@ -162,28 +179,18 @@ export function InsightTemplateSelector({
     }
 
     const fields = getCurrentTemplateFields();
-    // 텍스트 영역 또는 기타 → 구조 템플릿: 기존 입력값을 첫 번째 항목에 표시
+    // 텍스트 영역 또는 기타 → 구조 템플릿: 태그 명을 빼고 내용만 첫 번째 항목에 표시
     const prevIsText = prevTemplate === 'none' || prevTemplate === '기타';
+    const contentForFirst = prevIsText
+      ? stripTemplateLabels(fields[0] ?? '')
+      : null;
     let newFields = prevIsText
       ? getTemplateItemCount(newTemplate) === 4
-        ? [fields[0] ?? '', '', '', '']
-        : [fields[0] ?? '', '', '']
+        ? [contentForFirst ?? '', '', '', '']
+        : [contentForFirst ?? '', '', '']
       : migrateFields(prevTemplate, newTemplate, fields);
 
-    // 4개 → 3개 전환 시: 4개 항목 하단 2개를 합친 내용을 3개 항목 맨 아래 1개 항목에 추가
-    if (
-      getTemplateItemCount(prevTemplate) === 4 &&
-      getTemplateItemCount(newTemplate) === 3
-    ) {
-      const mergedFromFour = newFields[2];
-      const existingBottom = learningData.plan ?? '';
-      newFields = [
-        newFields[0],
-        newFields[1],
-        [existingBottom, mergedFromFour].filter(Boolean).join(' '),
-      ];
-    }
-
+    // 4→3 전환 시 항상 이전(4개) 템플릿 내용만 반영. 3개 템플릿 기존 값에 이어붙이지 않아 중복 방지
     applyTemplateData(newTemplate, newFields);
     setSelectedTemplate(newTemplate);
     onCategoryChange?.(newTemplate);
