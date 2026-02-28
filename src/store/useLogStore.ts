@@ -294,6 +294,7 @@ export const useLogStore = create<LogStore>()(
 
       getFormattedContent: () => {
         const state = get();
+        const toLine = (v: string) => (v || '').replace(/\n/g, '');
         let formattedContent = '';
 
         if (!state.isTemplateEnabled || state.selectedTemplate === 'none') {
@@ -303,13 +304,13 @@ export const useLogStore = create<LogStore>()(
             case '대인관계':
               formattedContent = [
                 state.interpersonData.situation &&
-                  `상황 - ${state.interpersonData.situation}`,
+                  `상황 - ${toLine(state.interpersonData.situation)}`,
                 state.interpersonData.response &&
-                  `나의 반응 - ${state.interpersonData.response}`,
+                  `나의 반응 - ${toLine(state.interpersonData.response)}`,
                 state.interpersonData.result &&
-                  `결과 - ${state.interpersonData.result}`,
+                  `결과 - ${toLine(state.interpersonData.result)}`,
                 state.interpersonData.lesson &&
-                  `배운 점 - ${state.interpersonData.lesson}`,
+                  `배운 점 - ${toLine(state.interpersonData.lesson)}`,
               ]
                 .filter(Boolean)
                 .join('\n');
@@ -317,13 +318,13 @@ export const useLogStore = create<LogStore>()(
             case '문제해결':
               formattedContent = [
                 state.problemSolveData.problem &&
-                  `문제 - ${state.problemSolveData.problem}`,
+                  `문제 - ${toLine(state.problemSolveData.problem)}`,
                 state.problemSolveData.attempt &&
-                  `시도 - ${state.problemSolveData.attempt}`,
+                  `시도 - ${toLine(state.problemSolveData.attempt)}`,
                 state.problemSolveData.result &&
-                  `결과 - ${state.problemSolveData.result}`,
+                  `결과 - ${toLine(state.problemSolveData.result)}`,
                 state.problemSolveData.lesson &&
-                  `배운 점 - ${state.problemSolveData.lesson}`,
+                  `배운 점 - ${toLine(state.problemSolveData.lesson)}`,
               ]
                 .filter(Boolean)
                 .join('\n');
@@ -331,11 +332,11 @@ export const useLogStore = create<LogStore>()(
             case '학습':
               formattedContent = [
                 state.learningData.path &&
-                  `학습 경로 - ${state.learningData.path}`,
+                  `학습 경로 - ${toLine(state.learningData.path)}`,
                 state.learningData.learned &&
-                  `배운 내용 - ${state.learningData.learned}`,
+                  `배운 내용 - ${toLine(state.learningData.learned)}`,
                 state.learningData.plan &&
-                  `적용 계획 - ${state.learningData.plan}`,
+                  `적용 계획 - ${toLine(state.learningData.plan)}`,
               ]
                 .filter(Boolean)
                 .join('\n');
@@ -343,13 +344,13 @@ export const useLogStore = create<LogStore>()(
             case '레퍼런스':
               formattedContent = [
                 state.referenceData.source &&
-                  `출처 - ${state.referenceData.source}`,
+                  `출처 - ${toLine(state.referenceData.source)}`,
                 state.referenceData.content &&
-                  `내용 - ${state.referenceData.content}`,
+                  `내용 - ${toLine(state.referenceData.content)}`,
                 state.referenceData.thought &&
-                  `생각 - ${state.referenceData.thought}`,
+                  `생각 - ${toLine(state.referenceData.thought)}`,
                 state.referenceData.plan &&
-                  `적용 계획 - ${state.referenceData.plan}`,
+                  `적용 계획 - ${toLine(state.referenceData.plan)}`,
               ]
                 .filter(Boolean)
                 .join('\n');
