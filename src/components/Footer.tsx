@@ -8,7 +8,7 @@ export default function Footer() {
         <div className='flex w-full flex-col gap-[1.25rem]'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-[5rem] text-[1rem] leading-[150%]'>
-              <p className='cursor-pointer font-bold'>서비스</p>
+              <p className='font-bold'>서비스</p>
               <Link href='/log' className='cursor-pointer'>
                 인사이트 로그
               </Link>
