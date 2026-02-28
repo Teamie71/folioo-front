@@ -107,8 +107,9 @@ export default function LogPage() {
     }
   };
 
-  // 로그 삭제 모달 열기 핸들러
+  // 로그 삭제 모달 열기 핸들러: 상세 모달은 먼저 닫기
   const handleOpenDeleteModal = () => {
+    setIsModalOpen(false);
     setDeleteLogError(null);
     setIsDeleteModalOpen(true);
   };
@@ -210,9 +211,7 @@ export default function LogPage() {
               onChange={(value) => setFormField('activityName', value)}
               dropdownItems={activities}
               activityCountError={
-                activities.length > 10
-                  ? '최대 10개까지만 등록 가능해요.'
-                  : null
+                activities.length > 10 ? '최대 10개까지만 등록 가능해요.' : null
               }
             />
           </div>
