@@ -36,7 +36,7 @@ export const ChatCompleteModal = ({
 
         <div className='flex justify-center gap-[1.5rem]'>
           <button
-            className='w-[14.875rem] cursor-pointer rounded-[0.5rem] border border-[#74777D] bg-white px-[2.25rem] py-[0.75rem] text-[0.875rem] text-[#1A1A1A] hover:bg-[#F6F8FA]'
+            className='w-[15rem] cursor-pointer rounded-[0.5rem] border border-[#74777D] bg-white px-[2.25rem] py-[0.75rem] text-[0.875rem] text-[#1A1A1A] hover:bg-[#F6F8FA]'
             onClick={onEndConversation}
           >
             대화 종료하고
@@ -44,7 +44,7 @@ export const ChatCompleteModal = ({
             텍스트형 포트폴리오 생성하기
           </button>
           <button
-            className='w-[14.875rem] cursor-pointer rounded-[0.5rem] border border-[#74777D] bg-white px-[2.25rem] py-[0.75rem] text-[0.875rem] text-[#1A1A1A] hover:bg-[#F6F8FA]'
+            className='w-[15rem] cursor-pointer rounded-[0.5rem] border border-[#74777D] bg-white px-[2.25rem] py-[0.75rem] text-[0.875rem] text-[#1A1A1A] hover:bg-[#F6F8FA]'
             onClick={onContinueWithCredits}
           >
             3턴의 대화 계속하기
