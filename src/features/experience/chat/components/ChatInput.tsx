@@ -107,7 +107,14 @@ export const ChatInput = ({
   }, [files]);
 
   const handleInput = () => {
-    const text = contentRef.current?.textContent || '';
+    const el = contentRef.current;
+    const text = el?.textContent || '';
+
+    // 내용이 완전히 비어 있으면 DOM도 비움 :empty placeholder가 다시 보이도록 처리
+    if (el && text.length === 0) {
+      el.innerHTML = '';
+    }
+
     onChange?.(text);
 
     // @ 입력 감지
