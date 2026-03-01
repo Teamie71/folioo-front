@@ -120,6 +120,7 @@ interface LogStore {
     data: ReferenceData | ((prev: ReferenceData) => ReferenceData),
   ) => void;
   getFormattedContent: () => string;
+  getCurrentTemplateFields: () => string[];
 
   // 로그 Actions
   addLog: (log: LogCardData) => void;
@@ -252,10 +253,7 @@ export const useLogStore = create<LogStore>()(
       setIsTemplateEnabled: (enabled) =>
         set((state) => {
           if (!enabled) {
-            return {
-              isTemplateEnabled: false,
-              selectedTemplate: 'none',
-            };
+            return { isTemplateEnabled: false };
           }
           return { isTemplateEnabled: enabled };
         }),
@@ -296,6 +294,7 @@ export const useLogStore = create<LogStore>()(
 
       getFormattedContent: () => {
         const state = get();
+        const toLine = (v: string) => (v || '').replace(/\n/g, '');
         let formattedContent = '';
 
         if (!state.isTemplateEnabled || state.selectedTemplate === 'none') {
@@ -305,13 +304,13 @@ export const useLogStore = create<LogStore>()(
             case '대인관계':
               formattedContent = [
                 state.interpersonData.situation &&
-                  `상황 - ${state.interpersonData.situation}`,
+                  `상황/대상 - ${toLine(state.interpersonData.situation)}`,
                 state.interpersonData.response &&
-                  `나의 반응 - ${state.interpersonData.response}`,
+                  `대응 - ${toLine(state.interpersonData.response)}`,
                 state.interpersonData.result &&
-                  `결과 - ${state.interpersonData.result}`,
+                  `결과 - ${toLine(state.interpersonData.result)}`,
                 state.interpersonData.lesson &&
-                  `배운 점 - ${state.interpersonData.lesson}`,
+                  `배운 점/계획 - ${toLine(state.interpersonData.lesson)}`,
               ]
                 .filter(Boolean)
                 .join('\n');
@@ -319,13 +318,13 @@ export const useLogStore = create<LogStore>()(
             case '문제해결':
               formattedContent = [
                 state.problemSolveData.problem &&
-                  `문제 - ${state.problemSolveData.problem}`,
+                  `문제 상황 - ${toLine(state.problemSolveData.problem)}`,
                 state.problemSolveData.attempt &&
-                  `시도 - ${state.problemSolveData.attempt}`,
+                  `해결 시도 - ${toLine(state.problemSolveData.attempt)}`,
                 state.problemSolveData.result &&
-                  `결과 - ${state.problemSolveData.result}`,
+                  `결과 - ${toLine(state.problemSolveData.result)}`,
                 state.problemSolveData.lesson &&
-                  `배운 점 - ${state.problemSolveData.lesson}`,
+                  `배운 점/계획 - ${toLine(state.problemSolveData.lesson)}`,
               ]
                 .filter(Boolean)
                 .join('\n');
@@ -333,11 +332,11 @@ export const useLogStore = create<LogStore>()(
             case '학습':
               formattedContent = [
                 state.learningData.path &&
-                  `학습 경로 - ${state.learningData.path}`,
+                  `학습 경로 - ${toLine(state.learningData.path)}`,
                 state.learningData.learned &&
-                  `배운 내용 - ${state.learningData.learned}`,
+                  `배운 내용 - ${toLine(state.learningData.learned)}`,
                 state.learningData.plan &&
-                  `적용 계획 - ${state.learningData.plan}`,
+                  `적용 계획 - ${toLine(state.learningData.plan)}`,
               ]
                 .filter(Boolean)
                 .join('\n');
@@ -345,13 +344,13 @@ export const useLogStore = create<LogStore>()(
             case '레퍼런스':
               formattedContent = [
                 state.referenceData.source &&
-                  `출처 - ${state.referenceData.source}`,
+                  `출처 - ${toLine(state.referenceData.source)}`,
                 state.referenceData.content &&
-                  `내용 - ${state.referenceData.content}`,
+                  `내용 - ${toLine(state.referenceData.content)}`,
                 state.referenceData.thought &&
-                  `생각 - ${state.referenceData.thought}`,
+                  `나의 생각 - ${toLine(state.referenceData.thought)}`,
                 state.referenceData.plan &&
-                  `적용 계획 - ${state.referenceData.plan}`,
+                  `적용 계획 - ${toLine(state.referenceData.plan)}`,
               ]
                 .filter(Boolean)
                 .join('\n');
@@ -363,6 +362,47 @@ export const useLogStore = create<LogStore>()(
         }
 
         return formattedContent;
+      },
+
+      getCurrentTemplateFields: () => {
+        const state = get();
+        if (
+          state.selectedTemplate === 'none' ||
+          state.selectedTemplate === '기타'
+        ) {
+          return [state.noTemplateContent];
+        }
+        switch (state.selectedTemplate) {
+          case '대인관계':
+            return [
+              state.interpersonData.situation,
+              state.interpersonData.response,
+              state.interpersonData.result,
+              state.interpersonData.lesson,
+            ];
+          case '문제해결':
+            return [
+              state.problemSolveData.problem,
+              state.problemSolveData.attempt,
+              state.problemSolveData.result,
+              state.problemSolveData.lesson,
+            ];
+          case '학습':
+            return [
+              state.learningData.path,
+              state.learningData.learned,
+              state.learningData.plan,
+            ];
+          case '레퍼런스':
+            return [
+              state.referenceData.source,
+              state.referenceData.content,
+              state.referenceData.thought,
+              state.referenceData.plan,
+            ];
+          default:
+            return [state.noTemplateContent];
+        }
       },
 
       // 로그 Actions

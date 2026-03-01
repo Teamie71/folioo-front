@@ -1,8 +1,16 @@
 import { SearchIcon } from './icons/SearchIcon';
 
-export const SearchButton = () => {
+interface SearchButtonProps {
+  onClick?: () => void;
+}
+
+export const SearchButton = ({ onClick }: SearchButtonProps) => {
   return (
-    <button className='flex cursor-pointer justify-center border-none bg-transparent'>
+    <button
+      type='button'
+      className='flex cursor-pointer justify-center border-none bg-transparent'
+      onClick={onClick}
+    >
       <SearchIcon />
     </button>
   );

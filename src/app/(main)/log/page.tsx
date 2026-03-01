@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { CommonButton } from '@/components/CommonButton';
+import { ButtonSpinnerIcon } from '@/components/icons/ButtonSpinnerIcon';
 import EtcIcon from '@/components/icons/EtcIcon';
 import { InsightLogIcon } from '@/components/icons/InsightLogIcon';
 import InterpersonIcon from '@/components/icons/InterpersonIcon';
@@ -45,17 +46,27 @@ export default function LogPage() {
   } = useLogStore();
 
   const queryClient = useQueryClient();
-  const [keyword, setKeyword] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [submittedKeyword, setSubmittedKeyword] = useState('');
   const { activities } = useActivityTags();
   const { logCards, isLoading } = useLogs({
-    keyword,
+    keyword: submittedKeyword,
     categoryId: selectedCategoryId,
     activityId: selectedActivityId,
   });
+
+  const applySearch = () => {
+    setSubmittedKeyword(searchInput.trim());
+  };
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const { errors, isSubmitting, handleSubmit } = useLogFormSubmit(
     logCards.map((log) => log.title),
-    { onLogCreated: () => setIsCompleteModalOpen(true) },
+    {
+      onLogCreated: () => {
+        useLogStore.getState().resetForm();
+        setIsCompleteModalOpen(true);
+      },
+    },
   );
 
   // 모달 상태
@@ -107,8 +118,9 @@ export default function LogPage() {
     }
   };
 
-  // 로그 삭제 모달 열기 핸들러
+  // 로그 삭제 모달 열기 핸들러: 상세 모달은 먼저 닫기
   const handleOpenDeleteModal = () => {
+    setIsModalOpen(false);
     setDeleteLogError(null);
     setIsDeleteModalOpen(true);
   };
@@ -135,11 +147,17 @@ export default function LogPage() {
   };
 
   const categories = [
+    { id: '', label: '카테고리 선택' },
     { id: 'interperson', label: '대인관계', icon: <InterpersonIcon /> },
     { id: 'problem-solve', label: '문제해결', icon: <ProblemSolveIcon /> },
     { id: 'learning', label: '학습', icon: <LearningIcon /> },
     { id: 'reference', label: '레퍼런스', icon: <ReferenceIcon /> },
     { id: 'etc', label: '기타', icon: <EtcIcon /> },
+  ];
+
+  const activityFilterItems = [
+    { id: '', label: '활동 분류 선택' },
+    ...activities,
   ];
 
   return (
@@ -170,10 +188,22 @@ export default function LogPage() {
             variantType='Primary'
             px='2.25rem'
             py='0.75rem'
+            style={{ width: '10rem', height: '3rem' }}
+            className={
+              isSubmitting
+                ? '!bg-[#5060C5] disabled:!bg-[#5060C5] disabled:hover:!bg-[#404D9E]'
+                : undefined
+            }
             onClick={handleSubmit}
             disabled={isSubmitting}
           >
-            {isSubmitting ? '등록 중...' : '로그 등록하기'}
+            {isSubmitting ? (
+              <span className='flex items-center justify-center'>
+                <ButtonSpinnerIcon size={32} />
+              </span>
+            ) : (
+              '로그 등록하기'
+            )}
           </CommonButton>
         </div>
 
@@ -210,9 +240,7 @@ export default function LogPage() {
               onChange={(value) => setFormField('activityName', value)}
               dropdownItems={activities}
               activityCountError={
-                activities.length > 10
-                  ? '최대 10개까지만 등록 가능해요.'
-                  : null
+                activities.length > 10 ? '최대 10개까지만 등록 가능해요.' : null
               }
             />
           </div>
@@ -247,17 +275,23 @@ export default function LogPage() {
         <div className='flex flex-col gap-[2.25rem]'>
           <span className='text-[1.25rem] font-bold'>나의 로그</span>
           <div className='flex items-center gap-[1.5rem]'>
-            {/* 검색 */}
+            {/* 검색: Enter 또는 검색 아이콘 클릭 시 제목/내용 기준 검색, 공란 시 전체 표시 */}
             <div className='relative flex items-center'>
               <input
                 className='w-[32.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
                 placeholder='검색어를 입력하세요.'
                 maxLength={100}
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    applySearch();
+                  }
+                }}
               />
               <div className='absolute right-[1.25rem]'>
-                <SearchButton />
+                <SearchButton onClick={applySearch} />
               </div>
             </div>
 
@@ -265,7 +299,7 @@ export default function LogPage() {
             <div className='relative flex items-center'>
               <div className='w-[15.375rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'>
                 <span
-                  className={`text-[1rem] ${categories.find((cat) => cat.id === selectedCategoryId) ? 'text-[#000000]' : 'text-[#74777D]'}`}
+                  className={`text-[1rem] ${selectedCategoryId ? 'text-[#000000]' : 'text-[#74777D]'}`}
                 >
                   {categories.find((cat) => cat.id === selectedCategoryId)
                     ?.label || '카테고리 선택'}
@@ -285,15 +319,16 @@ export default function LogPage() {
             <div className='relative flex items-center'>
               <div className='w-[15.375rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'>
                 <span
-                  className={`text-[1rem] ${activities.find((act) => act.id === selectedActivityId) ? 'text-[#000000]' : 'text-[#74777D]'}`}
+                  className={`text-[1rem] ${selectedActivityId ? 'text-[#000000]' : 'text-[#74777D]'}`}
                 >
-                  {activities.find((act) => act.id === selectedActivityId)
-                    ?.label || '활동 분류 선택'}
+                  {activityFilterItems.find(
+                    (act) => act.id === selectedActivityId,
+                  )?.label || '활동 분류 선택'}
                 </span>
               </div>
               <div className='absolute right-[1.25rem]'>
                 <DropdownButton
-                  items={activities}
+                  items={activityFilterItems}
                   value={selectedActivityId}
                   onChange={setSelectedActivityId}
                   menuWidth='15.375rem'
@@ -305,13 +340,11 @@ export default function LogPage() {
 
         {/* 카드 */}
         <div className='grid grid-cols-2 gap-[1.5rem]'>
-          {isLoading ? (
-            <div className='col-span-2 mt-[5rem] text-center text-[1.125rem] text-[#9EA4A9]'>
-              로딩 중...
-            </div>
-          ) : logCards.length === 0 ? (
+          {logCards.length === 0 ? (
             <div className='col-span-2 mt-[5rem] flex items-center justify-center text-center text-[1.125rem] leading-[130%] font-bold text-[#9EA4A9]'>
-              {keyword.trim() || selectedCategoryId || selectedActivityId ? (
+              {submittedKeyword.trim() ||
+              selectedCategoryId ||
+              selectedActivityId ? (
                 <>앗, 일치하는 결과가 없어요.</>
               ) : (
                 <>

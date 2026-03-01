@@ -25,7 +25,7 @@ export function LogDeleteModal({
       }}
       title='이 로그를 정말 삭제하시겠습니까?'
       cancelBtnText='취소'
-      secondaryBtnText={isDeleting ? '삭제 중...' : '삭제'}
+      secondaryBtnText='삭제'
       onSecondaryClick={isDeleting ? () => {} : onConfirm}
       onCancelClick={() => onOpenChange(false)}
     >
