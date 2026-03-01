@@ -28,9 +28,9 @@ export default function ExperiencePage() {
                 <span className='text-[1.5rem] font-bold'>경험 정리</span>
               </div>
               <span className='text-[1.125rem] leading-[150%] text-[#464B53]'>
-                AI 비서 티미와의 채팅을 통해 경험을 체계적으로 정리해보세요.
+                AI 컨설턴트와의 대화를 통해 경험을 정리해 보세요.
                 <br />
-                채팅이 종료되면, 텍스트형 포트폴리오가 생성됩니다.
+                대화가 끝나면 포트폴리오가 완성돼요.
               </span>
             </div>
           </div>
