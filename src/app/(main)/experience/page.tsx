@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import InputArea from '@/components/InputArea';
 import { ExperienceIcon } from '@/components/icons/ExperienceIcon';
 import { SearchButton } from '@/components/SearchButton';
@@ -5,6 +8,13 @@ import { ExperienceCardSection } from '@/features/experience/components/Experien
 import { NewExperienceStartButton } from '@/features/experience/components/NewExperienceStartButton';
 
 export default function ExperiencePage() {
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = () => {
+    setSearchQuery(searchInput.trim());
+  };
+
   return (
     <div className='flex flex-col gap-[4.5rem]'>
       {/* 경험정리 헤더 */}
@@ -39,13 +49,18 @@ export default function ExperiencePage() {
           <InputArea
             variant='rounded'
             placeholder='검색어를 입력하세요.'
-            rightElement={<SearchButton />}
+            rightElement={<SearchButton onClick={handleSearch} />}
             maxLength={20}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSearch();
+            }}
           />
         </div>
 
         {/* 나의 경험 카드 */}
-        <ExperienceCardSection />
+        <ExperienceCardSection searchQuery={searchQuery} />
       </div>
     </div>
   );
