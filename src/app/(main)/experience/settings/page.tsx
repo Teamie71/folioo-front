@@ -7,9 +7,11 @@ import { CommonModal } from '@/components/CommonModal';
 import { StepProgressBar } from '@/components/StepProgressBar';
 import { ExperienceSettingsForm } from '@/features/experience/settings/components/ExperienceSettingsForm';
 import { ExperienceSettingsChatStart } from '@/features/experience/settings/components/ExperienceSettingsChatStart';
+import { useExperienceStore } from '@/store/useExperienceStore';
 
 export default function ExperienceSettingsPage() {
   const router = useRouter();
+  const resetForm = useExperienceStore((state) => state.resetForm);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [errors, setErrors] = useState<
     Partial<Record<'experienceName' | 'desiredJob', string>>
@@ -52,7 +54,10 @@ export default function ExperienceSettingsPage() {
         secondaryBtnText='그만두기'
         primaryBtnVariant='outline'
         cancelBtnText='취소'
-        onSecondaryClick={() => router.back()}
+        onSecondaryClick={() => {
+          resetForm();
+          router.back();
+        }}
       />
     </div>
   );
