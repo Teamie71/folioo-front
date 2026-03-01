@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { FEEDBACK_FORM_URL } from '@/constants/feedback';
 
 export default function Footer() {
   return (
@@ -21,7 +22,7 @@ export default function Footer() {
             </div>
 
             <a
-              href='https://docs.google.com/forms/d/e/1FAIpQLSfy8hyVhhXV-Z_uTleskSlSILYyfVDlAy_eO_ixFqjjzo6gew/viewform?usp=dialog'
+              href={FEEDBACK_FORM_URL}
               target='_blank'
               rel='noopener noreferrer'
               className='cursor-pointer rounded-[0.375rem] border-[0.09375rem] border-[#9EA4A9] bg-[#ffffff] px-[1.5rem] py-[0.375rem] text-[1rem] font-semibold hover:bg-[#F6F8FA]'

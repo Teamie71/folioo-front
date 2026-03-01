@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/CheckBox';
 import { Dropdown } from '@/components/Dropdown';
 import TextField from '@/components/TextField';
 import { CommonModal } from '@/components/CommonModal';
+import { FEEDBACK_FORM_URL } from '@/constants/feedback';
 import { getMe } from '@/services/user';
 
 export default function WithdrawPage() {
@@ -273,12 +274,10 @@ export default function WithdrawPage() {
                 어떨까요?
               </p>
               <a
-                href='#'
+                href={FEEDBACK_FORM_URL}
+                target='_blank'
+                rel='noopener noreferrer'
                 className='mt-[2rem] inline-block text-[1rem] text-[#1A1A1A] underline underline-offset-[3px]'
-                onClick={(e) => {
-                  e.preventDefault();
-                  // TODO: 피드백 페이지로 이동
-                }}
               >
                 피드백 남기러 가기 →
               </a>

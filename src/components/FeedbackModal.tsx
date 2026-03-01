@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { CommonModal } from '@/components/CommonModal';
+import { openFeedbackForm } from '@/constants/feedback';
 
 interface FeedbackModalProps {
   open: boolean;
@@ -19,6 +20,12 @@ export function FeedbackModal({
 }: FeedbackModalProps) {
   const router = useRouter();
 
+  const handleFeedbackClick = () => {
+    onOpenChange(false);
+    openFeedbackForm();
+    onFeedbackClick();
+  };
+
   const handleTopupClick = () => {
     onOpenChange(false);
     router.replace('/topup?noBack=1');
@@ -29,7 +36,7 @@ export function FeedbackModal({
       open={open}
       onOpenChange={onOpenChange}
       primaryBtnText='피드백 남기기'
-      onPrimaryClick={onFeedbackClick}
+      onPrimaryClick={handleFeedbackClick}
       footer={
         <div className='flex flex-col items-start gap-[0.75rem]'>
           <CommonButton
@@ -37,7 +44,7 @@ export function FeedbackModal({
             px='1.5rem'
             py='0.375rem'
             className='rounded-[0.375rem] hover:bg-[#E8EBFF]'
-            onClick={onFeedbackClick}
+            onClick={handleFeedbackClick}
           >
             피드백 남기기
           </CommonButton>

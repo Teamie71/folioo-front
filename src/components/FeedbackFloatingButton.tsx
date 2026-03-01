@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { OBTFeedbackModal } from '@/components/OBT/OBTFeedbackModal';
+import { openFeedbackForm } from '@/constants/feedback';
 
 export const FeedbackFloatingButton = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -10,7 +11,7 @@ export const FeedbackFloatingButton = () => {
 
   const handleFeedbackClick = () => {
     setModalOpen(false);
-    // TODO: 피드백 페이지로 이동 (외부 링크 또는 내부 경로)
+    openFeedbackForm();
   };
 
   return (
