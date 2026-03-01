@@ -74,7 +74,12 @@ export function ContributionSection({
   }, [isEditing, handleInputSubmit]);
 
   return (
-    <div className={cn('flex w-auto items-center gap-[1.5rem]', className)}>
+    <div
+      className={cn(
+        'group flex w-auto items-center gap-[1.5rem]',
+        className,
+      )}
+    >
       <p className='text-[1.125rem] font-bold text-[#1A1A1A]'>기여도</p>
 
       <div
@@ -140,7 +145,12 @@ export function ContributionSection({
         </span>
       )}
 
-      <div className='flex items-center text-center'>
+      <div
+        className={cn(
+          'flex items-center text-center transition-opacity',
+          !isEditing && 'opacity-0 group-hover:opacity-100',
+        )}
+      >
         <ModifyButton
           isModifying={isEditing}
           onClick={() => {
