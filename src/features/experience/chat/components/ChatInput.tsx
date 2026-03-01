@@ -29,7 +29,7 @@ interface ChatInputProps {
   onSend?: (payload: { content: string; files: FileItem[] }) => void;
 }
 
-const MAX_TITLE_LENGTH = 20;
+const MAX_TITLE_LENGTH = 15;
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
