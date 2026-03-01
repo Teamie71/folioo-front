@@ -29,9 +29,14 @@ export const BannerBeta = () => {
         </div>
 
         <div className='flex items-center gap-[3.75rem]'>
-          <p className='cursor-pointer text-[1rem] font-semibold text-[#5060C5] underline'>
+          <a
+            href='https://docs.google.com/forms/d/e/1FAIpQLSfy8hyVhhXV-Z_uTleskSlSILYyfVDlAy_eO_ixFqjjzo6gew/viewform'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='cursor-pointer text-[1rem] font-semibold text-[#5060C5] underline hover:opacity-90'
+          >
             피드백 남기기 →
-          </p>
+          </a>
           <button
             type='button'
             className='cursor-pointer'

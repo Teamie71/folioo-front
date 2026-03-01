@@ -3,10 +3,20 @@
 import { useState } from 'react';
 import { BackButton } from '@/components/BackButton';
 import { PaymentIcon } from '@/components/icons/PaymentIcon';
+import { BankDropdown } from '@/features/invoice/refund/components/BankDropdown';
 import { RefundReasonDropdown } from '@/features/invoice/refund/components/RefundReasonDropdown';
 
 export default function InvoiceRefundPage() {
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
+  const [selectedBank, setSelectedBank] = useState<string | null>(null);
+  const [accountHolder, setAccountHolder] = useState('');
+  const [accountNumber, setAccountNumber] = useState('');
+
+  const canSubmit =
+    !!selectedReason &&
+    !!selectedBank &&
+    accountHolder.trim() !== '' &&
+    accountNumber.trim() !== '';
 
   return (
     <div className='mx-auto flex w-[66rem] min-w-[66rem] flex-col gap-[3.75rem] pt-[3.75rem] pb-[6.25rem]'>
@@ -72,10 +82,6 @@ export default function InvoiceRefundPage() {
                 <span>총 결제 금액</span>
                 <span>00,000원</span>
               </div>
-              <div className='flex justify-between text-[1.125rem]'>
-                <span>사용 완료한 금액</span>
-                <span>-00,000원</span>
-              </div>
             </div>
           </div>
         </div>
@@ -99,9 +105,7 @@ export default function InvoiceRefundPage() {
             <span className='text-[1.125rem] font-semibold text-[#1A1A1A]'>
               은행명
             </span>
-            <button className='w-[28.75rem] cursor-pointer rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-start text-[#74777D]'>
-              선택
-            </button>
+            <BankDropdown value={selectedBank} onChange={setSelectedBank} />
           </div>
 
           {/* 예금주 */}
@@ -110,6 +114,8 @@ export default function InvoiceRefundPage() {
               예금주
             </span>
             <input
+              value={accountHolder}
+              onChange={(e) => setAccountHolder(e.target.value)}
               className='w-[28.75rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-start text-[#74777D]'
               placeholder='실명 입력'
             />
@@ -122,6 +128,8 @@ export default function InvoiceRefundPage() {
             계좌번호
           </span>
           <input
+            value={accountNumber}
+            onChange={(e) => setAccountNumber(e.target.value)}
             className='w-full rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem] text-start text-[#74777D]'
             placeholder='- 없이 숫자만 입력해주세요.'
           />
@@ -147,7 +155,9 @@ export default function InvoiceRefundPage() {
           onChange={setSelectedReason}
         />
 
-        <div className='h-[3.75rem] cursor-pointer rounded-[0.75rem] bg-[#5060C5] px-[12.875rem] py-[1.125rem] text-[1.125rem] font-bold text-[#ffffff]'>
+        <div
+          className={`h-[3.75rem] rounded-[0.75rem] px-[12.875rem] py-[1.125rem] text-[1.125rem] font-bold text-[#ffffff] ${canSubmit ? 'cursor-pointer bg-[#5060C5]' : 'cursor-default bg-[#CDD0D5] pointer-events-none'}`}
+        >
           환불 신청 하기
         </div>
       </div>

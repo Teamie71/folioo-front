@@ -8,7 +8,7 @@ export default function Footer() {
         <div className='flex w-full flex-col gap-[1.25rem]'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-[5rem] text-[1rem] leading-[150%]'>
-              <p className='cursor-pointer font-bold'>서비스</p>
+              <p className='font-bold'>서비스</p>
               <Link href='/log' className='cursor-pointer'>
                 인사이트 로그
               </Link>
@@ -75,11 +75,20 @@ export default function Footer() {
 
         <div className='flex flex-col gap-[0.75rem]'>
           <div className='flex items-center gap-[1.25rem] text-[1rem] leading-[150%] text-[#74777D]'>
-            <p className='cursor-pointer font-bold'>개인정보 처리방침</p>
+            <Link
+              href='/privacy'
+              className='cursor-pointer font-bold hover:underline'
+            >
+              개인정보 처리방침
+            </Link>
             <div className='h-[1.25rem] border border-[#CDD0D5]' />
-            <p className='cursor-pointer'>서비스 이용약관</p>
+            <Link href='/tos' className='cursor-pointer hover:underline'>
+              서비스 이용약관
+            </Link>
             <div className='h-[1.25rem] border border-[#CDD0D5]' />
-            <p className='cursor-pointer'>마케팅 정보 수신</p>
+            <Link href='/marketing' className='cursor-pointer hover:underline'>
+              마케팅 정보 수신
+            </Link>
           </div>
           <p className='text-[0.875rem] leading-[150%] text-[#74777D]'>
             Copyright © 2026 Teamie. All rights reserved.
