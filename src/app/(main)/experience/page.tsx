@@ -40,6 +40,7 @@ export default function ExperiencePage() {
             variant='rounded'
             placeholder='검색어를 입력하세요.'
             rightElement={<SearchButton />}
+            maxLength={20}
           />
         </div>
 
