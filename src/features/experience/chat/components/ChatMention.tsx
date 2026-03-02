@@ -165,8 +165,12 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
               </div>
             ))
           ) : (
-            <div className='flex flex-1 items-center justify-center text-[0.875rem] text-[#9EA4A9]'>
-              해당 카테고리의 인사이트 로그가 없습니다.
+            <div className='flex flex-1 items-center justify-center text-center text-[0.875rem] font-semibold leading-[150%] text-[#9EA4A9]'>
+              <p>
+                아직 작성한 로그가 없어요.
+                <br />
+                이 경험에서 얻은 인사이트를 채팅으로 알려주세요!
+              </p>
             </div>
           )}
         </div>
