@@ -6,7 +6,8 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface MapCorrectionWithPortfoliosReqDTO {
-  /** @minItems 1 */
-  portfolioIds: number[];
-}
+/**
+ * 소셜 계정 이메일
+ * @nullable
+ */
+export type UserSocialAccountResDTOSocialEmail = { [key: string]: unknown } | null;

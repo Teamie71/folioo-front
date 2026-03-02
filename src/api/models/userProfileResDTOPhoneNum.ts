@@ -6,7 +6,8 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface MapCorrectionWithPortfoliosReqDTO {
-  /** @minItems 1 */
-  portfolioIds: number[];
-}
+/**
+ * 사용자 전화번호
+ * @nullable
+ */
+export type UserProfileResDTOPhoneNum = { [key: string]: unknown } | null;

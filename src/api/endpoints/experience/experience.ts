@@ -35,7 +35,10 @@ import type {
   UpdateExperienceReqDTO
 } from '../../models';
 
+import { customInstance } from '../../../lib/axios';
 
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 
@@ -82,7 +85,7 @@ export const getExperienceControllerCreateExperienceUrl = () => {
 
 export const experienceControllerCreateExperience = async (createExperienceReqDTO: CreateExperienceReqDTO, options?: RequestInit): Promise<experienceControllerCreateExperienceResponse> => {
   
-  const res = await fetch(getExperienceControllerCreateExperienceUrl(),
+  return customInstance<experienceControllerCreateExperienceResponse>(getExperienceControllerCreateExperienceUrl(),
   {      
     ...options,
     method: 'POST',
@@ -90,27 +93,21 @@ export const experienceControllerCreateExperience = async (createExperienceReqDT
     body: JSON.stringify(
       createExperienceReqDTO,)
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: experienceControllerCreateExperienceResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as experienceControllerCreateExperienceResponse
-}
+);}
   
 
 
 
 export const getExperienceControllerCreateExperienceMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof experienceControllerCreateExperience>>, TError,{data: CreateExperienceReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof experienceControllerCreateExperience>>, TError,{data: CreateExperienceReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof experienceControllerCreateExperience>>, TError,{data: CreateExperienceReqDTO}, TContext> => {
 
 const mutationKey = ['experienceControllerCreateExperience'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -118,7 +115,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof experienceControllerCreateExperience>>, {data: CreateExperienceReqDTO}> = (props) => {
           const {data} = props ?? {};
 
-          return  experienceControllerCreateExperience(data,fetchOptions)
+          return  experienceControllerCreateExperience(data,requestOptions)
         }
 
 
@@ -136,7 +133,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 새로운 경험 정리 시작하기
  */
 export const useExperienceControllerCreateExperience = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof experienceControllerCreateExperience>>, TError,{data: CreateExperienceReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof experienceControllerCreateExperience>>, TError,{data: CreateExperienceReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof experienceControllerCreateExperience>>,
         TError,
@@ -185,20 +182,14 @@ export const getExperienceControllerGetExperiencesUrl = (params?: ExperienceCont
 
 export const experienceControllerGetExperiences = async (params?: ExperienceControllerGetExperiencesParams, options?: RequestInit): Promise<experienceControllerGetExperiencesResponse> => {
   
-  const res = await fetch(getExperienceControllerGetExperiencesUrl(params),
+  return customInstance<experienceControllerGetExperiencesResponse>(getExperienceControllerGetExperiencesUrl(params),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: experienceControllerGetExperiencesResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as experienceControllerGetExperiencesResponse
-}
+);}
   
 
 
@@ -211,16 +202,16 @@ export const getExperienceControllerGetExperiencesQueryKey = (params?: Experienc
     }
 
     
-export const getExperienceControllerGetExperiencesQueryOptions = <TData = Awaited<ReturnType<typeof experienceControllerGetExperiences>>, TError = CommonResponse>(params?: ExperienceControllerGetExperiencesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof experienceControllerGetExperiences>>, TError, TData>>, fetch?: RequestInit}
+export const getExperienceControllerGetExperiencesQueryOptions = <TData = Awaited<ReturnType<typeof experienceControllerGetExperiences>>, TError = CommonResponse>(params?: ExperienceControllerGetExperiencesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof experienceControllerGetExperiences>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getExperienceControllerGetExperiencesQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof experienceControllerGetExperiences>>> = ({ signal }) => experienceControllerGetExperiences(params, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof experienceControllerGetExperiences>>> = ({ signal }) => experienceControllerGetExperiences(params, { signal, ...requestOptions });
 
       
 
@@ -240,7 +231,7 @@ export function useExperienceControllerGetExperiences<TData = Awaited<ReturnType
           TError,
           Awaited<ReturnType<typeof experienceControllerGetExperiences>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useExperienceControllerGetExperiences<TData = Awaited<ReturnType<typeof experienceControllerGetExperiences>>, TError = CommonResponse>(
@@ -250,11 +241,11 @@ export function useExperienceControllerGetExperiences<TData = Awaited<ReturnType
           TError,
           Awaited<ReturnType<typeof experienceControllerGetExperiences>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useExperienceControllerGetExperiences<TData = Awaited<ReturnType<typeof experienceControllerGetExperiences>>, TError = CommonResponse>(
- params?: ExperienceControllerGetExperiencesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof experienceControllerGetExperiences>>, TError, TData>>, fetch?: RequestInit}
+ params?: ExperienceControllerGetExperiencesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof experienceControllerGetExperiences>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -262,7 +253,7 @@ export function useExperienceControllerGetExperiences<TData = Awaited<ReturnType
  */
 
 export function useExperienceControllerGetExperiences<TData = Awaited<ReturnType<typeof experienceControllerGetExperiences>>, TError = CommonResponse>(
- params?: ExperienceControllerGetExperiencesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof experienceControllerGetExperiences>>, TError, TData>>, fetch?: RequestInit}
+ params?: ExperienceControllerGetExperiencesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof experienceControllerGetExperiences>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -314,20 +305,14 @@ export const getExperienceControllerGetExperienceUrl = (experienceId: number,) =
 
 export const experienceControllerGetExperience = async (experienceId: number, options?: RequestInit): Promise<experienceControllerGetExperienceResponse> => {
   
-  const res = await fetch(getExperienceControllerGetExperienceUrl(experienceId),
+  return customInstance<experienceControllerGetExperienceResponse>(getExperienceControllerGetExperienceUrl(experienceId),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: experienceControllerGetExperienceResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as experienceControllerGetExperienceResponse
-}
+);}
   
 
 
@@ -340,16 +325,16 @@ export const getExperienceControllerGetExperienceQueryKey = (experienceId: numbe
     }
 
     
-export const getExperienceControllerGetExperienceQueryOptions = <TData = Awaited<ReturnType<typeof experienceControllerGetExperience>>, TError = CommonResponse>(experienceId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof experienceControllerGetExperience>>, TError, TData>>, fetch?: RequestInit}
+export const getExperienceControllerGetExperienceQueryOptions = <TData = Awaited<ReturnType<typeof experienceControllerGetExperience>>, TError = CommonResponse>(experienceId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof experienceControllerGetExperience>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getExperienceControllerGetExperienceQueryKey(experienceId);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof experienceControllerGetExperience>>> = ({ signal }) => experienceControllerGetExperience(experienceId, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof experienceControllerGetExperience>>> = ({ signal }) => experienceControllerGetExperience(experienceId, { signal, ...requestOptions });
 
       
 
@@ -369,7 +354,7 @@ export function useExperienceControllerGetExperience<TData = Awaited<ReturnType<
           TError,
           Awaited<ReturnType<typeof experienceControllerGetExperience>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useExperienceControllerGetExperience<TData = Awaited<ReturnType<typeof experienceControllerGetExperience>>, TError = CommonResponse>(
@@ -379,11 +364,11 @@ export function useExperienceControllerGetExperience<TData = Awaited<ReturnType<
           TError,
           Awaited<ReturnType<typeof experienceControllerGetExperience>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useExperienceControllerGetExperience<TData = Awaited<ReturnType<typeof experienceControllerGetExperience>>, TError = CommonResponse>(
- experienceId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof experienceControllerGetExperience>>, TError, TData>>, fetch?: RequestInit}
+ experienceId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof experienceControllerGetExperience>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -391,7 +376,7 @@ export function useExperienceControllerGetExperience<TData = Awaited<ReturnType<
  */
 
 export function useExperienceControllerGetExperience<TData = Awaited<ReturnType<typeof experienceControllerGetExperience>>, TError = CommonResponse>(
- experienceId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof experienceControllerGetExperience>>, TError, TData>>, fetch?: RequestInit}
+ experienceId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof experienceControllerGetExperience>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -449,7 +434,7 @@ export const getExperienceControllerUpdateExperienceUrl = (experienceId: number,
 export const experienceControllerUpdateExperience = async (experienceId: number,
     updateExperienceReqDTO: UpdateExperienceReqDTO, options?: RequestInit): Promise<experienceControllerUpdateExperienceResponse> => {
   
-  const res = await fetch(getExperienceControllerUpdateExperienceUrl(experienceId),
+  return customInstance<experienceControllerUpdateExperienceResponse>(getExperienceControllerUpdateExperienceUrl(experienceId),
   {      
     ...options,
     method: 'PATCH',
@@ -457,27 +442,21 @@ export const experienceControllerUpdateExperience = async (experienceId: number,
     body: JSON.stringify(
       updateExperienceReqDTO,)
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: experienceControllerUpdateExperienceResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as experienceControllerUpdateExperienceResponse
-}
+);}
   
 
 
 
 export const getExperienceControllerUpdateExperienceMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof experienceControllerUpdateExperience>>, TError,{experienceId: number;data: UpdateExperienceReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof experienceControllerUpdateExperience>>, TError,{experienceId: number;data: UpdateExperienceReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof experienceControllerUpdateExperience>>, TError,{experienceId: number;data: UpdateExperienceReqDTO}, TContext> => {
 
 const mutationKey = ['experienceControllerUpdateExperience'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -485,7 +464,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof experienceControllerUpdateExperience>>, {experienceId: number;data: UpdateExperienceReqDTO}> = (props) => {
           const {experienceId,data} = props ?? {};
 
-          return  experienceControllerUpdateExperience(experienceId,data,fetchOptions)
+          return  experienceControllerUpdateExperience(experienceId,data,requestOptions)
         }
 
 
@@ -503,7 +482,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 경험 정리 수정
  */
 export const useExperienceControllerUpdateExperience = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof experienceControllerUpdateExperience>>, TError,{experienceId: number;data: UpdateExperienceReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof experienceControllerUpdateExperience>>, TError,{experienceId: number;data: UpdateExperienceReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof experienceControllerUpdateExperience>>,
         TError,

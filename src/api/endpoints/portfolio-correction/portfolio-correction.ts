@@ -28,6 +28,7 @@ import type {
   CommonResponse,
   CreateCorrectionReqDTO,
   MapCorrectionWithPortfoliosReqDTO,
+  PortfolioCorrectionControllerCreateCorrectionByAI200,
   PortfolioCorrectionControllerGetCompanyInsight200,
   PortfolioCorrectionControllerGetCorrection200,
   PortfolioCorrectionControllerGetCorrectionStatus200,
@@ -40,7 +41,10 @@ import type {
   UpdateCorrectionTitleReqDTO
 } from '../../models';
 
+import { customInstance } from '../../../lib/axios';
 
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 
@@ -84,20 +88,14 @@ export const getPortfolioCorrectionControllerGetCorrectionsUrl = (params?: Portf
 
 export const portfolioCorrectionControllerGetCorrections = async (params?: PortfolioCorrectionControllerGetCorrectionsParams, options?: RequestInit): Promise<portfolioCorrectionControllerGetCorrectionsResponse> => {
   
-  const res = await fetch(getPortfolioCorrectionControllerGetCorrectionsUrl(params),
+  return customInstance<portfolioCorrectionControllerGetCorrectionsResponse>(getPortfolioCorrectionControllerGetCorrectionsUrl(params),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: portfolioCorrectionControllerGetCorrectionsResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as portfolioCorrectionControllerGetCorrectionsResponse
-}
+);}
   
 
 
@@ -110,16 +108,16 @@ export const getPortfolioCorrectionControllerGetCorrectionsQueryKey = (params?: 
     }
 
     
-export const getPortfolioCorrectionControllerGetCorrectionsQueryOptions = <TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrections>>, TError = CommonResponse>(params?: PortfolioCorrectionControllerGetCorrectionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrections>>, TError, TData>>, fetch?: RequestInit}
+export const getPortfolioCorrectionControllerGetCorrectionsQueryOptions = <TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrections>>, TError = CommonResponse>(params?: PortfolioCorrectionControllerGetCorrectionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrections>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getPortfolioCorrectionControllerGetCorrectionsQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrections>>> = ({ signal }) => portfolioCorrectionControllerGetCorrections(params, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrections>>> = ({ signal }) => portfolioCorrectionControllerGetCorrections(params, { signal, ...requestOptions });
 
       
 
@@ -139,7 +137,7 @@ export function usePortfolioCorrectionControllerGetCorrections<TData = Awaited<R
           TError,
           Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrections>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function usePortfolioCorrectionControllerGetCorrections<TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrections>>, TError = CommonResponse>(
@@ -149,11 +147,11 @@ export function usePortfolioCorrectionControllerGetCorrections<TData = Awaited<R
           TError,
           Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrections>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function usePortfolioCorrectionControllerGetCorrections<TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrections>>, TError = CommonResponse>(
- params?: PortfolioCorrectionControllerGetCorrectionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrections>>, TError, TData>>, fetch?: RequestInit}
+ params?: PortfolioCorrectionControllerGetCorrectionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrections>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -161,7 +159,7 @@ export function usePortfolioCorrectionControllerGetCorrections<TData = Awaited<R
  */
 
 export function usePortfolioCorrectionControllerGetCorrections<TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrections>>, TError = CommonResponse>(
- params?: PortfolioCorrectionControllerGetCorrectionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrections>>, TError, TData>>, fetch?: RequestInit}
+ params?: PortfolioCorrectionControllerGetCorrectionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrections>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -218,7 +216,7 @@ export const getPortfolioCorrectionControllerCreateCorrectionUrl = () => {
 
 export const portfolioCorrectionControllerCreateCorrection = async (createCorrectionReqDTO: CreateCorrectionReqDTO, options?: RequestInit): Promise<portfolioCorrectionControllerCreateCorrectionResponse> => {
   
-  const res = await fetch(getPortfolioCorrectionControllerCreateCorrectionUrl(),
+  return customInstance<portfolioCorrectionControllerCreateCorrectionResponse>(getPortfolioCorrectionControllerCreateCorrectionUrl(),
   {      
     ...options,
     method: 'POST',
@@ -226,27 +224,21 @@ export const portfolioCorrectionControllerCreateCorrection = async (createCorrec
     body: JSON.stringify(
       createCorrectionReqDTO,)
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: portfolioCorrectionControllerCreateCorrectionResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as portfolioCorrectionControllerCreateCorrectionResponse
-}
+);}
   
 
 
 
 export const getPortfolioCorrectionControllerCreateCorrectionMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrection>>, TError,{data: CreateCorrectionReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrection>>, TError,{data: CreateCorrectionReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrection>>, TError,{data: CreateCorrectionReqDTO}, TContext> => {
 
 const mutationKey = ['portfolioCorrectionControllerCreateCorrection'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -254,7 +246,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrection>>, {data: CreateCorrectionReqDTO}> = (props) => {
           const {data} = props ?? {};
 
-          return  portfolioCorrectionControllerCreateCorrection(data,fetchOptions)
+          return  portfolioCorrectionControllerCreateCorrection(data,requestOptions)
         }
 
 
@@ -272,7 +264,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 첨삭 의뢰하기
  */
 export const usePortfolioCorrectionControllerCreateCorrection = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrection>>, TError,{data: CreateCorrectionReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrection>>, TError,{data: CreateCorrectionReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrection>>,
         TError,
@@ -319,20 +311,14 @@ export const getPortfolioCorrectionControllerGetCorrectionStatusUrl = (correctio
 
 export const portfolioCorrectionControllerGetCorrectionStatus = async (correctionId: number, options?: RequestInit): Promise<portfolioCorrectionControllerGetCorrectionStatusResponse> => {
   
-  const res = await fetch(getPortfolioCorrectionControllerGetCorrectionStatusUrl(correctionId),
+  return customInstance<portfolioCorrectionControllerGetCorrectionStatusResponse>(getPortfolioCorrectionControllerGetCorrectionStatusUrl(correctionId),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: portfolioCorrectionControllerGetCorrectionStatusResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as portfolioCorrectionControllerGetCorrectionStatusResponse
-}
+);}
   
 
 
@@ -345,16 +331,16 @@ export const getPortfolioCorrectionControllerGetCorrectionStatusQueryKey = (corr
     }
 
     
-export const getPortfolioCorrectionControllerGetCorrectionStatusQueryOptions = <TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrectionStatus>>, TError = CommonResponse>(correctionId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrectionStatus>>, TError, TData>>, fetch?: RequestInit}
+export const getPortfolioCorrectionControllerGetCorrectionStatusQueryOptions = <TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrectionStatus>>, TError = CommonResponse>(correctionId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrectionStatus>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getPortfolioCorrectionControllerGetCorrectionStatusQueryKey(correctionId);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrectionStatus>>> = ({ signal }) => portfolioCorrectionControllerGetCorrectionStatus(correctionId, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrectionStatus>>> = ({ signal }) => portfolioCorrectionControllerGetCorrectionStatus(correctionId, { signal, ...requestOptions });
 
       
 
@@ -374,7 +360,7 @@ export function usePortfolioCorrectionControllerGetCorrectionStatus<TData = Awai
           TError,
           Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrectionStatus>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function usePortfolioCorrectionControllerGetCorrectionStatus<TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrectionStatus>>, TError = CommonResponse>(
@@ -384,11 +370,11 @@ export function usePortfolioCorrectionControllerGetCorrectionStatus<TData = Awai
           TError,
           Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrectionStatus>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function usePortfolioCorrectionControllerGetCorrectionStatus<TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrectionStatus>>, TError = CommonResponse>(
- correctionId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrectionStatus>>, TError, TData>>, fetch?: RequestInit}
+ correctionId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrectionStatus>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -396,7 +382,7 @@ export function usePortfolioCorrectionControllerGetCorrectionStatus<TData = Awai
  */
 
 export function usePortfolioCorrectionControllerGetCorrectionStatus<TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrectionStatus>>, TError = CommonResponse>(
- correctionId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrectionStatus>>, TError, TData>>, fetch?: RequestInit}
+ correctionId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrectionStatus>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -453,34 +439,28 @@ export const getPortfolioCorrectionControllerCreateCompanyInsightUrl = (correcti
 
 export const portfolioCorrectionControllerCreateCompanyInsight = async (correctionId: number, options?: RequestInit): Promise<portfolioCorrectionControllerCreateCompanyInsightResponse> => {
   
-  const res = await fetch(getPortfolioCorrectionControllerCreateCompanyInsightUrl(correctionId),
+  return customInstance<portfolioCorrectionControllerCreateCompanyInsightResponse>(getPortfolioCorrectionControllerCreateCompanyInsightUrl(correctionId),
   {      
     ...options,
     method: 'POST'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: portfolioCorrectionControllerCreateCompanyInsightResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as portfolioCorrectionControllerCreateCompanyInsightResponse
-}
+);}
   
 
 
 
 export const getPortfolioCorrectionControllerCreateCompanyInsightMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCompanyInsight>>, TError,{correctionId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCompanyInsight>>, TError,{correctionId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCompanyInsight>>, TError,{correctionId: number}, TContext> => {
 
 const mutationKey = ['portfolioCorrectionControllerCreateCompanyInsight'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -488,7 +468,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCompanyInsight>>, {correctionId: number}> = (props) => {
           const {correctionId} = props ?? {};
 
-          return  portfolioCorrectionControllerCreateCompanyInsight(correctionId,fetchOptions)
+          return  portfolioCorrectionControllerCreateCompanyInsight(correctionId,requestOptions)
         }
 
 
@@ -506,7 +486,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 기업 분석 정보 생성
  */
 export const usePortfolioCorrectionControllerCreateCompanyInsight = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCompanyInsight>>, TError,{correctionId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCompanyInsight>>, TError,{correctionId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCompanyInsight>>,
         TError,
@@ -553,20 +533,14 @@ export const getPortfolioCorrectionControllerGetCompanyInsightUrl = (correctionI
 
 export const portfolioCorrectionControllerGetCompanyInsight = async (correctionId: number, options?: RequestInit): Promise<portfolioCorrectionControllerGetCompanyInsightResponse> => {
   
-  const res = await fetch(getPortfolioCorrectionControllerGetCompanyInsightUrl(correctionId),
+  return customInstance<portfolioCorrectionControllerGetCompanyInsightResponse>(getPortfolioCorrectionControllerGetCompanyInsightUrl(correctionId),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: portfolioCorrectionControllerGetCompanyInsightResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as portfolioCorrectionControllerGetCompanyInsightResponse
-}
+);}
   
 
 
@@ -579,16 +553,16 @@ export const getPortfolioCorrectionControllerGetCompanyInsightQueryKey = (correc
     }
 
     
-export const getPortfolioCorrectionControllerGetCompanyInsightQueryOptions = <TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCompanyInsight>>, TError = CommonResponse>(correctionId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCompanyInsight>>, TError, TData>>, fetch?: RequestInit}
+export const getPortfolioCorrectionControllerGetCompanyInsightQueryOptions = <TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCompanyInsight>>, TError = CommonResponse>(correctionId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCompanyInsight>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getPortfolioCorrectionControllerGetCompanyInsightQueryKey(correctionId);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCompanyInsight>>> = ({ signal }) => portfolioCorrectionControllerGetCompanyInsight(correctionId, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCompanyInsight>>> = ({ signal }) => portfolioCorrectionControllerGetCompanyInsight(correctionId, { signal, ...requestOptions });
 
       
 
@@ -608,7 +582,7 @@ export function usePortfolioCorrectionControllerGetCompanyInsight<TData = Awaite
           TError,
           Awaited<ReturnType<typeof portfolioCorrectionControllerGetCompanyInsight>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function usePortfolioCorrectionControllerGetCompanyInsight<TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCompanyInsight>>, TError = CommonResponse>(
@@ -618,11 +592,11 @@ export function usePortfolioCorrectionControllerGetCompanyInsight<TData = Awaite
           TError,
           Awaited<ReturnType<typeof portfolioCorrectionControllerGetCompanyInsight>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function usePortfolioCorrectionControllerGetCompanyInsight<TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCompanyInsight>>, TError = CommonResponse>(
- correctionId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCompanyInsight>>, TError, TData>>, fetch?: RequestInit}
+ correctionId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCompanyInsight>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -630,7 +604,7 @@ export function usePortfolioCorrectionControllerGetCompanyInsight<TData = Awaite
  */
 
 export function usePortfolioCorrectionControllerGetCompanyInsight<TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCompanyInsight>>, TError = CommonResponse>(
- correctionId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCompanyInsight>>, TError, TData>>, fetch?: RequestInit}
+ correctionId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCompanyInsight>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -688,7 +662,7 @@ export const getPortfolioCorrectionControllerUpdateCompanyInsightUrl = (correcti
 export const portfolioCorrectionControllerUpdateCompanyInsight = async (correctionId: number,
     updateCompanyInsightReqDTO: UpdateCompanyInsightReqDTO, options?: RequestInit): Promise<portfolioCorrectionControllerUpdateCompanyInsightResponse> => {
   
-  const res = await fetch(getPortfolioCorrectionControllerUpdateCompanyInsightUrl(correctionId),
+  return customInstance<portfolioCorrectionControllerUpdateCompanyInsightResponse>(getPortfolioCorrectionControllerUpdateCompanyInsightUrl(correctionId),
   {      
     ...options,
     method: 'PATCH',
@@ -696,27 +670,21 @@ export const portfolioCorrectionControllerUpdateCompanyInsight = async (correcti
     body: JSON.stringify(
       updateCompanyInsightReqDTO,)
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: portfolioCorrectionControllerUpdateCompanyInsightResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as portfolioCorrectionControllerUpdateCompanyInsightResponse
-}
+);}
   
 
 
 
 export const getPortfolioCorrectionControllerUpdateCompanyInsightMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerUpdateCompanyInsight>>, TError,{correctionId: number;data: UpdateCompanyInsightReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerUpdateCompanyInsight>>, TError,{correctionId: number;data: UpdateCompanyInsightReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerUpdateCompanyInsight>>, TError,{correctionId: number;data: UpdateCompanyInsightReqDTO}, TContext> => {
 
 const mutationKey = ['portfolioCorrectionControllerUpdateCompanyInsight'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -724,7 +692,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerUpdateCompanyInsight>>, {correctionId: number;data: UpdateCompanyInsightReqDTO}> = (props) => {
           const {correctionId,data} = props ?? {};
 
-          return  portfolioCorrectionControllerUpdateCompanyInsight(correctionId,data,fetchOptions)
+          return  portfolioCorrectionControllerUpdateCompanyInsight(correctionId,data,requestOptions)
         }
 
 
@@ -742,7 +710,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 기업 분석 정보 수정
  */
 export const usePortfolioCorrectionControllerUpdateCompanyInsight = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerUpdateCompanyInsight>>, TError,{correctionId: number;data: UpdateCompanyInsightReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerUpdateCompanyInsight>>, TError,{correctionId: number;data: UpdateCompanyInsightReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof portfolioCorrectionControllerUpdateCompanyInsight>>,
         TError,
@@ -794,34 +762,28 @@ export const getPortfolioCorrectionControllerReCreateCompanyInsightUrl = (correc
 
 export const portfolioCorrectionControllerReCreateCompanyInsight = async (correctionId: number, options?: RequestInit): Promise<portfolioCorrectionControllerReCreateCompanyInsightResponse> => {
   
-  const res = await fetch(getPortfolioCorrectionControllerReCreateCompanyInsightUrl(correctionId),
+  return customInstance<portfolioCorrectionControllerReCreateCompanyInsightResponse>(getPortfolioCorrectionControllerReCreateCompanyInsightUrl(correctionId),
   {      
     ...options,
     method: 'POST'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: portfolioCorrectionControllerReCreateCompanyInsightResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as portfolioCorrectionControllerReCreateCompanyInsightResponse
-}
+);}
   
 
 
 
 export const getPortfolioCorrectionControllerReCreateCompanyInsightMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerReCreateCompanyInsight>>, TError,{correctionId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerReCreateCompanyInsight>>, TError,{correctionId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerReCreateCompanyInsight>>, TError,{correctionId: number}, TContext> => {
 
 const mutationKey = ['portfolioCorrectionControllerReCreateCompanyInsight'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -829,7 +791,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerReCreateCompanyInsight>>, {correctionId: number}> = (props) => {
           const {correctionId} = props ?? {};
 
-          return  portfolioCorrectionControllerReCreateCompanyInsight(correctionId,fetchOptions)
+          return  portfolioCorrectionControllerReCreateCompanyInsight(correctionId,requestOptions)
         }
 
 
@@ -847,7 +809,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 기업 분석 정보 재생성
  */
 export const usePortfolioCorrectionControllerReCreateCompanyInsight = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerReCreateCompanyInsight>>, TError,{correctionId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerReCreateCompanyInsight>>, TError,{correctionId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof portfolioCorrectionControllerReCreateCompanyInsight>>,
         TError,
@@ -857,7 +819,7 @@ export const usePortfolioCorrectionControllerReCreateCompanyInsight = <TError = 
       return useMutation(getPortfolioCorrectionControllerReCreateCompanyInsightMutationOptions(options), queryClient);
     }
     /**
- * 첨삭을 진행할 포트폴리오를 선택합니다.
+ * 첨삭을 진행할 포트폴리오를 선택합니다. generate 엔드포인트로 선택과 생성 준비를 한번에 수행할 수 있습니다.
  * @summary 포트폴리오 선택
  */
 export type portfolioCorrectionControllerMapCorrectionWithPortfoliosResponse200 = {
@@ -900,7 +862,7 @@ export const getPortfolioCorrectionControllerMapCorrectionWithPortfoliosUrl = (c
 export const portfolioCorrectionControllerMapCorrectionWithPortfolios = async (correctionId: number,
     mapCorrectionWithPortfoliosReqDTO: MapCorrectionWithPortfoliosReqDTO, options?: RequestInit): Promise<portfolioCorrectionControllerMapCorrectionWithPortfoliosResponse> => {
   
-  const res = await fetch(getPortfolioCorrectionControllerMapCorrectionWithPortfoliosUrl(correctionId),
+  return customInstance<portfolioCorrectionControllerMapCorrectionWithPortfoliosResponse>(getPortfolioCorrectionControllerMapCorrectionWithPortfoliosUrl(correctionId),
   {      
     ...options,
     method: 'POST',
@@ -908,27 +870,21 @@ export const portfolioCorrectionControllerMapCorrectionWithPortfolios = async (c
     body: JSON.stringify(
       mapCorrectionWithPortfoliosReqDTO,)
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: portfolioCorrectionControllerMapCorrectionWithPortfoliosResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as portfolioCorrectionControllerMapCorrectionWithPortfoliosResponse
-}
+);}
   
 
 
 
 export const getPortfolioCorrectionControllerMapCorrectionWithPortfoliosMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerMapCorrectionWithPortfolios>>, TError,{correctionId: number;data: MapCorrectionWithPortfoliosReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerMapCorrectionWithPortfolios>>, TError,{correctionId: number;data: MapCorrectionWithPortfoliosReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerMapCorrectionWithPortfolios>>, TError,{correctionId: number;data: MapCorrectionWithPortfoliosReqDTO}, TContext> => {
 
 const mutationKey = ['portfolioCorrectionControllerMapCorrectionWithPortfolios'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -936,7 +892,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerMapCorrectionWithPortfolios>>, {correctionId: number;data: MapCorrectionWithPortfoliosReqDTO}> = (props) => {
           const {correctionId,data} = props ?? {};
 
-          return  portfolioCorrectionControllerMapCorrectionWithPortfolios(correctionId,data,fetchOptions)
+          return  portfolioCorrectionControllerMapCorrectionWithPortfolios(correctionId,data,requestOptions)
         }
 
 
@@ -954,7 +910,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 포트폴리오 선택
  */
 export const usePortfolioCorrectionControllerMapCorrectionWithPortfolios = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerMapCorrectionWithPortfolios>>, TError,{correctionId: number;data: MapCorrectionWithPortfoliosReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerMapCorrectionWithPortfolios>>, TError,{correctionId: number;data: MapCorrectionWithPortfoliosReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof portfolioCorrectionControllerMapCorrectionWithPortfolios>>,
         TError,
@@ -964,11 +920,11 @@ export const usePortfolioCorrectionControllerMapCorrectionWithPortfolios = <TErr
       return useMutation(getPortfolioCorrectionControllerMapCorrectionWithPortfoliosMutationOptions(options), queryClient);
     }
     /**
- * 선택한 포트폴리오에 대해 첨삭을 생성합니다.
+ * 선택한 포트폴리오에 대해 포트폴리오 선택과 AI 첨삭 생성 준비를 한번에 수행합니다.
  * @summary AI 첨삭 생성
  */
 export type portfolioCorrectionControllerCreateCorrectionByAIResponse200 = {
-  data: unknown
+  data: PortfolioCorrectionControllerCreateCorrectionByAI200
   status: 200
 }
 
@@ -982,10 +938,15 @@ export type portfolioCorrectionControllerCreateCorrectionByAIResponse404 = {
   status: 404
 }
 
+export type portfolioCorrectionControllerCreateCorrectionByAIResponse409 = {
+  data: CommonResponse
+  status: 409
+}
+
 export type portfolioCorrectionControllerCreateCorrectionByAIResponseSuccess = (portfolioCorrectionControllerCreateCorrectionByAIResponse200) & {
   headers: Headers;
 };
-export type portfolioCorrectionControllerCreateCorrectionByAIResponseError = (portfolioCorrectionControllerCreateCorrectionByAIResponse401 | portfolioCorrectionControllerCreateCorrectionByAIResponse404) & {
+export type portfolioCorrectionControllerCreateCorrectionByAIResponseError = (portfolioCorrectionControllerCreateCorrectionByAIResponse401 | portfolioCorrectionControllerCreateCorrectionByAIResponse404 | portfolioCorrectionControllerCreateCorrectionByAIResponse409) & {
   headers: Headers;
 };
 
@@ -999,44 +960,40 @@ export const getPortfolioCorrectionControllerCreateCorrectionByAIUrl = (correcti
   return `/portfolio-corrections/${correctionId}/generate`
 }
 
-export const portfolioCorrectionControllerCreateCorrectionByAI = async (correctionId: number, options?: RequestInit): Promise<portfolioCorrectionControllerCreateCorrectionByAIResponse> => {
+export const portfolioCorrectionControllerCreateCorrectionByAI = async (correctionId: number,
+    mapCorrectionWithPortfoliosReqDTO: MapCorrectionWithPortfoliosReqDTO, options?: RequestInit): Promise<portfolioCorrectionControllerCreateCorrectionByAIResponse> => {
   
-  const res = await fetch(getPortfolioCorrectionControllerCreateCorrectionByAIUrl(correctionId),
+  return customInstance<portfolioCorrectionControllerCreateCorrectionByAIResponse>(getPortfolioCorrectionControllerCreateCorrectionByAIUrl(correctionId),
   {      
     ...options,
-    method: 'POST'
-    
-    
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      mapCorrectionWithPortfoliosReqDTO,)
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: portfolioCorrectionControllerCreateCorrectionByAIResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as portfolioCorrectionControllerCreateCorrectionByAIResponse
-}
+);}
   
 
 
 
 export const getPortfolioCorrectionControllerCreateCorrectionByAIMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>, TError,{correctionId: number}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>, TError,{correctionId: number}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>, TError,{correctionId: number;data: MapCorrectionWithPortfoliosReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>, TError,{correctionId: number;data: MapCorrectionWithPortfoliosReqDTO}, TContext> => {
 
 const mutationKey = ['portfolioCorrectionControllerCreateCorrectionByAI'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>, {correctionId: number}> = (props) => {
-          const {correctionId} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>, {correctionId: number;data: MapCorrectionWithPortfoliosReqDTO}> = (props) => {
+          const {correctionId,data} = props ?? {};
 
-          return  portfolioCorrectionControllerCreateCorrectionByAI(correctionId,fetchOptions)
+          return  portfolioCorrectionControllerCreateCorrectionByAI(correctionId,data,requestOptions)
         }
 
 
@@ -1047,18 +1004,18 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type PortfolioCorrectionControllerCreateCorrectionByAIMutationResult = NonNullable<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>>
-    
+    export type PortfolioCorrectionControllerCreateCorrectionByAIMutationBody = MapCorrectionWithPortfoliosReqDTO
     export type PortfolioCorrectionControllerCreateCorrectionByAIMutationError = CommonResponse
 
     /**
  * @summary AI 첨삭 생성
  */
 export const usePortfolioCorrectionControllerCreateCorrectionByAI = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>, TError,{correctionId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>, TError,{correctionId: number;data: MapCorrectionWithPortfoliosReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>,
         TError,
-        {correctionId: number},
+        {correctionId: number;data: MapCorrectionWithPortfoliosReqDTO},
         TContext
       > => {
       return useMutation(getPortfolioCorrectionControllerCreateCorrectionByAIMutationOptions(options), queryClient);
@@ -1101,20 +1058,14 @@ export const getPortfolioCorrectionControllerGetCorrectionUrl = (correctionId: n
 
 export const portfolioCorrectionControllerGetCorrection = async (correctionId: number, options?: RequestInit): Promise<portfolioCorrectionControllerGetCorrectionResponse> => {
   
-  const res = await fetch(getPortfolioCorrectionControllerGetCorrectionUrl(correctionId),
+  return customInstance<portfolioCorrectionControllerGetCorrectionResponse>(getPortfolioCorrectionControllerGetCorrectionUrl(correctionId),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: portfolioCorrectionControllerGetCorrectionResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as portfolioCorrectionControllerGetCorrectionResponse
-}
+);}
   
 
 
@@ -1127,16 +1078,16 @@ export const getPortfolioCorrectionControllerGetCorrectionQueryKey = (correction
     }
 
     
-export const getPortfolioCorrectionControllerGetCorrectionQueryOptions = <TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrection>>, TError = CommonResponse>(correctionId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrection>>, TError, TData>>, fetch?: RequestInit}
+export const getPortfolioCorrectionControllerGetCorrectionQueryOptions = <TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrection>>, TError = CommonResponse>(correctionId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrection>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getPortfolioCorrectionControllerGetCorrectionQueryKey(correctionId);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrection>>> = ({ signal }) => portfolioCorrectionControllerGetCorrection(correctionId, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrection>>> = ({ signal }) => portfolioCorrectionControllerGetCorrection(correctionId, { signal, ...requestOptions });
 
       
 
@@ -1156,7 +1107,7 @@ export function usePortfolioCorrectionControllerGetCorrection<TData = Awaited<Re
           TError,
           Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrection>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function usePortfolioCorrectionControllerGetCorrection<TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrection>>, TError = CommonResponse>(
@@ -1166,11 +1117,11 @@ export function usePortfolioCorrectionControllerGetCorrection<TData = Awaited<Re
           TError,
           Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrection>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function usePortfolioCorrectionControllerGetCorrection<TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrection>>, TError = CommonResponse>(
- correctionId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrection>>, TError, TData>>, fetch?: RequestInit}
+ correctionId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrection>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -1178,7 +1129,7 @@ export function usePortfolioCorrectionControllerGetCorrection<TData = Awaited<Re
  */
 
 export function usePortfolioCorrectionControllerGetCorrection<TData = Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrection>>, TError = CommonResponse>(
- correctionId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrection>>, TError, TData>>, fetch?: RequestInit}
+ correctionId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrection>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1231,7 +1182,7 @@ export const getPortfolioCorrectionControllerUpdateCorrectionTitleUrl = (correct
 export const portfolioCorrectionControllerUpdateCorrectionTitle = async (correctionId: number,
     updateCorrectionTitleReqDTO: UpdateCorrectionTitleReqDTO, options?: RequestInit): Promise<portfolioCorrectionControllerUpdateCorrectionTitleResponse> => {
   
-  const res = await fetch(getPortfolioCorrectionControllerUpdateCorrectionTitleUrl(correctionId),
+  return customInstance<portfolioCorrectionControllerUpdateCorrectionTitleResponse>(getPortfolioCorrectionControllerUpdateCorrectionTitleUrl(correctionId),
   {      
     ...options,
     method: 'PATCH',
@@ -1239,27 +1190,21 @@ export const portfolioCorrectionControllerUpdateCorrectionTitle = async (correct
     body: JSON.stringify(
       updateCorrectionTitleReqDTO,)
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: portfolioCorrectionControllerUpdateCorrectionTitleResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as portfolioCorrectionControllerUpdateCorrectionTitleResponse
-}
+);}
   
 
 
 
 export const getPortfolioCorrectionControllerUpdateCorrectionTitleMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerUpdateCorrectionTitle>>, TError,{correctionId: number;data: UpdateCorrectionTitleReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerUpdateCorrectionTitle>>, TError,{correctionId: number;data: UpdateCorrectionTitleReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerUpdateCorrectionTitle>>, TError,{correctionId: number;data: UpdateCorrectionTitleReqDTO}, TContext> => {
 
 const mutationKey = ['portfolioCorrectionControllerUpdateCorrectionTitle'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -1267,7 +1212,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerUpdateCorrectionTitle>>, {correctionId: number;data: UpdateCorrectionTitleReqDTO}> = (props) => {
           const {correctionId,data} = props ?? {};
 
-          return  portfolioCorrectionControllerUpdateCorrectionTitle(correctionId,data,fetchOptions)
+          return  portfolioCorrectionControllerUpdateCorrectionTitle(correctionId,data,requestOptions)
         }
 
 
@@ -1285,7 +1230,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 개별 첨삭 수정
  */
 export const usePortfolioCorrectionControllerUpdateCorrectionTitle = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerUpdateCorrectionTitle>>, TError,{correctionId: number;data: UpdateCorrectionTitleReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerUpdateCorrectionTitle>>, TError,{correctionId: number;data: UpdateCorrectionTitleReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof portfolioCorrectionControllerUpdateCorrectionTitle>>,
         TError,
@@ -1332,34 +1277,28 @@ export const getPortfolioCorrectionControllerDeleteCorrectionUrl = (correctionId
 
 export const portfolioCorrectionControllerDeleteCorrection = async (correctionId: number, options?: RequestInit): Promise<portfolioCorrectionControllerDeleteCorrectionResponse> => {
   
-  const res = await fetch(getPortfolioCorrectionControllerDeleteCorrectionUrl(correctionId),
+  return customInstance<portfolioCorrectionControllerDeleteCorrectionResponse>(getPortfolioCorrectionControllerDeleteCorrectionUrl(correctionId),
   {      
     ...options,
     method: 'DELETE'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: portfolioCorrectionControllerDeleteCorrectionResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as portfolioCorrectionControllerDeleteCorrectionResponse
-}
+);}
   
 
 
 
 export const getPortfolioCorrectionControllerDeleteCorrectionMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerDeleteCorrection>>, TError,{correctionId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerDeleteCorrection>>, TError,{correctionId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerDeleteCorrection>>, TError,{correctionId: number}, TContext> => {
 
 const mutationKey = ['portfolioCorrectionControllerDeleteCorrection'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -1367,7 +1306,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerDeleteCorrection>>, {correctionId: number}> = (props) => {
           const {correctionId} = props ?? {};
 
-          return  portfolioCorrectionControllerDeleteCorrection(correctionId,fetchOptions)
+          return  portfolioCorrectionControllerDeleteCorrection(correctionId,requestOptions)
         }
 
 
@@ -1385,7 +1324,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 첨삭 삭제하기
  */
 export const usePortfolioCorrectionControllerDeleteCorrection = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerDeleteCorrection>>, TError,{correctionId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerDeleteCorrection>>, TError,{correctionId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof portfolioCorrectionControllerDeleteCorrection>>,
         TError,

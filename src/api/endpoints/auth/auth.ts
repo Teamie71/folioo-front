@@ -33,7 +33,10 @@ import type {
   VerifySmsReqDTO
 } from '../../models';
 
+import { customInstance } from '../../../lib/axios';
 
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 
@@ -70,20 +73,14 @@ export const getAuthControllerKakaoLoginUrl = (params?: AuthControllerKakaoLogin
 
 export const authControllerKakaoLogin = async (params?: AuthControllerKakaoLoginParams, options?: RequestInit): Promise<authControllerKakaoLoginResponse> => {
   
-  const res = await fetch(getAuthControllerKakaoLoginUrl(params),
+  return customInstance<authControllerKakaoLoginResponse>(getAuthControllerKakaoLoginUrl(params),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: authControllerKakaoLoginResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as authControllerKakaoLoginResponse
-}
+);}
   
 
 
@@ -96,16 +93,16 @@ export const getAuthControllerKakaoLoginQueryKey = (params?: AuthControllerKakao
     }
 
     
-export const getAuthControllerKakaoLoginQueryOptions = <TData = Awaited<ReturnType<typeof authControllerKakaoLogin>>, TError = void>(params?: AuthControllerKakaoLoginParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerKakaoLogin>>, TError, TData>>, fetch?: RequestInit}
+export const getAuthControllerKakaoLoginQueryOptions = <TData = Awaited<ReturnType<typeof authControllerKakaoLogin>>, TError = void>(params?: AuthControllerKakaoLoginParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerKakaoLogin>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAuthControllerKakaoLoginQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerKakaoLogin>>> = ({ signal }) => authControllerKakaoLogin(params, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerKakaoLogin>>> = ({ signal }) => authControllerKakaoLogin(params, { signal, ...requestOptions });
 
       
 
@@ -125,7 +122,7 @@ export function useAuthControllerKakaoLogin<TData = Awaited<ReturnType<typeof au
           TError,
           Awaited<ReturnType<typeof authControllerKakaoLogin>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAuthControllerKakaoLogin<TData = Awaited<ReturnType<typeof authControllerKakaoLogin>>, TError = void>(
@@ -135,11 +132,11 @@ export function useAuthControllerKakaoLogin<TData = Awaited<ReturnType<typeof au
           TError,
           Awaited<ReturnType<typeof authControllerKakaoLogin>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAuthControllerKakaoLogin<TData = Awaited<ReturnType<typeof authControllerKakaoLogin>>, TError = void>(
- params?: AuthControllerKakaoLoginParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerKakaoLogin>>, TError, TData>>, fetch?: RequestInit}
+ params?: AuthControllerKakaoLoginParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerKakaoLogin>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -147,7 +144,7 @@ export function useAuthControllerKakaoLogin<TData = Awaited<ReturnType<typeof au
  */
 
 export function useAuthControllerKakaoLogin<TData = Awaited<ReturnType<typeof authControllerKakaoLogin>>, TError = void>(
- params?: AuthControllerKakaoLoginParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerKakaoLogin>>, TError, TData>>, fetch?: RequestInit}
+ params?: AuthControllerKakaoLoginParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerKakaoLogin>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -187,20 +184,14 @@ export const getAuthControllerKakaoCallbackUrl = () => {
 
 export const authControllerKakaoCallback = async ( options?: RequestInit): Promise<authControllerKakaoCallbackResponse> => {
   
-  const res = await fetch(getAuthControllerKakaoCallbackUrl(),
+  return customInstance<authControllerKakaoCallbackResponse>(getAuthControllerKakaoCallbackUrl(),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: authControllerKakaoCallbackResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as authControllerKakaoCallbackResponse
-}
+);}
   
 
 
@@ -213,16 +204,16 @@ export const getAuthControllerKakaoCallbackQueryKey = () => {
     }
 
     
-export const getAuthControllerKakaoCallbackQueryOptions = <TData = Awaited<ReturnType<typeof authControllerKakaoCallback>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerKakaoCallback>>, TError, TData>>, fetch?: RequestInit}
+export const getAuthControllerKakaoCallbackQueryOptions = <TData = Awaited<ReturnType<typeof authControllerKakaoCallback>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerKakaoCallback>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAuthControllerKakaoCallbackQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerKakaoCallback>>> = ({ signal }) => authControllerKakaoCallback({ signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerKakaoCallback>>> = ({ signal }) => authControllerKakaoCallback({ signal, ...requestOptions });
 
       
 
@@ -242,7 +233,7 @@ export function useAuthControllerKakaoCallback<TData = Awaited<ReturnType<typeof
           TError,
           Awaited<ReturnType<typeof authControllerKakaoCallback>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAuthControllerKakaoCallback<TData = Awaited<ReturnType<typeof authControllerKakaoCallback>>, TError = void>(
@@ -252,11 +243,11 @@ export function useAuthControllerKakaoCallback<TData = Awaited<ReturnType<typeof
           TError,
           Awaited<ReturnType<typeof authControllerKakaoCallback>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAuthControllerKakaoCallback<TData = Awaited<ReturnType<typeof authControllerKakaoCallback>>, TError = void>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerKakaoCallback>>, TError, TData>>, fetch?: RequestInit}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerKakaoCallback>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -264,7 +255,7 @@ export function useAuthControllerKakaoCallback<TData = Awaited<ReturnType<typeof
  */
 
 export function useAuthControllerKakaoCallback<TData = Awaited<ReturnType<typeof authControllerKakaoCallback>>, TError = void>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerKakaoCallback>>, TError, TData>>, fetch?: RequestInit}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerKakaoCallback>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -279,101 +270,6 @@ export function useAuthControllerKakaoCallback<TData = Awaited<ReturnType<typeof
 
 
 /**
- * 카카오 연결을 끊고, 서비스 내 계정을 비활성화합니다.
- * @summary 서비스 내 카카오 로그인 사용자 탈퇴
- */
-export type authControllerKakaoUnlinkResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type authControllerKakaoUnlinkResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type authControllerKakaoUnlinkResponseSuccess = (authControllerKakaoUnlinkResponse200) & {
-  headers: Headers;
-};
-export type authControllerKakaoUnlinkResponseError = (authControllerKakaoUnlinkResponse401) & {
-  headers: Headers;
-};
-
-export type authControllerKakaoUnlinkResponse = (authControllerKakaoUnlinkResponseSuccess | authControllerKakaoUnlinkResponseError)
-
-export const getAuthControllerKakaoUnlinkUrl = () => {
-
-
-  
-
-  return `/auth/kakao/unlink`
-}
-
-export const authControllerKakaoUnlink = async ( options?: RequestInit): Promise<authControllerKakaoUnlinkResponse> => {
-  
-  const res = await fetch(getAuthControllerKakaoUnlinkUrl(),
-  {      
-    ...options,
-    method: 'POST'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: authControllerKakaoUnlinkResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as authControllerKakaoUnlinkResponse
-}
-  
-
-
-
-export const getAuthControllerKakaoUnlinkMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerKakaoUnlink>>, TError,void, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof authControllerKakaoUnlink>>, TError,void, TContext> => {
-
-const mutationKey = ['authControllerKakaoUnlink'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerKakaoUnlink>>, void> = () => {
-          
-
-          return  authControllerKakaoUnlink(fetchOptions)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type AuthControllerKakaoUnlinkMutationResult = NonNullable<Awaited<ReturnType<typeof authControllerKakaoUnlink>>>
-    
-    export type AuthControllerKakaoUnlinkMutationError = CommonResponse
-
-    /**
- * @summary 서비스 내 카카오 로그인 사용자 탈퇴
- */
-export const useAuthControllerKakaoUnlink = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerKakaoUnlink>>, TError,void, TContext>, fetch?: RequestInit}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof authControllerKakaoUnlink>>,
-        TError,
-        void,
-        TContext
-      > => {
-      return useMutation(getAuthControllerKakaoUnlinkMutationOptions(options), queryClient);
-    }
-    /**
  * 구글 인증페이지로 리다이렉트합니다. 스웨거에서 누르지 마세요.
  * @summary 구글 로그인 트리거
  */
@@ -406,20 +302,14 @@ export const getAuthControllerGoogleLoginUrl = (params?: AuthControllerGoogleLog
 
 export const authControllerGoogleLogin = async (params?: AuthControllerGoogleLoginParams, options?: RequestInit): Promise<authControllerGoogleLoginResponse> => {
   
-  const res = await fetch(getAuthControllerGoogleLoginUrl(params),
+  return customInstance<authControllerGoogleLoginResponse>(getAuthControllerGoogleLoginUrl(params),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: authControllerGoogleLoginResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as authControllerGoogleLoginResponse
-}
+);}
   
 
 
@@ -432,16 +322,16 @@ export const getAuthControllerGoogleLoginQueryKey = (params?: AuthControllerGoog
     }
 
     
-export const getAuthControllerGoogleLoginQueryOptions = <TData = Awaited<ReturnType<typeof authControllerGoogleLogin>>, TError = void>(params?: AuthControllerGoogleLoginParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleLogin>>, TError, TData>>, fetch?: RequestInit}
+export const getAuthControllerGoogleLoginQueryOptions = <TData = Awaited<ReturnType<typeof authControllerGoogleLogin>>, TError = void>(params?: AuthControllerGoogleLoginParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleLogin>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAuthControllerGoogleLoginQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerGoogleLogin>>> = ({ signal }) => authControllerGoogleLogin(params, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerGoogleLogin>>> = ({ signal }) => authControllerGoogleLogin(params, { signal, ...requestOptions });
 
       
 
@@ -461,7 +351,7 @@ export function useAuthControllerGoogleLogin<TData = Awaited<ReturnType<typeof a
           TError,
           Awaited<ReturnType<typeof authControllerGoogleLogin>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAuthControllerGoogleLogin<TData = Awaited<ReturnType<typeof authControllerGoogleLogin>>, TError = void>(
@@ -471,11 +361,11 @@ export function useAuthControllerGoogleLogin<TData = Awaited<ReturnType<typeof a
           TError,
           Awaited<ReturnType<typeof authControllerGoogleLogin>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAuthControllerGoogleLogin<TData = Awaited<ReturnType<typeof authControllerGoogleLogin>>, TError = void>(
- params?: AuthControllerGoogleLoginParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleLogin>>, TError, TData>>, fetch?: RequestInit}
+ params?: AuthControllerGoogleLoginParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleLogin>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -483,7 +373,7 @@ export function useAuthControllerGoogleLogin<TData = Awaited<ReturnType<typeof a
  */
 
 export function useAuthControllerGoogleLogin<TData = Awaited<ReturnType<typeof authControllerGoogleLogin>>, TError = void>(
- params?: AuthControllerGoogleLoginParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleLogin>>, TError, TData>>, fetch?: RequestInit}
+ params?: AuthControllerGoogleLoginParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleLogin>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -523,20 +413,14 @@ export const getAuthControllerGoogleCallbackUrl = () => {
 
 export const authControllerGoogleCallback = async ( options?: RequestInit): Promise<authControllerGoogleCallbackResponse> => {
   
-  const res = await fetch(getAuthControllerGoogleCallbackUrl(),
+  return customInstance<authControllerGoogleCallbackResponse>(getAuthControllerGoogleCallbackUrl(),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: authControllerGoogleCallbackResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as authControllerGoogleCallbackResponse
-}
+);}
   
 
 
@@ -549,16 +433,16 @@ export const getAuthControllerGoogleCallbackQueryKey = () => {
     }
 
     
-export const getAuthControllerGoogleCallbackQueryOptions = <TData = Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError, TData>>, fetch?: RequestInit}
+export const getAuthControllerGoogleCallbackQueryOptions = <TData = Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAuthControllerGoogleCallbackQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerGoogleCallback>>> = ({ signal }) => authControllerGoogleCallback({ signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerGoogleCallback>>> = ({ signal }) => authControllerGoogleCallback({ signal, ...requestOptions });
 
       
 
@@ -578,7 +462,7 @@ export function useAuthControllerGoogleCallback<TData = Awaited<ReturnType<typeo
           TError,
           Awaited<ReturnType<typeof authControllerGoogleCallback>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAuthControllerGoogleCallback<TData = Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError = void>(
@@ -588,11 +472,11 @@ export function useAuthControllerGoogleCallback<TData = Awaited<ReturnType<typeo
           TError,
           Awaited<ReturnType<typeof authControllerGoogleCallback>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAuthControllerGoogleCallback<TData = Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError = void>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError, TData>>, fetch?: RequestInit}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -600,7 +484,7 @@ export function useAuthControllerGoogleCallback<TData = Awaited<ReturnType<typeo
  */
 
 export function useAuthControllerGoogleCallback<TData = Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError = void>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError, TData>>, fetch?: RequestInit}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -615,101 +499,6 @@ export function useAuthControllerGoogleCallback<TData = Awaited<ReturnType<typeo
 
 
 /**
- * 구글 연결을 끊고, 서비스 내 계정을 비활성화합니다.
- * @summary 서비스 내 구글 로그인 사용자 탈퇴
- */
-export type authControllerGoogleUnlinkResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type authControllerGoogleUnlinkResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type authControllerGoogleUnlinkResponseSuccess = (authControllerGoogleUnlinkResponse200) & {
-  headers: Headers;
-};
-export type authControllerGoogleUnlinkResponseError = (authControllerGoogleUnlinkResponse401) & {
-  headers: Headers;
-};
-
-export type authControllerGoogleUnlinkResponse = (authControllerGoogleUnlinkResponseSuccess | authControllerGoogleUnlinkResponseError)
-
-export const getAuthControllerGoogleUnlinkUrl = () => {
-
-
-  
-
-  return `/auth/google/unlink`
-}
-
-export const authControllerGoogleUnlink = async ( options?: RequestInit): Promise<authControllerGoogleUnlinkResponse> => {
-  
-  const res = await fetch(getAuthControllerGoogleUnlinkUrl(),
-  {      
-    ...options,
-    method: 'POST'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: authControllerGoogleUnlinkResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as authControllerGoogleUnlinkResponse
-}
-  
-
-
-
-export const getAuthControllerGoogleUnlinkMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerGoogleUnlink>>, TError,void, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof authControllerGoogleUnlink>>, TError,void, TContext> => {
-
-const mutationKey = ['authControllerGoogleUnlink'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerGoogleUnlink>>, void> = () => {
-          
-
-          return  authControllerGoogleUnlink(fetchOptions)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type AuthControllerGoogleUnlinkMutationResult = NonNullable<Awaited<ReturnType<typeof authControllerGoogleUnlink>>>
-    
-    export type AuthControllerGoogleUnlinkMutationError = CommonResponse
-
-    /**
- * @summary 서비스 내 구글 로그인 사용자 탈퇴
- */
-export const useAuthControllerGoogleUnlink = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerGoogleUnlink>>, TError,void, TContext>, fetch?: RequestInit}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof authControllerGoogleUnlink>>,
-        TError,
-        void,
-        TContext
-      > => {
-      return useMutation(getAuthControllerGoogleUnlinkMutationOptions(options), queryClient);
-    }
-    /**
  * 네이버 인증페이지로 리다이렉트합니다. 스웨거에서 누르지 마세요.
  * @summary 네이버 로그인 트리거
  */
@@ -742,20 +531,14 @@ export const getAuthControllerNaverLoginUrl = (params?: AuthControllerNaverLogin
 
 export const authControllerNaverLogin = async (params?: AuthControllerNaverLoginParams, options?: RequestInit): Promise<authControllerNaverLoginResponse> => {
   
-  const res = await fetch(getAuthControllerNaverLoginUrl(params),
+  return customInstance<authControllerNaverLoginResponse>(getAuthControllerNaverLoginUrl(params),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: authControllerNaverLoginResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as authControllerNaverLoginResponse
-}
+);}
   
 
 
@@ -768,16 +551,16 @@ export const getAuthControllerNaverLoginQueryKey = (params?: AuthControllerNaver
     }
 
     
-export const getAuthControllerNaverLoginQueryOptions = <TData = Awaited<ReturnType<typeof authControllerNaverLogin>>, TError = void>(params?: AuthControllerNaverLoginParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerNaverLogin>>, TError, TData>>, fetch?: RequestInit}
+export const getAuthControllerNaverLoginQueryOptions = <TData = Awaited<ReturnType<typeof authControllerNaverLogin>>, TError = void>(params?: AuthControllerNaverLoginParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerNaverLogin>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAuthControllerNaverLoginQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerNaverLogin>>> = ({ signal }) => authControllerNaverLogin(params, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerNaverLogin>>> = ({ signal }) => authControllerNaverLogin(params, { signal, ...requestOptions });
 
       
 
@@ -797,7 +580,7 @@ export function useAuthControllerNaverLogin<TData = Awaited<ReturnType<typeof au
           TError,
           Awaited<ReturnType<typeof authControllerNaverLogin>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAuthControllerNaverLogin<TData = Awaited<ReturnType<typeof authControllerNaverLogin>>, TError = void>(
@@ -807,11 +590,11 @@ export function useAuthControllerNaverLogin<TData = Awaited<ReturnType<typeof au
           TError,
           Awaited<ReturnType<typeof authControllerNaverLogin>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAuthControllerNaverLogin<TData = Awaited<ReturnType<typeof authControllerNaverLogin>>, TError = void>(
- params?: AuthControllerNaverLoginParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerNaverLogin>>, TError, TData>>, fetch?: RequestInit}
+ params?: AuthControllerNaverLoginParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerNaverLogin>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -819,7 +602,7 @@ export function useAuthControllerNaverLogin<TData = Awaited<ReturnType<typeof au
  */
 
 export function useAuthControllerNaverLogin<TData = Awaited<ReturnType<typeof authControllerNaverLogin>>, TError = void>(
- params?: AuthControllerNaverLoginParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerNaverLogin>>, TError, TData>>, fetch?: RequestInit}
+ params?: AuthControllerNaverLoginParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerNaverLogin>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -859,20 +642,14 @@ export const getAuthControllerNaverCallbackUrl = () => {
 
 export const authControllerNaverCallback = async ( options?: RequestInit): Promise<authControllerNaverCallbackResponse> => {
   
-  const res = await fetch(getAuthControllerNaverCallbackUrl(),
+  return customInstance<authControllerNaverCallbackResponse>(getAuthControllerNaverCallbackUrl(),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: authControllerNaverCallbackResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as authControllerNaverCallbackResponse
-}
+);}
   
 
 
@@ -885,16 +662,16 @@ export const getAuthControllerNaverCallbackQueryKey = () => {
     }
 
     
-export const getAuthControllerNaverCallbackQueryOptions = <TData = Awaited<ReturnType<typeof authControllerNaverCallback>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerNaverCallback>>, TError, TData>>, fetch?: RequestInit}
+export const getAuthControllerNaverCallbackQueryOptions = <TData = Awaited<ReturnType<typeof authControllerNaverCallback>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerNaverCallback>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAuthControllerNaverCallbackQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerNaverCallback>>> = ({ signal }) => authControllerNaverCallback({ signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerNaverCallback>>> = ({ signal }) => authControllerNaverCallback({ signal, ...requestOptions });
 
       
 
@@ -914,7 +691,7 @@ export function useAuthControllerNaverCallback<TData = Awaited<ReturnType<typeof
           TError,
           Awaited<ReturnType<typeof authControllerNaverCallback>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAuthControllerNaverCallback<TData = Awaited<ReturnType<typeof authControllerNaverCallback>>, TError = void>(
@@ -924,11 +701,11 @@ export function useAuthControllerNaverCallback<TData = Awaited<ReturnType<typeof
           TError,
           Awaited<ReturnType<typeof authControllerNaverCallback>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAuthControllerNaverCallback<TData = Awaited<ReturnType<typeof authControllerNaverCallback>>, TError = void>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerNaverCallback>>, TError, TData>>, fetch?: RequestInit}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerNaverCallback>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -936,7 +713,7 @@ export function useAuthControllerNaverCallback<TData = Awaited<ReturnType<typeof
  */
 
 export function useAuthControllerNaverCallback<TData = Awaited<ReturnType<typeof authControllerNaverCallback>>, TError = void>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerNaverCallback>>, TError, TData>>, fetch?: RequestInit}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerNaverCallback>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -951,101 +728,6 @@ export function useAuthControllerNaverCallback<TData = Awaited<ReturnType<typeof
 
 
 /**
- * 네이버 연결을 끊고, 서비스 내 계정을 비활성화합니다.
- * @summary 서비스 내 네이버 로그인 사용자 탈퇴
- */
-export type authControllerNaverUnlinkResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type authControllerNaverUnlinkResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type authControllerNaverUnlinkResponseSuccess = (authControllerNaverUnlinkResponse200) & {
-  headers: Headers;
-};
-export type authControllerNaverUnlinkResponseError = (authControllerNaverUnlinkResponse401) & {
-  headers: Headers;
-};
-
-export type authControllerNaverUnlinkResponse = (authControllerNaverUnlinkResponseSuccess | authControllerNaverUnlinkResponseError)
-
-export const getAuthControllerNaverUnlinkUrl = () => {
-
-
-  
-
-  return `/auth/naver/unlink`
-}
-
-export const authControllerNaverUnlink = async ( options?: RequestInit): Promise<authControllerNaverUnlinkResponse> => {
-  
-  const res = await fetch(getAuthControllerNaverUnlinkUrl(),
-  {      
-    ...options,
-    method: 'POST'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: authControllerNaverUnlinkResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as authControllerNaverUnlinkResponse
-}
-  
-
-
-
-export const getAuthControllerNaverUnlinkMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerNaverUnlink>>, TError,void, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof authControllerNaverUnlink>>, TError,void, TContext> => {
-
-const mutationKey = ['authControllerNaverUnlink'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerNaverUnlink>>, void> = () => {
-          
-
-          return  authControllerNaverUnlink(fetchOptions)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type AuthControllerNaverUnlinkMutationResult = NonNullable<Awaited<ReturnType<typeof authControllerNaverUnlink>>>
-    
-    export type AuthControllerNaverUnlinkMutationError = CommonResponse
-
-    /**
- * @summary 서비스 내 네이버 로그인 사용자 탈퇴
- */
-export const useAuthControllerNaverUnlink = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerNaverUnlink>>, TError,void, TContext>, fetch?: RequestInit}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof authControllerNaverUnlink>>,
-        TError,
-        void,
-        TContext
-      > => {
-      return useMutation(getAuthControllerNaverUnlinkMutationOptions(options), queryClient);
-    }
-    /**
  * 유효한 refreshToken을 사용해 accessToken을 발급 받습니다.
  * @summary 토큰 재발급
  */
@@ -1078,34 +760,28 @@ export const getAuthControllerHandleRefreshUrl = () => {
 
 export const authControllerHandleRefresh = async ( options?: RequestInit): Promise<authControllerHandleRefreshResponse> => {
   
-  const res = await fetch(getAuthControllerHandleRefreshUrl(),
+  return customInstance<authControllerHandleRefreshResponse>(getAuthControllerHandleRefreshUrl(),
   {      
     ...options,
     method: 'POST'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: authControllerHandleRefreshResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as authControllerHandleRefreshResponse
-}
+);}
   
 
 
 
 export const getAuthControllerHandleRefreshMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleRefresh>>, TError,void, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleRefresh>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleRefresh>>, TError,void, TContext> => {
 
 const mutationKey = ['authControllerHandleRefresh'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -1113,7 +789,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerHandleRefresh>>, void> = () => {
           
 
-          return  authControllerHandleRefresh(fetchOptions)
+          return  authControllerHandleRefresh(requestOptions)
         }
 
 
@@ -1131,7 +807,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 토큰 재발급
  */
 export const useAuthControllerHandleRefresh = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleRefresh>>, TError,void, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleRefresh>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof authControllerHandleRefresh>>,
         TError,
@@ -1173,34 +849,28 @@ export const getAuthControllerHandleLogoutUrl = () => {
 
 export const authControllerHandleLogout = async ( options?: RequestInit): Promise<authControllerHandleLogoutResponse> => {
   
-  const res = await fetch(getAuthControllerHandleLogoutUrl(),
+  return customInstance<authControllerHandleLogoutResponse>(getAuthControllerHandleLogoutUrl(),
   {      
     ...options,
     method: 'POST'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: authControllerHandleLogoutResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as authControllerHandleLogoutResponse
-}
+);}
   
 
 
 
 export const getAuthControllerHandleLogoutMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleLogout>>, TError,void, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleLogout>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleLogout>>, TError,void, TContext> => {
 
 const mutationKey = ['authControllerHandleLogout'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -1208,7 +878,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerHandleLogout>>, void> = () => {
           
 
-          return  authControllerHandleLogout(fetchOptions)
+          return  authControllerHandleLogout(requestOptions)
         }
 
 
@@ -1226,7 +896,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 로그아웃
  */
 export const useAuthControllerHandleLogout = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleLogout>>, TError,void, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleLogout>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof authControllerHandleLogout>>,
         TError,
@@ -1273,7 +943,7 @@ export const getAuthControllerHandleSmsSendUrl = () => {
 
 export const authControllerHandleSmsSend = async (sendSmsReqDTO: SendSmsReqDTO, options?: RequestInit): Promise<authControllerHandleSmsSendResponse> => {
   
-  const res = await fetch(getAuthControllerHandleSmsSendUrl(),
+  return customInstance<authControllerHandleSmsSendResponse>(getAuthControllerHandleSmsSendUrl(),
   {      
     ...options,
     method: 'POST',
@@ -1281,27 +951,21 @@ export const authControllerHandleSmsSend = async (sendSmsReqDTO: SendSmsReqDTO, 
     body: JSON.stringify(
       sendSmsReqDTO,)
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: authControllerHandleSmsSendResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as authControllerHandleSmsSendResponse
-}
+);}
   
 
 
 
 export const getAuthControllerHandleSmsSendMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleSmsSend>>, TError,{data: SendSmsReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleSmsSend>>, TError,{data: SendSmsReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleSmsSend>>, TError,{data: SendSmsReqDTO}, TContext> => {
 
 const mutationKey = ['authControllerHandleSmsSend'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -1309,7 +973,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerHandleSmsSend>>, {data: SendSmsReqDTO}> = (props) => {
           const {data} = props ?? {};
 
-          return  authControllerHandleSmsSend(data,fetchOptions)
+          return  authControllerHandleSmsSend(data,requestOptions)
         }
 
 
@@ -1327,7 +991,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 전화번호 인증번호 발송
  */
 export const useAuthControllerHandleSmsSend = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleSmsSend>>, TError,{data: SendSmsReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleSmsSend>>, TError,{data: SendSmsReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof authControllerHandleSmsSend>>,
         TError,
@@ -1379,7 +1043,7 @@ export const getAuthControllerHandleSmsVerifyUrl = () => {
 
 export const authControllerHandleSmsVerify = async (verifySmsReqDTO: VerifySmsReqDTO, options?: RequestInit): Promise<authControllerHandleSmsVerifyResponse> => {
   
-  const res = await fetch(getAuthControllerHandleSmsVerifyUrl(),
+  return customInstance<authControllerHandleSmsVerifyResponse>(getAuthControllerHandleSmsVerifyUrl(),
   {      
     ...options,
     method: 'POST',
@@ -1387,27 +1051,21 @@ export const authControllerHandleSmsVerify = async (verifySmsReqDTO: VerifySmsRe
     body: JSON.stringify(
       verifySmsReqDTO,)
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: authControllerHandleSmsVerifyResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as authControllerHandleSmsVerifyResponse
-}
+);}
   
 
 
 
 export const getAuthControllerHandleSmsVerifyMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleSmsVerify>>, TError,{data: VerifySmsReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleSmsVerify>>, TError,{data: VerifySmsReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleSmsVerify>>, TError,{data: VerifySmsReqDTO}, TContext> => {
 
 const mutationKey = ['authControllerHandleSmsVerify'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -1415,7 +1073,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerHandleSmsVerify>>, {data: VerifySmsReqDTO}> = (props) => {
           const {data} = props ?? {};
 
-          return  authControllerHandleSmsVerify(data,fetchOptions)
+          return  authControllerHandleSmsVerify(data,requestOptions)
         }
 
 
@@ -1433,7 +1091,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 전화번호 인증번호 검증
  */
 export const useAuthControllerHandleSmsVerify = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleSmsVerify>>, TError,{data: VerifySmsReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerHandleSmsVerify>>, TError,{data: VerifySmsReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof authControllerHandleSmsVerify>>,
         TError,

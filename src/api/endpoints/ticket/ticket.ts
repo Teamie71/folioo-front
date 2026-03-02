@@ -24,7 +24,10 @@ import type {
   TicketControllerGetTicketProducts200
 } from '../../models';
 
+import { customInstance } from '../../../lib/axios';
 
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 
@@ -54,20 +57,14 @@ export const getTicketControllerGetTicketProductsUrl = () => {
 
 export const ticketControllerGetTicketProducts = async ( options?: RequestInit): Promise<ticketControllerGetTicketProductsResponse> => {
   
-  const res = await fetch(getTicketControllerGetTicketProductsUrl(),
+  return customInstance<ticketControllerGetTicketProductsResponse>(getTicketControllerGetTicketProductsUrl(),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: ticketControllerGetTicketProductsResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as ticketControllerGetTicketProductsResponse
-}
+);}
   
 
 
@@ -80,16 +77,16 @@ export const getTicketControllerGetTicketProductsQueryKey = () => {
     }
 
     
-export const getTicketControllerGetTicketProductsQueryOptions = <TData = Awaited<ReturnType<typeof ticketControllerGetTicketProducts>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof ticketControllerGetTicketProducts>>, TError, TData>>, fetch?: RequestInit}
+export const getTicketControllerGetTicketProductsQueryOptions = <TData = Awaited<ReturnType<typeof ticketControllerGetTicketProducts>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof ticketControllerGetTicketProducts>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getTicketControllerGetTicketProductsQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof ticketControllerGetTicketProducts>>> = ({ signal }) => ticketControllerGetTicketProducts({ signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof ticketControllerGetTicketProducts>>> = ({ signal }) => ticketControllerGetTicketProducts({ signal, ...requestOptions });
 
       
 
@@ -109,7 +106,7 @@ export function useTicketControllerGetTicketProducts<TData = Awaited<ReturnType<
           TError,
           Awaited<ReturnType<typeof ticketControllerGetTicketProducts>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useTicketControllerGetTicketProducts<TData = Awaited<ReturnType<typeof ticketControllerGetTicketProducts>>, TError = unknown>(
@@ -119,11 +116,11 @@ export function useTicketControllerGetTicketProducts<TData = Awaited<ReturnType<
           TError,
           Awaited<ReturnType<typeof ticketControllerGetTicketProducts>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useTicketControllerGetTicketProducts<TData = Awaited<ReturnType<typeof ticketControllerGetTicketProducts>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof ticketControllerGetTicketProducts>>, TError, TData>>, fetch?: RequestInit}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof ticketControllerGetTicketProducts>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -131,7 +128,7 @@ export function useTicketControllerGetTicketProducts<TData = Awaited<ReturnType<
  */
 
 export function useTicketControllerGetTicketProducts<TData = Awaited<ReturnType<typeof ticketControllerGetTicketProducts>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof ticketControllerGetTicketProducts>>, TError, TData>>, fetch?: RequestInit}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof ticketControllerGetTicketProducts>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 

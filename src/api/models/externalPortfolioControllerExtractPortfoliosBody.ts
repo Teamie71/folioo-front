@@ -7,5 +7,6 @@
  */
 
 export type ExternalPortfolioControllerExtractPortfoliosBody = {
+  correctionId?: number;
   file?: Blob;
 };

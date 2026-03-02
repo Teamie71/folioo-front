@@ -5,11 +5,19 @@
  * API document of Folioo Development
  * OpenAPI spec version: 1.0.0
  */
+import type { UserProfileResDTOPhoneNum } from './userProfileResDTOPhoneNum';
+import type { UserSocialAccountResDTO } from './userSocialAccountResDTO';
 
 export interface UserProfileResDTO {
+  /** 사용자 닉네임 */
   name: string;
-  email: string;
-  /** @nullable */
-  phoneNum: string | null;
+  /** 연결된 소셜 계정 목록 */
+  socialAccounts: UserSocialAccountResDTO[];
+  /**
+   * 사용자 전화번호
+   * @nullable
+   */
+  phoneNum: UserProfileResDTOPhoneNum;
+  /** 마케팅 정보 수신 동의 여부 */
   isMarketingAgreed: boolean;
 }

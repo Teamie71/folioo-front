@@ -36,7 +36,10 @@ import type {
   UserControllerUpdateProfile200
 } from '../../models';
 
+import { customInstance } from '../../../lib/axios';
 
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 
@@ -54,10 +57,15 @@ export type userControllerGetProfileResponse401 = {
   status: 401
 }
 
+export type userControllerGetProfileResponse404 = {
+  data: CommonResponse
+  status: 404
+}
+
 export type userControllerGetProfileResponseSuccess = (userControllerGetProfileResponse200) & {
   headers: Headers;
 };
-export type userControllerGetProfileResponseError = (userControllerGetProfileResponse401) & {
+export type userControllerGetProfileResponseError = (userControllerGetProfileResponse401 | userControllerGetProfileResponse404) & {
   headers: Headers;
 };
 
@@ -73,20 +81,14 @@ export const getUserControllerGetProfileUrl = () => {
 
 export const userControllerGetProfile = async ( options?: RequestInit): Promise<userControllerGetProfileResponse> => {
   
-  const res = await fetch(getUserControllerGetProfileUrl(),
+  return customInstance<userControllerGetProfileResponse>(getUserControllerGetProfileUrl(),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: userControllerGetProfileResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as userControllerGetProfileResponse
-}
+);}
   
 
 
@@ -99,16 +101,16 @@ export const getUserControllerGetProfileQueryKey = () => {
     }
 
     
-export const getUserControllerGetProfileQueryOptions = <TData = Awaited<ReturnType<typeof userControllerGetProfile>>, TError = CommonResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetProfile>>, TError, TData>>, fetch?: RequestInit}
+export const getUserControllerGetProfileQueryOptions = <TData = Awaited<ReturnType<typeof userControllerGetProfile>>, TError = CommonResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetProfile>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getUserControllerGetProfileQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerGetProfile>>> = ({ signal }) => userControllerGetProfile({ signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerGetProfile>>> = ({ signal }) => userControllerGetProfile({ signal, ...requestOptions });
 
       
 
@@ -128,7 +130,7 @@ export function useUserControllerGetProfile<TData = Awaited<ReturnType<typeof us
           TError,
           Awaited<ReturnType<typeof userControllerGetProfile>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUserControllerGetProfile<TData = Awaited<ReturnType<typeof userControllerGetProfile>>, TError = CommonResponse>(
@@ -138,11 +140,11 @@ export function useUserControllerGetProfile<TData = Awaited<ReturnType<typeof us
           TError,
           Awaited<ReturnType<typeof userControllerGetProfile>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUserControllerGetProfile<TData = Awaited<ReturnType<typeof userControllerGetProfile>>, TError = CommonResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetProfile>>, TError, TData>>, fetch?: RequestInit}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetProfile>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -150,7 +152,7 @@ export function useUserControllerGetProfile<TData = Awaited<ReturnType<typeof us
  */
 
 export function useUserControllerGetProfile<TData = Awaited<ReturnType<typeof userControllerGetProfile>>, TError = CommonResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetProfile>>, TError, TData>>, fetch?: RequestInit}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetProfile>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -178,10 +180,15 @@ export type userControllerUpdateProfileResponse401 = {
   status: 401
 }
 
+export type userControllerUpdateProfileResponse404 = {
+  data: CommonResponse
+  status: 404
+}
+
 export type userControllerUpdateProfileResponseSuccess = (userControllerUpdateProfileResponse200) & {
   headers: Headers;
 };
-export type userControllerUpdateProfileResponseError = (userControllerUpdateProfileResponse401) & {
+export type userControllerUpdateProfileResponseError = (userControllerUpdateProfileResponse401 | userControllerUpdateProfileResponse404) & {
   headers: Headers;
 };
 
@@ -197,7 +204,7 @@ export const getUserControllerUpdateProfileUrl = () => {
 
 export const userControllerUpdateProfile = async (updateUserNameReqDTO: UpdateUserNameReqDTO, options?: RequestInit): Promise<userControllerUpdateProfileResponse> => {
   
-  const res = await fetch(getUserControllerUpdateProfileUrl(),
+  return customInstance<userControllerUpdateProfileResponse>(getUserControllerUpdateProfileUrl(),
   {      
     ...options,
     method: 'PATCH',
@@ -205,27 +212,21 @@ export const userControllerUpdateProfile = async (updateUserNameReqDTO: UpdateUs
     body: JSON.stringify(
       updateUserNameReqDTO,)
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: userControllerUpdateProfileResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as userControllerUpdateProfileResponse
-}
+);}
   
 
 
 
 export const getUserControllerUpdateProfileMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof userControllerUpdateProfile>>, TError,{data: UpdateUserNameReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof userControllerUpdateProfile>>, TError,{data: UpdateUserNameReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof userControllerUpdateProfile>>, TError,{data: UpdateUserNameReqDTO}, TContext> => {
 
 const mutationKey = ['userControllerUpdateProfile'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -233,7 +234,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof userControllerUpdateProfile>>, {data: UpdateUserNameReqDTO}> = (props) => {
           const {data} = props ?? {};
 
-          return  userControllerUpdateProfile(data,fetchOptions)
+          return  userControllerUpdateProfile(data,requestOptions)
         }
 
 
@@ -251,7 +252,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 사용자 이름/닉네임 변경
  */
 export const useUserControllerUpdateProfile = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof userControllerUpdateProfile>>, TError,{data: UpdateUserNameReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof userControllerUpdateProfile>>, TError,{data: UpdateUserNameReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof userControllerUpdateProfile>>,
         TError,
@@ -293,20 +294,14 @@ export const getUserControllerGetTicketBalanceUrl = () => {
 
 export const userControllerGetTicketBalance = async ( options?: RequestInit): Promise<userControllerGetTicketBalanceResponse> => {
   
-  const res = await fetch(getUserControllerGetTicketBalanceUrl(),
+  return customInstance<userControllerGetTicketBalanceResponse>(getUserControllerGetTicketBalanceUrl(),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: userControllerGetTicketBalanceResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as userControllerGetTicketBalanceResponse
-}
+);}
   
 
 
@@ -319,16 +314,16 @@ export const getUserControllerGetTicketBalanceQueryKey = () => {
     }
 
     
-export const getUserControllerGetTicketBalanceQueryOptions = <TData = Awaited<ReturnType<typeof userControllerGetTicketBalance>>, TError = CommonResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetTicketBalance>>, TError, TData>>, fetch?: RequestInit}
+export const getUserControllerGetTicketBalanceQueryOptions = <TData = Awaited<ReturnType<typeof userControllerGetTicketBalance>>, TError = CommonResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetTicketBalance>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getUserControllerGetTicketBalanceQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerGetTicketBalance>>> = ({ signal }) => userControllerGetTicketBalance({ signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerGetTicketBalance>>> = ({ signal }) => userControllerGetTicketBalance({ signal, ...requestOptions });
 
       
 
@@ -348,7 +343,7 @@ export function useUserControllerGetTicketBalance<TData = Awaited<ReturnType<typ
           TError,
           Awaited<ReturnType<typeof userControllerGetTicketBalance>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUserControllerGetTicketBalance<TData = Awaited<ReturnType<typeof userControllerGetTicketBalance>>, TError = CommonResponse>(
@@ -358,11 +353,11 @@ export function useUserControllerGetTicketBalance<TData = Awaited<ReturnType<typ
           TError,
           Awaited<ReturnType<typeof userControllerGetTicketBalance>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUserControllerGetTicketBalance<TData = Awaited<ReturnType<typeof userControllerGetTicketBalance>>, TError = CommonResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetTicketBalance>>, TError, TData>>, fetch?: RequestInit}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetTicketBalance>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -370,7 +365,7 @@ export function useUserControllerGetTicketBalance<TData = Awaited<ReturnType<typ
  */
 
 export function useUserControllerGetTicketBalance<TData = Awaited<ReturnType<typeof userControllerGetTicketBalance>>, TError = CommonResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetTicketBalance>>, TError, TData>>, fetch?: RequestInit}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetTicketBalance>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -424,20 +419,14 @@ export const getUserControllerGetExpiringTicketsUrl = (params?: UserControllerGe
 
 export const userControllerGetExpiringTickets = async (params?: UserControllerGetExpiringTicketsParams, options?: RequestInit): Promise<userControllerGetExpiringTicketsResponse> => {
   
-  const res = await fetch(getUserControllerGetExpiringTicketsUrl(params),
+  return customInstance<userControllerGetExpiringTicketsResponse>(getUserControllerGetExpiringTicketsUrl(params),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: userControllerGetExpiringTicketsResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as userControllerGetExpiringTicketsResponse
-}
+);}
   
 
 
@@ -450,16 +439,16 @@ export const getUserControllerGetExpiringTicketsQueryKey = (params?: UserControl
     }
 
     
-export const getUserControllerGetExpiringTicketsQueryOptions = <TData = Awaited<ReturnType<typeof userControllerGetExpiringTickets>>, TError = CommonResponse>(params?: UserControllerGetExpiringTicketsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetExpiringTickets>>, TError, TData>>, fetch?: RequestInit}
+export const getUserControllerGetExpiringTicketsQueryOptions = <TData = Awaited<ReturnType<typeof userControllerGetExpiringTickets>>, TError = CommonResponse>(params?: UserControllerGetExpiringTicketsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetExpiringTickets>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getUserControllerGetExpiringTicketsQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerGetExpiringTickets>>> = ({ signal }) => userControllerGetExpiringTickets(params, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerGetExpiringTickets>>> = ({ signal }) => userControllerGetExpiringTickets(params, { signal, ...requestOptions });
 
       
 
@@ -479,7 +468,7 @@ export function useUserControllerGetExpiringTickets<TData = Awaited<ReturnType<t
           TError,
           Awaited<ReturnType<typeof userControllerGetExpiringTickets>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUserControllerGetExpiringTickets<TData = Awaited<ReturnType<typeof userControllerGetExpiringTickets>>, TError = CommonResponse>(
@@ -489,11 +478,11 @@ export function useUserControllerGetExpiringTickets<TData = Awaited<ReturnType<t
           TError,
           Awaited<ReturnType<typeof userControllerGetExpiringTickets>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUserControllerGetExpiringTickets<TData = Awaited<ReturnType<typeof userControllerGetExpiringTickets>>, TError = CommonResponse>(
- params?: UserControllerGetExpiringTicketsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetExpiringTickets>>, TError, TData>>, fetch?: RequestInit}
+ params?: UserControllerGetExpiringTicketsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetExpiringTickets>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -501,7 +490,7 @@ export function useUserControllerGetExpiringTickets<TData = Awaited<ReturnType<t
  */
 
 export function useUserControllerGetExpiringTickets<TData = Awaited<ReturnType<typeof userControllerGetExpiringTickets>>, TError = CommonResponse>(
- params?: UserControllerGetExpiringTicketsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetExpiringTickets>>, TError, TData>>, fetch?: RequestInit}
+ params?: UserControllerGetExpiringTicketsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetExpiringTickets>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -529,10 +518,15 @@ export type userControllerUpdateMarketingConsentResponse401 = {
   status: 401
 }
 
+export type userControllerUpdateMarketingConsentResponse404 = {
+  data: CommonResponse
+  status: 404
+}
+
 export type userControllerUpdateMarketingConsentResponseSuccess = (userControllerUpdateMarketingConsentResponse200) & {
   headers: Headers;
 };
-export type userControllerUpdateMarketingConsentResponseError = (userControllerUpdateMarketingConsentResponse401) & {
+export type userControllerUpdateMarketingConsentResponseError = (userControllerUpdateMarketingConsentResponse401 | userControllerUpdateMarketingConsentResponse404) & {
   headers: Headers;
 };
 
@@ -548,7 +542,7 @@ export const getUserControllerUpdateMarketingConsentUrl = () => {
 
 export const userControllerUpdateMarketingConsent = async (agreeMarketingReqDTO: AgreeMarketingReqDTO, options?: RequestInit): Promise<userControllerUpdateMarketingConsentResponse> => {
   
-  const res = await fetch(getUserControllerUpdateMarketingConsentUrl(),
+  return customInstance<userControllerUpdateMarketingConsentResponse>(getUserControllerUpdateMarketingConsentUrl(),
   {      
     ...options,
     method: 'PATCH',
@@ -556,27 +550,21 @@ export const userControllerUpdateMarketingConsent = async (agreeMarketingReqDTO:
     body: JSON.stringify(
       agreeMarketingReqDTO,)
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: userControllerUpdateMarketingConsentResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as userControllerUpdateMarketingConsentResponse
-}
+);}
   
 
 
 
 export const getUserControllerUpdateMarketingConsentMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof userControllerUpdateMarketingConsent>>, TError,{data: AgreeMarketingReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof userControllerUpdateMarketingConsent>>, TError,{data: AgreeMarketingReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof userControllerUpdateMarketingConsent>>, TError,{data: AgreeMarketingReqDTO}, TContext> => {
 
 const mutationKey = ['userControllerUpdateMarketingConsent'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -584,7 +572,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof userControllerUpdateMarketingConsent>>, {data: AgreeMarketingReqDTO}> = (props) => {
           const {data} = props ?? {};
 
-          return  userControllerUpdateMarketingConsent(data,fetchOptions)
+          return  userControllerUpdateMarketingConsent(data,requestOptions)
         }
 
 
@@ -602,7 +590,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 마케팅 정보 수신 동의 여부 변경
  */
 export const useUserControllerUpdateMarketingConsent = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof userControllerUpdateMarketingConsent>>, TError,{data: AgreeMarketingReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof userControllerUpdateMarketingConsent>>, TError,{data: AgreeMarketingReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof userControllerUpdateMarketingConsent>>,
         TError,

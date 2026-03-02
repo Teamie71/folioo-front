@@ -5,13 +5,9 @@
  * API document of Folioo Development
  * OpenAPI spec version: 1.0.0
  */
-import type { InsightLogResDTOCategory } from './insightLogResDTOCategory';
 
-export interface InsightLogResDTO {
-  category: InsightLogResDTOCategory;
-  createdAt: string;
+export interface SummaryLogItemDTO {
   id: number;
   title: string;
-  description: string;
   activityNames: string[];
 }

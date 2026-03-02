@@ -6,7 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface MapCorrectionWithPortfoliosReqDTO {
-  /** @minItems 1 */
-  portfolioIds: number[];
-}
+/**
+ * @nullable
+ */
+export type EventControllerGetFeedbackModal200Error = { [key: string]: unknown } | null;
