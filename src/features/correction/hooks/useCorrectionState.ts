@@ -17,6 +17,9 @@ import {
   PDF_CATEGORY_CHAR_LIMIT,
 } from '@/features/correction/constants';
 import type {
+  FileDeleteConfirmTarget,
+  InformationErrors,
+  JdUploadedFile,
   PdfActivityBlock,
   PdfCategoryName,
   PortfolioType,
@@ -111,22 +114,20 @@ export function useCorrectionState(correctionId?: string | null) {
   const [companyName, setCompanyName] = useState('');
   const [jobTitle, setJobTitle] = useState('');
   const [jobDescription, setJobDescription] = useState('');
-  const [jdUploadedFiles, setJdUploadedFiles] = useState<
-    Array<{ name: string; size: number; previewUrl: string }>
-  >([]);
-  const [fileDeleteConfirmTarget, setFileDeleteConfirmTarget] = useState<
-    { type: 'jd'; index: number } | { type: 'pdf' } | null
-  >(null);
+  const [jdUploadedFiles, setJdUploadedFiles] = useState<JdUploadedFile[]>([]);
+  const [fileDeleteConfirmTarget, setFileDeleteConfirmTarget] =
+    useState<FileDeleteConfirmTarget>(null);
   const [jdViewerFileIndex, setJdViewerFileIndex] = useState<number | null>(
     null,
   );
   const [isJdDropOverlayActive, setIsJdDropOverlayActive] = useState(false);
   const jdFileInputRef = useRef<HTMLInputElement>(null);
-  const [informationErrors, setInformationErrors] = useState<{
-    companyName: boolean;
-    jobTitle: boolean;
-    jobDescription: boolean;
-  }>({ companyName: false, jobTitle: false, jobDescription: false });
+  const [informationErrors, setInformationErrors] =
+    useState<InformationErrors>({
+      companyName: false,
+      jobTitle: false,
+      jobDescription: false,
+    });
   const [jdImageError, setJdImageError] = useState<
     null | 'required' | 'too_large' | 'too_many'
   >(null);
@@ -523,3 +524,5 @@ export function useCorrectionState(correctionId?: string | null) {
     pdfCategoryOverLimit,
   };
 }
+
+export type UseCorrectionStateReturn = ReturnType<typeof useCorrectionState>;

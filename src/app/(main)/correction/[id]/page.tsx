@@ -10,7 +10,10 @@ import { CorrectionLayout } from '@/features/correction/components/CorrectionLay
 import { CorrectionPageHeader } from '@/features/correction/components/CorrectionPageHeader';
 import { CorrectionPortfolioStep } from '@/features/correction/components/CorrectionPortfolioStep';
 import { CorrectionResultStep } from '@/features/correction/components/CorrectionResultStep';
-import { useCorrectionState } from '@/features/correction/hooks/useCorrectionState';
+import {
+  useCorrectionState,
+  type UseCorrectionStateReturn,
+} from '@/features/correction/hooks/useCorrectionState';
 
 export default function CorrectionSettingsPage() {
   const params = useParams();
@@ -20,7 +23,7 @@ export default function CorrectionSettingsPage() {
       : Array.isArray(params.id)
         ? params.id[0]
         : params.id;
-  const s = useCorrectionState(correctionId);
+  const s: UseCorrectionStateReturn = useCorrectionState(correctionId);
 
   return (
     <CorrectionLayout
@@ -178,16 +181,12 @@ export default function CorrectionSettingsPage() {
               if (value === 'image') {
                 s.setJdImageError(null);
                 s.setJdViewerFileIndex(null);
-                s.setJdUploadedFiles(
-                  (prev: Array<{ name: string; size: number; previewUrl: string }>) => {
-                    prev.forEach(
-                      (f: { name: string; size: number; previewUrl: string }) => {
-                        if (f.previewUrl) URL.revokeObjectURL(f.previewUrl);
-                      },
-                    );
-                    return [];
-                  },
-                );
+                s.setJdUploadedFiles((prev) => {
+                  prev.forEach((f) => {
+                    if (f.previewUrl) URL.revokeObjectURL(f.previewUrl);
+                  });
+                  return [];
+                });
               }
             }}
             informationErrors={s.informationErrors}

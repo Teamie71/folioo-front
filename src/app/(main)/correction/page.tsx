@@ -7,6 +7,7 @@ import {
 } from '@/features/correction/components/CorrectionListGrid';
 import { CorrectionListHeader } from '@/features/correction/components/CorrectionListHeader';
 import { CorrectionListSearch } from '@/features/correction/components/CorrectionListSearch';
+import type { PortfolioCorrectionControllerGetCorrections200 } from '@/api/models';
 import { usePortfolioCorrectionControllerGetCorrections } from '@/api/endpoints/portfolio-correction/portfolio-correction';
 
 function formatDate(createdAt: string): string {
@@ -27,7 +28,7 @@ export default function CorrectionPage() {
     { query: { enabled: true } },
   );
 
-  const responseData = data?.data as { result?: Array<{ id: number; title: string; positionName: string; createdAt: string }> } | undefined;
+  const responseData = data?.data as PortfolioCorrectionControllerGetCorrections200 | undefined;
   const list = responseData?.result ?? [];
   const items: CorrectionListItem[] = list.map((c) => ({
     title: c.title,
