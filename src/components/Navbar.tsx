@@ -7,7 +7,9 @@ import { useRouter, usePathname } from 'next/navigation';
 import { ProfileButton } from '@/components/ProfileButton';
 import { ProfileDropdown } from '@/components/ProfileDropdown';
 import { ProfileModal } from '@/components/ProfileModal';
+import { LogoutModal } from '@/components/LogoutModal';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useAuthControllerHandleLogout } from '@/api/endpoints/auth/auth';
 import { cn } from '@/utils/utils';
 
 export default function Navbar() {
@@ -20,10 +22,34 @@ export default function Navbar() {
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const myButtonRef = useRef<HTMLButtonElement>(null);
+
+  const { mutate: logout } = useAuthControllerHandleLogout({
+    mutation: {
+      onSuccess: () => {
+        clearAuth();
+        router.push('/');
+      },
+      onError: () => {
+        // API 실패해도 로컬 인증 초기화
+        clearAuth();
+        router.push('/');
+      },
+    },
+  });
 
   const isLoggedIn = accessToken != null;
   const showAuthArea = sessionRestoreAttempted;
+
+  const handleLogoutClick = () => {
+    setIsProfileDropdownOpen(false);
+    setIsLogoutModalOpen(true);
+  };
+
+  const handleLogoutConfirm = () => {
+    logout();
+  };
 
   const linkClass = (href: string) =>
     cn(
@@ -84,10 +110,7 @@ export default function Navbar() {
                   onClose={() => setIsProfileDropdownOpen(false)}
                   triggerRef={myButtonRef}
                   onProfileClick={() => setIsProfileModalOpen(true)}
-                  onLogoutClick={() => {
-                    clearAuth();
-                    router.push('/');
-                  }}
+                  onLogoutClick={handleLogoutClick}
                 />
               </div>
             ) : (
@@ -109,6 +132,11 @@ export default function Navbar() {
       <ProfileModal
         open={isProfileModalOpen}
         onOpenChange={setIsProfileModalOpen}
+      />
+      <LogoutModal
+        open={isLogoutModalOpen}
+        onOpenChange={setIsLogoutModalOpen}
+        onConfirm={handleLogoutConfirm}
       />
     </nav>
   );

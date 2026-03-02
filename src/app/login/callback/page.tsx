@@ -63,7 +63,7 @@ function LoginCallbackContent() {
 
   return (
     <div className='flex min-h-screen items-center justify-center'>
-      <p className='text-[1rem] text-[#666]'>로그인 처리 중...</p>
+      <p className='text-[1rem] text-[#666]'></p>
     </div>
   );
 }
