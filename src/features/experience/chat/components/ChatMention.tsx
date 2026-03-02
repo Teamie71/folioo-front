@@ -145,7 +145,7 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
             filteredItems.map((item) => (
               <div
                 key={item.id}
-                className='flex w-full cursor-pointer items-center justify-between rounded-[0.25rem] border border-[#CDD0D5] px-[1rem] py-[0.75rem] hover:bg-[#F6F5FF]'
+                className='flex w-full cursor-pointer items-center justify-between rounded-[0.25rem] border border-[#CDD0D5] px-[1rem] py-[0.75rem] hover:bg-[#F6F8FA]'
                 onClick={() => onSelect?.(item.title)}
               >
                 <p className='text-[0.875rem] leading-[150%]'>{item.title}</p>
@@ -156,7 +156,7 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
 
                   <button
                     type='button'
-                    className='h-[1.375rem] w-[4.125rem] cursor-pointer rounded-[0.25rem] bg-[#E9EAEC] text-center text-[0.75rem]'
+                    className='h-[1.375rem] w-[4.125rem] cursor-pointer rounded-[0.25rem] bg-[#E9EAEC] text-center text-[0.75rem] hover:bg-[#ffffff] hover:font-bold'
                     onClick={(e) => handleDetailClick(e, item)}
                   >
                     내용보기
