@@ -58,18 +58,16 @@ export const ModalFunctionButton = ({
 
       {isOpen && (
         <div className='absolute top-full right-0 z-50 mt-[0.5rem] min-w-[6rem] translate-x-[-0.5rem] overflow-hidden rounded-[0.5rem] border border-[#CDD0D5] bg-[#FFFFFF] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
-          <div className='flex flex-col'>
+          <div className='flex cursor-pointer flex-col'>
             <button
-              className={cn(
-                'cursor-pointer px-[1rem] py-[1rem] text-center text-[0.875rem] text-[#1A1A1A]',
-              )}
+              className='cursor-pointer px-[1rem] py-[1rem] text-center text-[0.875rem] font-medium text-[#1A1A1A] transition-colors hover:bg-[#F6F5FF] hover:font-semibold hover:text-[#5060C5]'
               onClick={handleEdit}
             >
               수정
             </button>
             {onDelete && (
               <button
-                className='cursor-pointer px-[1rem] py-[0.75rem] text-center text-[0.875rem] text-[#1A1A1A]'
+                className='cursor-pointer px-[1rem] py-[0.75rem] text-center text-[0.875rem] font-medium text-[#1A1A1A] transition-colors hover:bg-[#F6F5FF] hover:font-semibold hover:text-[#5060C5]'
                 onClick={handleDelete}
               >
                 삭제
