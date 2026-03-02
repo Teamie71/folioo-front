@@ -20,9 +20,6 @@ import type { UserSocialAccountResDTOSocialType } from '@/api/models/userSocialA
 import { ProfileEditButton } from '@/components/ProfileEditButton';
 import Link from 'next/link';
 import { ChevronLeftIcon } from './icons/ChevronLeftIcon';
-import { GoogleEmailLogo } from './icons/GoogleEmailLogo';
-import { KakaoEmailLogo } from './icons/KakaoEmailLogo';
-import { NaverEmailLogo } from './icons/NaverEmailLogo';
 import { ToggleOnOff } from './ToggleOnOff';
 import Image from 'next/image';
 
