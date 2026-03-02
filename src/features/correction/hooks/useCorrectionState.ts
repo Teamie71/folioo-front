@@ -11,6 +11,7 @@ import {
   portfolioCorrectionControllerMapCorrectionWithPortfolios,
   portfolioCorrectionControllerCreateCorrectionByAI,
   portfolioCorrectionControllerGetCorrectionStatus,
+  portfolioCorrectionControllerCreateCompanyInsight,
   portfolioCorrectionControllerUpdateCorrectionTitle,
 } from '@/api/endpoints/portfolio-correction/portfolio-correction';
 import type { CorrectionStatusResDTOStatus } from '@/api/models';
@@ -267,6 +268,12 @@ export function useCorrectionState(correctionId: string | undefined) {
         await portfolioCorrectionControllerMapCorrectionWithPortfolios(id, {
           portfolioIds,
         });
+        // 기업 분석 정보 생성 트리거 (실패해도 다음 단계로 진행)
+        try {
+          await portfolioCorrectionControllerCreateCompanyInsight(id);
+        } catch {
+          // ignore create-company-insight error; 분석 단계에서 재시도 가능
+        }
         setStep('analysis');
       } catch {
         // 실패 시 단계 유지
@@ -279,19 +286,8 @@ export function useCorrectionState(correctionId: string | undefined) {
         setShowAnalysisInfoWarning(true);
         return;
       }
-      const portfolioIds =
-        selectedPortfolioType === 'pdf'
-          ? pdfActivities
-              .map((a) => a.portfolioId)
-              .filter((n): n is number => n != null)
-          : selectedTextPortfolioIds
-              .map((s) => Number(s))
-              .filter((n) => !Number.isNaN(n));
-      if (portfolioIds.length === 0) return;
       try {
-        await portfolioCorrectionControllerCreateCorrectionByAI(id, {
-          portfolioIds,
-        });
+        await portfolioCorrectionControllerCreateCorrectionByAI(id);
         const statusRes = await portfolioCorrectionControllerGetCorrectionStatus(id);
         const apiStatus = (statusRes as { result?: { status?: CorrectionStatusResDTOStatus } })?.result?.status;
         const { step: nextStep, status: nextStatus } = mapStatusToStepAndStatus(apiStatus);
