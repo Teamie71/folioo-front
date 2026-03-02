@@ -5,12 +5,14 @@ import { BackButton } from '@/components/BackButton';
 import { PaymentIcon } from '@/components/icons/PaymentIcon';
 import { BankDropdown } from '@/features/invoice/refund/components/BankDropdown';
 import { RefundReasonDropdown } from '@/features/invoice/refund/components/RefundReasonDropdown';
+import { RefundCompleteModal } from '@/features/invoice/refund/components/RefundCompleteModal';
 
 export default function InvoiceRefundPage() {
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [selectedBank, setSelectedBank] = useState<string | null>(null);
   const [accountHolder, setAccountHolder] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
 
   const canSubmit =
     !!selectedReason &&
@@ -155,12 +157,22 @@ export default function InvoiceRefundPage() {
           onChange={setSelectedReason}
         />
 
-        <div
-          className={`h-[3.75rem] rounded-[0.75rem] px-[12.875rem] py-[1.125rem] text-[1.125rem] font-bold text-[#ffffff] ${canSubmit ? 'cursor-pointer bg-[#5060C5]' : 'cursor-default bg-[#CDD0D5] pointer-events-none'}`}
+        <button
+          type='button'
+          disabled={!canSubmit}
+          onClick={() => setIsCompleteModalOpen(true)}
+          className={`h-[3.75rem] rounded-[0.75rem] px-[12.875rem] py-[1.125rem] text-[1.125rem] font-bold text-[#ffffff] ${
+            canSubmit ? 'cursor-pointer bg-[#5060C5]' : 'cursor-default bg-[#CDD0D5]'
+          }`}
         >
           환불 신청 하기
-        </div>
+        </button>
       </div>
+
+      <RefundCompleteModal
+        open={isCompleteModalOpen}
+        onOpenChange={setIsCompleteModalOpen}
+      />
     </div>
   );
 }
