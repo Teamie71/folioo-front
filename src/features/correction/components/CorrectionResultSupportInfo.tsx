@@ -18,7 +18,7 @@ export function CorrectionResultSupportInfo({
     { query: { enabled } },
   );
 
-  const responseData = data?.data as
+  const responseData = data as
     | PortfolioCorrectionControllerGetCorrection200
     | undefined;
   const result = responseData?.result;

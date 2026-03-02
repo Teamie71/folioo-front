@@ -15,7 +15,11 @@ import {
   portfolioCorrectionControllerUpdateCompanyInsight,
   portfolioCorrectionControllerUpdateCorrectionTitle,
 } from '@/api/endpoints/portfolio-correction/portfolio-correction';
-import type { CorrectionStatusResDTOStatus } from '@/api/models';
+import type {
+  CorrectionStatusResDTOStatus,
+  ExternalPortfolioControllerGetExternalPortfolios200,
+  ExternalPortfolioControllerCreateExternalPortfolioBlock200,
+} from '@/api/models';
 import { useExperienceControllerGetExperiences } from '@/api/endpoints/experience/experience';
 import { mapToPdfActivityBlock, toPatchBody } from '@/services/correction';
 import { useState, useRef, useEffect, useCallback } from 'react';
@@ -216,14 +220,21 @@ export function useCorrectionState(correctionId: string | undefined) {
     setIsPdfExtractConfirmModalOpen(false);
     setIsPdfTextExtracting(true);
     try {
-      const extractRes = await externalPortfolioControllerExtractPortfolios({ file: pdfUploadedFile.file });
-      if (extractRes.status !== 200) throw new Error();
+      await externalPortfolioControllerExtractPortfolios({
+        file: pdfUploadedFile.file,
+      });
       setIsPdfTextExtracted(true);
       const id = effectiveId ? Number(effectiveId) : null;
       if (id != null && !Number.isNaN(id)) {
-        const listRes = await externalPortfolioControllerGetExternalPortfolios({ correctionId: id });
-        const result = (listRes.data as { result?: Array<{ portfolioId: number; name: string; description: string; responsibilities: string; problemSolving: string; learnings: string }> })?.result;
-        const activities = (result ?? []).map((dto, i) => mapToPdfActivityBlock(dto, i));
+        const listRes =
+          await externalPortfolioControllerGetExternalPortfolios({
+            correctionId: id,
+          });
+        const listResult = (listRes as ExternalPortfolioControllerGetExternalPortfolios200)
+          .result;
+        const activities = (listResult ?? []).map((dto, i) =>
+          mapToPdfActivityBlock(dto, i),
+        );
         setPdfActivities(activities);
         if (activities.length > 0) setSelectedActivityId(activities[0].id);
       }
@@ -240,8 +251,9 @@ export function useCorrectionState(correctionId: string | undefined) {
     const activity = pdfActivities.find((a) => a.id === targetId);
     if (activity?.portfolioId != null) {
       try {
-        const res = await externalPortfolioControllerDeleteExternalPortfolio(activity.portfolioId);
-        if (res.status !== 200) throw new Error();
+        await externalPortfolioControllerDeleteExternalPortfolio(
+          activity.portfolioId,
+        );
       } catch {
         return;
       }
@@ -261,9 +273,12 @@ export function useCorrectionState(correctionId: string | undefined) {
     if (id == null || Number.isNaN(id)) return;
     if (pdfActivities.length >= 5) return;
     try {
-      const res = await externalPortfolioControllerCreateExternalPortfolioBlock({ correctionId: id });
-      const result = (res.data as { result?: { portfolioId: number; name: string; description: string; responsibilities: string; problemSolving: string; learnings: string } })?.result;
-      if (res.status !== 200 || !result) throw new Error();
+      const res = await externalPortfolioControllerCreateExternalPortfolioBlock({
+        correctionId: id,
+      });
+      const result = (res as ExternalPortfolioControllerCreateExternalPortfolioBlock200)
+        .result;
+      if (!result) throw new Error();
       const newBlock = mapToPdfActivityBlock(result, pdfActivities.length);
       setPdfActivities((prev) => [...prev, newBlock]);
       setSelectedActivityId(newBlock.id);
