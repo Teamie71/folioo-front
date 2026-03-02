@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { redirect } from 'next/navigation';
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
+import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 import { CorrectionAnalyzingView } from '@/features/correction/components/CorrectionAnalyzingView';
 import { CorrectionAnalysisStep } from '@/features/correction/components/CorrectionAnalysisStep';
@@ -24,6 +26,8 @@ export default function CorrectionSettingsPage() {
         ? params.id[0]
         : params.id;
   const s: UseCorrectionStateReturn = useCorrectionState(correctionId);
+  /** OBT 기간 동안 막아둔 기능: PDF 포트폴리오 */
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
   if (!correctionId) {
     redirect('/correction');
@@ -128,7 +132,13 @@ export default function CorrectionSettingsPage() {
         ) : s.step === 'portfolio' ? (
           <CorrectionPortfolioStep
             selectedPortfolioType={s.selectedPortfolioType}
-            onPortfolioSelect={s.handlePortfolioSelect}
+            onPortfolioSelect={(type) => {
+              if (type === 'pdf') {
+                setIsPdfModalOpen(true);
+                return;
+              }
+              s.handlePortfolioSelect(type);
+            }}
             showTextPortfolioWarning={s.showTextPortfolioWarning}
             textPortfolios={s.textPortfolios}
             selectedTextPortfolioIds={s.selectedTextPortfolioIds}
@@ -200,6 +210,12 @@ export default function CorrectionSettingsPage() {
       </div>
 
       {s.step === 'result' && <FeedbackFloatingButton />}
+
+      {/* OBT 기간 동안 막아둔 기능 */}
+      <OBTRedirectModal
+        open={isPdfModalOpen}
+        onOpenChange={(open) => !open && setIsPdfModalOpen(false)}
+      />
     </CorrectionLayout>
   );
 }
