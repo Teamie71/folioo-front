@@ -135,7 +135,7 @@ export function useNewCorrectionForm() {
     setJdImageError(null);
     if (jdViewerFileIndex === index) setJdViewerFileIndex(null);
     else if (jdViewerFileIndex != null && jdViewerFileIndex > index)
-      setJdViewerFileIndex((i) => i - 1);
+      setJdViewerFileIndex((i) => (i != null ? i - 1 : i));
   }, [jdViewerFileIndex]);
 
   const handlePasteJdImageFromClipboard = useCallback(async () => {
