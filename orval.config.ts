@@ -3,7 +3,7 @@ import { defineConfig } from 'orval';
 export default defineConfig({
   foliooApi: {
     input: {
-      target: 'https://folioo-dev-api.log8.kr/api-json', // API 문서 URL
+      target: 'https://dev-api.folioo.ai.kr/api-json', // API 문서 URL
     },
     output: {
       mode: 'tags-split',
