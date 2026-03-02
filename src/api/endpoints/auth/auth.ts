@@ -44,45 +44,19 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  * 카카오 인증페이지로 리다이렉트합니다. 스웨거에서 누르지 마세요.
  * @summary 카카오 로그인 트리거
  */
-export type authControllerKakaoLoginResponse302 = {
-  data: void
-  status: 302
-}
-
-;
-export type authControllerKakaoLoginResponseError = (authControllerKakaoLoginResponse302) & {
-  headers: Headers;
-};
-
-export type authControllerKakaoLoginResponse = (authControllerKakaoLoginResponseError)
-
-export const getAuthControllerKakaoLoginUrl = (params?: AuthControllerKakaoLoginParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+export const authControllerKakaoLogin = (
+    params?: AuthControllerKakaoLoginParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/auth/kakao`, method: 'GET',
+        params, signal
+    },
+      options);
     }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/auth/kakao?${stringifiedParams}` : `/auth/kakao`
-}
-
-export const authControllerKakaoLogin = async (params?: AuthControllerKakaoLoginParams, options?: RequestInit): Promise<authControllerKakaoLoginResponse> => {
   
-  return customInstance<authControllerKakaoLoginResponse>(getAuthControllerKakaoLoginUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-  
-
 
 
 
@@ -102,7 +76,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerKakaoLogin>>> = ({ signal }) => authControllerKakaoLogin(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerKakaoLogin>>> = ({ signal }) => authControllerKakaoLogin(params, requestOptions, signal);
 
       
 
@@ -162,38 +136,18 @@ export function useAuthControllerKakaoLogin<TData = Awaited<ReturnType<typeof au
  * 로그인 로직이 이루어지고 프론트로 리다이렉트됩니다. 스웨거에서 누르지 마세요.
  * @summary 카카오 로그인 콜백
  */
-export type authControllerKakaoCallbackResponse302 = {
-  data: void
-  status: 302
-}
-
-;
-export type authControllerKakaoCallbackResponseError = (authControllerKakaoCallbackResponse302) & {
-  headers: Headers;
-};
-
-export type authControllerKakaoCallbackResponse = (authControllerKakaoCallbackResponseError)
-
-export const getAuthControllerKakaoCallbackUrl = () => {
-
-
-  
-
-  return `/auth/kakao/callback`
-}
-
-export const authControllerKakaoCallback = async ( options?: RequestInit): Promise<authControllerKakaoCallbackResponse> => {
-  
-  return customInstance<authControllerKakaoCallbackResponse>(getAuthControllerKakaoCallbackUrl(),
-  {      
-    ...options,
-    method: 'GET'
+export const authControllerKakaoCallback = (
     
-    
-  }
-);}
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/auth/kakao/callback`, method: 'GET', signal
+    },
+      options);
+    }
   
-
 
 
 
@@ -213,7 +167,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerKakaoCallback>>> = ({ signal }) => authControllerKakaoCallback({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerKakaoCallback>>> = ({ signal }) => authControllerKakaoCallback(requestOptions, signal);
 
       
 
@@ -273,45 +227,19 @@ export function useAuthControllerKakaoCallback<TData = Awaited<ReturnType<typeof
  * 구글 인증페이지로 리다이렉트합니다. 스웨거에서 누르지 마세요.
  * @summary 구글 로그인 트리거
  */
-export type authControllerGoogleLoginResponse302 = {
-  data: void
-  status: 302
-}
-
-;
-export type authControllerGoogleLoginResponseError = (authControllerGoogleLoginResponse302) & {
-  headers: Headers;
-};
-
-export type authControllerGoogleLoginResponse = (authControllerGoogleLoginResponseError)
-
-export const getAuthControllerGoogleLoginUrl = (params?: AuthControllerGoogleLoginParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+export const authControllerGoogleLogin = (
+    params?: AuthControllerGoogleLoginParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/auth/google`, method: 'GET',
+        params, signal
+    },
+      options);
     }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/auth/google?${stringifiedParams}` : `/auth/google`
-}
-
-export const authControllerGoogleLogin = async (params?: AuthControllerGoogleLoginParams, options?: RequestInit): Promise<authControllerGoogleLoginResponse> => {
   
-  return customInstance<authControllerGoogleLoginResponse>(getAuthControllerGoogleLoginUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-  
-
 
 
 
@@ -331,7 +259,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerGoogleLogin>>> = ({ signal }) => authControllerGoogleLogin(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerGoogleLogin>>> = ({ signal }) => authControllerGoogleLogin(params, requestOptions, signal);
 
       
 
@@ -391,38 +319,18 @@ export function useAuthControllerGoogleLogin<TData = Awaited<ReturnType<typeof a
  * 로그인 로직이 이루어지고 프론트로 리다이렉트됩니다. 스웨거에서 누르지 마세요.
  * @summary 구글 로그인 콜백
  */
-export type authControllerGoogleCallbackResponse302 = {
-  data: void
-  status: 302
-}
-
-;
-export type authControllerGoogleCallbackResponseError = (authControllerGoogleCallbackResponse302) & {
-  headers: Headers;
-};
-
-export type authControllerGoogleCallbackResponse = (authControllerGoogleCallbackResponseError)
-
-export const getAuthControllerGoogleCallbackUrl = () => {
-
-
-  
-
-  return `/auth/google/callback`
-}
-
-export const authControllerGoogleCallback = async ( options?: RequestInit): Promise<authControllerGoogleCallbackResponse> => {
-  
-  return customInstance<authControllerGoogleCallbackResponse>(getAuthControllerGoogleCallbackUrl(),
-  {      
-    ...options,
-    method: 'GET'
+export const authControllerGoogleCallback = (
     
-    
-  }
-);}
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/auth/google/callback`, method: 'GET', signal
+    },
+      options);
+    }
   
-
 
 
 
@@ -442,7 +350,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerGoogleCallback>>> = ({ signal }) => authControllerGoogleCallback({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerGoogleCallback>>> = ({ signal }) => authControllerGoogleCallback(requestOptions, signal);
 
       
 
@@ -502,45 +410,19 @@ export function useAuthControllerGoogleCallback<TData = Awaited<ReturnType<typeo
  * 네이버 인증페이지로 리다이렉트합니다. 스웨거에서 누르지 마세요.
  * @summary 네이버 로그인 트리거
  */
-export type authControllerNaverLoginResponse302 = {
-  data: void
-  status: 302
-}
-
-;
-export type authControllerNaverLoginResponseError = (authControllerNaverLoginResponse302) & {
-  headers: Headers;
-};
-
-export type authControllerNaverLoginResponse = (authControllerNaverLoginResponseError)
-
-export const getAuthControllerNaverLoginUrl = (params?: AuthControllerNaverLoginParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+export const authControllerNaverLogin = (
+    params?: AuthControllerNaverLoginParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/auth/naver`, method: 'GET',
+        params, signal
+    },
+      options);
     }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/auth/naver?${stringifiedParams}` : `/auth/naver`
-}
-
-export const authControllerNaverLogin = async (params?: AuthControllerNaverLoginParams, options?: RequestInit): Promise<authControllerNaverLoginResponse> => {
   
-  return customInstance<authControllerNaverLoginResponse>(getAuthControllerNaverLoginUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-  
-
 
 
 
@@ -560,7 +442,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerNaverLogin>>> = ({ signal }) => authControllerNaverLogin(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerNaverLogin>>> = ({ signal }) => authControllerNaverLogin(params, requestOptions, signal);
 
       
 
@@ -620,38 +502,18 @@ export function useAuthControllerNaverLogin<TData = Awaited<ReturnType<typeof au
  * 로그인 로직이 이루어지고 프론트로 리다이렉트됩니다. 스웨거에서 누르지 마세요.
  * @summary 네이버 로그인 콜백
  */
-export type authControllerNaverCallbackResponse302 = {
-  data: void
-  status: 302
-}
-
-;
-export type authControllerNaverCallbackResponseError = (authControllerNaverCallbackResponse302) & {
-  headers: Headers;
-};
-
-export type authControllerNaverCallbackResponse = (authControllerNaverCallbackResponseError)
-
-export const getAuthControllerNaverCallbackUrl = () => {
-
-
-  
-
-  return `/auth/naver/callback`
-}
-
-export const authControllerNaverCallback = async ( options?: RequestInit): Promise<authControllerNaverCallbackResponse> => {
-  
-  return customInstance<authControllerNaverCallbackResponse>(getAuthControllerNaverCallbackUrl(),
-  {      
-    ...options,
-    method: 'GET'
+export const authControllerNaverCallback = (
     
-    
-  }
-);}
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/auth/naver/callback`, method: 'GET', signal
+    },
+      options);
+    }
   
-
 
 
 
@@ -671,7 +533,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerNaverCallback>>> = ({ signal }) => authControllerNaverCallback({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerNaverCallback>>> = ({ signal }) => authControllerNaverCallback(requestOptions, signal);
 
       
 
@@ -731,45 +593,18 @@ export function useAuthControllerNaverCallback<TData = Awaited<ReturnType<typeof
  * 유효한 refreshToken을 사용해 accessToken을 발급 받습니다.
  * @summary 토큰 재발급
  */
-export type authControllerHandleRefreshResponse201 = {
-  data: unknown
-  status: 201
-}
-
-export type authControllerHandleRefreshResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type authControllerHandleRefreshResponseSuccess = (authControllerHandleRefreshResponse201) & {
-  headers: Headers;
-};
-export type authControllerHandleRefreshResponseError = (authControllerHandleRefreshResponse401) & {
-  headers: Headers;
-};
-
-export type authControllerHandleRefreshResponse = (authControllerHandleRefreshResponseSuccess | authControllerHandleRefreshResponseError)
-
-export const getAuthControllerHandleRefreshUrl = () => {
-
-
-  
-
-  return `/auth/refresh`
-}
-
-export const authControllerHandleRefresh = async ( options?: RequestInit): Promise<authControllerHandleRefreshResponse> => {
-  
-  return customInstance<authControllerHandleRefreshResponse>(getAuthControllerHandleRefreshUrl(),
-  {      
-    ...options,
-    method: 'POST'
+export const authControllerHandleRefresh = (
     
-    
-  }
-);}
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/auth/refresh`, method: 'POST', signal
+    },
+      options);
+    }
   
-
 
 
 export const getAuthControllerHandleRefreshMutationOptions = <TError = CommonResponse,
@@ -820,45 +655,18 @@ export const useAuthControllerHandleRefresh = <TError = CommonResponse,
  * JWT 토큰을 만료시키고 서버에서 로그아웃을 수행합니다.
  * @summary 로그아웃
  */
-export type authControllerHandleLogoutResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type authControllerHandleLogoutResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type authControllerHandleLogoutResponseSuccess = (authControllerHandleLogoutResponse200) & {
-  headers: Headers;
-};
-export type authControllerHandleLogoutResponseError = (authControllerHandleLogoutResponse401) & {
-  headers: Headers;
-};
-
-export type authControllerHandleLogoutResponse = (authControllerHandleLogoutResponseSuccess | authControllerHandleLogoutResponseError)
-
-export const getAuthControllerHandleLogoutUrl = () => {
-
-
-  
-
-  return `/auth/logout`
-}
-
-export const authControllerHandleLogout = async ( options?: RequestInit): Promise<authControllerHandleLogoutResponse> => {
-  
-  return customInstance<authControllerHandleLogoutResponse>(getAuthControllerHandleLogoutUrl(),
-  {      
-    ...options,
-    method: 'POST'
+export const authControllerHandleLogout = (
     
-    
-  }
-);}
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/auth/logout`, method: 'POST', signal
+    },
+      options);
+    }
   
-
 
 
 export const getAuthControllerHandleLogoutMutationOptions = <TError = CommonResponse,
@@ -909,51 +717,20 @@ export const useAuthControllerHandleLogout = <TError = CommonResponse,
  * 전화번호 인증번호를 발송합니다.
  * @summary 전화번호 인증번호 발송
  */
-export type authControllerHandleSmsSendResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type authControllerHandleSmsSendResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type authControllerHandleSmsSendResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type authControllerHandleSmsSendResponseSuccess = (authControllerHandleSmsSendResponse200) & {
-  headers: Headers;
-};
-export type authControllerHandleSmsSendResponseError = (authControllerHandleSmsSendResponse401 | authControllerHandleSmsSendResponse409) & {
-  headers: Headers;
-};
-
-export type authControllerHandleSmsSendResponse = (authControllerHandleSmsSendResponseSuccess | authControllerHandleSmsSendResponseError)
-
-export const getAuthControllerHandleSmsSendUrl = () => {
-
-
+export const authControllerHandleSmsSend = (
+    sendSmsReqDTO: SendSmsReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/auth/sms/send`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: sendSmsReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/auth/sms/send`
-}
-
-export const authControllerHandleSmsSend = async (sendSmsReqDTO: SendSmsReqDTO, options?: RequestInit): Promise<authControllerHandleSmsSendResponse> => {
-  
-  return customInstance<authControllerHandleSmsSendResponse>(getAuthControllerHandleSmsSendUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      sendSmsReqDTO,)
-  }
-);}
-  
-
 
 
 export const getAuthControllerHandleSmsSendMutationOptions = <TError = CommonResponse,
@@ -1004,56 +781,20 @@ export const useAuthControllerHandleSmsSend = <TError = CommonResponse,
  * 발송된 인증정보가 올바른지 확인합니다.
  * @summary 전화번호 인증번호 검증
  */
-export type authControllerHandleSmsVerifyResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type authControllerHandleSmsVerifyResponse400 = {
-  data: CommonResponse
-  status: 400
-}
-
-export type authControllerHandleSmsVerifyResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type authControllerHandleSmsVerifyResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type authControllerHandleSmsVerifyResponseSuccess = (authControllerHandleSmsVerifyResponse200) & {
-  headers: Headers;
-};
-export type authControllerHandleSmsVerifyResponseError = (authControllerHandleSmsVerifyResponse400 | authControllerHandleSmsVerifyResponse401 | authControllerHandleSmsVerifyResponse404) & {
-  headers: Headers;
-};
-
-export type authControllerHandleSmsVerifyResponse = (authControllerHandleSmsVerifyResponseSuccess | authControllerHandleSmsVerifyResponseError)
-
-export const getAuthControllerHandleSmsVerifyUrl = () => {
-
-
+export const authControllerHandleSmsVerify = (
+    verifySmsReqDTO: VerifySmsReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/auth/sms/verify`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: verifySmsReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/auth/sms/verify`
-}
-
-export const authControllerHandleSmsVerify = async (verifySmsReqDTO: VerifySmsReqDTO, options?: RequestInit): Promise<authControllerHandleSmsVerifyResponse> => {
-  
-  return customInstance<authControllerHandleSmsVerifyResponse>(getAuthControllerHandleSmsVerifyUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      verifySmsReqDTO,)
-  }
-);}
-  
-
 
 
 export const getAuthControllerHandleSmsVerifyMutationOptions = <TError = CommonResponse,

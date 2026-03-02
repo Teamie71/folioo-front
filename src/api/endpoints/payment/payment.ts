@@ -44,51 +44,20 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  * 티켓 상품 ID를 전달하면 결제 요청을 생성하고 REQUESTED 상태로 저장합니다.
  * @summary 결제 요청 생성
  */
-export type paymentControllerCreatePaymentResponse200 = {
-  data: PaymentControllerCreatePayment200
-  status: 200
-}
-
-export type paymentControllerCreatePaymentResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type paymentControllerCreatePaymentResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type paymentControllerCreatePaymentResponseSuccess = (paymentControllerCreatePaymentResponse200) & {
-  headers: Headers;
-};
-export type paymentControllerCreatePaymentResponseError = (paymentControllerCreatePaymentResponse401 | paymentControllerCreatePaymentResponse404) & {
-  headers: Headers;
-};
-
-export type paymentControllerCreatePaymentResponse = (paymentControllerCreatePaymentResponseSuccess | paymentControllerCreatePaymentResponseError)
-
-export const getPaymentControllerCreatePaymentUrl = () => {
-
-
+export const paymentControllerCreatePayment = (
+    createPaymentReqDTO: CreatePaymentReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PaymentControllerCreatePayment200>(
+      {url: `/payments`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createPaymentReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/payments`
-}
-
-export const paymentControllerCreatePayment = async (createPaymentReqDTO: CreatePaymentReqDTO, options?: RequestInit): Promise<paymentControllerCreatePaymentResponse> => {
-  
-  return customInstance<paymentControllerCreatePaymentResponse>(getPaymentControllerCreatePaymentUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      createPaymentReqDTO,)
-  }
-);}
-  
-
 
 
 export const getPaymentControllerCreatePaymentMutationOptions = <TError = CommonResponse,
@@ -139,55 +108,18 @@ export const usePaymentControllerCreatePayment = <TError = CommonResponse,
  * 결제 복귀/새로고침 시 현재 결제 상태를 조회합니다. 본인의 결제만 조회할 수 있습니다.
  * @summary 결제 상태 조회
  */
-export type paymentControllerGetPaymentResponse200 = {
-  data: PaymentControllerGetPayment200
-  status: 200
-}
-
-export type paymentControllerGetPaymentResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type paymentControllerGetPaymentResponse403 = {
-  data: CommonResponse
-  status: 403
-}
-
-export type paymentControllerGetPaymentResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type paymentControllerGetPaymentResponseSuccess = (paymentControllerGetPaymentResponse200) & {
-  headers: Headers;
-};
-export type paymentControllerGetPaymentResponseError = (paymentControllerGetPaymentResponse401 | paymentControllerGetPaymentResponse403 | paymentControllerGetPaymentResponse404) & {
-  headers: Headers;
-};
-
-export type paymentControllerGetPaymentResponse = (paymentControllerGetPaymentResponseSuccess | paymentControllerGetPaymentResponseError)
-
-export const getPaymentControllerGetPaymentUrl = (paymentId: number,) => {
-
-
+export const paymentControllerGetPayment = (
+    paymentId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PaymentControllerGetPayment200>(
+      {url: `/payments/${paymentId}`, method: 'GET', signal
+    },
+      options);
+    }
   
-
-  return `/payments/${paymentId}`
-}
-
-export const paymentControllerGetPayment = async (paymentId: number, options?: RequestInit): Promise<paymentControllerGetPaymentResponse> => {
-  
-  return customInstance<paymentControllerGetPaymentResponse>(getPaymentControllerGetPaymentUrl(paymentId),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-  
-
 
 
 
@@ -207,7 +139,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof paymentControllerGetPayment>>> = ({ signal }) => paymentControllerGetPayment(paymentId, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof paymentControllerGetPayment>>> = ({ signal }) => paymentControllerGetPayment(paymentId, requestOptions, signal);
 
       
 
@@ -267,44 +199,20 @@ export function usePaymentControllerGetPayment<TData = Awaited<ReturnType<typeof
  * PayApp이 결제 완료 시 호출하는 webhook입니다. 인증 없이 수신하며, mulNo 기반으로 결제를 조회하여 상태를 갱신하고 티켓을 발급합니다. 멱등성이 보장됩니다.
  * @summary PayApp 결제 콜백(feedbackurl) 수신
  */
-export type paymentControllerHandleWebhookResponse400 = {
-  data: CommonResponse
-  status: 400
-}
-
-export type paymentControllerHandleWebhookResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-;
-export type paymentControllerHandleWebhookResponseError = (paymentControllerHandleWebhookResponse400 | paymentControllerHandleWebhookResponse404) & {
-  headers: Headers;
-};
-
-export type paymentControllerHandleWebhookResponse = (paymentControllerHandleWebhookResponseError)
-
-export const getPaymentControllerHandleWebhookUrl = () => {
-
-
+export const paymentControllerHandleWebhook = (
+    payAppWebhookReqDTO: PayAppWebhookReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/payments/webhook`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: payAppWebhookReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/payments/webhook`
-}
-
-export const paymentControllerHandleWebhook = async (payAppWebhookReqDTO: PayAppWebhookReqDTO, options?: RequestInit): Promise<paymentControllerHandleWebhookResponse> => {
-  
-  return customInstance<paymentControllerHandleWebhookResponse>(getPaymentControllerHandleWebhookUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      payAppWebhookReqDTO,)
-  }
-);}
-  
-
 
 
 export const getPaymentControllerHandleWebhookMutationOptions = <TError = CommonResponse,
@@ -355,65 +263,18 @@ export const usePaymentControllerHandleWebhook = <TError = CommonResponse,
  * 본인의 결제를 취소합니다. PAID 상태의 결제만 취소할 수 있습니다. 이미 취소된 결제는 멱등하게 처리됩니다.
  * @summary 결제 취소 요청
  */
-export type paymentControllerCancelPaymentResponse200 = {
-  data: PaymentControllerCancelPayment200
-  status: 200
-}
-
-export type paymentControllerCancelPaymentResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type paymentControllerCancelPaymentResponse403 = {
-  data: CommonResponse
-  status: 403
-}
-
-export type paymentControllerCancelPaymentResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type paymentControllerCancelPaymentResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type paymentControllerCancelPaymentResponse502 = {
-  data: CommonResponse
-  status: 502
-}
-
-export type paymentControllerCancelPaymentResponseSuccess = (paymentControllerCancelPaymentResponse200) & {
-  headers: Headers;
-};
-export type paymentControllerCancelPaymentResponseError = (paymentControllerCancelPaymentResponse401 | paymentControllerCancelPaymentResponse403 | paymentControllerCancelPaymentResponse404 | paymentControllerCancelPaymentResponse409 | paymentControllerCancelPaymentResponse502) & {
-  headers: Headers;
-};
-
-export type paymentControllerCancelPaymentResponse = (paymentControllerCancelPaymentResponseSuccess | paymentControllerCancelPaymentResponseError)
-
-export const getPaymentControllerCancelPaymentUrl = (paymentId: number,) => {
-
-
+export const paymentControllerCancelPayment = (
+    paymentId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PaymentControllerCancelPayment200>(
+      {url: `/payments/${paymentId}/cancel`, method: 'POST', signal
+    },
+      options);
+    }
   
-
-  return `/payments/${paymentId}/cancel`
-}
-
-export const paymentControllerCancelPayment = async (paymentId: number, options?: RequestInit): Promise<paymentControllerCancelPaymentResponse> => {
-  
-  return customInstance<paymentControllerCancelPaymentResponse>(getPaymentControllerCancelPaymentUrl(paymentId),
-  {      
-    ...options,
-    method: 'POST'
-    
-    
-  }
-);}
-  
-
 
 
 export const getPaymentControllerCancelPaymentMutationOptions = <TError = CommonResponse,

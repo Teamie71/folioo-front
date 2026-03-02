@@ -44,50 +44,18 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  * 내 보상 상태에 따라 피드백 모달 좌/우 버전 표시용 데이터를 반환합니다.
  * @summary 이벤트 피드백 모달 상태 조회
  */
-export type eventControllerGetFeedbackModalResponse200 = {
-  data: EventControllerGetFeedbackModal200
-  status: 200
-}
-
-export type eventControllerGetFeedbackModalResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type eventControllerGetFeedbackModalResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type eventControllerGetFeedbackModalResponseSuccess = (eventControllerGetFeedbackModalResponse200) & {
-  headers: Headers;
-};
-export type eventControllerGetFeedbackModalResponseError = (eventControllerGetFeedbackModalResponse401 | eventControllerGetFeedbackModalResponse404) & {
-  headers: Headers;
-};
-
-export type eventControllerGetFeedbackModalResponse = (eventControllerGetFeedbackModalResponseSuccess | eventControllerGetFeedbackModalResponseError)
-
-export const getEventControllerGetFeedbackModalUrl = (eventCode: string,) => {
-
-
+export const eventControllerGetFeedbackModal = (
+    eventCode: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<EventControllerGetFeedbackModal200>(
+      {url: `/events/${eventCode}/feedback-modal`, method: 'GET', signal
+    },
+      options);
+    }
   
-
-  return `/events/${eventCode}/feedback-modal`
-}
-
-export const eventControllerGetFeedbackModal = async (eventCode: string, options?: RequestInit): Promise<eventControllerGetFeedbackModalResponse> => {
-  
-  return customInstance<eventControllerGetFeedbackModalResponse>(getEventControllerGetFeedbackModalUrl(eventCode),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-  
-
 
 
 
@@ -107,7 +75,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof eventControllerGetFeedbackModal>>> = ({ signal }) => eventControllerGetFeedbackModal(eventCode, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof eventControllerGetFeedbackModal>>> = ({ signal }) => eventControllerGetFeedbackModal(eventCode, requestOptions, signal);
 
       
 
@@ -167,50 +135,18 @@ export function useEventControllerGetFeedbackModal<TData = Awaited<ReturnType<ty
  * 인사이트 챌린지 등 진행형 이벤트의 동적 문구/진행도/CTA 노출을 위한 데이터를 반환합니다.
  * @summary 이벤트 진행 카드 조회
  */
-export type eventControllerGetProgressCardResponse200 = {
-  data: EventControllerGetProgressCard200
-  status: 200
-}
-
-export type eventControllerGetProgressCardResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type eventControllerGetProgressCardResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type eventControllerGetProgressCardResponseSuccess = (eventControllerGetProgressCardResponse200) & {
-  headers: Headers;
-};
-export type eventControllerGetProgressCardResponseError = (eventControllerGetProgressCardResponse401 | eventControllerGetProgressCardResponse404) & {
-  headers: Headers;
-};
-
-export type eventControllerGetProgressCardResponse = (eventControllerGetProgressCardResponseSuccess | eventControllerGetProgressCardResponseError)
-
-export const getEventControllerGetProgressCardUrl = (eventCode: string,) => {
-
-
+export const eventControllerGetProgressCard = (
+    eventCode: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<EventControllerGetProgressCard200>(
+      {url: `/events/${eventCode}/progress-card`, method: 'GET', signal
+    },
+      options);
+    }
   
-
-  return `/events/${eventCode}/progress-card`
-}
-
-export const eventControllerGetProgressCard = async (eventCode: string, options?: RequestInit): Promise<eventControllerGetProgressCardResponse> => {
-  
-  return customInstance<eventControllerGetProgressCardResponse>(getEventControllerGetProgressCardUrl(eventCode),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-  
-
 
 
 
@@ -230,7 +166,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof eventControllerGetProgressCard>>> = ({ signal }) => eventControllerGetProgressCard(eventCode, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof eventControllerGetProgressCard>>> = ({ signal }) => eventControllerGetProgressCard(eventCode, requestOptions, signal);
 
       
 
@@ -290,60 +226,18 @@ export function useEventControllerGetProgressCard<TData = Awaited<ReturnType<typ
  * 챌린지 완료 사용자가 이벤트 보상을 직접 수령합니다. 이미 수령했거나 조건 미달성인 경우 실패합니다.
  * @summary 이벤트 보상 수령
  */
-export type eventControllerClaimEventRewardResponse200 = {
-  data: EventControllerClaimEventReward200
-  status: 200
-}
-
-export type eventControllerClaimEventRewardResponse400 = {
-  data: CommonResponse
-  status: 400
-}
-
-export type eventControllerClaimEventRewardResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type eventControllerClaimEventRewardResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type eventControllerClaimEventRewardResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type eventControllerClaimEventRewardResponseSuccess = (eventControllerClaimEventRewardResponse200) & {
-  headers: Headers;
-};
-export type eventControllerClaimEventRewardResponseError = (eventControllerClaimEventRewardResponse400 | eventControllerClaimEventRewardResponse401 | eventControllerClaimEventRewardResponse404 | eventControllerClaimEventRewardResponse409) & {
-  headers: Headers;
-};
-
-export type eventControllerClaimEventRewardResponse = (eventControllerClaimEventRewardResponseSuccess | eventControllerClaimEventRewardResponseError)
-
-export const getEventControllerClaimEventRewardUrl = (eventCode: string,) => {
-
-
+export const eventControllerClaimEventReward = (
+    eventCode: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<EventControllerClaimEventReward200>(
+      {url: `/events/${eventCode}/reward-claim`, method: 'POST', signal
+    },
+      options);
+    }
   
-
-  return `/events/${eventCode}/reward-claim`
-}
-
-export const eventControllerClaimEventReward = async (eventCode: string, options?: RequestInit): Promise<eventControllerClaimEventRewardResponse> => {
-  
-  return customInstance<eventControllerClaimEventRewardResponse>(getEventControllerClaimEventRewardUrl(eventCode),
-  {      
-    ...options,
-    method: 'POST'
-    
-    
-  }
-);}
-  
-
 
 
 export const getEventControllerClaimEventRewardMutationOptions = <TError = CommonResponse,
@@ -394,62 +288,21 @@ export const useEventControllerClaimEventReward = <TError = CommonResponse,
  * 운영/PM이 외부 피드백 제출건 확인 후 전화번호 기준으로 보상을 수동 지급합니다.
  * @summary 피드백 이벤트 수동 보상 지급
  */
-export type eventControllerGrantFeedbackRewardByPhoneResponse200 = {
-  data: EventControllerGrantFeedbackRewardByPhone200
-  status: 200
-}
-
-export type eventControllerGrantFeedbackRewardByPhoneResponse400 = {
-  data: CommonResponse
-  status: 400
-}
-
-export type eventControllerGrantFeedbackRewardByPhoneResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type eventControllerGrantFeedbackRewardByPhoneResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type eventControllerGrantFeedbackRewardByPhoneResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type eventControllerGrantFeedbackRewardByPhoneResponseSuccess = (eventControllerGrantFeedbackRewardByPhoneResponse200) & {
-  headers: Headers;
-};
-export type eventControllerGrantFeedbackRewardByPhoneResponseError = (eventControllerGrantFeedbackRewardByPhoneResponse400 | eventControllerGrantFeedbackRewardByPhoneResponse401 | eventControllerGrantFeedbackRewardByPhoneResponse404 | eventControllerGrantFeedbackRewardByPhoneResponse409) & {
-  headers: Headers;
-};
-
-export type eventControllerGrantFeedbackRewardByPhoneResponse = (eventControllerGrantFeedbackRewardByPhoneResponseSuccess | eventControllerGrantFeedbackRewardByPhoneResponseError)
-
-export const getEventControllerGrantFeedbackRewardByPhoneUrl = (eventCode: string,) => {
-
-
+export const eventControllerGrantFeedbackRewardByPhone = (
+    eventCode: string,
+    grantFeedbackRewardReqDTO: GrantFeedbackRewardReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<EventControllerGrantFeedbackRewardByPhone200>(
+      {url: `/events/admin/${eventCode}/feedback-rewards/grants`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: grantFeedbackRewardReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/events/admin/${eventCode}/feedback-rewards/grants`
-}
-
-export const eventControllerGrantFeedbackRewardByPhone = async (eventCode: string,
-    grantFeedbackRewardReqDTO: GrantFeedbackRewardReqDTO, options?: RequestInit): Promise<eventControllerGrantFeedbackRewardByPhoneResponse> => {
-  
-  return customInstance<eventControllerGrantFeedbackRewardByPhoneResponse>(getEventControllerGrantFeedbackRewardByPhoneUrl(eventCode),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      grantFeedbackRewardReqDTO,)
-  }
-);}
-  
-
 
 
 export const getEventControllerGrantFeedbackRewardByPhoneMutationOptions = <TError = CommonResponse,

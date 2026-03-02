@@ -47,50 +47,18 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  * 사용자의 프로필을 조회합니다.
  * @summary 사용자 프로필 조회
  */
-export type userControllerGetProfileResponse200 = {
-  data: UserControllerGetProfile200
-  status: 200
-}
-
-export type userControllerGetProfileResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type userControllerGetProfileResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type userControllerGetProfileResponseSuccess = (userControllerGetProfileResponse200) & {
-  headers: Headers;
-};
-export type userControllerGetProfileResponseError = (userControllerGetProfileResponse401 | userControllerGetProfileResponse404) & {
-  headers: Headers;
-};
-
-export type userControllerGetProfileResponse = (userControllerGetProfileResponseSuccess | userControllerGetProfileResponseError)
-
-export const getUserControllerGetProfileUrl = () => {
-
-
-  
-
-  return `/users/me`
-}
-
-export const userControllerGetProfile = async ( options?: RequestInit): Promise<userControllerGetProfileResponse> => {
-  
-  return customInstance<userControllerGetProfileResponse>(getUserControllerGetProfileUrl(),
-  {      
-    ...options,
-    method: 'GET'
+export const userControllerGetProfile = (
     
-    
-  }
-);}
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<UserControllerGetProfile200>(
+      {url: `/users/me`, method: 'GET', signal
+    },
+      options);
+    }
   
-
 
 
 
@@ -110,7 +78,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerGetProfile>>> = ({ signal }) => userControllerGetProfile({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerGetProfile>>> = ({ signal }) => userControllerGetProfile(requestOptions, signal);
 
       
 
@@ -170,51 +138,20 @@ export function useUserControllerGetProfile<TData = Awaited<ReturnType<typeof us
  * 사용자의 이름/닉네임을 변경합니다.
  * @summary 사용자 이름/닉네임 변경
  */
-export type userControllerUpdateProfileResponse200 = {
-  data: UserControllerUpdateProfile200
-  status: 200
-}
-
-export type userControllerUpdateProfileResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type userControllerUpdateProfileResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type userControllerUpdateProfileResponseSuccess = (userControllerUpdateProfileResponse200) & {
-  headers: Headers;
-};
-export type userControllerUpdateProfileResponseError = (userControllerUpdateProfileResponse401 | userControllerUpdateProfileResponse404) & {
-  headers: Headers;
-};
-
-export type userControllerUpdateProfileResponse = (userControllerUpdateProfileResponseSuccess | userControllerUpdateProfileResponseError)
-
-export const getUserControllerUpdateProfileUrl = () => {
-
-
+export const userControllerUpdateProfile = (
+    updateUserNameReqDTO: UpdateUserNameReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<UserControllerUpdateProfile200>(
+      {url: `/users/me`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateUserNameReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/users/me`
-}
-
-export const userControllerUpdateProfile = async (updateUserNameReqDTO: UpdateUserNameReqDTO, options?: RequestInit): Promise<userControllerUpdateProfileResponse> => {
-  
-  return customInstance<userControllerUpdateProfileResponse>(getUserControllerUpdateProfileUrl(),
-  {      
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      updateUserNameReqDTO,)
-  }
-);}
-  
-
 
 
 export const getUserControllerUpdateProfileMutationOptions = <TError = CommonResponse,
@@ -265,45 +202,18 @@ export const useUserControllerUpdateProfile = <TError = CommonResponse,
  * 사용자의 잔여 이용권 수량을 경험 정리, 포트폴리오 첨삭 유형별로 조회합니다.
  * @summary 잔여 이용권 조회
  */
-export type userControllerGetTicketBalanceResponse200 = {
-  data: UserControllerGetTicketBalance200
-  status: 200
-}
-
-export type userControllerGetTicketBalanceResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type userControllerGetTicketBalanceResponseSuccess = (userControllerGetTicketBalanceResponse200) & {
-  headers: Headers;
-};
-export type userControllerGetTicketBalanceResponseError = (userControllerGetTicketBalanceResponse401) & {
-  headers: Headers;
-};
-
-export type userControllerGetTicketBalanceResponse = (userControllerGetTicketBalanceResponseSuccess | userControllerGetTicketBalanceResponseError)
-
-export const getUserControllerGetTicketBalanceUrl = () => {
-
-
-  
-
-  return `/users/me/tickets`
-}
-
-export const userControllerGetTicketBalance = async ( options?: RequestInit): Promise<userControllerGetTicketBalanceResponse> => {
-  
-  return customInstance<userControllerGetTicketBalanceResponse>(getUserControllerGetTicketBalanceUrl(),
-  {      
-    ...options,
-    method: 'GET'
+export const userControllerGetTicketBalance = (
     
-    
-  }
-);}
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<UserControllerGetTicketBalance200>(
+      {url: `/users/me/tickets`, method: 'GET', signal
+    },
+      options);
+    }
   
-
 
 
 
@@ -323,7 +233,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerGetTicketBalance>>> = ({ signal }) => userControllerGetTicketBalance({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerGetTicketBalance>>> = ({ signal }) => userControllerGetTicketBalance(requestOptions, signal);
 
       
 
@@ -383,52 +293,19 @@ export function useUserControllerGetTicketBalance<TData = Awaited<ReturnType<typ
  * 지정한 기간(days) 내 만료 예정인 이용권 수량과 가장 빨리 만료되는 일자를 유형별로 조회합니다.
  * @summary 만료 예정 이용권 조회
  */
-export type userControllerGetExpiringTicketsResponse200 = {
-  data: UserControllerGetExpiringTickets200
-  status: 200
-}
-
-export type userControllerGetExpiringTicketsResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type userControllerGetExpiringTicketsResponseSuccess = (userControllerGetExpiringTicketsResponse200) & {
-  headers: Headers;
-};
-export type userControllerGetExpiringTicketsResponseError = (userControllerGetExpiringTicketsResponse401) & {
-  headers: Headers;
-};
-
-export type userControllerGetExpiringTicketsResponse = (userControllerGetExpiringTicketsResponseSuccess | userControllerGetExpiringTicketsResponseError)
-
-export const getUserControllerGetExpiringTicketsUrl = (params?: UserControllerGetExpiringTicketsParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+export const userControllerGetExpiringTickets = (
+    params?: UserControllerGetExpiringTicketsParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<UserControllerGetExpiringTickets200>(
+      {url: `/users/me/tickets/expiring`, method: 'GET',
+        params, signal
+    },
+      options);
     }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/users/me/tickets/expiring?${stringifiedParams}` : `/users/me/tickets/expiring`
-}
-
-export const userControllerGetExpiringTickets = async (params?: UserControllerGetExpiringTicketsParams, options?: RequestInit): Promise<userControllerGetExpiringTicketsResponse> => {
   
-  return customInstance<userControllerGetExpiringTicketsResponse>(getUserControllerGetExpiringTicketsUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-  
-
 
 
 
@@ -448,7 +325,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerGetExpiringTickets>>> = ({ signal }) => userControllerGetExpiringTickets(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerGetExpiringTickets>>> = ({ signal }) => userControllerGetExpiringTickets(params, requestOptions, signal);
 
       
 
@@ -508,51 +385,20 @@ export function useUserControllerGetExpiringTickets<TData = Awaited<ReturnType<t
  * 사용자의 마케팅 정보 수신 동의 여부를 동의 -> 비동의 또는 비동의 -> 동의로 변경합니다.
  * @summary 마케팅 정보 수신 동의 여부 변경
  */
-export type userControllerUpdateMarketingConsentResponse200 = {
-  data: UserControllerUpdateMarketingConsent200
-  status: 200
-}
-
-export type userControllerUpdateMarketingConsentResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type userControllerUpdateMarketingConsentResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type userControllerUpdateMarketingConsentResponseSuccess = (userControllerUpdateMarketingConsentResponse200) & {
-  headers: Headers;
-};
-export type userControllerUpdateMarketingConsentResponseError = (userControllerUpdateMarketingConsentResponse401 | userControllerUpdateMarketingConsentResponse404) & {
-  headers: Headers;
-};
-
-export type userControllerUpdateMarketingConsentResponse = (userControllerUpdateMarketingConsentResponseSuccess | userControllerUpdateMarketingConsentResponseError)
-
-export const getUserControllerUpdateMarketingConsentUrl = () => {
-
-
+export const userControllerUpdateMarketingConsent = (
+    agreeMarketingReqDTO: AgreeMarketingReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<UserControllerUpdateMarketingConsent200>(
+      {url: `/users/me/marketing-consent`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: agreeMarketingReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/users/me/marketing-consent`
-}
-
-export const userControllerUpdateMarketingConsent = async (agreeMarketingReqDTO: AgreeMarketingReqDTO, options?: RequestInit): Promise<userControllerUpdateMarketingConsentResponse> => {
-  
-  return customInstance<userControllerUpdateMarketingConsentResponse>(getUserControllerUpdateMarketingConsentUrl(),
-  {      
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      agreeMarketingReqDTO,)
-  }
-);}
-  
-
 
 
 export const getUserControllerUpdateMarketingConsentMutationOptions = <TError = CommonResponse,

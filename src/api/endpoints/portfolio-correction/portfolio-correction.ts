@@ -52,52 +52,19 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  * 포트폴리오 첨삭 목록을 조회합니다. 검색어를 입력하면 제목에 키워드를 포함하는 목록만 조회됩니다.
  * @summary 첨삭 목록 조회
  */
-export type portfolioCorrectionControllerGetCorrectionsResponse200 = {
-  data: PortfolioCorrectionControllerGetCorrections200
-  status: 200
-}
-
-export type portfolioCorrectionControllerGetCorrectionsResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioCorrectionControllerGetCorrectionsResponseSuccess = (portfolioCorrectionControllerGetCorrectionsResponse200) & {
-  headers: Headers;
-};
-export type portfolioCorrectionControllerGetCorrectionsResponseError = (portfolioCorrectionControllerGetCorrectionsResponse401) & {
-  headers: Headers;
-};
-
-export type portfolioCorrectionControllerGetCorrectionsResponse = (portfolioCorrectionControllerGetCorrectionsResponseSuccess | portfolioCorrectionControllerGetCorrectionsResponseError)
-
-export const getPortfolioCorrectionControllerGetCorrectionsUrl = (params?: PortfolioCorrectionControllerGetCorrectionsParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+export const portfolioCorrectionControllerGetCorrections = (
+    params?: PortfolioCorrectionControllerGetCorrectionsParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PortfolioCorrectionControllerGetCorrections200>(
+      {url: `/portfolio-corrections`, method: 'GET',
+        params, signal
+    },
+      options);
     }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/portfolio-corrections?${stringifiedParams}` : `/portfolio-corrections`
-}
-
-export const portfolioCorrectionControllerGetCorrections = async (params?: PortfolioCorrectionControllerGetCorrectionsParams, options?: RequestInit): Promise<portfolioCorrectionControllerGetCorrectionsResponse> => {
   
-  return customInstance<portfolioCorrectionControllerGetCorrectionsResponse>(getPortfolioCorrectionControllerGetCorrectionsUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-  
-
 
 
 
@@ -117,7 +84,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrections>>> = ({ signal }) => portfolioCorrectionControllerGetCorrections(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrections>>> = ({ signal }) => portfolioCorrectionControllerGetCorrections(params, requestOptions, signal);
 
       
 
@@ -177,56 +144,20 @@ export function usePortfolioCorrectionControllerGetCorrections<TData = Awaited<R
  * 포트폴리오 첨삭을 시작합니다. 포트폴리오 첨삭 티켓 1장이 사용됩니다.
  * @summary 첨삭 의뢰하기
  */
-export type portfolioCorrectionControllerCreateCorrectionResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type portfolioCorrectionControllerCreateCorrectionResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioCorrectionControllerCreateCorrectionResponse402 = {
-  data: CommonResponse
-  status: 402
-}
-
-export type portfolioCorrectionControllerCreateCorrectionResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type portfolioCorrectionControllerCreateCorrectionResponseSuccess = (portfolioCorrectionControllerCreateCorrectionResponse200) & {
-  headers: Headers;
-};
-export type portfolioCorrectionControllerCreateCorrectionResponseError = (portfolioCorrectionControllerCreateCorrectionResponse401 | portfolioCorrectionControllerCreateCorrectionResponse402 | portfolioCorrectionControllerCreateCorrectionResponse409) & {
-  headers: Headers;
-};
-
-export type portfolioCorrectionControllerCreateCorrectionResponse = (portfolioCorrectionControllerCreateCorrectionResponseSuccess | portfolioCorrectionControllerCreateCorrectionResponseError)
-
-export const getPortfolioCorrectionControllerCreateCorrectionUrl = () => {
-
-
+export const portfolioCorrectionControllerCreateCorrection = (
+    createCorrectionReqDTO: CreateCorrectionReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/portfolio-corrections`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createCorrectionReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/portfolio-corrections`
-}
-
-export const portfolioCorrectionControllerCreateCorrection = async (createCorrectionReqDTO: CreateCorrectionReqDTO, options?: RequestInit): Promise<portfolioCorrectionControllerCreateCorrectionResponse> => {
-  
-  return customInstance<portfolioCorrectionControllerCreateCorrectionResponse>(getPortfolioCorrectionControllerCreateCorrectionUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      createCorrectionReqDTO,)
-  }
-);}
-  
-
 
 
 export const getPortfolioCorrectionControllerCreateCorrectionMutationOptions = <TError = CommonResponse,
@@ -277,50 +208,18 @@ export const usePortfolioCorrectionControllerCreateCorrection = <TError = Common
  * 특정 AI 첨삭의 진행 상태를 조회합니다.
  * @summary 개별 첨삭 상태 조회
  */
-export type portfolioCorrectionControllerGetCorrectionStatusResponse200 = {
-  data: PortfolioCorrectionControllerGetCorrectionStatus200
-  status: 200
-}
-
-export type portfolioCorrectionControllerGetCorrectionStatusResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioCorrectionControllerGetCorrectionStatusResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type portfolioCorrectionControllerGetCorrectionStatusResponseSuccess = (portfolioCorrectionControllerGetCorrectionStatusResponse200) & {
-  headers: Headers;
-};
-export type portfolioCorrectionControllerGetCorrectionStatusResponseError = (portfolioCorrectionControllerGetCorrectionStatusResponse401 | portfolioCorrectionControllerGetCorrectionStatusResponse404) & {
-  headers: Headers;
-};
-
-export type portfolioCorrectionControllerGetCorrectionStatusResponse = (portfolioCorrectionControllerGetCorrectionStatusResponseSuccess | portfolioCorrectionControllerGetCorrectionStatusResponseError)
-
-export const getPortfolioCorrectionControllerGetCorrectionStatusUrl = (correctionId: number,) => {
-
-
+export const portfolioCorrectionControllerGetCorrectionStatus = (
+    correctionId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PortfolioCorrectionControllerGetCorrectionStatus200>(
+      {url: `/portfolio-corrections/${correctionId}/status`, method: 'GET', signal
+    },
+      options);
+    }
   
-
-  return `/portfolio-corrections/${correctionId}/status`
-}
-
-export const portfolioCorrectionControllerGetCorrectionStatus = async (correctionId: number, options?: RequestInit): Promise<portfolioCorrectionControllerGetCorrectionStatusResponse> => {
-  
-  return customInstance<portfolioCorrectionControllerGetCorrectionStatusResponse>(getPortfolioCorrectionControllerGetCorrectionStatusUrl(correctionId),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-  
-
 
 
 
@@ -340,7 +239,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrectionStatus>>> = ({ signal }) => portfolioCorrectionControllerGetCorrectionStatus(correctionId, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrectionStatus>>> = ({ signal }) => portfolioCorrectionControllerGetCorrectionStatus(correctionId, requestOptions, signal);
 
       
 
@@ -400,55 +299,18 @@ export function usePortfolioCorrectionControllerGetCorrectionStatus<TData = Awai
  * 특정 AI 첨삭의 기업 분석 정보 생성을 시작합니다.
  * @summary 기업 분석 정보 생성
  */
-export type portfolioCorrectionControllerCreateCompanyInsightResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type portfolioCorrectionControllerCreateCompanyInsightResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioCorrectionControllerCreateCompanyInsightResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type portfolioCorrectionControllerCreateCompanyInsightResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type portfolioCorrectionControllerCreateCompanyInsightResponseSuccess = (portfolioCorrectionControllerCreateCompanyInsightResponse200) & {
-  headers: Headers;
-};
-export type portfolioCorrectionControllerCreateCompanyInsightResponseError = (portfolioCorrectionControllerCreateCompanyInsightResponse401 | portfolioCorrectionControllerCreateCompanyInsightResponse404 | portfolioCorrectionControllerCreateCompanyInsightResponse409) & {
-  headers: Headers;
-};
-
-export type portfolioCorrectionControllerCreateCompanyInsightResponse = (portfolioCorrectionControllerCreateCompanyInsightResponseSuccess | portfolioCorrectionControllerCreateCompanyInsightResponseError)
-
-export const getPortfolioCorrectionControllerCreateCompanyInsightUrl = (correctionId: number,) => {
-
-
+export const portfolioCorrectionControllerCreateCompanyInsight = (
+    correctionId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/portfolio-corrections/${correctionId}/company-insight`, method: 'POST', signal
+    },
+      options);
+    }
   
-
-  return `/portfolio-corrections/${correctionId}/company-insight`
-}
-
-export const portfolioCorrectionControllerCreateCompanyInsight = async (correctionId: number, options?: RequestInit): Promise<portfolioCorrectionControllerCreateCompanyInsightResponse> => {
-  
-  return customInstance<portfolioCorrectionControllerCreateCompanyInsightResponse>(getPortfolioCorrectionControllerCreateCompanyInsightUrl(correctionId),
-  {      
-    ...options,
-    method: 'POST'
-    
-    
-  }
-);}
-  
-
 
 
 export const getPortfolioCorrectionControllerCreateCompanyInsightMutationOptions = <TError = CommonResponse,
@@ -499,50 +361,18 @@ export const usePortfolioCorrectionControllerCreateCompanyInsight = <TError = Co
  * 특정 AI 첨삭의 기업 분석 정보를 조회합니다.
  * @summary 기업 분석 정보 조회
  */
-export type portfolioCorrectionControllerGetCompanyInsightResponse200 = {
-  data: PortfolioCorrectionControllerGetCompanyInsight200
-  status: 200
-}
-
-export type portfolioCorrectionControllerGetCompanyInsightResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioCorrectionControllerGetCompanyInsightResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type portfolioCorrectionControllerGetCompanyInsightResponseSuccess = (portfolioCorrectionControllerGetCompanyInsightResponse200) & {
-  headers: Headers;
-};
-export type portfolioCorrectionControllerGetCompanyInsightResponseError = (portfolioCorrectionControllerGetCompanyInsightResponse401 | portfolioCorrectionControllerGetCompanyInsightResponse404) & {
-  headers: Headers;
-};
-
-export type portfolioCorrectionControllerGetCompanyInsightResponse = (portfolioCorrectionControllerGetCompanyInsightResponseSuccess | portfolioCorrectionControllerGetCompanyInsightResponseError)
-
-export const getPortfolioCorrectionControllerGetCompanyInsightUrl = (correctionId: number,) => {
-
-
+export const portfolioCorrectionControllerGetCompanyInsight = (
+    correctionId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PortfolioCorrectionControllerGetCompanyInsight200>(
+      {url: `/portfolio-corrections/${correctionId}/company-insight`, method: 'GET', signal
+    },
+      options);
+    }
   
-
-  return `/portfolio-corrections/${correctionId}/company-insight`
-}
-
-export const portfolioCorrectionControllerGetCompanyInsight = async (correctionId: number, options?: RequestInit): Promise<portfolioCorrectionControllerGetCompanyInsightResponse> => {
-  
-  return customInstance<portfolioCorrectionControllerGetCompanyInsightResponse>(getPortfolioCorrectionControllerGetCompanyInsightUrl(correctionId),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-  
-
 
 
 
@@ -562,7 +392,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCompanyInsight>>> = ({ signal }) => portfolioCorrectionControllerGetCompanyInsight(correctionId, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCompanyInsight>>> = ({ signal }) => portfolioCorrectionControllerGetCompanyInsight(correctionId, requestOptions, signal);
 
       
 
@@ -622,57 +452,21 @@ export function usePortfolioCorrectionControllerGetCompanyInsight<TData = Awaite
  * AI가 생성한 기업 분석 정보를 사용자가 수정합니다. 또는 강조 포인트를 추가합니다.
  * @summary 기업 분석 정보 수정
  */
-export type portfolioCorrectionControllerUpdateCompanyInsightResponse200 = {
-  data: PortfolioCorrectionControllerUpdateCompanyInsight200
-  status: 200
-}
-
-export type portfolioCorrectionControllerUpdateCompanyInsightResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioCorrectionControllerUpdateCompanyInsightResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type portfolioCorrectionControllerUpdateCompanyInsightResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type portfolioCorrectionControllerUpdateCompanyInsightResponseSuccess = (portfolioCorrectionControllerUpdateCompanyInsightResponse200) & {
-  headers: Headers;
-};
-export type portfolioCorrectionControllerUpdateCompanyInsightResponseError = (portfolioCorrectionControllerUpdateCompanyInsightResponse401 | portfolioCorrectionControllerUpdateCompanyInsightResponse404 | portfolioCorrectionControllerUpdateCompanyInsightResponse409) & {
-  headers: Headers;
-};
-
-export type portfolioCorrectionControllerUpdateCompanyInsightResponse = (portfolioCorrectionControllerUpdateCompanyInsightResponseSuccess | portfolioCorrectionControllerUpdateCompanyInsightResponseError)
-
-export const getPortfolioCorrectionControllerUpdateCompanyInsightUrl = (correctionId: number,) => {
-
-
+export const portfolioCorrectionControllerUpdateCompanyInsight = (
+    correctionId: number,
+    updateCompanyInsightReqDTO: UpdateCompanyInsightReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PortfolioCorrectionControllerUpdateCompanyInsight200>(
+      {url: `/portfolio-corrections/${correctionId}/company-insight`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateCompanyInsightReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/portfolio-corrections/${correctionId}/company-insight`
-}
-
-export const portfolioCorrectionControllerUpdateCompanyInsight = async (correctionId: number,
-    updateCompanyInsightReqDTO: UpdateCompanyInsightReqDTO, options?: RequestInit): Promise<portfolioCorrectionControllerUpdateCompanyInsightResponse> => {
-  
-  return customInstance<portfolioCorrectionControllerUpdateCompanyInsightResponse>(getPortfolioCorrectionControllerUpdateCompanyInsightUrl(correctionId),
-  {      
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      updateCompanyInsightReqDTO,)
-  }
-);}
-  
-
 
 
 export const getPortfolioCorrectionControllerUpdateCompanyInsightMutationOptions = <TError = CommonResponse,
@@ -723,55 +517,18 @@ export const usePortfolioCorrectionControllerUpdateCompanyInsight = <TError = Co
  * 특정 AI 첨삭의 기업 분석 정보를 재생성합니다. (미구현)
  * @summary 기업 분석 정보 재생성
  */
-export type portfolioCorrectionControllerReCreateCompanyInsightResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type portfolioCorrectionControllerReCreateCompanyInsightResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioCorrectionControllerReCreateCompanyInsightResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type portfolioCorrectionControllerReCreateCompanyInsightResponse501 = {
-  data: CommonResponse
-  status: 501
-}
-
-export type portfolioCorrectionControllerReCreateCompanyInsightResponseSuccess = (portfolioCorrectionControllerReCreateCompanyInsightResponse200) & {
-  headers: Headers;
-};
-export type portfolioCorrectionControllerReCreateCompanyInsightResponseError = (portfolioCorrectionControllerReCreateCompanyInsightResponse401 | portfolioCorrectionControllerReCreateCompanyInsightResponse404 | portfolioCorrectionControllerReCreateCompanyInsightResponse501) & {
-  headers: Headers;
-};
-
-export type portfolioCorrectionControllerReCreateCompanyInsightResponse = (portfolioCorrectionControllerReCreateCompanyInsightResponseSuccess | portfolioCorrectionControllerReCreateCompanyInsightResponseError)
-
-export const getPortfolioCorrectionControllerReCreateCompanyInsightUrl = (correctionId: number,) => {
-
-
+export const portfolioCorrectionControllerReCreateCompanyInsight = (
+    correctionId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/portfolio-corrections/${correctionId}/regenerate-insight`, method: 'POST', signal
+    },
+      options);
+    }
   
-
-  return `/portfolio-corrections/${correctionId}/regenerate-insight`
-}
-
-export const portfolioCorrectionControllerReCreateCompanyInsight = async (correctionId: number, options?: RequestInit): Promise<portfolioCorrectionControllerReCreateCompanyInsightResponse> => {
-  
-  return customInstance<portfolioCorrectionControllerReCreateCompanyInsightResponse>(getPortfolioCorrectionControllerReCreateCompanyInsightUrl(correctionId),
-  {      
-    ...options,
-    method: 'POST'
-    
-    
-  }
-);}
-  
-
 
 
 export const getPortfolioCorrectionControllerReCreateCompanyInsightMutationOptions = <TError = CommonResponse,
@@ -822,57 +579,21 @@ export const usePortfolioCorrectionControllerReCreateCompanyInsight = <TError = 
  * 첨삭을 진행할 포트폴리오를 선택합니다. generate 엔드포인트로 선택과 생성 준비를 한번에 수행할 수 있습니다.
  * @summary 포트폴리오 선택
  */
-export type portfolioCorrectionControllerMapCorrectionWithPortfoliosResponse200 = {
-  data: PortfolioCorrectionControllerMapCorrectionWithPortfolios200
-  status: 200
-}
-
-export type portfolioCorrectionControllerMapCorrectionWithPortfoliosResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioCorrectionControllerMapCorrectionWithPortfoliosResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type portfolioCorrectionControllerMapCorrectionWithPortfoliosResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type portfolioCorrectionControllerMapCorrectionWithPortfoliosResponseSuccess = (portfolioCorrectionControllerMapCorrectionWithPortfoliosResponse200) & {
-  headers: Headers;
-};
-export type portfolioCorrectionControllerMapCorrectionWithPortfoliosResponseError = (portfolioCorrectionControllerMapCorrectionWithPortfoliosResponse401 | portfolioCorrectionControllerMapCorrectionWithPortfoliosResponse404 | portfolioCorrectionControllerMapCorrectionWithPortfoliosResponse409) & {
-  headers: Headers;
-};
-
-export type portfolioCorrectionControllerMapCorrectionWithPortfoliosResponse = (portfolioCorrectionControllerMapCorrectionWithPortfoliosResponseSuccess | portfolioCorrectionControllerMapCorrectionWithPortfoliosResponseError)
-
-export const getPortfolioCorrectionControllerMapCorrectionWithPortfoliosUrl = (correctionId: number,) => {
-
-
+export const portfolioCorrectionControllerMapCorrectionWithPortfolios = (
+    correctionId: number,
+    mapCorrectionWithPortfoliosReqDTO: MapCorrectionWithPortfoliosReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PortfolioCorrectionControllerMapCorrectionWithPortfolios200>(
+      {url: `/portfolio-corrections/${correctionId}/select`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: mapCorrectionWithPortfoliosReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/portfolio-corrections/${correctionId}/select`
-}
-
-export const portfolioCorrectionControllerMapCorrectionWithPortfolios = async (correctionId: number,
-    mapCorrectionWithPortfoliosReqDTO: MapCorrectionWithPortfoliosReqDTO, options?: RequestInit): Promise<portfolioCorrectionControllerMapCorrectionWithPortfoliosResponse> => {
-  
-  return customInstance<portfolioCorrectionControllerMapCorrectionWithPortfoliosResponse>(getPortfolioCorrectionControllerMapCorrectionWithPortfoliosUrl(correctionId),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      mapCorrectionWithPortfoliosReqDTO,)
-  }
-);}
-  
-
 
 
 export const getPortfolioCorrectionControllerMapCorrectionWithPortfoliosMutationOptions = <TError = CommonResponse,
@@ -923,57 +644,21 @@ export const usePortfolioCorrectionControllerMapCorrectionWithPortfolios = <TErr
  * 선택한 포트폴리오에 대해 포트폴리오 선택과 AI 첨삭 생성 준비를 한번에 수행합니다.
  * @summary AI 첨삭 생성
  */
-export type portfolioCorrectionControllerCreateCorrectionByAIResponse200 = {
-  data: PortfolioCorrectionControllerCreateCorrectionByAI200
-  status: 200
-}
-
-export type portfolioCorrectionControllerCreateCorrectionByAIResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioCorrectionControllerCreateCorrectionByAIResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type portfolioCorrectionControllerCreateCorrectionByAIResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type portfolioCorrectionControllerCreateCorrectionByAIResponseSuccess = (portfolioCorrectionControllerCreateCorrectionByAIResponse200) & {
-  headers: Headers;
-};
-export type portfolioCorrectionControllerCreateCorrectionByAIResponseError = (portfolioCorrectionControllerCreateCorrectionByAIResponse401 | portfolioCorrectionControllerCreateCorrectionByAIResponse404 | portfolioCorrectionControllerCreateCorrectionByAIResponse409) & {
-  headers: Headers;
-};
-
-export type portfolioCorrectionControllerCreateCorrectionByAIResponse = (portfolioCorrectionControllerCreateCorrectionByAIResponseSuccess | portfolioCorrectionControllerCreateCorrectionByAIResponseError)
-
-export const getPortfolioCorrectionControllerCreateCorrectionByAIUrl = (correctionId: number,) => {
-
-
+export const portfolioCorrectionControllerCreateCorrectionByAI = (
+    correctionId: number,
+    mapCorrectionWithPortfoliosReqDTO: MapCorrectionWithPortfoliosReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PortfolioCorrectionControllerCreateCorrectionByAI200>(
+      {url: `/portfolio-corrections/${correctionId}/generate`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: mapCorrectionWithPortfoliosReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/portfolio-corrections/${correctionId}/generate`
-}
-
-export const portfolioCorrectionControllerCreateCorrectionByAI = async (correctionId: number,
-    mapCorrectionWithPortfoliosReqDTO: MapCorrectionWithPortfoliosReqDTO, options?: RequestInit): Promise<portfolioCorrectionControllerCreateCorrectionByAIResponse> => {
-  
-  return customInstance<portfolioCorrectionControllerCreateCorrectionByAIResponse>(getPortfolioCorrectionControllerCreateCorrectionByAIUrl(correctionId),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      mapCorrectionWithPortfoliosReqDTO,)
-  }
-);}
-  
-
 
 
 export const getPortfolioCorrectionControllerCreateCorrectionByAIMutationOptions = <TError = CommonResponse,
@@ -1024,50 +709,18 @@ export const usePortfolioCorrectionControllerCreateCorrectionByAI = <TError = Co
  * 특정 AI 첨삭의 결과를 조회합니다.
  * @summary 개별 첨삭 조회
  */
-export type portfolioCorrectionControllerGetCorrectionResponse200 = {
-  data: PortfolioCorrectionControllerGetCorrection200
-  status: 200
-}
-
-export type portfolioCorrectionControllerGetCorrectionResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioCorrectionControllerGetCorrectionResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type portfolioCorrectionControllerGetCorrectionResponseSuccess = (portfolioCorrectionControllerGetCorrectionResponse200) & {
-  headers: Headers;
-};
-export type portfolioCorrectionControllerGetCorrectionResponseError = (portfolioCorrectionControllerGetCorrectionResponse401 | portfolioCorrectionControllerGetCorrectionResponse404) & {
-  headers: Headers;
-};
-
-export type portfolioCorrectionControllerGetCorrectionResponse = (portfolioCorrectionControllerGetCorrectionResponseSuccess | portfolioCorrectionControllerGetCorrectionResponseError)
-
-export const getPortfolioCorrectionControllerGetCorrectionUrl = (correctionId: number,) => {
-
-
+export const portfolioCorrectionControllerGetCorrection = (
+    correctionId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PortfolioCorrectionControllerGetCorrection200>(
+      {url: `/portfolio-corrections/${correctionId}`, method: 'GET', signal
+    },
+      options);
+    }
   
-
-  return `/portfolio-corrections/${correctionId}`
-}
-
-export const portfolioCorrectionControllerGetCorrection = async (correctionId: number, options?: RequestInit): Promise<portfolioCorrectionControllerGetCorrectionResponse> => {
-  
-  return customInstance<portfolioCorrectionControllerGetCorrectionResponse>(getPortfolioCorrectionControllerGetCorrectionUrl(correctionId),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-  
-
 
 
 
@@ -1087,7 +740,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrection>>> = ({ signal }) => portfolioCorrectionControllerGetCorrection(correctionId, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerGetCorrection>>> = ({ signal }) => portfolioCorrectionControllerGetCorrection(correctionId, requestOptions, signal);
 
       
 
@@ -1147,52 +800,21 @@ export function usePortfolioCorrectionControllerGetCorrection<TData = Awaited<Re
  * 특정 AI 첨삭의 제목을 수정합니다.
  * @summary 개별 첨삭 수정
  */
-export type portfolioCorrectionControllerUpdateCorrectionTitleResponse200 = {
-  data: PortfolioCorrectionControllerUpdateCorrectionTitle200
-  status: 200
-}
-
-export type portfolioCorrectionControllerUpdateCorrectionTitleResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioCorrectionControllerUpdateCorrectionTitleResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type portfolioCorrectionControllerUpdateCorrectionTitleResponseSuccess = (portfolioCorrectionControllerUpdateCorrectionTitleResponse200) & {
-  headers: Headers;
-};
-export type portfolioCorrectionControllerUpdateCorrectionTitleResponseError = (portfolioCorrectionControllerUpdateCorrectionTitleResponse401 | portfolioCorrectionControllerUpdateCorrectionTitleResponse404) & {
-  headers: Headers;
-};
-
-export type portfolioCorrectionControllerUpdateCorrectionTitleResponse = (portfolioCorrectionControllerUpdateCorrectionTitleResponseSuccess | portfolioCorrectionControllerUpdateCorrectionTitleResponseError)
-
-export const getPortfolioCorrectionControllerUpdateCorrectionTitleUrl = (correctionId: number,) => {
-
-
+export const portfolioCorrectionControllerUpdateCorrectionTitle = (
+    correctionId: number,
+    updateCorrectionTitleReqDTO: UpdateCorrectionTitleReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PortfolioCorrectionControllerUpdateCorrectionTitle200>(
+      {url: `/portfolio-corrections/${correctionId}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateCorrectionTitleReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/portfolio-corrections/${correctionId}`
-}
-
-export const portfolioCorrectionControllerUpdateCorrectionTitle = async (correctionId: number,
-    updateCorrectionTitleReqDTO: UpdateCorrectionTitleReqDTO, options?: RequestInit): Promise<portfolioCorrectionControllerUpdateCorrectionTitleResponse> => {
-  
-  return customInstance<portfolioCorrectionControllerUpdateCorrectionTitleResponse>(getPortfolioCorrectionControllerUpdateCorrectionTitleUrl(correctionId),
-  {      
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      updateCorrectionTitleReqDTO,)
-  }
-);}
-  
-
 
 
 export const getPortfolioCorrectionControllerUpdateCorrectionTitleMutationOptions = <TError = CommonResponse,
@@ -1243,50 +865,18 @@ export const usePortfolioCorrectionControllerUpdateCorrectionTitle = <TError = C
  * AI 첨삭 내역을 삭제합니다.
  * @summary 첨삭 삭제하기
  */
-export type portfolioCorrectionControllerDeleteCorrectionResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type portfolioCorrectionControllerDeleteCorrectionResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioCorrectionControllerDeleteCorrectionResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type portfolioCorrectionControllerDeleteCorrectionResponseSuccess = (portfolioCorrectionControllerDeleteCorrectionResponse200) & {
-  headers: Headers;
-};
-export type portfolioCorrectionControllerDeleteCorrectionResponseError = (portfolioCorrectionControllerDeleteCorrectionResponse401 | portfolioCorrectionControllerDeleteCorrectionResponse404) & {
-  headers: Headers;
-};
-
-export type portfolioCorrectionControllerDeleteCorrectionResponse = (portfolioCorrectionControllerDeleteCorrectionResponseSuccess | portfolioCorrectionControllerDeleteCorrectionResponseError)
-
-export const getPortfolioCorrectionControllerDeleteCorrectionUrl = (correctionId: number,) => {
-
-
+export const portfolioCorrectionControllerDeleteCorrection = (
+    correctionId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/portfolio-corrections/${correctionId}`, method: 'DELETE', signal
+    },
+      options);
+    }
   
-
-  return `/portfolio-corrections/${correctionId}`
-}
-
-export const portfolioCorrectionControllerDeleteCorrection = async (correctionId: number, options?: RequestInit): Promise<portfolioCorrectionControllerDeleteCorrectionResponse> => {
-  
-  return customInstance<portfolioCorrectionControllerDeleteCorrectionResponse>(getPortfolioCorrectionControllerDeleteCorrectionUrl(correctionId),
-  {      
-    ...options,
-    method: 'DELETE'
-    
-    
-  }
-);}
-  
-
 
 
 export const getPortfolioCorrectionControllerDeleteCorrectionMutationOptions = <TError = CommonResponse,

@@ -50,50 +50,18 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  * 경험 정리가 완료된 포트폴리오를 조회합니다.
  * @summary 개별 포트폴리오 조회
  */
-export type portfolioControllerGetPortfolioResponse200 = {
-  data: PortfolioControllerGetPortfolio200
-  status: 200
-}
-
-export type portfolioControllerGetPortfolioResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioControllerGetPortfolioResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type portfolioControllerGetPortfolioResponseSuccess = (portfolioControllerGetPortfolioResponse200) & {
-  headers: Headers;
-};
-export type portfolioControllerGetPortfolioResponseError = (portfolioControllerGetPortfolioResponse401 | portfolioControllerGetPortfolioResponse404) & {
-  headers: Headers;
-};
-
-export type portfolioControllerGetPortfolioResponse = (portfolioControllerGetPortfolioResponseSuccess | portfolioControllerGetPortfolioResponseError)
-
-export const getPortfolioControllerGetPortfolioUrl = (portfolioId: number,) => {
-
-
+export const portfolioControllerGetPortfolio = (
+    portfolioId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PortfolioControllerGetPortfolio200>(
+      {url: `/portfolios/${portfolioId}`, method: 'GET', signal
+    },
+      options);
+    }
   
-
-  return `/portfolios/${portfolioId}`
-}
-
-export const portfolioControllerGetPortfolio = async (portfolioId: number, options?: RequestInit): Promise<portfolioControllerGetPortfolioResponse> => {
-  
-  return customInstance<portfolioControllerGetPortfolioResponse>(getPortfolioControllerGetPortfolioUrl(portfolioId),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-  
-
 
 
 
@@ -113,7 +81,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioControllerGetPortfolio>>> = ({ signal }) => portfolioControllerGetPortfolio(portfolioId, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioControllerGetPortfolio>>> = ({ signal }) => portfolioControllerGetPortfolio(portfolioId, requestOptions, signal);
 
       
 
@@ -173,52 +141,21 @@ export function usePortfolioControllerGetPortfolio<TData = Awaited<ReturnType<ty
  * 경험 정리가 완료된 포트폴리오의 내용을 수정합니다.
  * @summary 개별 포트폴리오 수정
  */
-export type portfolioControllerUpdatePortfolioResponse200 = {
-  data: PortfolioControllerUpdatePortfolio200
-  status: 200
-}
-
-export type portfolioControllerUpdatePortfolioResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioControllerUpdatePortfolioResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type portfolioControllerUpdatePortfolioResponseSuccess = (portfolioControllerUpdatePortfolioResponse200) & {
-  headers: Headers;
-};
-export type portfolioControllerUpdatePortfolioResponseError = (portfolioControllerUpdatePortfolioResponse401 | portfolioControllerUpdatePortfolioResponse404) & {
-  headers: Headers;
-};
-
-export type portfolioControllerUpdatePortfolioResponse = (portfolioControllerUpdatePortfolioResponseSuccess | portfolioControllerUpdatePortfolioResponseError)
-
-export const getPortfolioControllerUpdatePortfolioUrl = (portfolioId: number,) => {
-
-
+export const portfolioControllerUpdatePortfolio = (
+    portfolioId: number,
+    updatePortfolioReqDTO: UpdatePortfolioReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PortfolioControllerUpdatePortfolio200>(
+      {url: `/portfolios/${portfolioId}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updatePortfolioReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/portfolios/${portfolioId}`
-}
-
-export const portfolioControllerUpdatePortfolio = async (portfolioId: number,
-    updatePortfolioReqDTO: UpdatePortfolioReqDTO, options?: RequestInit): Promise<portfolioControllerUpdatePortfolioResponse> => {
-  
-  return customInstance<portfolioControllerUpdatePortfolioResponse>(getPortfolioControllerUpdatePortfolioUrl(portfolioId),
-  {      
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      updatePortfolioReqDTO,)
-  }
-);}
-  
-
 
 
 export const getPortfolioControllerUpdatePortfolioMutationOptions = <TError = CommonResponse,
@@ -269,50 +206,18 @@ export const usePortfolioControllerUpdatePortfolio = <TError = CommonResponse,
  * 경험 정리가 완료된 포트폴리오의 내용을 삭제합니다.
  * @summary 개별 포트폴리오 삭제
  */
-export type portfolioControllerDeletePortfolioResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type portfolioControllerDeletePortfolioResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioControllerDeletePortfolioResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type portfolioControllerDeletePortfolioResponseSuccess = (portfolioControllerDeletePortfolioResponse200) & {
-  headers: Headers;
-};
-export type portfolioControllerDeletePortfolioResponseError = (portfolioControllerDeletePortfolioResponse401 | portfolioControllerDeletePortfolioResponse404) & {
-  headers: Headers;
-};
-
-export type portfolioControllerDeletePortfolioResponse = (portfolioControllerDeletePortfolioResponseSuccess | portfolioControllerDeletePortfolioResponseError)
-
-export const getPortfolioControllerDeletePortfolioUrl = (portfolioId: number,) => {
-
-
+export const portfolioControllerDeletePortfolio = (
+    portfolioId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/portfolios/${portfolioId}`, method: 'DELETE', signal
+    },
+      options);
+    }
   
-
-  return `/portfolios/${portfolioId}`
-}
-
-export const portfolioControllerDeletePortfolio = async (portfolioId: number, options?: RequestInit): Promise<portfolioControllerDeletePortfolioResponse> => {
-  
-  return customInstance<portfolioControllerDeletePortfolioResponse>(getPortfolioControllerDeletePortfolioUrl(portfolioId),
-  {      
-    ...options,
-    method: 'DELETE'
-    
-    
-  }
-);}
-  
-
 
 
 export const getPortfolioControllerDeletePortfolioMutationOptions = <TError = CommonResponse,
@@ -363,50 +268,18 @@ export const usePortfolioControllerDeletePortfolio = <TError = CommonResponse,
  * 경험 정리가 완료된 포트폴리오를 pdf로 내보냅니다.
  * @summary 포트폴리오 내보내기
  */
-export type portfolioControllerExportPortfolioResponse200 = {
-  data: PortfolioControllerExportPortfolio200
-  status: 200
-}
-
-export type portfolioControllerExportPortfolioResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioControllerExportPortfolioResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type portfolioControllerExportPortfolioResponseSuccess = (portfolioControllerExportPortfolioResponse200) & {
-  headers: Headers;
-};
-export type portfolioControllerExportPortfolioResponseError = (portfolioControllerExportPortfolioResponse401 | portfolioControllerExportPortfolioResponse404) & {
-  headers: Headers;
-};
-
-export type portfolioControllerExportPortfolioResponse = (portfolioControllerExportPortfolioResponseSuccess | portfolioControllerExportPortfolioResponseError)
-
-export const getPortfolioControllerExportPortfolioUrl = (portfolioId: number,) => {
-
-
+export const portfolioControllerExportPortfolio = (
+    portfolioId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PortfolioControllerExportPortfolio200>(
+      {url: `/portfolios/${portfolioId}/export`, method: 'POST', signal
+    },
+      options);
+    }
   
-
-  return `/portfolios/${portfolioId}/export`
-}
-
-export const portfolioControllerExportPortfolio = async (portfolioId: number, options?: RequestInit): Promise<portfolioControllerExportPortfolioResponse> => {
-  
-  return customInstance<portfolioControllerExportPortfolioResponse>(getPortfolioControllerExportPortfolioUrl(portfolioId),
-  {      
-    ...options,
-    method: 'POST'
-    
-    
-  }
-);}
-  
-
 
 
 export const getPortfolioControllerExportPortfolioMutationOptions = <TError = CommonResponse,
@@ -457,40 +330,12 @@ export const usePortfolioControllerExportPortfolio = <TError = CommonResponse,
  * 업로드한 포트폴리오 파일에서 텍스트를 추출합니다.
  * @summary PDF 포트폴리오 텍스트 추출
  */
-export type externalPortfolioControllerExtractPortfoliosResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type externalPortfolioControllerExtractPortfoliosResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type externalPortfolioControllerExtractPortfoliosResponse502 = {
-  data: CommonResponse
-  status: 502
-}
-
-export type externalPortfolioControllerExtractPortfoliosResponseSuccess = (externalPortfolioControllerExtractPortfoliosResponse200) & {
-  headers: Headers;
-};
-export type externalPortfolioControllerExtractPortfoliosResponseError = (externalPortfolioControllerExtractPortfoliosResponse401 | externalPortfolioControllerExtractPortfoliosResponse502) & {
-  headers: Headers;
-};
-
-export type externalPortfolioControllerExtractPortfoliosResponse = (externalPortfolioControllerExtractPortfoliosResponseSuccess | externalPortfolioControllerExtractPortfoliosResponseError)
-
-export const getExternalPortfolioControllerExtractPortfoliosUrl = () => {
-
-
-  
-
-  return `/external-portfolios/extract`
-}
-
-export const externalPortfolioControllerExtractPortfolios = async (externalPortfolioControllerExtractPortfoliosBody: ExternalPortfolioControllerExtractPortfoliosBody, options?: RequestInit): Promise<externalPortfolioControllerExtractPortfoliosResponse> => {
-    const formData = new FormData();
+export const externalPortfolioControllerExtractPortfolios = (
+    externalPortfolioControllerExtractPortfoliosBody: ExternalPortfolioControllerExtractPortfoliosBody,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      const formData = new FormData();
 if(externalPortfolioControllerExtractPortfoliosBody.correctionId !== undefined) {
  formData.append(`correctionId`, externalPortfolioControllerExtractPortfoliosBody.correctionId.toString())
  }
@@ -498,17 +343,13 @@ if(externalPortfolioControllerExtractPortfoliosBody.file !== undefined) {
  formData.append(`file`, externalPortfolioControllerExtractPortfoliosBody.file);
  }
 
-  return customInstance<externalPortfolioControllerExtractPortfoliosResponse>(getExternalPortfolioControllerExtractPortfoliosUrl(),
-  {      
-    ...options,
-    method: 'POST'
-    ,
-    body: 
-      formData,
-  }
-);}
+      return customInstance<unknown>(
+      {url: `/external-portfolios/extract`, method: 'POST',
+       data: formData, signal
+    },
+      options);
+    }
   
-
 
 
 export const getExternalPortfolioControllerExtractPortfoliosMutationOptions = <TError = CommonResponse,
@@ -559,56 +400,20 @@ export const useExternalPortfolioControllerExtractPortfolios = <TError = CommonR
  * 텍스트 정리 블록의 활동 블록을 추가합니다. 활동 블록은 최대 5개까지 존재 가능합니다.
  * @summary PDF 포트폴리오 활동 블록 추가
  */
-export type externalPortfolioControllerCreateExternalPortfolioBlockResponse200 = {
-  data: ExternalPortfolioControllerCreateExternalPortfolioBlock200
-  status: 200
-}
-
-export type externalPortfolioControllerCreateExternalPortfolioBlockResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type externalPortfolioControllerCreateExternalPortfolioBlockResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type externalPortfolioControllerCreateExternalPortfolioBlockResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type externalPortfolioControllerCreateExternalPortfolioBlockResponseSuccess = (externalPortfolioControllerCreateExternalPortfolioBlockResponse200) & {
-  headers: Headers;
-};
-export type externalPortfolioControllerCreateExternalPortfolioBlockResponseError = (externalPortfolioControllerCreateExternalPortfolioBlockResponse401 | externalPortfolioControllerCreateExternalPortfolioBlockResponse404 | externalPortfolioControllerCreateExternalPortfolioBlockResponse409) & {
-  headers: Headers;
-};
-
-export type externalPortfolioControllerCreateExternalPortfolioBlockResponse = (externalPortfolioControllerCreateExternalPortfolioBlockResponseSuccess | externalPortfolioControllerCreateExternalPortfolioBlockResponseError)
-
-export const getExternalPortfolioControllerCreateExternalPortfolioBlockUrl = () => {
-
-
+export const externalPortfolioControllerCreateExternalPortfolioBlock = (
+    createExternalPortfolioReqDTO: CreateExternalPortfolioReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ExternalPortfolioControllerCreateExternalPortfolioBlock200>(
+      {url: `/external-portfolios`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createExternalPortfolioReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/external-portfolios`
-}
-
-export const externalPortfolioControllerCreateExternalPortfolioBlock = async (createExternalPortfolioReqDTO: CreateExternalPortfolioReqDTO, options?: RequestInit): Promise<externalPortfolioControllerCreateExternalPortfolioBlockResponse> => {
-  
-  return customInstance<externalPortfolioControllerCreateExternalPortfolioBlockResponse>(getExternalPortfolioControllerCreateExternalPortfolioBlockUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      createExternalPortfolioReqDTO,)
-  }
-);}
-  
-
 
 
 export const getExternalPortfolioControllerCreateExternalPortfolioBlockMutationOptions = <TError = CommonResponse,
@@ -659,57 +464,19 @@ export const useExternalPortfolioControllerCreateExternalPortfolioBlock = <TErro
  * AI가 구조화한 포트폴리오 정보를 조회합니다.
  * @summary PDF 포트폴리오 텍스트 정리 결과 조회
  */
-export type externalPortfolioControllerGetExternalPortfoliosResponse200 = {
-  data: ExternalPortfolioControllerGetExternalPortfolios200
-  status: 200
-}
-
-export type externalPortfolioControllerGetExternalPortfoliosResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type externalPortfolioControllerGetExternalPortfoliosResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type externalPortfolioControllerGetExternalPortfoliosResponseSuccess = (externalPortfolioControllerGetExternalPortfoliosResponse200) & {
-  headers: Headers;
-};
-export type externalPortfolioControllerGetExternalPortfoliosResponseError = (externalPortfolioControllerGetExternalPortfoliosResponse401 | externalPortfolioControllerGetExternalPortfoliosResponse404) & {
-  headers: Headers;
-};
-
-export type externalPortfolioControllerGetExternalPortfoliosResponse = (externalPortfolioControllerGetExternalPortfoliosResponseSuccess | externalPortfolioControllerGetExternalPortfoliosResponseError)
-
-export const getExternalPortfolioControllerGetExternalPortfoliosUrl = (params: ExternalPortfolioControllerGetExternalPortfoliosParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+export const externalPortfolioControllerGetExternalPortfolios = (
+    params: ExternalPortfolioControllerGetExternalPortfoliosParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ExternalPortfolioControllerGetExternalPortfolios200>(
+      {url: `/external-portfolios`, method: 'GET',
+        params, signal
+    },
+      options);
     }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/external-portfolios?${stringifiedParams}` : `/external-portfolios`
-}
-
-export const externalPortfolioControllerGetExternalPortfolios = async (params: ExternalPortfolioControllerGetExternalPortfoliosParams, options?: RequestInit): Promise<externalPortfolioControllerGetExternalPortfoliosResponse> => {
   
-  return customInstance<externalPortfolioControllerGetExternalPortfoliosResponse>(getExternalPortfolioControllerGetExternalPortfoliosUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-  
-
 
 
 
@@ -729,7 +496,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>> = ({ signal }) => externalPortfolioControllerGetExternalPortfolios(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>> = ({ signal }) => externalPortfolioControllerGetExternalPortfolios(params, requestOptions, signal);
 
       
 
@@ -789,52 +556,21 @@ export function useExternalPortfolioControllerGetExternalPortfolios<TData = Awai
  * AI가 구조화한 포트폴리오 정보를 수정합니다.
  * @summary PDF 포트폴리오 텍스트 정리 결과 수정
  */
-export type externalPortfolioControllerUpdateExternalPortfolioResponse200 = {
-  data: ExternalPortfolioControllerUpdateExternalPortfolio200
-  status: 200
-}
-
-export type externalPortfolioControllerUpdateExternalPortfolioResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type externalPortfolioControllerUpdateExternalPortfolioResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type externalPortfolioControllerUpdateExternalPortfolioResponseSuccess = (externalPortfolioControllerUpdateExternalPortfolioResponse200) & {
-  headers: Headers;
-};
-export type externalPortfolioControllerUpdateExternalPortfolioResponseError = (externalPortfolioControllerUpdateExternalPortfolioResponse401 | externalPortfolioControllerUpdateExternalPortfolioResponse404) & {
-  headers: Headers;
-};
-
-export type externalPortfolioControllerUpdateExternalPortfolioResponse = (externalPortfolioControllerUpdateExternalPortfolioResponseSuccess | externalPortfolioControllerUpdateExternalPortfolioResponseError)
-
-export const getExternalPortfolioControllerUpdateExternalPortfolioUrl = (portfolioId: number,) => {
-
-
+export const externalPortfolioControllerUpdateExternalPortfolio = (
+    portfolioId: number,
+    updatePortfolioBlockReqDTO: UpdatePortfolioBlockReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ExternalPortfolioControllerUpdateExternalPortfolio200>(
+      {url: `/external-portfolios/${portfolioId}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updatePortfolioBlockReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/external-portfolios/${portfolioId}`
-}
-
-export const externalPortfolioControllerUpdateExternalPortfolio = async (portfolioId: number,
-    updatePortfolioBlockReqDTO: UpdatePortfolioBlockReqDTO, options?: RequestInit): Promise<externalPortfolioControllerUpdateExternalPortfolioResponse> => {
-  
-  return customInstance<externalPortfolioControllerUpdateExternalPortfolioResponse>(getExternalPortfolioControllerUpdateExternalPortfolioUrl(portfolioId),
-  {      
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      updatePortfolioBlockReqDTO,)
-  }
-);}
-  
-
 
 
 export const getExternalPortfolioControllerUpdateExternalPortfolioMutationOptions = <TError = CommonResponse,
@@ -885,50 +621,18 @@ export const useExternalPortfolioControllerUpdateExternalPortfolio = <TError = C
  * AI가 구조화한 포트폴리오 활동을 삭제합니다. (활동 옆 마이너스 버튼을 눌러 활성화)
  * @summary PDF 포트폴리오 텍스트 정리 결과 삭제
  */
-export type externalPortfolioControllerDeleteExternalPortfolioResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type externalPortfolioControllerDeleteExternalPortfolioResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type externalPortfolioControllerDeleteExternalPortfolioResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type externalPortfolioControllerDeleteExternalPortfolioResponseSuccess = (externalPortfolioControllerDeleteExternalPortfolioResponse200) & {
-  headers: Headers;
-};
-export type externalPortfolioControllerDeleteExternalPortfolioResponseError = (externalPortfolioControllerDeleteExternalPortfolioResponse401 | externalPortfolioControllerDeleteExternalPortfolioResponse404) & {
-  headers: Headers;
-};
-
-export type externalPortfolioControllerDeleteExternalPortfolioResponse = (externalPortfolioControllerDeleteExternalPortfolioResponseSuccess | externalPortfolioControllerDeleteExternalPortfolioResponseError)
-
-export const getExternalPortfolioControllerDeleteExternalPortfolioUrl = (portfolioId: number,) => {
-
-
+export const externalPortfolioControllerDeleteExternalPortfolio = (
+    portfolioId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/external-portfolios/${portfolioId}`, method: 'DELETE', signal
+    },
+      options);
+    }
   
-
-  return `/external-portfolios/${portfolioId}`
-}
-
-export const externalPortfolioControllerDeleteExternalPortfolio = async (portfolioId: number, options?: RequestInit): Promise<externalPortfolioControllerDeleteExternalPortfolioResponse> => {
-  
-  return customInstance<externalPortfolioControllerDeleteExternalPortfolioResponse>(getExternalPortfolioControllerDeleteExternalPortfolioUrl(portfolioId),
-  {      
-    ...options,
-    method: 'DELETE'
-    
-    
-  }
-);}
-  
-
 
 
 export const getExternalPortfolioControllerDeleteExternalPortfolioMutationOptions = <TError = CommonResponse,

@@ -31,38 +31,18 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  * 로드밸런서가 서버 상태를 확인할 때 사용하는 헬스체크용 API입니다. 로그인 없이도 테스트 가능합니다.
  * @summary 서버 상태 확인
  */
-export type appControllerGetHelloResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type appControllerGetHelloResponseSuccess = (appControllerGetHelloResponse200) & {
-  headers: Headers;
-};
-;
-
-export type appControllerGetHelloResponse = (appControllerGetHelloResponseSuccess)
-
-export const getAppControllerGetHelloUrl = () => {
-
-
-  
-
-  return `/health`
-}
-
-export const appControllerGetHello = async ( options?: RequestInit): Promise<appControllerGetHelloResponse> => {
-  
-  return customInstance<appControllerGetHelloResponse>(getAppControllerGetHelloUrl(),
-  {      
-    ...options,
-    method: 'GET'
+export const appControllerGetHello = (
     
-    
-  }
-);}
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/health`, method: 'GET', signal
+    },
+      options);
+    }
   
-
 
 
 
@@ -82,7 +62,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof appControllerGetHello>>> = ({ signal }) => appControllerGetHello({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof appControllerGetHello>>> = ({ signal }) => appControllerGetHello(requestOptions, signal);
 
       
 

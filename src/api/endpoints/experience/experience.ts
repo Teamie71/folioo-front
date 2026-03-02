@@ -46,56 +46,20 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  * 새로운 경험 정리를 생성하고, AI와의 대화를 시작합니다. 경험 정리 티켓 1장을 사용합니다. 인당 최대 15개의 경험을 저장할 수 있습니다.
  * @summary 새로운 경험 정리 시작하기
  */
-export type experienceControllerCreateExperienceResponse200 = {
-  data: ExperienceControllerCreateExperience200
-  status: 200
-}
-
-export type experienceControllerCreateExperienceResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type experienceControllerCreateExperienceResponse402 = {
-  data: CommonResponse
-  status: 402
-}
-
-export type experienceControllerCreateExperienceResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type experienceControllerCreateExperienceResponseSuccess = (experienceControllerCreateExperienceResponse200) & {
-  headers: Headers;
-};
-export type experienceControllerCreateExperienceResponseError = (experienceControllerCreateExperienceResponse401 | experienceControllerCreateExperienceResponse402 | experienceControllerCreateExperienceResponse409) & {
-  headers: Headers;
-};
-
-export type experienceControllerCreateExperienceResponse = (experienceControllerCreateExperienceResponseSuccess | experienceControllerCreateExperienceResponseError)
-
-export const getExperienceControllerCreateExperienceUrl = () => {
-
-
+export const experienceControllerCreateExperience = (
+    createExperienceReqDTO: CreateExperienceReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ExperienceControllerCreateExperience200>(
+      {url: `/experiences`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createExperienceReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/experiences`
-}
-
-export const experienceControllerCreateExperience = async (createExperienceReqDTO: CreateExperienceReqDTO, options?: RequestInit): Promise<experienceControllerCreateExperienceResponse> => {
-  
-  return customInstance<experienceControllerCreateExperienceResponse>(getExperienceControllerCreateExperienceUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      createExperienceReqDTO,)
-  }
-);}
-  
-
 
 
 export const getExperienceControllerCreateExperienceMutationOptions = <TError = CommonResponse,
@@ -146,52 +110,19 @@ export const useExperienceControllerCreateExperience = <TError = CommonResponse,
  * 사용자가 생성한 경험 정리 목록을 조회합니다. 검색어를 입력하면 제목에 키워드를 포함하는 목록만 조회됩니다.
  * @summary 경험 정리 목록 조회
  */
-export type experienceControllerGetExperiencesResponse200 = {
-  data: ExperienceControllerGetExperiences200
-  status: 200
-}
-
-export type experienceControllerGetExperiencesResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type experienceControllerGetExperiencesResponseSuccess = (experienceControllerGetExperiencesResponse200) & {
-  headers: Headers;
-};
-export type experienceControllerGetExperiencesResponseError = (experienceControllerGetExperiencesResponse401) & {
-  headers: Headers;
-};
-
-export type experienceControllerGetExperiencesResponse = (experienceControllerGetExperiencesResponseSuccess | experienceControllerGetExperiencesResponseError)
-
-export const getExperienceControllerGetExperiencesUrl = (params?: ExperienceControllerGetExperiencesParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+export const experienceControllerGetExperiences = (
+    params?: ExperienceControllerGetExperiencesParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ExperienceControllerGetExperiences200>(
+      {url: `/experiences`, method: 'GET',
+        params, signal
+    },
+      options);
     }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/experiences?${stringifiedParams}` : `/experiences`
-}
-
-export const experienceControllerGetExperiences = async (params?: ExperienceControllerGetExperiencesParams, options?: RequestInit): Promise<experienceControllerGetExperiencesResponse> => {
   
-  return customInstance<experienceControllerGetExperiencesResponse>(getExperienceControllerGetExperiencesUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-  
-
 
 
 
@@ -211,7 +142,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof experienceControllerGetExperiences>>> = ({ signal }) => experienceControllerGetExperiences(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof experienceControllerGetExperiences>>> = ({ signal }) => experienceControllerGetExperiences(params, requestOptions, signal);
 
       
 
@@ -271,50 +202,18 @@ export function useExperienceControllerGetExperiences<TData = Awaited<ReturnType
  * 경험 정리를 개별 조회합니다. 현재 경험 정리의 상태를 반환합니다. (대화 중/완료)
  * @summary 경험 정리 개별 조회
  */
-export type experienceControllerGetExperienceResponse200 = {
-  data: ExperienceControllerGetExperience200
-  status: 200
-}
-
-export type experienceControllerGetExperienceResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type experienceControllerGetExperienceResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type experienceControllerGetExperienceResponseSuccess = (experienceControllerGetExperienceResponse200) & {
-  headers: Headers;
-};
-export type experienceControllerGetExperienceResponseError = (experienceControllerGetExperienceResponse401 | experienceControllerGetExperienceResponse404) & {
-  headers: Headers;
-};
-
-export type experienceControllerGetExperienceResponse = (experienceControllerGetExperienceResponseSuccess | experienceControllerGetExperienceResponseError)
-
-export const getExperienceControllerGetExperienceUrl = (experienceId: number,) => {
-
-
+export const experienceControllerGetExperience = (
+    experienceId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ExperienceControllerGetExperience200>(
+      {url: `/experiences/${experienceId}`, method: 'GET', signal
+    },
+      options);
+    }
   
-
-  return `/experiences/${experienceId}`
-}
-
-export const experienceControllerGetExperience = async (experienceId: number, options?: RequestInit): Promise<experienceControllerGetExperienceResponse> => {
-  
-  return customInstance<experienceControllerGetExperienceResponse>(getExperienceControllerGetExperienceUrl(experienceId),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-  
-
 
 
 
@@ -334,7 +233,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof experienceControllerGetExperience>>> = ({ signal }) => experienceControllerGetExperience(experienceId, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof experienceControllerGetExperience>>> = ({ signal }) => experienceControllerGetExperience(experienceId, requestOptions, signal);
 
       
 
@@ -394,57 +293,21 @@ export function useExperienceControllerGetExperience<TData = Awaited<ReturnType<
  * 경험 정리의 제목 또는 희망 직무를 수정합니다.
  * @summary 경험 정리 수정
  */
-export type experienceControllerUpdateExperienceResponse200 = {
-  data: ExperienceControllerUpdateExperience200
-  status: 200
-}
-
-export type experienceControllerUpdateExperienceResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type experienceControllerUpdateExperienceResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type experienceControllerUpdateExperienceResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type experienceControllerUpdateExperienceResponseSuccess = (experienceControllerUpdateExperienceResponse200) & {
-  headers: Headers;
-};
-export type experienceControllerUpdateExperienceResponseError = (experienceControllerUpdateExperienceResponse401 | experienceControllerUpdateExperienceResponse404 | experienceControllerUpdateExperienceResponse409) & {
-  headers: Headers;
-};
-
-export type experienceControllerUpdateExperienceResponse = (experienceControllerUpdateExperienceResponseSuccess | experienceControllerUpdateExperienceResponseError)
-
-export const getExperienceControllerUpdateExperienceUrl = (experienceId: number,) => {
-
-
+export const experienceControllerUpdateExperience = (
+    experienceId: number,
+    updateExperienceReqDTO: UpdateExperienceReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ExperienceControllerUpdateExperience200>(
+      {url: `/experiences/${experienceId}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateExperienceReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/experiences/${experienceId}`
-}
-
-export const experienceControllerUpdateExperience = async (experienceId: number,
-    updateExperienceReqDTO: UpdateExperienceReqDTO, options?: RequestInit): Promise<experienceControllerUpdateExperienceResponse> => {
-  
-  return customInstance<experienceControllerUpdateExperienceResponse>(getExperienceControllerUpdateExperienceUrl(experienceId),
-  {      
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      updateExperienceReqDTO,)
-  }
-);}
-  
-
 
 
 export const getExperienceControllerUpdateExperienceMutationOptions = <TError = CommonResponse,

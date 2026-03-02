@@ -52,51 +52,20 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  * 인사이트 로그를 생성하고, 텍스트를 임베딩으로 변환하여 메타데이터를 벡터DB에 저장합니다.
  * @summary 로그 생성 및 임베딩 저장
  */
-export type insightControllerCreateLogResponse200 = {
-  data: InsightControllerCreateLog200
-  status: 200
-}
-
-export type insightControllerCreateLogResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type insightControllerCreateLogResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type insightControllerCreateLogResponseSuccess = (insightControllerCreateLogResponse200) & {
-  headers: Headers;
-};
-export type insightControllerCreateLogResponseError = (insightControllerCreateLogResponse401 | insightControllerCreateLogResponse409) & {
-  headers: Headers;
-};
-
-export type insightControllerCreateLogResponse = (insightControllerCreateLogResponseSuccess | insightControllerCreateLogResponseError)
-
-export const getInsightControllerCreateLogUrl = () => {
-
-
+export const insightControllerCreateLog = (
+    createInsightLogReqDTO: CreateInsightLogReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InsightControllerCreateLog200>(
+      {url: `/insights`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createInsightLogReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/insights`
-}
-
-export const insightControllerCreateLog = async (createInsightLogReqDTO: CreateInsightLogReqDTO, options?: RequestInit): Promise<insightControllerCreateLogResponse> => {
-  
-  return customInstance<insightControllerCreateLogResponse>(getInsightControllerCreateLogUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      createInsightLogReqDTO,)
-  }
-);}
-  
-
 
 
 export const getInsightControllerCreateLogMutationOptions = <TError = CommonResponse,
@@ -147,52 +116,19 @@ export const useInsightControllerCreateLog = <TError = CommonResponse,
  * 사용자가 생성한 인사이트 로그 목록을 조회합니다.
  * @summary 로그 목록 조회
  */
-export type insightControllerGetLogsResponse200 = {
-  data: InsightControllerGetLogs200
-  status: 200
-}
-
-export type insightControllerGetLogsResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type insightControllerGetLogsResponseSuccess = (insightControllerGetLogsResponse200) & {
-  headers: Headers;
-};
-export type insightControllerGetLogsResponseError = (insightControllerGetLogsResponse401) & {
-  headers: Headers;
-};
-
-export type insightControllerGetLogsResponse = (insightControllerGetLogsResponseSuccess | insightControllerGetLogsResponseError)
-
-export const getInsightControllerGetLogsUrl = (params?: InsightControllerGetLogsParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+export const insightControllerGetLogs = (
+    params?: InsightControllerGetLogsParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InsightControllerGetLogs200>(
+      {url: `/insights`, method: 'GET',
+        params, signal
+    },
+      options);
     }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/insights?${stringifiedParams}` : `/insights`
-}
-
-export const insightControllerGetLogs = async (params?: InsightControllerGetLogsParams, options?: RequestInit): Promise<insightControllerGetLogsResponse> => {
   
-  return customInstance<insightControllerGetLogsResponse>(getInsightControllerGetLogsUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-  
-
 
 
 
@@ -212,7 +148,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof insightControllerGetLogs>>> = ({ signal }) => insightControllerGetLogs(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof insightControllerGetLogs>>> = ({ signal }) => insightControllerGetLogs(params, requestOptions, signal);
 
       
 
@@ -272,45 +208,18 @@ export function useInsightControllerGetLogs<TData = Awaited<ReturnType<typeof in
  * 사용자가 생성한 인사이트 로그 목록을 카테고리별로 간소화하여 조회합니다.
  * @summary 챗봇 멘션용 간소화 인사이트 목록 조회
  */
-export type insightControllerGetSimpleLogsResponse200 = {
-  data: InsightControllerGetSimpleLogs200
-  status: 200
-}
-
-export type insightControllerGetSimpleLogsResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type insightControllerGetSimpleLogsResponseSuccess = (insightControllerGetSimpleLogsResponse200) & {
-  headers: Headers;
-};
-export type insightControllerGetSimpleLogsResponseError = (insightControllerGetSimpleLogsResponse401) & {
-  headers: Headers;
-};
-
-export type insightControllerGetSimpleLogsResponse = (insightControllerGetSimpleLogsResponseSuccess | insightControllerGetSimpleLogsResponseError)
-
-export const getInsightControllerGetSimpleLogsUrl = () => {
-
-
-  
-
-  return `/insights/summary`
-}
-
-export const insightControllerGetSimpleLogs = async ( options?: RequestInit): Promise<insightControllerGetSimpleLogsResponse> => {
-  
-  return customInstance<insightControllerGetSimpleLogsResponse>(getInsightControllerGetSimpleLogsUrl(),
-  {      
-    ...options,
-    method: 'GET'
+export const insightControllerGetSimpleLogs = (
     
-    
-  }
-);}
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InsightControllerGetSimpleLogs200>(
+      {url: `/insights/summary`, method: 'GET', signal
+    },
+      options);
+    }
   
-
 
 
 
@@ -330,7 +239,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>> = ({ signal }) => insightControllerGetSimpleLogs({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>> = ({ signal }) => insightControllerGetSimpleLogs(requestOptions, signal);
 
       
 
@@ -390,62 +299,21 @@ export function useInsightControllerGetSimpleLogs<TData = Awaited<ReturnType<typ
  * 인사이트 로그를 수정하고, 기존 벡터를 삭제 후 메타데이터를 벡터DB에 다시 저장합니다.
  * @summary 인사이트 로그 수정
  */
-export type insightControllerUpdateLogResponse200 = {
-  data: InsightControllerUpdateLog200
-  status: 200
-}
-
-export type insightControllerUpdateLogResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type insightControllerUpdateLogResponse403 = {
-  data: CommonResponse
-  status: 403
-}
-
-export type insightControllerUpdateLogResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type insightControllerUpdateLogResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type insightControllerUpdateLogResponseSuccess = (insightControllerUpdateLogResponse200) & {
-  headers: Headers;
-};
-export type insightControllerUpdateLogResponseError = (insightControllerUpdateLogResponse401 | insightControllerUpdateLogResponse403 | insightControllerUpdateLogResponse404 | insightControllerUpdateLogResponse409) & {
-  headers: Headers;
-};
-
-export type insightControllerUpdateLogResponse = (insightControllerUpdateLogResponseSuccess | insightControllerUpdateLogResponseError)
-
-export const getInsightControllerUpdateLogUrl = (insightId: number,) => {
-
-
+export const insightControllerUpdateLog = (
+    insightId: number,
+    updateInsightReqDTO: UpdateInsightReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InsightControllerUpdateLog200>(
+      {url: `/insights/${insightId}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateInsightReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/insights/${insightId}`
-}
-
-export const insightControllerUpdateLog = async (insightId: number,
-    updateInsightReqDTO: UpdateInsightReqDTO, options?: RequestInit): Promise<insightControllerUpdateLogResponse> => {
-  
-  return customInstance<insightControllerUpdateLogResponse>(getInsightControllerUpdateLogUrl(insightId),
-  {      
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      updateInsightReqDTO,)
-  }
-);}
-  
-
 
 
 export const getInsightControllerUpdateLogMutationOptions = <TError = CommonResponse,
@@ -496,55 +364,18 @@ export const useInsightControllerUpdateLog = <TError = CommonResponse,
  * 인사이트 로그 및 메타데이터를 삭제합니다.
  * @summary 인사이트 로그 삭제
  */
-export type insightControllerDeleteLogResponse200 = {
-  data: InsightControllerDeleteLog200
-  status: 200
-}
-
-export type insightControllerDeleteLogResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type insightControllerDeleteLogResponse403 = {
-  data: CommonResponse
-  status: 403
-}
-
-export type insightControllerDeleteLogResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type insightControllerDeleteLogResponseSuccess = (insightControllerDeleteLogResponse200) & {
-  headers: Headers;
-};
-export type insightControllerDeleteLogResponseError = (insightControllerDeleteLogResponse401 | insightControllerDeleteLogResponse403 | insightControllerDeleteLogResponse404) & {
-  headers: Headers;
-};
-
-export type insightControllerDeleteLogResponse = (insightControllerDeleteLogResponseSuccess | insightControllerDeleteLogResponseError)
-
-export const getInsightControllerDeleteLogUrl = (insightId: number,) => {
-
-
+export const insightControllerDeleteLog = (
+    insightId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InsightControllerDeleteLog200>(
+      {url: `/insights/${insightId}`, method: 'DELETE', signal
+    },
+      options);
+    }
   
-
-  return `/insights/${insightId}`
-}
-
-export const insightControllerDeleteLog = async (insightId: number, options?: RequestInit): Promise<insightControllerDeleteLogResponse> => {
-  
-  return customInstance<insightControllerDeleteLogResponse>(getInsightControllerDeleteLogUrl(insightId),
-  {      
-    ...options,
-    method: 'DELETE'
-    
-    
-  }
-);}
-  
-
 
 
 export const getInsightControllerDeleteLogMutationOptions = <TError = CommonResponse,
@@ -595,52 +426,19 @@ export const useInsightControllerDeleteLog = <TError = CommonResponse,
  * 키워드를 통해 인사이트 로그를 검색합니다.
  * @summary 인사이트 로그 유사도 검색
  */
-export type insightControllerSearchVectorResponse200 = {
-  data: InsightControllerSearchVector200
-  status: 200
-}
-
-export type insightControllerSearchVectorResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type insightControllerSearchVectorResponseSuccess = (insightControllerSearchVectorResponse200) & {
-  headers: Headers;
-};
-export type insightControllerSearchVectorResponseError = (insightControllerSearchVectorResponse401) & {
-  headers: Headers;
-};
-
-export type insightControllerSearchVectorResponse = (insightControllerSearchVectorResponseSuccess | insightControllerSearchVectorResponseError)
-
-export const getInsightControllerSearchVectorUrl = (params: InsightControllerSearchVectorParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+export const insightControllerSearchVector = (
+    params: InsightControllerSearchVectorParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InsightControllerSearchVector200>(
+      {url: `/insights/search`, method: 'GET',
+        params, signal
+    },
+      options);
     }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/insights/search?${stringifiedParams}` : `/insights/search`
-}
-
-export const insightControllerSearchVector = async (params: InsightControllerSearchVectorParams, options?: RequestInit): Promise<insightControllerSearchVectorResponse> => {
   
-  return customInstance<insightControllerSearchVectorResponse>(getInsightControllerSearchVectorUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-  
-
 
 
 
@@ -660,7 +458,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof insightControllerSearchVector>>> = ({ signal }) => insightControllerSearchVector(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof insightControllerSearchVector>>> = ({ signal }) => insightControllerSearchVector(params, requestOptions, signal);
 
       
 
@@ -720,51 +518,20 @@ export function useInsightControllerSearchVector<TData = Awaited<ReturnType<type
  * 활동명을 생성합니다. 인당 10개 제한이 있으며, 활동명은 unique합니다.
  * @summary 활동 분류 태그 생성
  */
-export type insightControllerCreateActivityTagResponse200 = {
-  data: InsightControllerCreateActivityTag200
-  status: 200
-}
-
-export type insightControllerCreateActivityTagResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type insightControllerCreateActivityTagResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type insightControllerCreateActivityTagResponseSuccess = (insightControllerCreateActivityTagResponse200) & {
-  headers: Headers;
-};
-export type insightControllerCreateActivityTagResponseError = (insightControllerCreateActivityTagResponse401 | insightControllerCreateActivityTagResponse409) & {
-  headers: Headers;
-};
-
-export type insightControllerCreateActivityTagResponse = (insightControllerCreateActivityTagResponseSuccess | insightControllerCreateActivityTagResponseError)
-
-export const getInsightControllerCreateActivityTagUrl = () => {
-
-
+export const insightControllerCreateActivityTag = (
+    activityNameReqDTO: ActivityNameReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InsightControllerCreateActivityTag200>(
+      {url: `/insights/tags`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: activityNameReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/insights/tags`
-}
-
-export const insightControllerCreateActivityTag = async (activityNameReqDTO: ActivityNameReqDTO, options?: RequestInit): Promise<insightControllerCreateActivityTagResponse> => {
-  
-  return customInstance<insightControllerCreateActivityTagResponse>(getInsightControllerCreateActivityTagUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      activityNameReqDTO,)
-  }
-);}
-  
-
 
 
 export const getInsightControllerCreateActivityTagMutationOptions = <TError = CommonResponse,
@@ -815,45 +582,18 @@ export const useInsightControllerCreateActivityTag = <TError = CommonResponse,
  * 활동 분류 태그 목록을 조회합니다. 인당 10개 제한이 있습니다.
  * @summary 활동 분류 태그 목록 조회
  */
-export type insightControllerGetActivityTagsResponse200 = {
-  data: InsightControllerGetActivityTags200
-  status: 200
-}
-
-export type insightControllerGetActivityTagsResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type insightControllerGetActivityTagsResponseSuccess = (insightControllerGetActivityTagsResponse200) & {
-  headers: Headers;
-};
-export type insightControllerGetActivityTagsResponseError = (insightControllerGetActivityTagsResponse401) & {
-  headers: Headers;
-};
-
-export type insightControllerGetActivityTagsResponse = (insightControllerGetActivityTagsResponseSuccess | insightControllerGetActivityTagsResponseError)
-
-export const getInsightControllerGetActivityTagsUrl = () => {
-
-
-  
-
-  return `/insights/tags`
-}
-
-export const insightControllerGetActivityTags = async ( options?: RequestInit): Promise<insightControllerGetActivityTagsResponse> => {
-  
-  return customInstance<insightControllerGetActivityTagsResponse>(getInsightControllerGetActivityTagsUrl(),
-  {      
-    ...options,
-    method: 'GET'
+export const insightControllerGetActivityTags = (
     
-    
-  }
-);}
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InsightControllerGetActivityTags200>(
+      {url: `/insights/tags`, method: 'GET', signal
+    },
+      options);
+    }
   
-
 
 
 
@@ -873,7 +613,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof insightControllerGetActivityTags>>> = ({ signal }) => insightControllerGetActivityTags({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof insightControllerGetActivityTags>>> = ({ signal }) => insightControllerGetActivityTags(requestOptions, signal);
 
       
 
@@ -933,55 +673,18 @@ export function useInsightControllerGetActivityTags<TData = Awaited<ReturnType<t
  * 활동 분류 태그를 삭제합니다. 태그가 연결되어있던 인사이트 로그는 자동적으로 미분류 상태가 됩니다.
  * @summary 활동 분류 태그 삭제
  */
-export type insightControllerDeleteActivityTagResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type insightControllerDeleteActivityTagResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type insightControllerDeleteActivityTagResponse403 = {
-  data: CommonResponse
-  status: 403
-}
-
-export type insightControllerDeleteActivityTagResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type insightControllerDeleteActivityTagResponseSuccess = (insightControllerDeleteActivityTagResponse200) & {
-  headers: Headers;
-};
-export type insightControllerDeleteActivityTagResponseError = (insightControllerDeleteActivityTagResponse401 | insightControllerDeleteActivityTagResponse403 | insightControllerDeleteActivityTagResponse404) & {
-  headers: Headers;
-};
-
-export type insightControllerDeleteActivityTagResponse = (insightControllerDeleteActivityTagResponseSuccess | insightControllerDeleteActivityTagResponseError)
-
-export const getInsightControllerDeleteActivityTagUrl = (tagId: number,) => {
-
-
+export const insightControllerDeleteActivityTag = (
+    tagId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/insights/tags/${tagId}`, method: 'DELETE', signal
+    },
+      options);
+    }
   
-
-  return `/insights/tags/${tagId}`
-}
-
-export const insightControllerDeleteActivityTag = async (tagId: number, options?: RequestInit): Promise<insightControllerDeleteActivityTagResponse> => {
-  
-  return customInstance<insightControllerDeleteActivityTagResponse>(getInsightControllerDeleteActivityTagUrl(tagId),
-  {      
-    ...options,
-    method: 'DELETE'
-    
-    
-  }
-);}
-  
-
 
 
 export const getInsightControllerDeleteActivityTagMutationOptions = <TError = CommonResponse,

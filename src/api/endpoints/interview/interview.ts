@@ -31,65 +31,18 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  * experienceId를 기준으로 인터뷰 세션을 만들고 첫 AI 질문을 SSE 스트림으로 전달합니다.
  * @summary 인터뷰 세션 생성 및 SSE 스트리밍
  */
-export type interviewControllerCreateSessionStreamResponse200 = {
-  data: void
-  status: 200
-}
-
-export type interviewControllerCreateSessionStreamResponse400 = {
-  data: CommonResponse
-  status: 400
-}
-
-export type interviewControllerCreateSessionStreamResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type interviewControllerCreateSessionStreamResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type interviewControllerCreateSessionStreamResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type interviewControllerCreateSessionStreamResponse500 = {
-  data: CommonResponse
-  status: 500
-}
-
-export type interviewControllerCreateSessionStreamResponseSuccess = (interviewControllerCreateSessionStreamResponse200) & {
-  headers: Headers;
-};
-export type interviewControllerCreateSessionStreamResponseError = (interviewControllerCreateSessionStreamResponse400 | interviewControllerCreateSessionStreamResponse401 | interviewControllerCreateSessionStreamResponse404 | interviewControllerCreateSessionStreamResponse409 | interviewControllerCreateSessionStreamResponse500) & {
-  headers: Headers;
-};
-
-export type interviewControllerCreateSessionStreamResponse = (interviewControllerCreateSessionStreamResponseSuccess | interviewControllerCreateSessionStreamResponseError)
-
-export const getInterviewControllerCreateSessionStreamUrl = (experienceId: number,) => {
-
-
+export const interviewControllerCreateSessionStream = (
+    experienceId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<void>(
+      {url: `/interview/experiences/${experienceId}/session/stream`, method: 'POST', signal
+    },
+      options);
+    }
   
-
-  return `/interview/experiences/${experienceId}/session/stream`
-}
-
-export const interviewControllerCreateSessionStream = async (experienceId: number, options?: RequestInit): Promise<interviewControllerCreateSessionStreamResponse> => {
-  
-  return customInstance<interviewControllerCreateSessionStreamResponse>(getInterviewControllerCreateSessionStreamUrl(experienceId),
-  {      
-    ...options,
-    method: 'POST'
-    
-    
-  }
-);}
-  
-
 
 
 export const getInterviewControllerCreateSessionStreamMutationOptions = <TError = CommonResponse,
@@ -140,55 +93,21 @@ export const useInterviewControllerCreateSessionStream = <TError = CommonRespons
  * experienceId로 저장된 sessionId를 조회해 사용자 메시지를 전송하고 AI 응답을 SSE 스트림으로 전달합니다.
  * @summary 인터뷰 채팅 메시지 전송 및 SSE 스트리밍
  */
-export type interviewControllerSendChatStreamResponse400 = {
-  data: CommonResponse
-  status: 400
-}
-
-export type interviewControllerSendChatStreamResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type interviewControllerSendChatStreamResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type interviewControllerSendChatStreamResponse500 = {
-  data: CommonResponse
-  status: 500
-}
-
-;
-export type interviewControllerSendChatStreamResponseError = (interviewControllerSendChatStreamResponse400 | interviewControllerSendChatStreamResponse401 | interviewControllerSendChatStreamResponse404 | interviewControllerSendChatStreamResponse500) & {
-  headers: Headers;
-};
-
-export type interviewControllerSendChatStreamResponse = (interviewControllerSendChatStreamResponseError)
-
-export const getInterviewControllerSendChatStreamUrl = (experienceId: number,) => {
-
-
+export const interviewControllerSendChatStream = (
+    experienceId: number,
+    sendInterviewChatReqDTO: SendInterviewChatReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/interview/experiences/${experienceId}/messages/stream`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: sendInterviewChatReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/interview/experiences/${experienceId}/messages/stream`
-}
-
-export const interviewControllerSendChatStream = async (experienceId: number,
-    sendInterviewChatReqDTO: SendInterviewChatReqDTO, options?: RequestInit): Promise<interviewControllerSendChatStreamResponse> => {
-  
-  return customInstance<interviewControllerSendChatStreamResponse>(getInterviewControllerSendChatStreamUrl(experienceId),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      sendInterviewChatReqDTO,)
-  }
-);}
-  
-
 
 
 export const getInterviewControllerSendChatStreamMutationOptions = <TError = CommonResponse,

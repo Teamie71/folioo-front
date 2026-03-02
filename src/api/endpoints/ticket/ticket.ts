@@ -35,38 +35,18 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  * 활성화된 이용권 상품 목록을 displayOrder 기준 오름차순으로 조회합니다. 할인율(discountRate)은 정가 대비 판매가로 계산됩니다.
  * @summary 이용권 상품 목록 조회
  */
-export type ticketControllerGetTicketProductsResponse200 = {
-  data: TicketControllerGetTicketProducts200
-  status: 200
-}
-
-export type ticketControllerGetTicketProductsResponseSuccess = (ticketControllerGetTicketProductsResponse200) & {
-  headers: Headers;
-};
-;
-
-export type ticketControllerGetTicketProductsResponse = (ticketControllerGetTicketProductsResponseSuccess)
-
-export const getTicketControllerGetTicketProductsUrl = () => {
-
-
-  
-
-  return `/ticket-products`
-}
-
-export const ticketControllerGetTicketProducts = async ( options?: RequestInit): Promise<ticketControllerGetTicketProductsResponse> => {
-  
-  return customInstance<ticketControllerGetTicketProductsResponse>(getTicketControllerGetTicketProductsUrl(),
-  {      
-    ...options,
-    method: 'GET'
+export const ticketControllerGetTicketProducts = (
     
-    
-  }
-);}
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<TicketControllerGetTicketProducts200>(
+      {url: `/ticket-products`, method: 'GET', signal
+    },
+      options);
+    }
   
-
 
 
 
@@ -86,7 +66,7 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof ticketControllerGetTicketProducts>>> = ({ signal }) => ticketControllerGetTicketProducts({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof ticketControllerGetTicketProducts>>> = ({ signal }) => ticketControllerGetTicketProducts(requestOptions, signal);
 
       
 
