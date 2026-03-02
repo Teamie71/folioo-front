@@ -1,7 +1,7 @@
 'use client';
 
+import { userControllerGetProfile } from '@/api/endpoints/user/user';
 import { refreshAccessToken } from '@/services/auth';
-import { getMe } from '@/services/user';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
@@ -52,7 +52,10 @@ function LoginCallbackContent() {
       }
 
       try {
-        await getMe();
+        const res = await userControllerGetProfile();
+        if (!res?.isSuccess || !res?.result) throw new Error('프로필 조회 실패');
+      } catch {
+        // 프로필 조회 실패 시에도 리다이렉트
       } finally {
         router.replace(redirectTo);
       }

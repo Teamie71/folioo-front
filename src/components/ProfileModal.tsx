@@ -7,12 +7,83 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/components/ui/Dialog';
-import { getMe } from '@/services/user';
-import type { UserProfile } from '@/types/api/user';
+import { useUserControllerGetProfile } from '@/api/endpoints/user/user';
+import type { UserProfileResDTO } from '@/api/models/userProfileResDTO';
+import type { UserSocialAccountResDTO } from '@/api/models/userSocialAccountResDTO';
+import type { UserSocialAccountResDTOSocialType } from '@/api/models/userSocialAccountResDTOSocialType';
 import { ProfileEditButton } from '@/components/ProfileEditButton';
 import Link from 'next/link';
 import { ChevronLeftIcon } from './icons/ChevronLeftIcon';
+import { GoogleEmailLogo } from './icons/GoogleEmailLogo';
+import { KakaoEmailLogo } from './icons/KakaoEmailLogo';
+import { NaverEmailLogo } from './icons/NaverEmailLogo';
 import { ToggleOnOff } from './ToggleOnOff';
+import Image from 'next/image';
+
+/* Orval socialEmail 등 표시용 */
+function toDisplayString(v: unknown): string {
+  if (v == null) return '-';
+  if (typeof v === 'string') return v || '-';
+  return '-';
+}
+
+function SocialEmailLogo({
+  type,
+}: {
+  type?: UserSocialAccountResDTOSocialType;
+}) {
+  switch (type) {
+    case 'KAKAO':
+      return (
+        <Image src='/KakaoEmailLogo.svg' alt='Kakao' width={20} height={20} />
+      );
+    case 'NAVER':
+      return (
+        <Image src='/NaverEmailLogo.svg' alt='Naver' width={20} height={20} />
+      );
+    case 'GOOGLE':
+      return (
+        <Image src='/GoogleEmailLogo.svg' alt='Google' width={20} height={20} />
+      );
+    default:
+      return (
+        <div className='h-[1.25rem] w-[1.25rem] flex-shrink-0 rounded-full bg-[#D9D9D9]' />
+      );
+  }
+}
+
+/* 카카오, 네이버, 구글 순으로 로그인한 소셜 계정마다 로고+이메일 표시 */
+const SOCIAL_ORDER: UserSocialAccountResDTOSocialType[] = [
+  'KAKAO',
+  'NAVER',
+  'GOOGLE',
+];
+function SocialAccountRows({
+  socialAccounts,
+}: {
+  socialAccounts: UserSocialAccountResDTO[];
+}) {
+  const byType = new Map(socialAccounts.map((a) => [a.socialType, a]));
+  const ordered = SOCIAL_ORDER.filter((t) => byType.has(t)).map(
+    (t) => byType.get(t)!,
+  );
+  if (ordered.length === 0) return null;
+  return (
+    <div className='flex flex-col gap-[0.25rem]'>
+      {ordered.map((account) => (
+        <div
+          key={account.socialType}
+          className='flex items-center gap-[0.25rem]'
+        >
+          <SocialEmailLogo type={account.socialType} />
+          <span className='text-[1rem] leading-[150%] text-[#74777D]'>
+            {toDisplayString(account.socialEmail)}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 interface ProfileModalProps {
   open: boolean;
@@ -20,14 +91,15 @@ interface ProfileModalProps {
 }
 
 export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const { data: profileRes } = useUserControllerGetProfile({
+    query: { enabled: open },
+  });
+  const [profile, setProfile] = useState<UserProfileResDTO | null>(null);
 
   useEffect(() => {
-    if (!open) return;
-    getMe()
-      .then(setProfile)
-      .catch(() => setProfile(null));
-  }, [open]);
+    if (open && profileRes?.result) setProfile(profileRes.result);
+    else if (!open) setProfile(null);
+  }, [open, profileRes?.result]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -52,21 +124,16 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
                 />
               </div>
 
-              <div className='flex flex-col gap-[0.25rem]'>
-                <div className='flex items-center gap-[0.75rem]'>
-                  <div className='h-[1.25rem] w-[1.25rem] rounded-full bg-[#D9D9D9]' />
-                  <div className='text-[1rem] leading-[150%] text-[#74777D]'>
-                    {profile?.email ?? '-'}
-                  </div>
-                </div>
-              </div>
+              <SocialAccountRows
+                socialAccounts={profile?.socialAccounts ?? []}
+              />
             </div>
 
             <div className='mt-[1.5rem] mb-[1.5rem] w-full border border-[#CDD0D5]' />
 
             <div className='flex items-center justify-between text-[1.125rem] leading-[150%] text-[#1A1A1A]'>
               <p>휴대폰</p>
-              <p>{profile?.phoneNum ?? '-'}</p>
+              <p>{toDisplayString(profile?.phoneNum)}</p>
             </div>
           </div>
 
