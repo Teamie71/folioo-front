@@ -12,6 +12,7 @@ import {
   portfolioCorrectionControllerCreateCorrectionByAI,
   portfolioCorrectionControllerGetCorrectionStatus,
   portfolioCorrectionControllerCreateCompanyInsight,
+  portfolioCorrectionControllerUpdateCompanyInsight,
   portfolioCorrectionControllerUpdateCorrectionTitle,
 } from '@/api/endpoints/portfolio-correction/portfolio-correction';
 import type { CorrectionStatusResDTOStatus } from '@/api/models';
@@ -287,10 +288,24 @@ export function useCorrectionState(correctionId: string | undefined) {
         return;
       }
       try {
+        // 기업 분석 정보·강조 포인트를 백엔드에 저장 (실패해도 첨삭은 진행)
+        try {
+          await portfolioCorrectionControllerUpdateCompanyInsight(id, {
+            companyInsight: analysisInfoValue.trim() || null,
+            highlightPoint: emphasisPointsValue.trim() || null,
+          });
+        } catch {
+          // ignore PATCH error
+        }
+
         await portfolioCorrectionControllerCreateCorrectionByAI(id);
-        const statusRes = await portfolioCorrectionControllerGetCorrectionStatus(id);
-        const apiStatus = (statusRes as { result?: { status?: CorrectionStatusResDTOStatus } })?.result?.status;
-        const { step: nextStep, status: nextStatus } = mapStatusToStepAndStatus(apiStatus);
+        const statusRes =
+          await portfolioCorrectionControllerGetCorrectionStatus(id);
+        const apiStatus = (
+          statusRes as { result?: { status?: CorrectionStatusResDTOStatus } }
+        )?.result?.status;
+        const { step: nextStep, status: nextStatus } =
+          mapStatusToStepAndStatus(apiStatus);
         setStep(nextStep);
         setStatus(nextStatus);
       } catch {
