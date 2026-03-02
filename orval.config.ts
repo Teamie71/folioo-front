@@ -14,7 +14,7 @@ export default defineConfig({
       mock: false,
       override: {
         mutator: {
-          path: './src/lib/axios.ts',
+          path: 'src/lib/axios.ts',
           name: 'customInstance',
         },
       },
