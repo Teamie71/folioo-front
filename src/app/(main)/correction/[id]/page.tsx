@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { redirect } from 'next/navigation';
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
@@ -16,6 +16,7 @@ import {
   useCorrectionState,
   type UseCorrectionStateReturn,
 } from '@/features/correction/hooks/useCorrectionState';
+import { portfolioCorrectionControllerUpdateCorrectionTitle } from '@/api/endpoints/portfolio-correction/portfolio-correction';
 
 export default function CorrectionSettingsPage() {
   const params = useParams();
@@ -86,11 +87,28 @@ export default function CorrectionSettingsPage() {
             onConfirm: s.handleDeletePdfActivity,
           }}
           titleEdit={{
-            title: '새로운 포트폴리오 첨삭',
+            title: s.title,
             isEditing: s.isEditingTitle,
             editable: true,
             onEdit: () => s.setIsEditingTitle(true),
-            onSave: () => s.setIsEditingTitle(false),
+            onSave: async (newTitle: string) => {
+              const id = correctionId ? Number(correctionId) : NaN;
+              if (!newTitle.trim() || Number.isNaN(id)) {
+                s.setIsEditingTitle(false);
+                return;
+              }
+              const safeTitle = newTitle.trim().slice(0, 20);
+              try {
+                await portfolioCorrectionControllerUpdateCorrectionTitle(id, {
+                  title: safeTitle,
+                });
+                s.setTitle(safeTitle);
+              } catch {
+                // 실패 시 제목은 그대로 두고 편집만 종료
+              } finally {
+                s.setIsEditingTitle(false);
+              }
+            },
           }}
           showDeleteButton
           deleteModal={{

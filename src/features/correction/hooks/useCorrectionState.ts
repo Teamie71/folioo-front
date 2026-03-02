@@ -11,6 +11,7 @@ import {
   portfolioCorrectionControllerMapCorrectionWithPortfolios,
   portfolioCorrectionControllerCreateCorrectionByAI,
   portfolioCorrectionControllerGetCorrectionStatus,
+  portfolioCorrectionControllerUpdateCorrectionTitle,
 } from '@/api/endpoints/portfolio-correction/portfolio-correction';
 import type { CorrectionStatusResDTOStatus } from '@/api/models';
 import { useExperienceControllerGetExperiences } from '@/api/endpoints/experience/experience';
@@ -81,9 +82,8 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [pdfActivityHoverId, setPdfActivityHoverId] = useState<string | null>(
     null,
   );
-  const [selectedTextPortfolioIds, setSelectedTextPortfolioIds] = useState<
-    string[]
-  >([]);
+  const [selectedTextPortfolioIds, setSelectedTextPortfolioIds] = useState<string[]>([]);
+  const [title, setTitle] = useState('새로운 포트폴리오 첨삭');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [resultTab, setResultTab] = useState<
     '지원 정보' | '총평' | '활동 A' | '활동 B'
@@ -375,6 +375,8 @@ export function useCorrectionState(correctionId: string | undefined) {
     setPdfActivityHoverId,
     selectedTextPortfolioIds,
     setSelectedTextPortfolioIds,
+    title,
+    setTitle,
     isEditingTitle,
     setIsEditingTitle,
     textPortfolios,
