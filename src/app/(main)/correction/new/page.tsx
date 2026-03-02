@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
+import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { CorrectionLayout } from '@/features/correction/components/CorrectionLayout';
 import { CorrectionPageHeader } from '@/features/correction/components/CorrectionPageHeader';
 import { CorrectionInformationStep } from '@/features/correction/components/CorrectionInformationStep';
@@ -11,6 +13,8 @@ import {
 
 export default function NewCorrectionPage() {
   const s: UseNewCorrectionFormReturn = useNewCorrectionForm();
+  /** OBT 기간 동안 막아둔 기능: JD 이미지 모드 */
+  const [isJdImageModalOpen, setIsJdImageModalOpen] = useState(false);
 
   return (
     <CorrectionLayout
@@ -116,17 +120,11 @@ export default function NewCorrectionPage() {
           }}
           jdMode={s.jdMode}
           onJdModeChange={(value) => {
-            s.setJdMode(value);
             if (value === 'image') {
-              s.setJdImageError(null);
-              s.setJdViewerFileIndex(null);
-              s.setJdUploadedFiles((prev) => {
-                prev.forEach((f) => {
-                  if (f.previewUrl) URL.revokeObjectURL(f.previewUrl);
-                });
-                return [];
-              });
+              setIsJdImageModalOpen(true);
+              return;
             }
+            s.setJdMode(value);
           }}
           informationErrors={s.informationErrors}
           jdImageError={s.jdImageError}
@@ -143,6 +141,12 @@ export default function NewCorrectionPage() {
           onPasteJdImage={s.handlePasteJdImageFromClipboard}
         />
       </div>
+
+      {/* OBT 기간 동안 막아둔 기능 */}
+      <OBTRedirectModal
+        open={isJdImageModalOpen}
+        onOpenChange={(open) => !open && setIsJdImageModalOpen(false)}
+      />
     </CorrectionLayout>
   );
 }
