@@ -1,5 +1,14 @@
 'use client';
 
+import {
+  externalPortfolioControllerCreateExternalPortfolioBlock,
+  externalPortfolioControllerDeleteExternalPortfolio,
+  externalPortfolioControllerExtractPortfolios,
+  externalPortfolioControllerGetExternalPortfolios,
+  externalPortfolioControllerUpdateExternalPortfolio,
+} from '@/api/endpoints/portfolio/portfolio';
+import { portfolioCorrectionControllerCreateCorrection } from '@/api/endpoints/portfolio-correction/portfolio-correction';
+import { mapToPdfActivityBlock, toPatchBody } from '@/services/correction';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCorrectionNavbar } from '@/contexts/CorrectionNavbarContext';
@@ -7,15 +16,6 @@ import {
   INITIAL_PDF_ACTIVITIES,
   PDF_CATEGORY_CHAR_LIMIT,
 } from '@/features/correction/constants';
-import {
-  createPortfolioCorrection,
-  deleteExternalPortfolio,
-  extractPdfPortfolio,
-  getExternalPortfolios,
-  patchExternalPortfolio,
-  postExternalPortfolio,
-  toPatchBody,
-} from '@/services/correction';
 import type {
   PdfActivityBlock,
   PdfCategoryName,
@@ -166,11 +166,14 @@ export function useCorrectionState(correctionId?: string | null) {
     setIsPdfExtractConfirmModalOpen(false);
     setIsPdfTextExtracting(true);
     try {
-      await extractPdfPortfolio(pdfUploadedFile.file);
+      const extractRes = await externalPortfolioControllerExtractPortfolios({ file: pdfUploadedFile.file });
+      if (extractRes.status !== 200) throw new Error();
       setIsPdfTextExtracted(true);
       const id = correctionId != null ? Number(correctionId) : null;
       if (id != null && !Number.isNaN(id)) {
-        const activities = await getExternalPortfolios(id);
+        const listRes = await externalPortfolioControllerGetExternalPortfolios({ correctionId: id });
+        const result = (listRes.data as { result?: Array<{ portfolioId: number; name: string; description: string; responsibilities: string; problemSolving: string; learnings: string }> })?.result;
+        const activities = (result ?? []).map((dto, i) => mapToPdfActivityBlock(dto, i));
         setPdfActivities(activities);
         if (activities.length > 0) setSelectedActivityId(activities[0].id);
       }
@@ -187,7 +190,8 @@ export function useCorrectionState(correctionId?: string | null) {
     const activity = pdfActivities.find((a) => a.id === targetId);
     if (activity?.portfolioId != null) {
       try {
-        await deleteExternalPortfolio(activity.portfolioId);
+        const res = await externalPortfolioControllerDeleteExternalPortfolio(activity.portfolioId);
+        if (res.status !== 200) throw new Error();
       } catch {
         return;
       }
@@ -207,7 +211,10 @@ export function useCorrectionState(correctionId?: string | null) {
     if (id == null || Number.isNaN(id)) return;
     if (pdfActivities.length >= 5) return;
     try {
-      const newBlock = await postExternalPortfolio(id, pdfActivities.length);
+      const res = await externalPortfolioControllerCreateExternalPortfolioBlock({ correctionId: id });
+      const result = (res.data as { result?: { portfolioId: number; name: string; description: string; responsibilities: string; problemSolving: string; learnings: string } })?.result;
+      if (res.status !== 200 || !result) throw new Error();
+      const newBlock = mapToPdfActivityBlock(result, pdfActivities.length);
       setPdfActivities((prev) => [...prev, newBlock]);
       setSelectedActivityId(newBlock.id);
     } catch {
@@ -221,7 +228,7 @@ export function useCorrectionState(correctionId?: string | null) {
     if (debouncedPatchRef.current) clearTimeout(debouncedPatchRef.current);
     debouncedPatchRef.current = setTimeout(() => {
       debouncedPatchRef.current = null;
-      patchExternalPortfolio(activity.portfolioId!, toPatchBody(activity)).catch(
+      externalPortfolioControllerUpdateExternalPortfolio(activity.portfolioId!, toPatchBody(activity)).catch(
         () => {},
       );
     }, 500);
@@ -256,9 +263,9 @@ export function useCorrectionState(correctionId?: string | null) {
         ? { jobDescription: jobDescription.trim() }
         : { jobDescription: '' }),
     };
-    // IMAGE 모드에서 이미지 전송이 필요하면 백엔드 스펙에 맞게 multipart 등 추가
     try {
-      await createPortfolioCorrection(body);
+      const res = await portfolioCorrectionControllerCreateCorrection(body);
+      if (res.status !== 200) throw new Error();
       setIsStartCorrectionModalOpen(false);
       setStep('portfolio');
     } catch {

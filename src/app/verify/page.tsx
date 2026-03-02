@@ -1,10 +1,10 @@
 'use client';
 
+import { useAuthControllerHandleSmsSend, useAuthControllerHandleSmsVerify } from '@/api/endpoints/auth/auth';
 import { useState, useEffect } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import InputArea from '@/components/InputArea';
 import { OBTEventModal } from '@/components/OBT/OBTEventModal';
-import { sendAuthSms, verifyAuthSms } from '@/services/auth';
 import { useRouter } from 'next/navigation';
 
 const TIMER_INITIAL = 299; // 04:59
@@ -35,6 +35,9 @@ export default function VerifyPage() {
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [timer, setTimer] = useState(TIMER_INITIAL);
   const [isError, setIsError] = useState(false);
+
+  const sendSmsMutation = useAuthControllerHandleSmsSend();
+  const verifySmsMutation = useAuthControllerHandleSmsVerify();
 
   // 1단계: 휴대폰 번호 입력
   if (!codeSent) {
@@ -68,7 +71,7 @@ export default function VerifyPage() {
               disabled={phoneNumber.length !== PHONE_MAX_LENGTH}
               onClick={async () => {
                 try {
-                  await sendAuthSms({ phoneNum: phoneNumber });
+                  await sendSmsMutation.mutateAsync({ data: { phoneNum: phoneNumber } });
                   setCodeSent(true);
                   setTimer(TIMER_INITIAL);
                   setOtp(Array(OTP_LENGTH).fill(''));
@@ -97,6 +100,8 @@ export default function VerifyPage() {
       isError={isError}
       setIsError={setIsError}
       formatTime={formatTime}
+      onResend={sendSmsMutation.mutateAsync}
+      onVerify={verifySmsMutation.mutateAsync}
     />
   );
 }
@@ -110,6 +115,8 @@ function VerifyOtpStep({
   isError,
   setIsError,
   formatTime,
+  onResend,
+  onVerify,
 }: {
   phoneNumber: string;
   otp: string[];
@@ -119,6 +126,8 @@ function VerifyOtpStep({
   isError: boolean;
   setIsError: React.Dispatch<React.SetStateAction<boolean>>;
   formatTime: (seconds: number) => string;
+  onResend: (variables: { data: { phoneNum: string } }) => Promise<unknown>;
+  onVerify: (variables: { data: { phoneNum: string; verifyToken: string } }) => Promise<unknown>;
 }) {
   const [eventModalOpen, setEventModalOpen] = useState(false);
   const router = useRouter();
@@ -158,7 +167,7 @@ function VerifyOtpStep({
 
   const handleResend = async () => {
     try {
-      await sendAuthSms({ phoneNum: phoneNumber });
+      await onResend({ data: { phoneNum: phoneNumber } });
       setTimer(TIMER_INITIAL);
       setOtp(Array(OTP_LENGTH).fill(''));
       setIsError(false);
@@ -171,10 +180,7 @@ function VerifyOtpStep({
     const fullCode = otp.join('');
     if (fullCode.length !== OTP_LENGTH) return;
     try {
-      await verifyAuthSms({
-        phoneNum: phoneNumber,
-        verifyToken: fullCode,
-      });
+      await onVerify({ data: { phoneNum: phoneNumber, verifyToken: fullCode } });
       setIsError(false);
       setEventModalOpen(true);
     } catch {

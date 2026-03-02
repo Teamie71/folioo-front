@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "api:generate": "orval"
+    "api:generate": "orval",
+    "api:gen": "orval"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

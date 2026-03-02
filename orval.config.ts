@@ -7,18 +7,15 @@ export default defineConfig({
     },
     output: {
       mode: 'tags-split',
-      target: 'src/api/endpoints', // API 엔드포인트 생성 위치
-      schemas: 'src/api/models', // API 모델 생성 위치
+      target: 'src/api/endpoints',
+      schemas: 'src/api/models',
       client: 'react-query',
-      mock: false, // 모의 데이터 생성 여부
-      // axios 사용 시 생성 코드가 AxiosRequestConfig 타입을 쓰도록 설정
-      httpClient: 'axios',
-
-      // 자동으로 생성된 axios 인스턴스를 덮어씌우기
+      httpClient: 'axios', // fetch 대신 axios + customInstance 사용 (baseURL, 토큰, credentials)
+      mock: false,
       override: {
         mutator: {
-          path: 'src/lib/axios.ts', // 우리가 새로 만들 커스텀 Axios 파일의 경로
-          name: 'customInstance', // 그 파일 안에서 빼내올(export) 함수 이름
+          path: './src/lib/axios.ts',
+          name: 'customInstance',
         },
       },
     },
