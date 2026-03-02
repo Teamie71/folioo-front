@@ -1,13 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
 } from '@/components/ui/Dialog';
-import { useUserControllerGetProfile } from '@/api/endpoints/user/user';
+import {
+  useUserControllerGetProfile,
+  useUserControllerUpdateProfile,
+  getUserControllerGetProfileQueryKey,
+} from '@/api/endpoints/user/user';
 import type { UserProfileResDTO } from '@/api/models/userProfileResDTO';
 import type { UserSocialAccountResDTO } from '@/api/models/userSocialAccountResDTO';
 import type { UserSocialAccountResDTOSocialType } from '@/api/models/userSocialAccountResDTOSocialType';
@@ -91,15 +96,40 @@ interface ProfileModalProps {
 }
 
 export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
+  // 프로필 조회
   const { data: profileRes } = useUserControllerGetProfile({
     query: { enabled: open },
   });
+  // 프로필 상태
   const [profile, setProfile] = useState<UserProfileResDTO | null>(null);
 
   useEffect(() => {
     if (open && profileRes?.result) setProfile(profileRes.result);
     else if (!open) setProfile(null);
   }, [open, profileRes?.result]);
+
+  // 프로필 업데이트
+  const queryClient = useQueryClient();
+
+  const { mutate: updateProfile } = useUserControllerUpdateProfile({
+    mutation: {
+      onSuccess: (_, variables) => {
+        setProfile((prev) =>
+          prev ? { ...prev, name: variables.data.name } : null,
+        );
+        queryClient.invalidateQueries({
+          queryKey: getUserControllerGetProfileQueryKey(),
+        });
+      },
+    },
+  });
+
+  // 이름 저장
+  const handleNameSave = (newName: string) => {
+    const trimmed = newName.trim();
+    if (!trimmed) return;
+    updateProfile({ data: { name: trimmed } });
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -116,11 +146,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
               <div className='flex items-center justify-between'>
                 <ProfileEditButton
                   value={profile?.name ?? ''}
-                  onSave={(newName) =>
-                    setProfile((prev) =>
-                      prev ? { ...prev, name: newName } : null,
-                    )
-                  }
+                  onSave={handleNameSave}
                 />
               </div>
 
