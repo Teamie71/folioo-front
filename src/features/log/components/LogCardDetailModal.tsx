@@ -130,7 +130,8 @@ export function LogDetailModal({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent
         className={cn(
-          'w-[50rem] max-w-[50rem] items-start gap-[1.25rem] px-[5rem] py-[3.75rem] text-left',
+          'w-[50rem] max-w-[50rem] items-start gap-[1.25rem] px-[5rem] text-left',
+          isEditing ? 'px-[3.25rem] py-[1.75rem] pt-[3rem]' : 'py-[3.75rem]',
         )}
       >
         {/* 접근성을 위한 DialogTitle (시각적으로 숨김) */}
@@ -256,15 +257,9 @@ export function LogDetailModal({
                     : undefined
                 }
                 onClick={handleSave}
-                disabled={
-                  isSaving || !editTitle.trim() || !editContent.trim()
-                }
+                disabled={isSaving || !editTitle.trim() || !editContent.trim()}
               >
-                {isSaving ? (
-                  <ButtonSpinnerIcon size={24} />
-                ) : (
-                  '수정 완료'
-                )}
+                {isSaving ? <ButtonSpinnerIcon size={24} /> : '수정 완료'}
               </CommonButton>
             </div>
           </>
