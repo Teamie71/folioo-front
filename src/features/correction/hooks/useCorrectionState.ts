@@ -7,7 +7,10 @@ import {
   externalPortfolioControllerGetExternalPortfolios,
   externalPortfolioControllerUpdateExternalPortfolio,
 } from '@/api/endpoints/portfolio/portfolio';
-import { portfolioCorrectionControllerCreateCorrection } from '@/api/endpoints/portfolio-correction/portfolio-correction';
+import {
+  portfolioCorrectionControllerCreateCorrection,
+  portfolioCorrectionControllerGetCorrections,
+} from '@/api/endpoints/portfolio-correction/portfolio-correction';
 import { mapToPdfActivityBlock, toPatchBody } from '@/services/correction';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -265,14 +268,20 @@ export function useCorrectionState(correctionId?: string | null) {
         : { jobDescription: '' }),
     };
     try {
-      const res = await portfolioCorrectionControllerCreateCorrection(body);
-      if (res.status !== 200) throw new Error();
+      await portfolioCorrectionControllerCreateCorrection(body);
+      const listRes = await portfolioCorrectionControllerGetCorrections();
+      const list = listRes?.result ?? [];
+      const newId = list[0]?.id;
       setIsStartCorrectionModalOpen(false);
-      setStep('portfolio');
+      if (newId != null) {
+        router.replace(`/correction/${newId}`);
+      } else {
+        setStep('portfolio');
+      }
     } catch {
       // 실패 시 모달 유지
     }
-  }, [jdMode, companyName, jobTitle, jobDescription]);
+  }, [jdMode, companyName, jobTitle, jobDescription, router]);
 
   const handleNextStep = useCallback(() => {
     if (step === 'information') {
