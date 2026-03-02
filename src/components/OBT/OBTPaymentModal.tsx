@@ -2,6 +2,7 @@
 
 import { CommonButton } from '@/components/CommonButton';
 import { CommonModal } from '@/components/CommonModal';
+import { openFeedbackForm } from '@/constants/feedback';
 
 interface OBTPaymentModalProps {
   open: boolean;
@@ -14,6 +15,11 @@ export const OBTPaymentModal = ({
   onOpenChange,
   onFeedbackClick,
 }: OBTPaymentModalProps) => {
+  const handleFeedbackClick = () => {
+    openFeedbackForm();
+    onFeedbackClick();
+  };
+
   return (
     <CommonModal
       open={open}
@@ -42,7 +48,7 @@ export const OBTPaymentModal = ({
           px='2rem'
           py='0.5rem'
           className='rounded-[3.75rem] text-[1rem] font-bold'
-          onClick={onFeedbackClick}
+          onClick={handleFeedbackClick}
         >
           이번 주 피드백 남기기
         </CommonButton>

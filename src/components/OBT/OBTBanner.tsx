@@ -1,6 +1,7 @@
 'use client';
 
 import { CloseIcon } from '../icons/CloseIcon';
+import { FEEDBACK_FORM_URL } from '@/constants/feedback';
 
 const SESSION_STORAGE_KEY = 'bannerBetaDismissed';
 
@@ -30,7 +31,7 @@ export const BannerBeta = () => {
 
         <div className='flex items-center gap-[3.75rem]'>
           <a
-            href='https://docs.google.com/forms/d/e/1FAIpQLSfy8hyVhhXV-Z_uTleskSlSILYyfVDlAy_eO_ixFqjjzo6gew/viewform'
+            href={FEEDBACK_FORM_URL}
             target='_blank'
             rel='noopener noreferrer'
             className='cursor-pointer text-[1rem] font-semibold text-[#5060C5] underline hover:opacity-90'

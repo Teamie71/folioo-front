@@ -3,6 +3,7 @@
 import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
+import { openFeedbackForm } from '@/constants/feedback';
 import { CreditExpireAlert } from '@/components/CreditExpireAlert';
 import { PaymentModal } from '@/components/PaymentModal';
 import Image from 'next/image';
@@ -179,11 +180,7 @@ function TopupPageContent() {
                     return;
                   }
                   if (card.id === 'review') {
-                    window.open(
-                      'https://docs.google.com/forms/d/e/1FAIpQLSfy8hyVhhXV-Z_uTleskSlSILYyfVDlAy_eO_ixFqjjzo6gew/viewform',
-                      '_blank',
-                      'noopener,noreferrer',
-                    );
+                    openFeedbackForm();
                     return;
                   }
                   if (card.id === 'cta') {

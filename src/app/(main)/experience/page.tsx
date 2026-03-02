@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import InputArea from '@/components/InputArea';
 import { ExperienceIcon } from '@/components/icons/ExperienceIcon';
 import { SearchButton } from '@/components/SearchButton';
@@ -5,6 +8,13 @@ import { ExperienceCardSection } from '@/features/experience/components/Experien
 import { NewExperienceStartButton } from '@/features/experience/components/NewExperienceStartButton';
 
 export default function ExperiencePage() {
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = () => {
+    setSearchQuery(searchInput.trim());
+  };
+
   return (
     <div className='flex flex-col gap-[4.5rem]'>
       {/* 경험정리 헤더 */}
@@ -18,9 +28,9 @@ export default function ExperiencePage() {
                 <span className='text-[1.5rem] font-bold'>경험 정리</span>
               </div>
               <span className='text-[1.125rem] leading-[150%] text-[#464B53]'>
-                AI 비서 티미와의 채팅을 통해 경험을 체계적으로 정리해보세요.
+                AI 컨설턴트와의 대화를 통해 경험을 정리해 보세요.
                 <br />
-                채팅이 종료되면, 텍스트형 포트폴리오가 생성됩니다.
+                대화가 끝나면 포트폴리오가 완성돼요.
               </span>
             </div>
           </div>
@@ -39,12 +49,18 @@ export default function ExperiencePage() {
           <InputArea
             variant='rounded'
             placeholder='검색어를 입력하세요.'
-            rightElement={<SearchButton />}
+            rightElement={<SearchButton onClick={handleSearch} />}
+            maxLength={20}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSearch();
+            }}
           />
         </div>
 
         {/* 나의 경험 카드 */}
-        <ExperienceCardSection />
+        <ExperienceCardSection searchQuery={searchQuery} />
       </div>
     </div>
   );

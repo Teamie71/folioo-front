@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { PortfolioCard } from '@/components/PortfolioCard';
 import { useExperienceStore } from '@/store/useExperienceStore';
 import {
@@ -8,7 +8,13 @@ import {
   type ExperienceReturnPath,
 } from '@/features/experience/utils/experienceReturnPath';
 
-export function ExperienceCardSection() {
+interface ExperienceCardSectionProps {
+  searchQuery?: string;
+}
+
+export function ExperienceCardSection({
+  searchQuery = '',
+}: ExperienceCardSectionProps) {
   const { experienceCards } = useExperienceStore();
   const [returnPaths, setReturnPaths] = useState<
     Record<string, ExperienceReturnPath>
@@ -18,15 +24,33 @@ export function ExperienceCardSection() {
     setReturnPaths(getExperienceReturnPaths());
   }, []);
 
+  const filteredCards = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (query === '') return experienceCards;
+    return experienceCards.filter(
+      (card) =>
+        card.title.toLowerCase().includes(query) ||
+        card.tag.toLowerCase().includes(query),
+    );
+  }, [experienceCards, searchQuery]);
+
+  const hasNoCards = experienceCards.length === 0;
+  const hasQuery = searchQuery.trim() !== '';
+  const hasNoResults = hasQuery && filteredCards.length === 0;
+
   return (
     <div className='grid grid-cols-2 gap-[1.5rem]'>
-      {experienceCards.length === 0 ? (
-        <div className='col-span-2 mt-[5rem] flex items-center justify-center text-center text-[1.125rem] font-bold text-[#000000]'>
+      {hasNoCards ? (
+        <div className='col-span-2 mt-[5rem] flex items-center justify-center text-center text-[1.125rem] leading-[130%] font-bold text-[#9EA4A9]'>
           아직 정리한 경험이 없어요. <br />
           경험을 정리하고, 텍스트형 포트폴리오를 받아보세요!
         </div>
+      ) : hasNoResults ? (
+        <div className='col-span-2 mt-[5rem] flex items-center justify-center text-center text-[1.125rem] leading-[130%] font-bold text-[#9EA4A9]'>
+          앗, 일치하는 결과가 없어요.
+        </div>
       ) : (
-        experienceCards.map((card) => {
+        filteredCards.map((card) => {
           const subPath = returnPaths[card.id] ?? 'chat';
           return (
             <PortfolioCard
