@@ -10,7 +10,9 @@ import {
 import {
   portfolioCorrectionControllerMapCorrectionWithPortfolios,
   portfolioCorrectionControllerCreateCorrectionByAI,
+  portfolioCorrectionControllerGetCorrectionStatus,
 } from '@/api/endpoints/portfolio-correction/portfolio-correction';
+import type { CorrectionStatusResDTOStatus } from '@/api/models';
 import { useExperienceControllerGetExperiences } from '@/api/endpoints/experience/experience';
 import { mapToPdfActivityBlock, toPatchBody } from '@/services/correction';
 import { useState, useRef, useEffect, useCallback } from 'react';
@@ -40,6 +42,24 @@ function limitAllowedInput(value: string, maxLength: number): string {
 }
 
 const EMPTY_CORRECTION_ID = '';
+
+/** GET /status 응답값 → step, status 복원용 */
+function mapStatusToStepAndStatus(
+  apiStatus: CorrectionStatusResDTOStatus | undefined,
+): { step: Step; status: Status } {
+  switch (apiStatus) {
+    case 'COMPANY_INSIGHT':
+      return { step: 'analysis', status: 'DRAFT' };
+    case 'DOING_RAG':
+    case 'GENERATING':
+      return { step: 'result', status: 'ANALYZING' };
+    case 'DONE':
+      return { step: 'result', status: 'DONE' };
+    case 'NOT_STARTED':
+    default:
+      return { step: 'portfolio', status: 'DRAFT' };
+  }
+}
 
 export function useCorrectionState(correctionId: string | undefined) {
   const router = useRouter();
@@ -130,6 +150,21 @@ export function useCorrectionState(correctionId: string | undefined) {
   }, [step, selectedPortfolioType]);
 
   const { setShowNavbarOnResult } = useCorrectionNavbar() ?? {};
+
+  // correctionId 있을 때 GET /status로 step·status 복원
+  useEffect(() => {
+    const id = effectiveId ? Number(effectiveId) : null;
+    if (id == null || Number.isNaN(id)) return;
+    portfolioCorrectionControllerGetCorrectionStatus(id)
+      .then((res) => {
+        const apiStatus = (res as { result?: { status?: CorrectionStatusResDTOStatus } })?.result?.status;
+        const { step: nextStep, status: nextStatus } = mapStatusToStepAndStatus(apiStatus);
+        setStep(nextStep);
+        setStatus(nextStatus);
+      })
+      .catch(() => {});
+  }, [effectiveId]);
+
   useEffect(() => {
     setShowNavbarOnResult?.(step === 'result');
   }, [step, setShowNavbarOnResult]);
@@ -257,8 +292,11 @@ export function useCorrectionState(correctionId: string | undefined) {
         await portfolioCorrectionControllerCreateCorrectionByAI(id, {
           portfolioIds,
         });
-        setStatus('ANALYZING');
-        setStep('result');
+        const statusRes = await portfolioCorrectionControllerGetCorrectionStatus(id);
+        const apiStatus = (statusRes as { result?: { status?: CorrectionStatusResDTOStatus } })?.result?.status;
+        const { step: nextStep, status: nextStatus } = mapStatusToStepAndStatus(apiStatus);
+        setStep(nextStep);
+        setStatus(nextStatus);
       } catch {
         // 실패 시 단계 유지
       }
