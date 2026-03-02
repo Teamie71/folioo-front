@@ -2,8 +2,13 @@ import { authControllerHandleRefresh } from '@/api/endpoints/auth/auth';
 
 /** refreshToken 쿠키로 accessToken 재발급 (로그인 콜백 / 앱 로드 시) */
 export async function refreshAccessToken(): Promise<string> {
-  const res = await authControllerHandleRefresh({ credentials: 'include' });
-  const body = res.data as { isSuccess?: boolean; result?: string | null };
+  const res = (await authControllerHandleRefresh({
+    withCredentials: true,
+  })) as {
+    status: number;
+    data?: { isSuccess?: boolean; result?: string | null };
+  };
+  const body = res.data;
   if (res.status === 201 && body?.isSuccess && body?.result != null) {
     return body.result;
   }
