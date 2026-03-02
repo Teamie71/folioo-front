@@ -23,6 +23,8 @@ export interface CorrectionResultStepProps {
   lessonsButton: ResultButtonValue;
   setLessonsButton: (value: ResultButtonValue) => void;
   onStartNewExperience: () => void;
+  /** result 단계에서 기업 분석 정보 조회 시 사용 */
+  correctionId?: string;
 }
 
 export function CorrectionResultStep({
@@ -38,6 +40,7 @@ export function CorrectionResultStep({
   lessonsButton,
   setLessonsButton,
   onStartNewExperience,
+  correctionId,
 }: CorrectionResultStepProps) {
   if (status !== 'DRAFT' && status !== 'DONE') {
     return (
@@ -102,6 +105,7 @@ export function CorrectionResultStep({
         />
         <CorrectionResultTabContent
           resultTab={resultTab}
+          correctionId={correctionId}
           detailInfoButton={detailInfoButton}
           setDetailInfoButton={setDetailInfoButton}
           responsibilityButton={responsibilityButton}

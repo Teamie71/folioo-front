@@ -168,6 +168,7 @@ export default function CorrectionSettingsPage() {
           />
         ) : s.step === 'analysis' ? (
           <CorrectionAnalysisStep
+            correctionId={correctionId}
             analysisInfoValue={s.analysisInfoValue}
             onAnalysisInfoChange={(value) => {
               s.setAnalysisInfoValue(value);
@@ -193,6 +194,7 @@ export default function CorrectionSettingsPage() {
             lessonsButton={s.lessonsButton}
             setLessonsButton={s.setLessonsButton}
             onStartNewExperience={s.handleStartNewExperience}
+            correctionId={correctionId}
           />
         )}
       </div>
