@@ -62,7 +62,8 @@ export function ProfileEditButton({
             ref={inputRef}
             type='text'
             value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
+            maxLength={25}
+            onChange={(e) => setEditValue(e.target.value.slice(0, 25))}
             onKeyDown={handleKeyDown}
             className={cn(
               'min-w-0 flex-1 rounded-[0.375rem] border border-[#74777D] px-[0.75rem] py-[0.5rem]',
