@@ -238,23 +238,17 @@ export default function WithdrawPage() {
                 참여하여 무료 이용권을 받아보세요!
               </p>
               <div className='mt-[2rem] flex flex-col gap-[0.75rem]'>
-                <a
-                  href='#'
+                <Link
+                  href='/topup'
                   className='text-[1rem] text-[#1A1A1A] underline underline-offset-[3px]'
-                  onClick={(e) => {
-                    e.preventDefault();
-                    // TODO: 크레딧 충전 페이지로 이동
-                  }}
                 >
                   이용권 구매 페이지 확인하기
-                </a>
+                </Link>
                 <a
-                  href='#'
+                  href='https://www.instagram.com/folioo_ai'
+                  target='_blank'
+                  rel='noopener noreferrer'
                   className='text-[1rem] text-[#1A1A1A] underline underline-offset-[3px]'
-                  onClick={(e) => {
-                    e.preventDefault();
-                    // TODO: 인스타그램 링크로 이동
-                  }}
                 >
                   공식 인스타그램 계정 확인하기
                 </a>
@@ -319,7 +313,12 @@ export default function WithdrawPage() {
       {/* 탈퇴 완료 모달 */}
       <CommonModal
         open={isCompleteModalOpen}
-        onOpenChange={setIsCompleteModalOpen}
+        onOpenChange={(open) => {
+          setIsCompleteModalOpen(open);
+          if (!open) {
+            router.push('/');
+          }
+        }}
         title='탈퇴가 완료되었습니다.'
         description='Folioo가 당신의 커리어를 응원해요!'
       />
