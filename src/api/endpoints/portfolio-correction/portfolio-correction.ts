@@ -576,7 +576,7 @@ export const usePortfolioCorrectionControllerReCreateCompanyInsight = <TError = 
       return useMutation(getPortfolioCorrectionControllerReCreateCompanyInsightMutationOptions(options), queryClient);
     }
     /**
- * 첨삭을 진행할 포트폴리오를 선택합니다. generate 엔드포인트로 선택과 생성 준비를 한번에 수행할 수 있습니다.
+ * 첨삭을 진행할 포트폴리오를 선택하고 매핑 테이블에서 활성화합니다.
  * @summary 포트폴리오 선택
  */
 export const portfolioCorrectionControllerMapCorrectionWithPortfolios = (
@@ -641,20 +641,17 @@ export const usePortfolioCorrectionControllerMapCorrectionWithPortfolios = <TErr
       return useMutation(getPortfolioCorrectionControllerMapCorrectionWithPortfoliosMutationOptions(options), queryClient);
     }
     /**
- * 선택한 포트폴리오에 대해 포트폴리오 선택과 AI 첨삭 생성 준비를 한번에 수행합니다.
+ * 요청 본문 없이 활성화된 포트폴리오 매핑을 기준으로 AI 첨삭 생성 준비를 수행합니다.
  * @summary AI 첨삭 생성
  */
 export const portfolioCorrectionControllerCreateCorrectionByAI = (
     correctionId: number,
-    mapCorrectionWithPortfoliosReqDTO: MapCorrectionWithPortfoliosReqDTO,
  options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
       return customInstance<PortfolioCorrectionControllerCreateCorrectionByAI200>(
-      {url: `/portfolio-corrections/${correctionId}/generate`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: mapCorrectionWithPortfoliosReqDTO, signal
+      {url: `/portfolio-corrections/${correctionId}/generate`, method: 'POST', signal
     },
       options);
     }
@@ -662,8 +659,8 @@ export const portfolioCorrectionControllerCreateCorrectionByAI = (
 
 
 export const getPortfolioCorrectionControllerCreateCorrectionByAIMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>, TError,{correctionId: number;data: MapCorrectionWithPortfoliosReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>, TError,{correctionId: number;data: MapCorrectionWithPortfoliosReqDTO}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>, TError,{correctionId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>, TError,{correctionId: number}, TContext> => {
 
 const mutationKey = ['portfolioCorrectionControllerCreateCorrectionByAI'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -675,10 +672,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>, {correctionId: number;data: MapCorrectionWithPortfoliosReqDTO}> = (props) => {
-          const {correctionId,data} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>, {correctionId: number}> = (props) => {
+          const {correctionId} = props ?? {};
 
-          return  portfolioCorrectionControllerCreateCorrectionByAI(correctionId,data,requestOptions)
+          return  portfolioCorrectionControllerCreateCorrectionByAI(correctionId,requestOptions)
         }
 
 
@@ -689,18 +686,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type PortfolioCorrectionControllerCreateCorrectionByAIMutationResult = NonNullable<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>>
-    export type PortfolioCorrectionControllerCreateCorrectionByAIMutationBody = MapCorrectionWithPortfoliosReqDTO
+    
     export type PortfolioCorrectionControllerCreateCorrectionByAIMutationError = CommonResponse
 
     /**
  * @summary AI 첨삭 생성
  */
 export const usePortfolioCorrectionControllerCreateCorrectionByAI = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>, TError,{correctionId: number;data: MapCorrectionWithPortfoliosReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>, TError,{correctionId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof portfolioCorrectionControllerCreateCorrectionByAI>>,
         TError,
-        {correctionId: number;data: MapCorrectionWithPortfoliosReqDTO},
+        {correctionId: number},
         TContext
       > => {
       return useMutation(getPortfolioCorrectionControllerCreateCorrectionByAIMutationOptions(options), queryClient);

@@ -13,7 +13,7 @@ interface StartCorrectionButtonProps {
   py?: string | number;
 }
 
-/* 클릭 시 새 UUID를 부여한 /correction/[id] 첫 상태 페이지로 이동하는 버튼 */
+/* 클릭 시 /correction/new(지원 정보 입력) 페이지로 이동하는 버튼 */
 export function StartCorrectionButton({
   children,
   variantType = 'Gradient',
@@ -23,8 +23,7 @@ export function StartCorrectionButton({
   const router = useRouter();
 
   const handleClick = () => {
-    const id = crypto.randomUUID();
-    router.push(`/correction/${id}`);
+    router.push('/correction/new');
   };
 
   return (

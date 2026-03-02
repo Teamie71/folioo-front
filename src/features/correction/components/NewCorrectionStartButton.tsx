@@ -7,8 +7,7 @@ export function NewCorrectionStartButton() {
   const router = useRouter();
 
   const handleCreateNewCorrection = () => {
-    const id = crypto.randomUUID();
-    router.push(`/correction/${id}`);
+    router.push('/correction/new');
   };
 
   return (

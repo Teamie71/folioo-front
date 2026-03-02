@@ -1,5 +1,27 @@
 'use client';
 
+import {
+  externalPortfolioControllerCreateExternalPortfolioBlock,
+  externalPortfolioControllerDeleteExternalPortfolio,
+  externalPortfolioControllerExtractPortfolios,
+  externalPortfolioControllerGetExternalPortfolios,
+  externalPortfolioControllerUpdateExternalPortfolio,
+} from '@/api/endpoints/portfolio/portfolio';
+import {
+  portfolioCorrectionControllerMapCorrectionWithPortfolios,
+  portfolioCorrectionControllerCreateCorrectionByAI,
+  portfolioCorrectionControllerGetCorrectionStatus,
+  portfolioCorrectionControllerCreateCompanyInsight,
+  portfolioCorrectionControllerUpdateCompanyInsight,
+  portfolioCorrectionControllerUpdateCorrectionTitle,
+} from '@/api/endpoints/portfolio-correction/portfolio-correction';
+import type {
+  CorrectionStatusResDTOStatus,
+  ExternalPortfolioControllerGetExternalPortfolios200,
+  ExternalPortfolioControllerCreateExternalPortfolioBlock200,
+} from '@/api/models';
+import { useExperienceControllerGetExperiences } from '@/api/endpoints/experience/experience';
+import { mapToPdfActivityBlock, toPatchBody } from '@/services/correction';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCorrectionNavbar } from '@/contexts/CorrectionNavbarContext';
@@ -7,33 +29,14 @@ import {
   INITIAL_PDF_ACTIVITIES,
   PDF_CATEGORY_CHAR_LIMIT,
 } from '@/features/correction/constants';
-import {
-  createPortfolioCorrection,
-  deleteExternalPortfolio,
-  extractPdfPortfolio,
-  getExternalPortfolios,
-  patchExternalPortfolio,
-  postExternalPortfolio,
-  toPatchBody,
-} from '@/services/correction';
 import type {
+  FileDeleteConfirmTarget,
   PdfActivityBlock,
   PdfCategoryName,
   PortfolioType,
   Status,
   Step,
 } from '@/types/correction';
-
-const TEXT_PORTFOLIOS: Array<{
-  id: string;
-  title: string;
-  tag: string;
-  date: string;
-}> = [
-  { id: 'text-1', title: '데이터 통계 경진대회', tag: '데이터', date: '2000-00-00' },
-  { id: 'text-2', title: '공공 디자인 공모전', tag: '디자인', date: '2000-00-00' },
-  { id: 'text-3', title: '00기업 서포터즈 활동', tag: '미정', date: '2000-00-00' },
-];
 
 /** 한국어·영어·숫자·공백·특수문자만 허용, 최대 길이 적용 */
 function limitAllowedInput(value: string, maxLength: number): string {
@@ -45,9 +48,30 @@ function limitAllowedInput(value: string, maxLength: number): string {
     .slice(0, maxLength);
 }
 
-export function useCorrectionState(correctionId?: string | null) {
+const EMPTY_CORRECTION_ID = '';
+
+/** GET /status 응답값 → step, status 복원용 */
+function mapStatusToStepAndStatus(
+  apiStatus: CorrectionStatusResDTOStatus | undefined,
+): { step: Step; status: Status } {
+  switch (apiStatus) {
+    case 'COMPANY_INSIGHT':
+      return { step: 'analysis', status: 'DRAFT' };
+    case 'DOING_RAG':
+    case 'GENERATING':
+      return { step: 'result', status: 'ANALYZING' };
+    case 'DONE':
+      return { step: 'result', status: 'DONE' };
+    case 'NOT_STARTED':
+    default:
+      return { step: 'portfolio', status: 'DRAFT' };
+  }
+}
+
+export function useCorrectionState(correctionId: string | undefined) {
   const router = useRouter();
-  const [step, setStep] = useState<Step>('information');
+  const [step, setStep] = useState<Step>('portfolio');
+  const effectiveId = correctionId ?? EMPTY_CORRECTION_ID;
   const [status, setStatus] = useState<Status>('DRAFT');
   const [jdMode, setJdMode] = useState<'text' | 'image'>('text');
   const [selectedPortfolioType, setSelectedPortfolioType] =
@@ -64,9 +88,8 @@ export function useCorrectionState(correctionId?: string | null) {
   const [pdfActivityHoverId, setPdfActivityHoverId] = useState<string | null>(
     null,
   );
-  const [selectedTextPortfolioIds, setSelectedTextPortfolioIds] = useState<
-    string[]
-  >([]);
+  const [selectedTextPortfolioIds, setSelectedTextPortfolioIds] = useState<string[]>([]);
+  const [title, setTitle] = useState('새로운 포트폴리오 첨삭');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [resultTab, setResultTab] = useState<
     '지원 정보' | '총평' | '활동 A' | '활동 B'
@@ -85,8 +108,6 @@ export function useCorrectionState(correctionId?: string | null) {
   >('축소 또는 제외');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
-  const [isStartCorrectionModalOpen, setIsStartCorrectionModalOpen] =
-    useState(false);
   const [isPdfTextExtracted, setIsPdfTextExtracted] = useState(false);
   const [isPdfTextExtracting, setIsPdfTextExtracting] = useState(false);
   const [isPdfExtractConfirmModalOpen, setIsPdfExtractConfirmModalOpen] =
@@ -108,42 +129,20 @@ export function useCorrectionState(correctionId?: string | null) {
   const [analysisInfoValue, setAnalysisInfoValue] = useState('');
   const [showAnalysisInfoWarning, setShowAnalysisInfoWarning] = useState(false);
   const [emphasisPointsValue, setEmphasisPointsValue] = useState('');
-  const [companyName, setCompanyName] = useState('');
-  const [jobTitle, setJobTitle] = useState('');
-  const [jobDescription, setJobDescription] = useState('');
-  const [jdUploadedFiles, setJdUploadedFiles] = useState<
-    Array<{ name: string; size: number; previewUrl: string }>
-  >([]);
-  const [fileDeleteConfirmTarget, setFileDeleteConfirmTarget] = useState<
-    { type: 'jd'; index: number } | { type: 'pdf' } | null
-  >(null);
-  const [jdViewerFileIndex, setJdViewerFileIndex] = useState<number | null>(
-    null,
+  const [fileDeleteConfirmTarget, setFileDeleteConfirmTarget] =
+    useState<FileDeleteConfirmTarget>(null);
+
+  const { data: experiencesData } = useExperienceControllerGetExperiences(
+    undefined,
+    { query: { enabled: step === 'portfolio' } },
   );
-  const [isJdDropOverlayActive, setIsJdDropOverlayActive] = useState(false);
-  const jdFileInputRef = useRef<HTMLInputElement>(null);
-  const [informationErrors, setInformationErrors] = useState<{
-    companyName: boolean;
-    jobTitle: boolean;
-    jobDescription: boolean;
-  }>({ companyName: false, jobTitle: false, jobDescription: false });
-  const [jdImageError, setJdImageError] = useState<
-    null | 'required' | 'too_large' | 'too_many'
-  >(null);
-  const [jdShakeKey, setJdShakeKey] = useState(0);
-
-  const hasJdImageUploaded = jdUploadedFiles.length >= 1;
-
-  // information + 이미지 모드일 때 창 어디로든 파일 드래그 들어오면 전체 페이지 드롭 오버레이 활성화
-  useEffect(() => {
-    if (step !== 'information' || jdMode !== 'image') return;
-    const onDragEnter = (e: DragEvent) => {
-      if (e.dataTransfer?.types.includes('Files'))
-        setIsJdDropOverlayActive(true);
-    };
-    document.addEventListener('dragenter', onDragEnter);
-    return () => document.removeEventListener('dragenter', onDragEnter);
-  }, [step, jdMode]);
+  const experiencesList = experiencesData?.result ?? [];
+  const textPortfolios = experiencesList.map((e) => ({
+    id: String(e.id),
+    title: e.name,
+    tag: e.hopeJob,
+    date: e.createdAt.slice(0, 10),
+  }));
 
   // portfolio + PDF 선택 시 창 어디로든 파일 드래그 들어오면 전체 페이지 드롭 오버레이 활성화
   useEffect(() => {
@@ -157,20 +156,85 @@ export function useCorrectionState(correctionId?: string | null) {
   }, [step, selectedPortfolioType]);
 
   const { setShowNavbarOnResult } = useCorrectionNavbar() ?? {};
+
+  // correctionId 있을 때 GET /status로 step·status 복원
+  useEffect(() => {
+    const id = effectiveId ? Number(effectiveId) : null;
+    if (id == null || Number.isNaN(id)) return;
+    portfolioCorrectionControllerGetCorrectionStatus(id)
+      .then((res) => {
+        const apiStatus = (res as { result?: { status?: CorrectionStatusResDTOStatus } })?.result?.status;
+        const { step: nextStep, status: nextStatus } = mapStatusToStepAndStatus(apiStatus);
+        setStep(nextStep);
+        setStatus(nextStatus);
+      })
+      .catch(() => {});
+  }, [effectiveId]);
+
   useEffect(() => {
     setShowNavbarOnResult?.(step === 'result');
   }, [step, setShowNavbarOnResult]);
+
+  // result 단계에서 status === 'ANALYZING'이면 /status 주기적으로 폴링해서 DONE 되면 자동 반영
+  useEffect(() => {
+    const id = effectiveId ? Number(effectiveId) : null;
+    if (id == null || Number.isNaN(id)) return;
+    if (step !== 'result' || status !== 'ANALYZING') return;
+
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const poll = async () => {
+      if (cancelled) return;
+      try {
+        const res = await portfolioCorrectionControllerGetCorrectionStatus(id);
+        const apiStatus = (
+          res as { result?: { status?: CorrectionStatusResDTOStatus } }
+        )?.result?.status;
+        const { step: nextStep, status: nextStatus } =
+          mapStatusToStepAndStatus(apiStatus);
+        if (!cancelled) {
+          setStep(nextStep);
+          setStatus(nextStatus);
+          if (nextStep === 'result' && nextStatus === 'ANALYZING') {
+            timer = setTimeout(poll, 3000);
+          }
+        }
+      } catch {
+        if (!cancelled) {
+          timer = setTimeout(poll, 3000);
+        }
+      }
+    };
+
+    timer = setTimeout(poll, 3000);
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [effectiveId, step, status]);
 
   const handlePdfExtractConfirm = useCallback(async () => {
     if (!pdfUploadedFile) return;
     setIsPdfExtractConfirmModalOpen(false);
     setIsPdfTextExtracting(true);
     try {
-      await extractPdfPortfolio(pdfUploadedFile.file);
+      await externalPortfolioControllerExtractPortfolios({
+        file: pdfUploadedFile.file,
+      });
       setIsPdfTextExtracted(true);
-      const id = correctionId != null ? Number(correctionId) : null;
+      const id = effectiveId ? Number(effectiveId) : null;
       if (id != null && !Number.isNaN(id)) {
-        const activities = await getExternalPortfolios(id);
+        const listRes =
+          await externalPortfolioControllerGetExternalPortfolios({
+            correctionId: id,
+          });
+        const listResult = (listRes as ExternalPortfolioControllerGetExternalPortfolios200)
+          .result;
+        const activities = (listResult ?? []).map((dto, i) =>
+          mapToPdfActivityBlock(dto, i),
+        );
         setPdfActivities(activities);
         if (activities.length > 0) setSelectedActivityId(activities[0].id);
       }
@@ -179,7 +243,7 @@ export function useCorrectionState(correctionId?: string | null) {
     } finally {
       setIsPdfTextExtracting(false);
     }
-  }, [pdfUploadedFile, correctionId]);
+  }, [pdfUploadedFile, effectiveId]);
 
   const handleDeletePdfActivity = useCallback(async () => {
     const targetId = activityDeleteTargetId;
@@ -187,7 +251,9 @@ export function useCorrectionState(correctionId?: string | null) {
     const activity = pdfActivities.find((a) => a.id === targetId);
     if (activity?.portfolioId != null) {
       try {
-        await deleteExternalPortfolio(activity.portfolioId);
+        await externalPortfolioControllerDeleteExternalPortfolio(
+          activity.portfolioId,
+        );
       } catch {
         return;
       }
@@ -203,17 +269,23 @@ export function useCorrectionState(correctionId?: string | null) {
   }, [activityDeleteTargetId, pdfActivities]);
 
   const handleAddPdfActivity = useCallback(async () => {
-    const id = correctionId != null ? Number(correctionId) : null;
+    const id = effectiveId ? Number(effectiveId) : null;
     if (id == null || Number.isNaN(id)) return;
     if (pdfActivities.length >= 5) return;
     try {
-      const newBlock = await postExternalPortfolio(id, pdfActivities.length);
+      const res = await externalPortfolioControllerCreateExternalPortfolioBlock({
+        correctionId: id,
+      });
+      const result = (res as ExternalPortfolioControllerCreateExternalPortfolioBlock200)
+        .result;
+      if (!result) throw new Error();
+      const newBlock = mapToPdfActivityBlock(result, pdfActivities.length);
       setPdfActivities((prev) => [...prev, newBlock]);
       setSelectedActivityId(newBlock.id);
     } catch {
       // 실패 시 무시
     }
-  }, [correctionId, pdfActivities.length]);
+  }, [effectiveId, pdfActivities.length]);
 
   const debouncedPatchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handlePdfActivityChange = useCallback((activity: PdfActivityBlock) => {
@@ -221,55 +293,17 @@ export function useCorrectionState(correctionId?: string | null) {
     if (debouncedPatchRef.current) clearTimeout(debouncedPatchRef.current);
     debouncedPatchRef.current = setTimeout(() => {
       debouncedPatchRef.current = null;
-      patchExternalPortfolio(activity.portfolioId!, toPatchBody(activity)).catch(
+      externalPortfolioControllerUpdateExternalPortfolio(activity.portfolioId!, toPatchBody(activity)).catch(
         () => {},
       );
     }, 500);
   }, []);
 
-  const handleStartCorrectionClick = useCallback(() => {
-    const companyNameEmpty = !companyName.trim();
-    const jobTitleEmpty = !jobTitle.trim();
-    const jobDescriptionEmpty =
-      jdMode === 'text' ? !jobDescription.trim() : !hasJdImageUploaded;
-    const hasError = companyNameEmpty || jobTitleEmpty || jobDescriptionEmpty;
-    setInformationErrors({
-      companyName: companyNameEmpty,
-      jobTitle: jobTitleEmpty,
-      jobDescription: jobDescriptionEmpty,
-    });
-    if (!hasError) setIsStartCorrectionModalOpen(true);
-  }, [
-    companyName,
-    jobTitle,
-    jobDescription,
-    jdMode,
-    hasJdImageUploaded,
-  ]);
+  const handleNextStep = useCallback(async () => {
+    const id = effectiveId ? Number(effectiveId) : null;
+    if (id == null || Number.isNaN(id)) return;
 
-  const handleStartCorrectionConfirm = useCallback(async () => {
-    const body = {
-      jobDescriptionType: jdMode === 'text' ? ('TEXT' as const) : ('IMAGE' as const),
-      companyName: companyName.trim(),
-      positionName: jobTitle.trim(),
-      ...(jdMode === 'text'
-        ? { jobDescription: jobDescription.trim() }
-        : { jobDescription: '' }),
-    };
-    // IMAGE 모드에서 이미지 전송이 필요하면 백엔드 스펙에 맞게 multipart 등 추가
-    try {
-      await createPortfolioCorrection(body);
-      setIsStartCorrectionModalOpen(false);
-      setStep('portfolio');
-    } catch {
-      // 실패 시 모달 유지
-    }
-  }, [jdMode, companyName, jobTitle, jobDescription]);
-
-  const handleNextStep = useCallback(() => {
-    if (step === 'information') {
-      setStep('portfolio');
-    } else if (step === 'portfolio') {
+    if (step === 'portfolio') {
       if (
         selectedPortfolioType === 'text' &&
         selectedTextPortfolioIds.length === 0
@@ -277,22 +311,68 @@ export function useCorrectionState(correctionId?: string | null) {
         setShowTextPortfolioWarning(true);
         return;
       }
-      setStep('analysis');
-    } else if (step === 'analysis') {
+      const portfolioIds =
+        selectedPortfolioType === 'pdf'
+          ? pdfActivities
+              .map((a) => a.portfolioId)
+              .filter((n): n is number => n != null)
+          : selectedTextPortfolioIds
+              .map((s) => Number(s))
+              .filter((n) => !Number.isNaN(n));
+      if (portfolioIds.length === 0) return;
+      try {
+        await portfolioCorrectionControllerMapCorrectionWithPortfolios(id, {
+          portfolioIds,
+        });
+        // 기업 분석 정보 생성 트리거 (실패해도 다음 단계로 진행)
+        try {
+          await portfolioCorrectionControllerCreateCompanyInsight(id);
+        } catch {
+          // ignore create-company-insight error; 분석 단계에서 재시도 가능
+        }
+        setStep('analysis');
+      } catch {
+        // 실패 시 단계 유지
+      }
+      return;
+    }
+
+    if (step === 'analysis') {
       if (!analysisInfoValue.trim()) {
         setShowAnalysisInfoWarning(true);
         return;
       }
-      setStatus('ANALYZING');
-      setTimeout(() => {
-        setStatus('DONE');
-        setStep('result');
-      }, 2000);
+      try {
+        // 기업 분석 정보·강조 포인트를 백엔드에 저장 (실패해도 첨삭은 진행)
+        try {
+          await portfolioCorrectionControllerUpdateCompanyInsight(id, {
+            companyInsight: analysisInfoValue.trim() || null,
+            highlightPoint: emphasisPointsValue.trim() || null,
+          });
+        } catch {
+          // ignore PATCH error
+        }
+
+        await portfolioCorrectionControllerCreateCorrectionByAI(id);
+        const statusRes =
+          await portfolioCorrectionControllerGetCorrectionStatus(id);
+        const apiStatus = (
+          statusRes as { result?: { status?: CorrectionStatusResDTOStatus } }
+        )?.result?.status;
+        const { step: nextStep, status: nextStatus } =
+          mapStatusToStepAndStatus(apiStatus);
+        setStep(nextStep);
+        setStatus(nextStatus);
+      } catch {
+        // 실패 시 단계 유지
+      }
     }
   }, [
     step,
+    effectiveId,
     selectedPortfolioType,
-    selectedTextPortfolioIds.length,
+    selectedTextPortfolioIds,
+    pdfActivities,
     analysisInfoValue,
   ]);
 
@@ -329,83 +409,11 @@ export function useCorrectionState(correctionId?: string | null) {
     });
   }, []);
 
-  const handleJdImageFile = useCallback((file: File) => {
-    const isImage =
-      file.type === 'image/png' ||
-      file.type === 'image/jpeg' ||
-      /\.(png|jpe?g)$/i.test(file.name);
-    if (!isImage) return;
-    if (file.size > 1024 * 1024) {
-      setJdImageError('too_large');
-      setJdShakeKey((k) => k + 1);
-      setInformationErrors((prev) => ({ ...prev, jobDescription: true }));
-      return;
-    }
-    setJdUploadedFiles((prev) => {
-      if (prev.length >= 2) {
-        setJdImageError('too_many');
-        setJdShakeKey((k) => k + 1);
-        setInformationErrors((p) => ({ ...p, jobDescription: true }));
-        return prev;
-      }
-      setJdImageError(null);
-      setInformationErrors((p) => ({ ...p, jobDescription: false }));
-      return [
-        ...prev,
-        {
-          name: file.name,
-          size: file.size,
-          previewUrl: URL.createObjectURL(file),
-        },
-      ];
-    });
-  }, []);
-
-  const handlePasteJdImageFromClipboard = useCallback(async () => {
-    try {
-      const items = await navigator.clipboard.read();
-      for (const item of items) {
-        for (const type of item.types) {
-          if (type === 'image/png' || type === 'image/jpeg') {
-            const blob = await item.getType(type);
-            const baseName =
-              jdUploadedFiles.length === 0
-                ? 'pasted-image'
-                : `pasted-image-${jdUploadedFiles.length + 1}`;
-            const ext = type === 'image/png' ? 'png' : 'jpg';
-            const file = new File([blob], `${baseName}.${ext}`, { type });
-            handleJdImageFile(file);
-            return;
-          }
-        }
-      }
-    } catch {
-      // 권한 거부 또는 클립보드에 이미지 없음
-    }
-  }, [jdUploadedFiles.length, handleJdImageFile]);
-
-  const removeJdFileAt = useCallback(
-    (index: number) => {
-      setJdUploadedFiles((prev) => {
-        const next = prev.filter((_, i) => i !== index);
-        if (prev[index]?.previewUrl) URL.revokeObjectURL(prev[index].previewUrl);
-        return next;
-      });
-      setJdImageError(null);
-      if (jdViewerFileIndex === index) setJdViewerFileIndex(null);
-      else if (jdViewerFileIndex !== null && jdViewerFileIndex > index)
-        setJdViewerFileIndex((i) => (i === null ? null : i - 1));
-    },
-    [jdViewerFileIndex],
-  );
-
   const layoutKey =
     pdfUploadError === 'too_large' || pdfUploadError === 'too_many'
       ? `pdf-shake-${pdfShakeKey}`
-      : jdImageError === 'too_large' || jdImageError === 'too_many'
-        ? `jd-shake-${jdShakeKey}`
-        : 'no-shake';
-  const layoutClassName = `mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem] ${jdImageError === 'too_large' || jdImageError === 'too_many' || pdfUploadError === 'too_large' || pdfUploadError === 'too_many' ? 'animate-shake' : ''}`;
+      : 'no-shake';
+  const layoutClassName = `mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem] ${pdfUploadError === 'too_large' || pdfUploadError === 'too_many' ? 'animate-shake' : ''}`;
 
   const pdfCategoryOverLimit =
     selectedPortfolioType === 'pdf' &&
@@ -420,8 +428,6 @@ export function useCorrectionState(correctionId?: string | null) {
     router,
     step,
     status,
-    jdMode,
-    setJdMode,
     selectedPortfolioType,
     pdfActivities,
     setPdfActivities,
@@ -435,9 +441,11 @@ export function useCorrectionState(correctionId?: string | null) {
     setPdfActivityHoverId,
     selectedTextPortfolioIds,
     setSelectedTextPortfolioIds,
+    title,
+    setTitle,
     isEditingTitle,
     setIsEditingTitle,
-    textPortfolios: TEXT_PORTFOLIOS,
+    textPortfolios,
     resultTab,
     setResultTab,
     detailInfoButton,
@@ -452,8 +460,6 @@ export function useCorrectionState(correctionId?: string | null) {
     setIsDeleteModalOpen,
     isQuitModalOpen,
     setIsQuitModalOpen,
-    isStartCorrectionModalOpen,
-    setIsStartCorrectionModalOpen,
     isPdfTextExtracted,
     setIsPdfTextExtracted,
     isPdfTextExtracting,
@@ -467,6 +473,8 @@ export function useCorrectionState(correctionId?: string | null) {
     isPdfDropOverlayActive,
     setIsPdfDropOverlayActive,
     pdfFileInputRef,
+    fileDeleteConfirmTarget,
+    setFileDeleteConfirmTarget,
     bulletTextareaRefs,
     lastBulletEnterAt,
     showTextPortfolioWarning,
@@ -477,29 +485,7 @@ export function useCorrectionState(correctionId?: string | null) {
     setShowAnalysisInfoWarning,
     emphasisPointsValue,
     setEmphasisPointsValue,
-    companyName,
-    setCompanyName,
-    jobTitle,
-    setJobTitle,
-    jobDescription,
-    setJobDescription,
-    jdUploadedFiles,
-    fileDeleteConfirmTarget,
-    setFileDeleteConfirmTarget,
-    jdViewerFileIndex,
-    setJdViewerFileIndex,
-    isJdDropOverlayActive,
-    setIsJdDropOverlayActive,
-    jdFileInputRef,
-    informationErrors,
-    setInformationErrors,
-    jdImageError,
-    setJdImageError,
-    jdShakeKey,
-    setJdUploadedFiles,
     limitAllowedInput,
-    handleStartCorrectionClick,
-    handleStartCorrectionConfirm,
     handleNextStep,
     handleStartNewExperience,
     handlePortfolioSelect,
@@ -508,11 +494,10 @@ export function useCorrectionState(correctionId?: string | null) {
     handleDeletePdfActivity,
     handleAddPdfActivity,
     handlePdfActivityChange,
-    handleJdImageFile,
-    handlePasteJdImageFromClipboard,
-    removeJdFileAt,
     layoutKey,
     layoutClassName,
     pdfCategoryOverLimit,
   };
 }
+
+export type UseCorrectionStateReturn = ReturnType<typeof useCorrectionState>;

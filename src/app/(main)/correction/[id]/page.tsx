@@ -1,16 +1,25 @@
 'use client';
 
+import { useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
+import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 import { CorrectionAnalyzingView } from '@/features/correction/components/CorrectionAnalyzingView';
 import { CorrectionAnalysisStep } from '@/features/correction/components/CorrectionAnalysisStep';
-import { CorrectionInformationStep } from '@/features/correction/components/CorrectionInformationStep';
 import { CorrectionLayout } from '@/features/correction/components/CorrectionLayout';
 import { CorrectionPageHeader } from '@/features/correction/components/CorrectionPageHeader';
 import { CorrectionPortfolioStep } from '@/features/correction/components/CorrectionPortfolioStep';
 import { CorrectionResultStep } from '@/features/correction/components/CorrectionResultStep';
-import { useCorrectionState } from '@/features/correction/hooks/useCorrectionState';
+import {
+  useCorrectionState,
+  type UseCorrectionStateReturn,
+} from '@/features/correction/hooks/useCorrectionState';
+import {
+  portfolioCorrectionControllerUpdateCorrectionTitle,
+  portfolioCorrectionControllerDeleteCorrection,
+} from '@/api/endpoints/portfolio-correction/portfolio-correction';
 
 export default function CorrectionSettingsPage() {
   const params = useParams();
@@ -20,32 +29,30 @@ export default function CorrectionSettingsPage() {
       : Array.isArray(params.id)
         ? params.id[0]
         : params.id;
-  const s = useCorrectionState(correctionId);
+  const s: UseCorrectionStateReturn = useCorrectionState(correctionId);
+  /** OBT 기간 동안 막아둔 기능: PDF 포트폴리오 */
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+
+  if (!correctionId) {
+    redirect('/correction');
+  }
 
   return (
     <CorrectionLayout
       layoutKey={s.layoutKey}
       layoutClassName={s.layoutClassName}
       onDragEnter={
-        s.step === 'information' && s.jdMode === 'image'
+        s.step === 'portfolio' && s.selectedPortfolioType === 'pdf'
           ? (e) => {
-              if (e.dataTransfer.types.includes('Files'))
-                s.setIsJdDropOverlayActive(true);
+              if (e.dataTransfer?.types.includes('Files'))
+                s.setIsPdfDropOverlayActive(true);
             }
-          : s.step === 'portfolio' && s.selectedPortfolioType === 'pdf'
-            ? (e) => {
-                if (e.dataTransfer.types.includes('Files'))
-                  s.setIsPdfDropOverlayActive(true);
-              }
-            : undefined
+          : undefined
       }
       jdDropOverlay={{
-        active:
-          s.step === 'information' &&
-          s.jdMode === 'image' &&
-          s.isJdDropOverlayActive,
-        onDrop: s.handleJdImageFile,
-        onClose: () => s.setIsJdDropOverlayActive(false),
+        active: false,
+        onDrop: () => {},
+        onClose: () => {},
       }}
       pdfDropOverlay={{
         active:
@@ -58,13 +65,7 @@ export default function CorrectionSettingsPage() {
       header={
         <CorrectionPageHeader
           step={s.step}
-          onBackClick={() => {
-            if (s.step === 'information') {
-              s.setIsQuitModalOpen(true);
-            } else {
-              s.router.replace('/correction');
-            }
-          }}
+          onBackClick={() => s.setIsQuitModalOpen(true)}
           quitModal={{
             open: s.isQuitModalOpen,
             onOpenChange: s.setIsQuitModalOpen,
@@ -78,12 +79,8 @@ export default function CorrectionSettingsPage() {
             onOpenChange: (open) => !open && s.setFileDeleteConfirmTarget(null),
             onConfirm: () => {
               if (s.fileDeleteConfirmTarget === null) return;
-              if (s.fileDeleteConfirmTarget.type === 'jd') {
-                s.removeJdFileAt(s.fileDeleteConfirmTarget.index);
-              } else {
-                s.setPdfUploadedFile(null);
-                s.setPdfUploadError(null);
-              }
+              s.setPdfUploadedFile(null);
+              s.setPdfUploadError(null);
               s.setFileDeleteConfirmTarget(null);
             },
           }}
@@ -93,39 +90,60 @@ export default function CorrectionSettingsPage() {
             onConfirm: s.handleDeletePdfActivity,
           }}
           titleEdit={{
-            title: '새로운 포트폴리오 첨삭',
+            title: s.title,
             isEditing: s.isEditingTitle,
-            editable: s.step !== 'information',
+            editable: true,
             onEdit: () => s.setIsEditingTitle(true),
-            onSave: () => s.setIsEditingTitle(false),
+            onSave: async (newTitle: string) => {
+              const id = correctionId ? Number(correctionId) : NaN;
+              if (!newTitle.trim() || Number.isNaN(id)) {
+                s.setIsEditingTitle(false);
+                return;
+              }
+              const safeTitle = newTitle.trim().slice(0, 20);
+              try {
+                await portfolioCorrectionControllerUpdateCorrectionTitle(id, {
+                  title: safeTitle,
+                });
+                s.setTitle(safeTitle);
+              } catch {
+                // 실패 시 제목은 그대로 두고 편집만 종료
+              } finally {
+                s.setIsEditingTitle(false);
+              }
+            },
           }}
-          showDeleteButton={s.step !== 'information'}
+          showDeleteButton
           deleteModal={{
             open: s.isDeleteModalOpen,
             onOpenChange: s.setIsDeleteModalOpen,
-            onConfirm: () => {
+            onConfirm: async () => {
+              const id = correctionId ? Number(correctionId) : NaN;
               s.setIsDeleteModalOpen(false);
-              s.router.replace('/correction');
+              if (Number.isNaN(id)) {
+                s.router.replace('/correction');
+                return;
+              }
+              try {
+                await portfolioCorrectionControllerDeleteCorrection(id);
+              } catch {
+                // 삭제 실패 시에도 목록으로 이동
+              } finally {
+                s.router.replace('/correction');
+              }
             },
           }}
           startCorrectionModal={{
-            open: s.isStartCorrectionModalOpen,
-            onOpenChange: s.setIsStartCorrectionModalOpen,
-            onConfirm: s.handleStartCorrectionConfirm,
+            open: false,
+            onOpenChange: () => {},
+            onConfirm: () => {},
           }}
           pdfExtractModal={{
             open: s.isPdfExtractConfirmModalOpen,
             onOpenChange: s.setIsPdfExtractConfirmModalOpen,
             onConfirm: s.handlePdfExtractConfirm,
           }}
-          jdViewer={{
-            previewUrl:
-              s.jdViewerFileIndex != null &&
-              s.jdUploadedFiles[s.jdViewerFileIndex]
-                ? s.jdUploadedFiles[s.jdViewerFileIndex].previewUrl
-                : null,
-            onClose: () => s.setJdViewerFileIndex(null),
-          }}
+          jdViewer={{ previewUrl: null, onClose: () => {} }}
         />
       }
       progressOrDivider={
@@ -143,71 +161,16 @@ export default function CorrectionSettingsPage() {
           <CorrectionAnalyzingView
             onLeaveClick={() => s.router.replace('/correction')}
           />
-        ) : s.step === 'information' ? (
-          <CorrectionInformationStep
-            companyName={s.companyName}
-            onCompanyNameChange={(next) => {
-              s.setCompanyName(next);
-              if (s.informationErrors.companyName)
-                s.setInformationErrors((prev) => ({
-                  ...prev,
-                  companyName: false,
-                }));
-            }}
-            jobTitle={s.jobTitle}
-            onJobTitleChange={(next) => {
-              s.setJobTitle(next);
-              if (s.informationErrors.jobTitle)
-                s.setInformationErrors((prev) => ({
-                  ...prev,
-                  jobTitle: false,
-                }));
-            }}
-            jobDescription={s.jobDescription}
-            onJobDescriptionChange={(next) => {
-              s.setJobDescription(next);
-              if (s.informationErrors.jobDescription)
-                s.setInformationErrors((prev) => ({
-                  ...prev,
-                  jobDescription: false,
-                }));
-            }}
-            jdMode={s.jdMode}
-            onJdModeChange={(value) => {
-              s.setJdMode(value);
-              if (value === 'image') {
-                s.setJdImageError(null);
-                s.setJdViewerFileIndex(null);
-                s.setJdUploadedFiles(
-                  (prev: Array<{ name: string; size: number; previewUrl: string }>) => {
-                    prev.forEach(
-                      (f: { name: string; size: number; previewUrl: string }) => {
-                        if (f.previewUrl) URL.revokeObjectURL(f.previewUrl);
-                      },
-                    );
-                    return [];
-                  },
-                );
-              }
-            }}
-            informationErrors={s.informationErrors}
-            jdImageError={s.jdImageError}
-            jdShakeKey={s.jdShakeKey}
-            jdUploadedFiles={s.jdUploadedFiles}
-            limitAllowedInput={s.limitAllowedInput}
-            onStartCorrectionClick={s.handleStartCorrectionClick}
-            jdFileInputRef={s.jdFileInputRef}
-            onRequestFileDelete={(index) =>
-              s.setFileDeleteConfirmTarget({ type: 'jd', index })
-            }
-            onRequestJdViewer={s.setJdViewerFileIndex}
-            onJdImageFile={s.handleJdImageFile}
-            onPasteJdImage={s.handlePasteJdImageFromClipboard}
-          />
         ) : s.step === 'portfolio' ? (
           <CorrectionPortfolioStep
             selectedPortfolioType={s.selectedPortfolioType}
-            onPortfolioSelect={s.handlePortfolioSelect}
+            onPortfolioSelect={(type) => {
+              if (type === 'pdf') {
+                setIsPdfModalOpen(true);
+                return;
+              }
+              s.handlePortfolioSelect(type);
+            }}
             showTextPortfolioWarning={s.showTextPortfolioWarning}
             textPortfolios={s.textPortfolios}
             selectedTextPortfolioIds={s.selectedTextPortfolioIds}
@@ -247,6 +210,7 @@ export default function CorrectionSettingsPage() {
           />
         ) : s.step === 'analysis' ? (
           <CorrectionAnalysisStep
+            correctionId={correctionId}
             analysisInfoValue={s.analysisInfoValue}
             onAnalysisInfoChange={(value) => {
               s.setAnalysisInfoValue(value);
@@ -272,11 +236,18 @@ export default function CorrectionSettingsPage() {
             lessonsButton={s.lessonsButton}
             setLessonsButton={s.setLessonsButton}
             onStartNewExperience={s.handleStartNewExperience}
+            correctionId={correctionId}
           />
         )}
       </div>
 
       {s.step === 'result' && <FeedbackFloatingButton />}
+
+      {/* OBT 기간 동안 막아둔 기능 */}
+      <OBTRedirectModal
+        open={isPdfModalOpen}
+        onOpenChange={(open) => !open && setIsPdfModalOpen(false)}
+      />
     </CorrectionLayout>
   );
 }

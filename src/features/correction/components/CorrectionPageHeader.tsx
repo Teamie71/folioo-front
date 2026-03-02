@@ -34,7 +34,7 @@ interface CorrectionPageHeaderProps {
     isEditing: boolean;
     editable: boolean;
     onEdit: () => void;
-    onSave: () => void;
+    onSave: (newTitle: string) => void;
   };
   showDeleteButton: boolean;
   deleteModal: {
