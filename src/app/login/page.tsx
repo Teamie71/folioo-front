@@ -60,22 +60,24 @@ export default function Login() {
       </div>
 
       {/* 약관, 개인정보 처리방침, 마케팅 수신 */}
-      <div className='flex items-center gap-[6.25rem]'>
+      <div className='flex items-center gap-[1.25rem]'>
         <Link
           href='/login/tos'
-          className='cursor-pointer text-[1rem] text-[#000000]'
+          className='cursor-pointer text-[0.875rem] text-[#74777D] hover:font-bold'
         >
           서비스 이용 약관
         </Link>
+        <div className='h-[1rem] w-[0.0625rem] bg-[#74777D]' />
         <Link
           href='/privacy'
-          className='cursor-pointer text-[1rem] text-[#000000]'
+          className='cursor-pointer text-[0.875rem] text-[#74777D] hover:font-bold'
         >
           개인정보 처리방침
         </Link>
+        <div className='h-[1rem] w-[0.0625rem] bg-[#74777D]' />
         <Link
           href='/marketing'
-          className='cursor-pointer text-[1rem] text-[#000000]'
+          className='cursor-pointer text-[0.875rem] text-[#74777D] hover:font-bold'
         >
           마케팅 정보 수신
         </Link>
