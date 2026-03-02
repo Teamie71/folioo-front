@@ -7,7 +7,7 @@ export const ChatStartIcon = () => {
       viewBox='0 0 24 24'
       fill='none'
     >
-      <g clip-path='url(#clip0_4801_3159)'>
+      <g clipPath='url(#clip0_4801_3159)'>
         <path
           fillRule='evenodd'
           clipRule='evenodd'
