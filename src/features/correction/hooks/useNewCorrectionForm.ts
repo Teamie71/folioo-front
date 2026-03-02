@@ -186,6 +186,7 @@ export function useNewCorrectionForm() {
     jdViewerFileIndex,
     setJdViewerFileIndex,
     jdImageError,
+    setJdImageError,
     jdShakeKey,
     isQuitModalOpen,
     setIsQuitModalOpen,
