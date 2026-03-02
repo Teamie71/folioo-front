@@ -16,7 +16,7 @@ export default function InvoicePage() {
         <div className='flex items-center gap-[1.25rem]'>
           <BackButton />
 
-          <span className='text-[1.5rem] font-bold'>크레딧 거래 내역</span>
+          <span className='text-[1.5rem] font-bold'>이용권 거래 내역</span>
         </div>
 
         {/* 드롭다운 + 표 */}
