@@ -5,9 +5,14 @@
  * API document of Folioo Development
  * OpenAPI spec version: 1.0.0
  */
+import type { AgreeMarketingResDTOMarketingAgreedAt } from './agreeMarketingResDTOMarketingAgreedAt';
 
 export interface AgreeMarketingResDTO {
+  /** 마케팅 수신 동의 여부 */
   isMarketingAgreed: boolean;
-  /** @nullable */
-  marketingAgreedAt: string | null;
+  /**
+   * 마케팅 수신 동의 시각 (비동의 상태면 null)
+   * @nullable
+   */
+  marketingAgreedAt: AgreeMarketingResDTOMarketingAgreedAt;
 }

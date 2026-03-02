@@ -7,7 +7,9 @@
  */
 
 export type InsightControllerSearchVectorParams = {
-keyword?: string;
-category?: string;
-activityName?: string;
+keyword: string;
+/**
+ * 유사도 거리 임계값 (기본 0.7, 작을수록 일치도 높음)
+ */
+threshold?: number;
 };

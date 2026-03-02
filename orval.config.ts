@@ -3,7 +3,7 @@ import { defineConfig } from 'orval';
 export default defineConfig({
   foliooApi: {
     input: {
-      target: 'https://folioo-dev-api.log8.kr/api-json', // API 문서 URL
+      target: 'https://dev-api.folioo.ai.kr/api-json', // API 문서 URL
     },
     output: {
       mode: 'tags-split',
@@ -11,6 +11,8 @@ export default defineConfig({
       schemas: 'src/api/models', // API 모델 생성 위치
       client: 'react-query',
       mock: false, // 모의 데이터 생성 여부
+      // axios 사용 시 생성 코드가 AxiosRequestConfig 타입을 쓰도록 설정
+      httpClient: 'axios',
 
       // 자동으로 생성된 axios 인스턴스를 덮어씌우기
       override: {

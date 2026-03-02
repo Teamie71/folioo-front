@@ -33,13 +33,18 @@ import type {
   InsightControllerDeleteLog200,
   InsightControllerGetActivityTags200,
   InsightControllerGetLogs200,
+  InsightControllerGetLogsParams,
+  InsightControllerGetSimpleLogs200,
   InsightControllerSearchVector200,
   InsightControllerSearchVectorParams,
   InsightControllerUpdateLog200,
   UpdateInsightReqDTO
 } from '../../models';
 
+import { customInstance } from '../../../lib/axios';
 
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 
@@ -47,69 +52,32 @@ import type {
  * 인사이트 로그를 생성하고, 텍스트를 임베딩으로 변환하여 메타데이터를 벡터DB에 저장합니다.
  * @summary 로그 생성 및 임베딩 저장
  */
-export type insightControllerCreateLogResponse200 = {
-  data: InsightControllerCreateLog200
-  status: 200
-}
-
-export type insightControllerCreateLogResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type insightControllerCreateLogResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type insightControllerCreateLogResponseSuccess = (insightControllerCreateLogResponse200) & {
-  headers: Headers;
-};
-export type insightControllerCreateLogResponseError = (insightControllerCreateLogResponse401 | insightControllerCreateLogResponse409) & {
-  headers: Headers;
-};
-
-export type insightControllerCreateLogResponse = (insightControllerCreateLogResponseSuccess | insightControllerCreateLogResponseError)
-
-export const getInsightControllerCreateLogUrl = () => {
-
-
+export const insightControllerCreateLog = (
+    createInsightLogReqDTO: CreateInsightLogReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InsightControllerCreateLog200>(
+      {url: `/insights`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createInsightLogReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/insights`
-}
-
-export const insightControllerCreateLog = async (createInsightLogReqDTO: CreateInsightLogReqDTO, options?: RequestInit): Promise<insightControllerCreateLogResponse> => {
-  
-  const res = await fetch(getInsightControllerCreateLogUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      createInsightLogReqDTO,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: insightControllerCreateLogResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as insightControllerCreateLogResponse
-}
-  
-
 
 
 export const getInsightControllerCreateLogMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerCreateLog>>, TError,{data: CreateInsightLogReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerCreateLog>>, TError,{data: CreateInsightLogReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof insightControllerCreateLog>>, TError,{data: CreateInsightLogReqDTO}, TContext> => {
 
 const mutationKey = ['insightControllerCreateLog'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -117,7 +85,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof insightControllerCreateLog>>, {data: CreateInsightLogReqDTO}> = (props) => {
           const {data} = props ?? {};
 
-          return  insightControllerCreateLog(data,fetchOptions)
+          return  insightControllerCreateLog(data,requestOptions)
         }
 
 
@@ -135,7 +103,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 로그 생성 및 임베딩 저장
  */
 export const useInsightControllerCreateLog = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerCreateLog>>, TError,{data: CreateInsightLogReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerCreateLog>>, TError,{data: CreateInsightLogReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof insightControllerCreateLog>>,
         TError,
@@ -148,71 +116,39 @@ export const useInsightControllerCreateLog = <TError = CommonResponse,
  * 사용자가 생성한 인사이트 로그 목록을 조회합니다.
  * @summary 로그 목록 조회
  */
-export type insightControllerGetLogsResponse200 = {
-  data: InsightControllerGetLogs200
-  status: 200
-}
-
-export type insightControllerGetLogsResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type insightControllerGetLogsResponseSuccess = (insightControllerGetLogsResponse200) & {
-  headers: Headers;
-};
-export type insightControllerGetLogsResponseError = (insightControllerGetLogsResponse401) & {
-  headers: Headers;
-};
-
-export type insightControllerGetLogsResponse = (insightControllerGetLogsResponseSuccess | insightControllerGetLogsResponseError)
-
-export const getInsightControllerGetLogsUrl = () => {
-
-
-  
-
-  return `/insights`
-}
-
-export const insightControllerGetLogs = async ( options?: RequestInit): Promise<insightControllerGetLogsResponse> => {
-  
-  const res = await fetch(getInsightControllerGetLogsUrl(),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: insightControllerGetLogsResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as insightControllerGetLogsResponse
-}
+export const insightControllerGetLogs = (
+    params?: InsightControllerGetLogsParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InsightControllerGetLogs200>(
+      {url: `/insights`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
   
 
 
 
-
-export const getInsightControllerGetLogsQueryKey = () => {
+export const getInsightControllerGetLogsQueryKey = (params?: InsightControllerGetLogsParams,) => {
     return [
-    `/insights`
+    `/insights`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getInsightControllerGetLogsQueryOptions = <TData = Awaited<ReturnType<typeof insightControllerGetLogs>>, TError = CommonResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetLogs>>, TError, TData>>, fetch?: RequestInit}
+export const getInsightControllerGetLogsQueryOptions = <TData = Awaited<ReturnType<typeof insightControllerGetLogs>>, TError = CommonResponse>(params?: InsightControllerGetLogsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetLogs>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getInsightControllerGetLogsQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getInsightControllerGetLogsQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof insightControllerGetLogs>>> = ({ signal }) => insightControllerGetLogs({ signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof insightControllerGetLogs>>> = ({ signal }) => insightControllerGetLogs(params, requestOptions, signal);
 
       
 
@@ -226,27 +162,27 @@ export type InsightControllerGetLogsQueryError = CommonResponse
 
 
 export function useInsightControllerGetLogs<TData = Awaited<ReturnType<typeof insightControllerGetLogs>>, TError = CommonResponse>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetLogs>>, TError, TData>> & Pick<
+ params: undefined |  InsightControllerGetLogsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetLogs>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof insightControllerGetLogs>>,
           TError,
           Awaited<ReturnType<typeof insightControllerGetLogs>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useInsightControllerGetLogs<TData = Awaited<ReturnType<typeof insightControllerGetLogs>>, TError = CommonResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetLogs>>, TError, TData>> & Pick<
+ params?: InsightControllerGetLogsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetLogs>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof insightControllerGetLogs>>,
           TError,
           Awaited<ReturnType<typeof insightControllerGetLogs>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useInsightControllerGetLogs<TData = Awaited<ReturnType<typeof insightControllerGetLogs>>, TError = CommonResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetLogs>>, TError, TData>>, fetch?: RequestInit}
+ params?: InsightControllerGetLogsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetLogs>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -254,11 +190,102 @@ export function useInsightControllerGetLogs<TData = Awaited<ReturnType<typeof in
  */
 
 export function useInsightControllerGetLogs<TData = Awaited<ReturnType<typeof insightControllerGetLogs>>, TError = CommonResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetLogs>>, TError, TData>>, fetch?: RequestInit}
+ params?: InsightControllerGetLogsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetLogs>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getInsightControllerGetLogsQueryOptions(options)
+  const queryOptions = getInsightControllerGetLogsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
+ * 사용자가 생성한 인사이트 로그 목록을 카테고리별로 간소화하여 조회합니다.
+ * @summary 챗봇 멘션용 간소화 인사이트 목록 조회
+ */
+export const insightControllerGetSimpleLogs = (
+    
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InsightControllerGetSimpleLogs200>(
+      {url: `/insights/summary`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getInsightControllerGetSimpleLogsQueryKey = () => {
+    return [
+    `/insights/summary`
+    ] as const;
+    }
+
+    
+export const getInsightControllerGetSimpleLogsQueryOptions = <TData = Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>, TError = CommonResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getInsightControllerGetSimpleLogsQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>> = ({ signal }) => insightControllerGetSimpleLogs(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type InsightControllerGetSimpleLogsQueryResult = NonNullable<Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>>
+export type InsightControllerGetSimpleLogsQueryError = CommonResponse
+
+
+export function useInsightControllerGetSimpleLogs<TData = Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>, TError = CommonResponse>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>,
+          TError,
+          Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useInsightControllerGetSimpleLogs<TData = Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>, TError = CommonResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>,
+          TError,
+          Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useInsightControllerGetSimpleLogs<TData = Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>, TError = CommonResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 챗봇 멘션용 간소화 인사이트 목록 조회
+ */
+
+export function useInsightControllerGetSimpleLogs<TData = Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>, TError = CommonResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetSimpleLogs>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getInsightControllerGetSimpleLogsQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -272,80 +299,33 @@ export function useInsightControllerGetLogs<TData = Awaited<ReturnType<typeof in
  * 인사이트 로그를 수정하고, 기존 벡터를 삭제 후 메타데이터를 벡터DB에 다시 저장합니다.
  * @summary 인사이트 로그 수정
  */
-export type insightControllerUpdateLogResponse200 = {
-  data: InsightControllerUpdateLog200
-  status: 200
-}
-
-export type insightControllerUpdateLogResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type insightControllerUpdateLogResponse403 = {
-  data: CommonResponse
-  status: 403
-}
-
-export type insightControllerUpdateLogResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type insightControllerUpdateLogResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type insightControllerUpdateLogResponseSuccess = (insightControllerUpdateLogResponse200) & {
-  headers: Headers;
-};
-export type insightControllerUpdateLogResponseError = (insightControllerUpdateLogResponse401 | insightControllerUpdateLogResponse403 | insightControllerUpdateLogResponse404 | insightControllerUpdateLogResponse409) & {
-  headers: Headers;
-};
-
-export type insightControllerUpdateLogResponse = (insightControllerUpdateLogResponseSuccess | insightControllerUpdateLogResponseError)
-
-export const getInsightControllerUpdateLogUrl = (insightId: number,) => {
-
-
+export const insightControllerUpdateLog = (
+    insightId: number,
+    updateInsightReqDTO: UpdateInsightReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InsightControllerUpdateLog200>(
+      {url: `/insights/${insightId}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateInsightReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/insights/${insightId}`
-}
-
-export const insightControllerUpdateLog = async (insightId: number,
-    updateInsightReqDTO: UpdateInsightReqDTO, options?: RequestInit): Promise<insightControllerUpdateLogResponse> => {
-  
-  const res = await fetch(getInsightControllerUpdateLogUrl(insightId),
-  {      
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      updateInsightReqDTO,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: insightControllerUpdateLogResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as insightControllerUpdateLogResponse
-}
-  
-
 
 
 export const getInsightControllerUpdateLogMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerUpdateLog>>, TError,{insightId: number;data: UpdateInsightReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerUpdateLog>>, TError,{insightId: number;data: UpdateInsightReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof insightControllerUpdateLog>>, TError,{insightId: number;data: UpdateInsightReqDTO}, TContext> => {
 
 const mutationKey = ['insightControllerUpdateLog'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -353,7 +333,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof insightControllerUpdateLog>>, {insightId: number;data: UpdateInsightReqDTO}> = (props) => {
           const {insightId,data} = props ?? {};
 
-          return  insightControllerUpdateLog(insightId,data,fetchOptions)
+          return  insightControllerUpdateLog(insightId,data,requestOptions)
         }
 
 
@@ -371,7 +351,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 인사이트 로그 수정
  */
 export const useInsightControllerUpdateLog = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerUpdateLog>>, TError,{insightId: number;data: UpdateInsightReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerUpdateLog>>, TError,{insightId: number;data: UpdateInsightReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof insightControllerUpdateLog>>,
         TError,
@@ -384,73 +364,30 @@ export const useInsightControllerUpdateLog = <TError = CommonResponse,
  * 인사이트 로그 및 메타데이터를 삭제합니다.
  * @summary 인사이트 로그 삭제
  */
-export type insightControllerDeleteLogResponse200 = {
-  data: InsightControllerDeleteLog200
-  status: 200
-}
-
-export type insightControllerDeleteLogResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type insightControllerDeleteLogResponse403 = {
-  data: CommonResponse
-  status: 403
-}
-
-export type insightControllerDeleteLogResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type insightControllerDeleteLogResponseSuccess = (insightControllerDeleteLogResponse200) & {
-  headers: Headers;
-};
-export type insightControllerDeleteLogResponseError = (insightControllerDeleteLogResponse401 | insightControllerDeleteLogResponse403 | insightControllerDeleteLogResponse404) & {
-  headers: Headers;
-};
-
-export type insightControllerDeleteLogResponse = (insightControllerDeleteLogResponseSuccess | insightControllerDeleteLogResponseError)
-
-export const getInsightControllerDeleteLogUrl = (insightId: number,) => {
-
-
+export const insightControllerDeleteLog = (
+    insightId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InsightControllerDeleteLog200>(
+      {url: `/insights/${insightId}`, method: 'DELETE', signal
+    },
+      options);
+    }
   
-
-  return `/insights/${insightId}`
-}
-
-export const insightControllerDeleteLog = async (insightId: number, options?: RequestInit): Promise<insightControllerDeleteLogResponse> => {
-  
-  const res = await fetch(getInsightControllerDeleteLogUrl(insightId),
-  {      
-    ...options,
-    method: 'DELETE'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: insightControllerDeleteLogResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as insightControllerDeleteLogResponse
-}
-  
-
 
 
 export const getInsightControllerDeleteLogMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerDeleteLog>>, TError,{insightId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerDeleteLog>>, TError,{insightId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof insightControllerDeleteLog>>, TError,{insightId: number}, TContext> => {
 
 const mutationKey = ['insightControllerDeleteLog'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -458,7 +395,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof insightControllerDeleteLog>>, {insightId: number}> = (props) => {
           const {insightId} = props ?? {};
 
-          return  insightControllerDeleteLog(insightId,fetchOptions)
+          return  insightControllerDeleteLog(insightId,requestOptions)
         }
 
 
@@ -476,7 +413,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 인사이트 로그 삭제
  */
 export const useInsightControllerDeleteLog = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerDeleteLog>>, TError,{insightId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerDeleteLog>>, TError,{insightId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof insightControllerDeleteLog>>,
         TError,
@@ -489,58 +426,19 @@ export const useInsightControllerDeleteLog = <TError = CommonResponse,
  * 키워드를 통해 인사이트 로그를 검색합니다.
  * @summary 인사이트 로그 유사도 검색
  */
-export type insightControllerSearchVectorResponse200 = {
-  data: InsightControllerSearchVector200
-  status: 200
-}
-
-export type insightControllerSearchVectorResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type insightControllerSearchVectorResponseSuccess = (insightControllerSearchVectorResponse200) & {
-  headers: Headers;
-};
-export type insightControllerSearchVectorResponseError = (insightControllerSearchVectorResponse401) & {
-  headers: Headers;
-};
-
-export type insightControllerSearchVectorResponse = (insightControllerSearchVectorResponseSuccess | insightControllerSearchVectorResponseError)
-
-export const getInsightControllerSearchVectorUrl = (params?: InsightControllerSearchVectorParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+export const insightControllerSearchVector = (
+    params: InsightControllerSearchVectorParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InsightControllerSearchVector200>(
+      {url: `/insights/search`, method: 'GET',
+        params, signal
+    },
+      options);
     }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/insights/search?${stringifiedParams}` : `/insights/search`
-}
-
-export const insightControllerSearchVector = async (params?: InsightControllerSearchVectorParams, options?: RequestInit): Promise<insightControllerSearchVectorResponse> => {
   
-  const res = await fetch(getInsightControllerSearchVectorUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: insightControllerSearchVectorResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as insightControllerSearchVectorResponse
-}
-  
-
 
 
 
@@ -551,16 +449,16 @@ export const getInsightControllerSearchVectorQueryKey = (params?: InsightControl
     }
 
     
-export const getInsightControllerSearchVectorQueryOptions = <TData = Awaited<ReturnType<typeof insightControllerSearchVector>>, TError = CommonResponse>(params?: InsightControllerSearchVectorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerSearchVector>>, TError, TData>>, fetch?: RequestInit}
+export const getInsightControllerSearchVectorQueryOptions = <TData = Awaited<ReturnType<typeof insightControllerSearchVector>>, TError = CommonResponse>(params: InsightControllerSearchVectorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerSearchVector>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getInsightControllerSearchVectorQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof insightControllerSearchVector>>> = ({ signal }) => insightControllerSearchVector(params, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof insightControllerSearchVector>>> = ({ signal }) => insightControllerSearchVector(params, requestOptions, signal);
 
       
 
@@ -574,27 +472,27 @@ export type InsightControllerSearchVectorQueryError = CommonResponse
 
 
 export function useInsightControllerSearchVector<TData = Awaited<ReturnType<typeof insightControllerSearchVector>>, TError = CommonResponse>(
- params: undefined |  InsightControllerSearchVectorParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerSearchVector>>, TError, TData>> & Pick<
+ params: InsightControllerSearchVectorParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerSearchVector>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof insightControllerSearchVector>>,
           TError,
           Awaited<ReturnType<typeof insightControllerSearchVector>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useInsightControllerSearchVector<TData = Awaited<ReturnType<typeof insightControllerSearchVector>>, TError = CommonResponse>(
- params?: InsightControllerSearchVectorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerSearchVector>>, TError, TData>> & Pick<
+ params: InsightControllerSearchVectorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerSearchVector>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof insightControllerSearchVector>>,
           TError,
           Awaited<ReturnType<typeof insightControllerSearchVector>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useInsightControllerSearchVector<TData = Awaited<ReturnType<typeof insightControllerSearchVector>>, TError = CommonResponse>(
- params?: InsightControllerSearchVectorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerSearchVector>>, TError, TData>>, fetch?: RequestInit}
+ params: InsightControllerSearchVectorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerSearchVector>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -602,7 +500,7 @@ export function useInsightControllerSearchVector<TData = Awaited<ReturnType<type
  */
 
 export function useInsightControllerSearchVector<TData = Awaited<ReturnType<typeof insightControllerSearchVector>>, TError = CommonResponse>(
- params?: InsightControllerSearchVectorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerSearchVector>>, TError, TData>>, fetch?: RequestInit}
+ params: InsightControllerSearchVectorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerSearchVector>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -620,69 +518,32 @@ export function useInsightControllerSearchVector<TData = Awaited<ReturnType<type
  * 활동명을 생성합니다. 인당 10개 제한이 있으며, 활동명은 unique합니다.
  * @summary 활동 분류 태그 생성
  */
-export type insightControllerCreateActivityTagResponse200 = {
-  data: InsightControllerCreateActivityTag200
-  status: 200
-}
-
-export type insightControllerCreateActivityTagResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type insightControllerCreateActivityTagResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type insightControllerCreateActivityTagResponseSuccess = (insightControllerCreateActivityTagResponse200) & {
-  headers: Headers;
-};
-export type insightControllerCreateActivityTagResponseError = (insightControllerCreateActivityTagResponse401 | insightControllerCreateActivityTagResponse409) & {
-  headers: Headers;
-};
-
-export type insightControllerCreateActivityTagResponse = (insightControllerCreateActivityTagResponseSuccess | insightControllerCreateActivityTagResponseError)
-
-export const getInsightControllerCreateActivityTagUrl = () => {
-
-
+export const insightControllerCreateActivityTag = (
+    activityNameReqDTO: ActivityNameReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InsightControllerCreateActivityTag200>(
+      {url: `/insights/tags`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: activityNameReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/insights/tags`
-}
-
-export const insightControllerCreateActivityTag = async (activityNameReqDTO: ActivityNameReqDTO, options?: RequestInit): Promise<insightControllerCreateActivityTagResponse> => {
-  
-  const res = await fetch(getInsightControllerCreateActivityTagUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      activityNameReqDTO,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: insightControllerCreateActivityTagResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as insightControllerCreateActivityTagResponse
-}
-  
-
 
 
 export const getInsightControllerCreateActivityTagMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerCreateActivityTag>>, TError,{data: ActivityNameReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerCreateActivityTag>>, TError,{data: ActivityNameReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof insightControllerCreateActivityTag>>, TError,{data: ActivityNameReqDTO}, TContext> => {
 
 const mutationKey = ['insightControllerCreateActivityTag'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -690,7 +551,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof insightControllerCreateActivityTag>>, {data: ActivityNameReqDTO}> = (props) => {
           const {data} = props ?? {};
 
-          return  insightControllerCreateActivityTag(data,fetchOptions)
+          return  insightControllerCreateActivityTag(data,requestOptions)
         }
 
 
@@ -708,7 +569,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 활동 분류 태그 생성
  */
 export const useInsightControllerCreateActivityTag = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerCreateActivityTag>>, TError,{data: ActivityNameReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerCreateActivityTag>>, TError,{data: ActivityNameReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof insightControllerCreateActivityTag>>,
         TError,
@@ -721,51 +582,18 @@ export const useInsightControllerCreateActivityTag = <TError = CommonResponse,
  * 활동 분류 태그 목록을 조회합니다. 인당 10개 제한이 있습니다.
  * @summary 활동 분류 태그 목록 조회
  */
-export type insightControllerGetActivityTagsResponse200 = {
-  data: InsightControllerGetActivityTags200
-  status: 200
-}
-
-export type insightControllerGetActivityTagsResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type insightControllerGetActivityTagsResponseSuccess = (insightControllerGetActivityTagsResponse200) & {
-  headers: Headers;
-};
-export type insightControllerGetActivityTagsResponseError = (insightControllerGetActivityTagsResponse401) & {
-  headers: Headers;
-};
-
-export type insightControllerGetActivityTagsResponse = (insightControllerGetActivityTagsResponseSuccess | insightControllerGetActivityTagsResponseError)
-
-export const getInsightControllerGetActivityTagsUrl = () => {
-
-
-  
-
-  return `/insights/tags`
-}
-
-export const insightControllerGetActivityTags = async ( options?: RequestInit): Promise<insightControllerGetActivityTagsResponse> => {
-  
-  const res = await fetch(getInsightControllerGetActivityTagsUrl(),
-  {      
-    ...options,
-    method: 'GET'
+export const insightControllerGetActivityTags = (
     
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InsightControllerGetActivityTags200>(
+      {url: `/insights/tags`, method: 'GET', signal
+    },
+      options);
+    }
   
-  const data: insightControllerGetActivityTagsResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as insightControllerGetActivityTagsResponse
-}
-  
-
 
 
 
@@ -776,16 +604,16 @@ export const getInsightControllerGetActivityTagsQueryKey = () => {
     }
 
     
-export const getInsightControllerGetActivityTagsQueryOptions = <TData = Awaited<ReturnType<typeof insightControllerGetActivityTags>>, TError = CommonResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetActivityTags>>, TError, TData>>, fetch?: RequestInit}
+export const getInsightControllerGetActivityTagsQueryOptions = <TData = Awaited<ReturnType<typeof insightControllerGetActivityTags>>, TError = CommonResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetActivityTags>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getInsightControllerGetActivityTagsQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof insightControllerGetActivityTags>>> = ({ signal }) => insightControllerGetActivityTags({ signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof insightControllerGetActivityTags>>> = ({ signal }) => insightControllerGetActivityTags(requestOptions, signal);
 
       
 
@@ -805,7 +633,7 @@ export function useInsightControllerGetActivityTags<TData = Awaited<ReturnType<t
           TError,
           Awaited<ReturnType<typeof insightControllerGetActivityTags>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useInsightControllerGetActivityTags<TData = Awaited<ReturnType<typeof insightControllerGetActivityTags>>, TError = CommonResponse>(
@@ -815,11 +643,11 @@ export function useInsightControllerGetActivityTags<TData = Awaited<ReturnType<t
           TError,
           Awaited<ReturnType<typeof insightControllerGetActivityTags>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useInsightControllerGetActivityTags<TData = Awaited<ReturnType<typeof insightControllerGetActivityTags>>, TError = CommonResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetActivityTags>>, TError, TData>>, fetch?: RequestInit}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetActivityTags>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -827,7 +655,7 @@ export function useInsightControllerGetActivityTags<TData = Awaited<ReturnType<t
  */
 
 export function useInsightControllerGetActivityTags<TData = Awaited<ReturnType<typeof insightControllerGetActivityTags>>, TError = CommonResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetActivityTags>>, TError, TData>>, fetch?: RequestInit}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerGetActivityTags>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -845,68 +673,30 @@ export function useInsightControllerGetActivityTags<TData = Awaited<ReturnType<t
  * 활동 분류 태그를 삭제합니다. 태그가 연결되어있던 인사이트 로그는 자동적으로 미분류 상태가 됩니다.
  * @summary 활동 분류 태그 삭제
  */
-export type insightControllerDeleteActivityTagResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type insightControllerDeleteActivityTagResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type insightControllerDeleteActivityTagResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type insightControllerDeleteActivityTagResponseSuccess = (insightControllerDeleteActivityTagResponse200) & {
-  headers: Headers;
-};
-export type insightControllerDeleteActivityTagResponseError = (insightControllerDeleteActivityTagResponse401 | insightControllerDeleteActivityTagResponse404) & {
-  headers: Headers;
-};
-
-export type insightControllerDeleteActivityTagResponse = (insightControllerDeleteActivityTagResponseSuccess | insightControllerDeleteActivityTagResponseError)
-
-export const getInsightControllerDeleteActivityTagUrl = (tagId: number,) => {
-
-
+export const insightControllerDeleteActivityTag = (
+    tagId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/insights/tags/${tagId}`, method: 'DELETE', signal
+    },
+      options);
+    }
   
-
-  return `/insights/tags/${tagId}`
-}
-
-export const insightControllerDeleteActivityTag = async (tagId: number, options?: RequestInit): Promise<insightControllerDeleteActivityTagResponse> => {
-  
-  const res = await fetch(getInsightControllerDeleteActivityTagUrl(tagId),
-  {      
-    ...options,
-    method: 'DELETE'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: insightControllerDeleteActivityTagResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as insightControllerDeleteActivityTagResponse
-}
-  
-
 
 
 export const getInsightControllerDeleteActivityTagMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerDeleteActivityTag>>, TError,{tagId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerDeleteActivityTag>>, TError,{tagId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof insightControllerDeleteActivityTag>>, TError,{tagId: number}, TContext> => {
 
 const mutationKey = ['insightControllerDeleteActivityTag'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -914,7 +704,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof insightControllerDeleteActivityTag>>, {tagId: number}> = (props) => {
           const {tagId} = props ?? {};
 
-          return  insightControllerDeleteActivityTag(tagId,fetchOptions)
+          return  insightControllerDeleteActivityTag(tagId,requestOptions)
         }
 
 
@@ -932,7 +722,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 활동 분류 태그 삭제
  */
 export const useInsightControllerDeleteActivityTag = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerDeleteActivityTag>>, TError,{tagId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof insightControllerDeleteActivityTag>>, TError,{tagId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof insightControllerDeleteActivityTag>>,
         TError,

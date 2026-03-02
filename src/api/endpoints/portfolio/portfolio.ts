@@ -39,7 +39,10 @@ import type {
   UpdatePortfolioReqDTO
 } from '../../models';
 
+import { customInstance } from '../../../lib/axios';
 
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 
@@ -47,56 +50,18 @@ import type {
  * 경험 정리가 완료된 포트폴리오를 조회합니다.
  * @summary 개별 포트폴리오 조회
  */
-export type portfolioControllerGetPortfolioResponse200 = {
-  data: PortfolioControllerGetPortfolio200
-  status: 200
-}
-
-export type portfolioControllerGetPortfolioResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioControllerGetPortfolioResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type portfolioControllerGetPortfolioResponseSuccess = (portfolioControllerGetPortfolioResponse200) & {
-  headers: Headers;
-};
-export type portfolioControllerGetPortfolioResponseError = (portfolioControllerGetPortfolioResponse401 | portfolioControllerGetPortfolioResponse404) & {
-  headers: Headers;
-};
-
-export type portfolioControllerGetPortfolioResponse = (portfolioControllerGetPortfolioResponseSuccess | portfolioControllerGetPortfolioResponseError)
-
-export const getPortfolioControllerGetPortfolioUrl = (portfolioId: number,) => {
-
-
+export const portfolioControllerGetPortfolio = (
+    portfolioId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PortfolioControllerGetPortfolio200>(
+      {url: `/portfolios/${portfolioId}`, method: 'GET', signal
+    },
+      options);
+    }
   
-
-  return `/portfolios/${portfolioId}`
-}
-
-export const portfolioControllerGetPortfolio = async (portfolioId: number, options?: RequestInit): Promise<portfolioControllerGetPortfolioResponse> => {
-  
-  const res = await fetch(getPortfolioControllerGetPortfolioUrl(portfolioId),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: portfolioControllerGetPortfolioResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as portfolioControllerGetPortfolioResponse
-}
-  
-
 
 
 
@@ -107,16 +72,16 @@ export const getPortfolioControllerGetPortfolioQueryKey = (portfolioId: number,)
     }
 
     
-export const getPortfolioControllerGetPortfolioQueryOptions = <TData = Awaited<ReturnType<typeof portfolioControllerGetPortfolio>>, TError = CommonResponse>(portfolioId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioControllerGetPortfolio>>, TError, TData>>, fetch?: RequestInit}
+export const getPortfolioControllerGetPortfolioQueryOptions = <TData = Awaited<ReturnType<typeof portfolioControllerGetPortfolio>>, TError = CommonResponse>(portfolioId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioControllerGetPortfolio>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getPortfolioControllerGetPortfolioQueryKey(portfolioId);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioControllerGetPortfolio>>> = ({ signal }) => portfolioControllerGetPortfolio(portfolioId, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioControllerGetPortfolio>>> = ({ signal }) => portfolioControllerGetPortfolio(portfolioId, requestOptions, signal);
 
       
 
@@ -136,7 +101,7 @@ export function usePortfolioControllerGetPortfolio<TData = Awaited<ReturnType<ty
           TError,
           Awaited<ReturnType<typeof portfolioControllerGetPortfolio>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function usePortfolioControllerGetPortfolio<TData = Awaited<ReturnType<typeof portfolioControllerGetPortfolio>>, TError = CommonResponse>(
@@ -146,11 +111,11 @@ export function usePortfolioControllerGetPortfolio<TData = Awaited<ReturnType<ty
           TError,
           Awaited<ReturnType<typeof portfolioControllerGetPortfolio>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function usePortfolioControllerGetPortfolio<TData = Awaited<ReturnType<typeof portfolioControllerGetPortfolio>>, TError = CommonResponse>(
- portfolioId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioControllerGetPortfolio>>, TError, TData>>, fetch?: RequestInit}
+ portfolioId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioControllerGetPortfolio>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -158,7 +123,7 @@ export function usePortfolioControllerGetPortfolio<TData = Awaited<ReturnType<ty
  */
 
 export function usePortfolioControllerGetPortfolio<TData = Awaited<ReturnType<typeof portfolioControllerGetPortfolio>>, TError = CommonResponse>(
- portfolioId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioControllerGetPortfolio>>, TError, TData>>, fetch?: RequestInit}
+ portfolioId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioControllerGetPortfolio>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -176,70 +141,33 @@ export function usePortfolioControllerGetPortfolio<TData = Awaited<ReturnType<ty
  * 경험 정리가 완료된 포트폴리오의 내용을 수정합니다.
  * @summary 개별 포트폴리오 수정
  */
-export type portfolioControllerUpdatePortfolioResponse200 = {
-  data: PortfolioControllerUpdatePortfolio200
-  status: 200
-}
-
-export type portfolioControllerUpdatePortfolioResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioControllerUpdatePortfolioResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type portfolioControllerUpdatePortfolioResponseSuccess = (portfolioControllerUpdatePortfolioResponse200) & {
-  headers: Headers;
-};
-export type portfolioControllerUpdatePortfolioResponseError = (portfolioControllerUpdatePortfolioResponse401 | portfolioControllerUpdatePortfolioResponse404) & {
-  headers: Headers;
-};
-
-export type portfolioControllerUpdatePortfolioResponse = (portfolioControllerUpdatePortfolioResponseSuccess | portfolioControllerUpdatePortfolioResponseError)
-
-export const getPortfolioControllerUpdatePortfolioUrl = (portfolioId: number,) => {
-
-
+export const portfolioControllerUpdatePortfolio = (
+    portfolioId: number,
+    updatePortfolioReqDTO: UpdatePortfolioReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PortfolioControllerUpdatePortfolio200>(
+      {url: `/portfolios/${portfolioId}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updatePortfolioReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/portfolios/${portfolioId}`
-}
-
-export const portfolioControllerUpdatePortfolio = async (portfolioId: number,
-    updatePortfolioReqDTO: UpdatePortfolioReqDTO, options?: RequestInit): Promise<portfolioControllerUpdatePortfolioResponse> => {
-  
-  const res = await fetch(getPortfolioControllerUpdatePortfolioUrl(portfolioId),
-  {      
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      updatePortfolioReqDTO,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: portfolioControllerUpdatePortfolioResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as portfolioControllerUpdatePortfolioResponse
-}
-  
-
 
 
 export const getPortfolioControllerUpdatePortfolioMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerUpdatePortfolio>>, TError,{portfolioId: number;data: UpdatePortfolioReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerUpdatePortfolio>>, TError,{portfolioId: number;data: UpdatePortfolioReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerUpdatePortfolio>>, TError,{portfolioId: number;data: UpdatePortfolioReqDTO}, TContext> => {
 
 const mutationKey = ['portfolioControllerUpdatePortfolio'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -247,7 +175,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof portfolioControllerUpdatePortfolio>>, {portfolioId: number;data: UpdatePortfolioReqDTO}> = (props) => {
           const {portfolioId,data} = props ?? {};
 
-          return  portfolioControllerUpdatePortfolio(portfolioId,data,fetchOptions)
+          return  portfolioControllerUpdatePortfolio(portfolioId,data,requestOptions)
         }
 
 
@@ -265,7 +193,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 개별 포트폴리오 수정
  */
 export const usePortfolioControllerUpdatePortfolio = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerUpdatePortfolio>>, TError,{portfolioId: number;data: UpdatePortfolioReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerUpdatePortfolio>>, TError,{portfolioId: number;data: UpdatePortfolioReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof portfolioControllerUpdatePortfolio>>,
         TError,
@@ -278,68 +206,30 @@ export const usePortfolioControllerUpdatePortfolio = <TError = CommonResponse,
  * 경험 정리가 완료된 포트폴리오의 내용을 삭제합니다.
  * @summary 개별 포트폴리오 삭제
  */
-export type portfolioControllerDeletePortfolioResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type portfolioControllerDeletePortfolioResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioControllerDeletePortfolioResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type portfolioControllerDeletePortfolioResponseSuccess = (portfolioControllerDeletePortfolioResponse200) & {
-  headers: Headers;
-};
-export type portfolioControllerDeletePortfolioResponseError = (portfolioControllerDeletePortfolioResponse401 | portfolioControllerDeletePortfolioResponse404) & {
-  headers: Headers;
-};
-
-export type portfolioControllerDeletePortfolioResponse = (portfolioControllerDeletePortfolioResponseSuccess | portfolioControllerDeletePortfolioResponseError)
-
-export const getPortfolioControllerDeletePortfolioUrl = (portfolioId: number,) => {
-
-
+export const portfolioControllerDeletePortfolio = (
+    portfolioId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/portfolios/${portfolioId}`, method: 'DELETE', signal
+    },
+      options);
+    }
   
-
-  return `/portfolios/${portfolioId}`
-}
-
-export const portfolioControllerDeletePortfolio = async (portfolioId: number, options?: RequestInit): Promise<portfolioControllerDeletePortfolioResponse> => {
-  
-  const res = await fetch(getPortfolioControllerDeletePortfolioUrl(portfolioId),
-  {      
-    ...options,
-    method: 'DELETE'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: portfolioControllerDeletePortfolioResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as portfolioControllerDeletePortfolioResponse
-}
-  
-
 
 
 export const getPortfolioControllerDeletePortfolioMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>, TError,{portfolioId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>, TError,{portfolioId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>, TError,{portfolioId: number}, TContext> => {
 
 const mutationKey = ['portfolioControllerDeletePortfolio'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -347,7 +237,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>, {portfolioId: number}> = (props) => {
           const {portfolioId} = props ?? {};
 
-          return  portfolioControllerDeletePortfolio(portfolioId,fetchOptions)
+          return  portfolioControllerDeletePortfolio(portfolioId,requestOptions)
         }
 
 
@@ -365,7 +255,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 개별 포트폴리오 삭제
  */
 export const usePortfolioControllerDeletePortfolio = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>, TError,{portfolioId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>, TError,{portfolioId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>,
         TError,
@@ -378,68 +268,30 @@ export const usePortfolioControllerDeletePortfolio = <TError = CommonResponse,
  * 경험 정리가 완료된 포트폴리오를 pdf로 내보냅니다.
  * @summary 포트폴리오 내보내기
  */
-export type portfolioControllerExportPortfolioResponse200 = {
-  data: PortfolioControllerExportPortfolio200
-  status: 200
-}
-
-export type portfolioControllerExportPortfolioResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type portfolioControllerExportPortfolioResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type portfolioControllerExportPortfolioResponseSuccess = (portfolioControllerExportPortfolioResponse200) & {
-  headers: Headers;
-};
-export type portfolioControllerExportPortfolioResponseError = (portfolioControllerExportPortfolioResponse401 | portfolioControllerExportPortfolioResponse404) & {
-  headers: Headers;
-};
-
-export type portfolioControllerExportPortfolioResponse = (portfolioControllerExportPortfolioResponseSuccess | portfolioControllerExportPortfolioResponseError)
-
-export const getPortfolioControllerExportPortfolioUrl = (portfolioId: number,) => {
-
-
+export const portfolioControllerExportPortfolio = (
+    portfolioId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PortfolioControllerExportPortfolio200>(
+      {url: `/portfolios/${portfolioId}/export`, method: 'POST', signal
+    },
+      options);
+    }
   
-
-  return `/portfolios/${portfolioId}/export`
-}
-
-export const portfolioControllerExportPortfolio = async (portfolioId: number, options?: RequestInit): Promise<portfolioControllerExportPortfolioResponse> => {
-  
-  const res = await fetch(getPortfolioControllerExportPortfolioUrl(portfolioId),
-  {      
-    ...options,
-    method: 'POST'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: portfolioControllerExportPortfolioResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as portfolioControllerExportPortfolioResponse
-}
-  
-
 
 
 export const getPortfolioControllerExportPortfolioMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerExportPortfolio>>, TError,{portfolioId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerExportPortfolio>>, TError,{portfolioId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerExportPortfolio>>, TError,{portfolioId: number}, TContext> => {
 
 const mutationKey = ['portfolioControllerExportPortfolio'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -447,7 +299,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof portfolioControllerExportPortfolio>>, {portfolioId: number}> = (props) => {
           const {portfolioId} = props ?? {};
 
-          return  portfolioControllerExportPortfolio(portfolioId,fetchOptions)
+          return  portfolioControllerExportPortfolio(portfolioId,requestOptions)
         }
 
 
@@ -465,7 +317,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 포트폴리오 내보내기
  */
 export const usePortfolioControllerExportPortfolio = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerExportPortfolio>>, TError,{portfolioId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerExportPortfolio>>, TError,{portfolioId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof portfolioControllerExportPortfolio>>,
         TError,
@@ -478,68 +330,38 @@ export const usePortfolioControllerExportPortfolio = <TError = CommonResponse,
  * 업로드한 포트폴리오 파일에서 텍스트를 추출합니다.
  * @summary PDF 포트폴리오 텍스트 추출
  */
-export type externalPortfolioControllerExtractPortfoliosResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type externalPortfolioControllerExtractPortfoliosResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type externalPortfolioControllerExtractPortfoliosResponseSuccess = (externalPortfolioControllerExtractPortfoliosResponse200) & {
-  headers: Headers;
-};
-export type externalPortfolioControllerExtractPortfoliosResponseError = (externalPortfolioControllerExtractPortfoliosResponse401) & {
-  headers: Headers;
-};
-
-export type externalPortfolioControllerExtractPortfoliosResponse = (externalPortfolioControllerExtractPortfoliosResponseSuccess | externalPortfolioControllerExtractPortfoliosResponseError)
-
-export const getExternalPortfolioControllerExtractPortfoliosUrl = () => {
-
-
-  
-
-  return `/external-portfolios/extract`
-}
-
-export const externalPortfolioControllerExtractPortfolios = async (externalPortfolioControllerExtractPortfoliosBody: ExternalPortfolioControllerExtractPortfoliosBody, options?: RequestInit): Promise<externalPortfolioControllerExtractPortfoliosResponse> => {
-    const formData = new FormData();
+export const externalPortfolioControllerExtractPortfolios = (
+    externalPortfolioControllerExtractPortfoliosBody: ExternalPortfolioControllerExtractPortfoliosBody,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      const formData = new FormData();
+if(externalPortfolioControllerExtractPortfoliosBody.correctionId !== undefined) {
+ formData.append(`correctionId`, externalPortfolioControllerExtractPortfoliosBody.correctionId.toString())
+ }
 if(externalPortfolioControllerExtractPortfoliosBody.file !== undefined) {
  formData.append(`file`, externalPortfolioControllerExtractPortfoliosBody.file);
  }
 
-  const res = await fetch(getExternalPortfolioControllerExtractPortfoliosUrl(),
-  {      
-    ...options,
-    method: 'POST'
-    ,
-    body: 
-      formData,
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+      return customInstance<unknown>(
+      {url: `/external-portfolios/extract`, method: 'POST',
+       data: formData, signal
+    },
+      options);
+    }
   
-  const data: externalPortfolioControllerExtractPortfoliosResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as externalPortfolioControllerExtractPortfoliosResponse
-}
-  
-
 
 
 export const getExternalPortfolioControllerExtractPortfoliosMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerExtractPortfolios>>, TError,{data: ExternalPortfolioControllerExtractPortfoliosBody}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerExtractPortfolios>>, TError,{data: ExternalPortfolioControllerExtractPortfoliosBody}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerExtractPortfolios>>, TError,{data: ExternalPortfolioControllerExtractPortfoliosBody}, TContext> => {
 
 const mutationKey = ['externalPortfolioControllerExtractPortfolios'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -547,7 +369,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof externalPortfolioControllerExtractPortfolios>>, {data: ExternalPortfolioControllerExtractPortfoliosBody}> = (props) => {
           const {data} = props ?? {};
 
-          return  externalPortfolioControllerExtractPortfolios(data,fetchOptions)
+          return  externalPortfolioControllerExtractPortfolios(data,requestOptions)
         }
 
 
@@ -565,7 +387,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary PDF 포트폴리오 텍스트 추출
  */
 export const useExternalPortfolioControllerExtractPortfolios = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerExtractPortfolios>>, TError,{data: ExternalPortfolioControllerExtractPortfoliosBody}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerExtractPortfolios>>, TError,{data: ExternalPortfolioControllerExtractPortfoliosBody}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof externalPortfolioControllerExtractPortfolios>>,
         TError,
@@ -578,74 +400,32 @@ export const useExternalPortfolioControllerExtractPortfolios = <TError = CommonR
  * 텍스트 정리 블록의 활동 블록을 추가합니다. 활동 블록은 최대 5개까지 존재 가능합니다.
  * @summary PDF 포트폴리오 활동 블록 추가
  */
-export type externalPortfolioControllerCreateExternalPortfolioBlockResponse200 = {
-  data: ExternalPortfolioControllerCreateExternalPortfolioBlock200
-  status: 200
-}
-
-export type externalPortfolioControllerCreateExternalPortfolioBlockResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type externalPortfolioControllerCreateExternalPortfolioBlockResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type externalPortfolioControllerCreateExternalPortfolioBlockResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type externalPortfolioControllerCreateExternalPortfolioBlockResponseSuccess = (externalPortfolioControllerCreateExternalPortfolioBlockResponse200) & {
-  headers: Headers;
-};
-export type externalPortfolioControllerCreateExternalPortfolioBlockResponseError = (externalPortfolioControllerCreateExternalPortfolioBlockResponse401 | externalPortfolioControllerCreateExternalPortfolioBlockResponse404 | externalPortfolioControllerCreateExternalPortfolioBlockResponse409) & {
-  headers: Headers;
-};
-
-export type externalPortfolioControllerCreateExternalPortfolioBlockResponse = (externalPortfolioControllerCreateExternalPortfolioBlockResponseSuccess | externalPortfolioControllerCreateExternalPortfolioBlockResponseError)
-
-export const getExternalPortfolioControllerCreateExternalPortfolioBlockUrl = () => {
-
-
+export const externalPortfolioControllerCreateExternalPortfolioBlock = (
+    createExternalPortfolioReqDTO: CreateExternalPortfolioReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ExternalPortfolioControllerCreateExternalPortfolioBlock200>(
+      {url: `/external-portfolios`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createExternalPortfolioReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/external-portfolios`
-}
-
-export const externalPortfolioControllerCreateExternalPortfolioBlock = async (createExternalPortfolioReqDTO: CreateExternalPortfolioReqDTO, options?: RequestInit): Promise<externalPortfolioControllerCreateExternalPortfolioBlockResponse> => {
-  
-  const res = await fetch(getExternalPortfolioControllerCreateExternalPortfolioBlockUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      createExternalPortfolioReqDTO,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: externalPortfolioControllerCreateExternalPortfolioBlockResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as externalPortfolioControllerCreateExternalPortfolioBlockResponse
-}
-  
-
 
 
 export const getExternalPortfolioControllerCreateExternalPortfolioBlockMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerCreateExternalPortfolioBlock>>, TError,{data: CreateExternalPortfolioReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerCreateExternalPortfolioBlock>>, TError,{data: CreateExternalPortfolioReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerCreateExternalPortfolioBlock>>, TError,{data: CreateExternalPortfolioReqDTO}, TContext> => {
 
 const mutationKey = ['externalPortfolioControllerCreateExternalPortfolioBlock'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -653,7 +433,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof externalPortfolioControllerCreateExternalPortfolioBlock>>, {data: CreateExternalPortfolioReqDTO}> = (props) => {
           const {data} = props ?? {};
 
-          return  externalPortfolioControllerCreateExternalPortfolioBlock(data,fetchOptions)
+          return  externalPortfolioControllerCreateExternalPortfolioBlock(data,requestOptions)
         }
 
 
@@ -671,7 +451,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary PDF 포트폴리오 활동 블록 추가
  */
 export const useExternalPortfolioControllerCreateExternalPortfolioBlock = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerCreateExternalPortfolioBlock>>, TError,{data: CreateExternalPortfolioReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerCreateExternalPortfolioBlock>>, TError,{data: CreateExternalPortfolioReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof externalPortfolioControllerCreateExternalPortfolioBlock>>,
         TError,
@@ -684,63 +464,19 @@ export const useExternalPortfolioControllerCreateExternalPortfolioBlock = <TErro
  * AI가 구조화한 포트폴리오 정보를 조회합니다.
  * @summary PDF 포트폴리오 텍스트 정리 결과 조회
  */
-export type externalPortfolioControllerGetExternalPortfoliosResponse200 = {
-  data: ExternalPortfolioControllerGetExternalPortfolios200
-  status: 200
-}
-
-export type externalPortfolioControllerGetExternalPortfoliosResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type externalPortfolioControllerGetExternalPortfoliosResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type externalPortfolioControllerGetExternalPortfoliosResponseSuccess = (externalPortfolioControllerGetExternalPortfoliosResponse200) & {
-  headers: Headers;
-};
-export type externalPortfolioControllerGetExternalPortfoliosResponseError = (externalPortfolioControllerGetExternalPortfoliosResponse401 | externalPortfolioControllerGetExternalPortfoliosResponse404) & {
-  headers: Headers;
-};
-
-export type externalPortfolioControllerGetExternalPortfoliosResponse = (externalPortfolioControllerGetExternalPortfoliosResponseSuccess | externalPortfolioControllerGetExternalPortfoliosResponseError)
-
-export const getExternalPortfolioControllerGetExternalPortfoliosUrl = (params: ExternalPortfolioControllerGetExternalPortfoliosParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+export const externalPortfolioControllerGetExternalPortfolios = (
+    params: ExternalPortfolioControllerGetExternalPortfoliosParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ExternalPortfolioControllerGetExternalPortfolios200>(
+      {url: `/external-portfolios`, method: 'GET',
+        params, signal
+    },
+      options);
     }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/external-portfolios?${stringifiedParams}` : `/external-portfolios`
-}
-
-export const externalPortfolioControllerGetExternalPortfolios = async (params: ExternalPortfolioControllerGetExternalPortfoliosParams, options?: RequestInit): Promise<externalPortfolioControllerGetExternalPortfoliosResponse> => {
   
-  const res = await fetch(getExternalPortfolioControllerGetExternalPortfoliosUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: externalPortfolioControllerGetExternalPortfoliosResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as externalPortfolioControllerGetExternalPortfoliosResponse
-}
-  
-
 
 
 
@@ -751,16 +487,16 @@ export const getExternalPortfolioControllerGetExternalPortfoliosQueryKey = (para
     }
 
     
-export const getExternalPortfolioControllerGetExternalPortfoliosQueryOptions = <TData = Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError = CommonResponse>(params: ExternalPortfolioControllerGetExternalPortfoliosParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError, TData>>, fetch?: RequestInit}
+export const getExternalPortfolioControllerGetExternalPortfoliosQueryOptions = <TData = Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError = CommonResponse>(params: ExternalPortfolioControllerGetExternalPortfoliosParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getExternalPortfolioControllerGetExternalPortfoliosQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>> = ({ signal }) => externalPortfolioControllerGetExternalPortfolios(params, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>> = ({ signal }) => externalPortfolioControllerGetExternalPortfolios(params, requestOptions, signal);
 
       
 
@@ -780,7 +516,7 @@ export function useExternalPortfolioControllerGetExternalPortfolios<TData = Awai
           TError,
           Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useExternalPortfolioControllerGetExternalPortfolios<TData = Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError = CommonResponse>(
@@ -790,11 +526,11 @@ export function useExternalPortfolioControllerGetExternalPortfolios<TData = Awai
           TError,
           Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useExternalPortfolioControllerGetExternalPortfolios<TData = Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError = CommonResponse>(
- params: ExternalPortfolioControllerGetExternalPortfoliosParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError, TData>>, fetch?: RequestInit}
+ params: ExternalPortfolioControllerGetExternalPortfoliosParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -802,7 +538,7 @@ export function useExternalPortfolioControllerGetExternalPortfolios<TData = Awai
  */
 
 export function useExternalPortfolioControllerGetExternalPortfolios<TData = Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError = CommonResponse>(
- params: ExternalPortfolioControllerGetExternalPortfoliosParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError, TData>>, fetch?: RequestInit}
+ params: ExternalPortfolioControllerGetExternalPortfoliosParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -820,70 +556,33 @@ export function useExternalPortfolioControllerGetExternalPortfolios<TData = Awai
  * AI가 구조화한 포트폴리오 정보를 수정합니다.
  * @summary PDF 포트폴리오 텍스트 정리 결과 수정
  */
-export type externalPortfolioControllerUpdateExternalPortfolioResponse200 = {
-  data: ExternalPortfolioControllerUpdateExternalPortfolio200
-  status: 200
-}
-
-export type externalPortfolioControllerUpdateExternalPortfolioResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type externalPortfolioControllerUpdateExternalPortfolioResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type externalPortfolioControllerUpdateExternalPortfolioResponseSuccess = (externalPortfolioControllerUpdateExternalPortfolioResponse200) & {
-  headers: Headers;
-};
-export type externalPortfolioControllerUpdateExternalPortfolioResponseError = (externalPortfolioControllerUpdateExternalPortfolioResponse401 | externalPortfolioControllerUpdateExternalPortfolioResponse404) & {
-  headers: Headers;
-};
-
-export type externalPortfolioControllerUpdateExternalPortfolioResponse = (externalPortfolioControllerUpdateExternalPortfolioResponseSuccess | externalPortfolioControllerUpdateExternalPortfolioResponseError)
-
-export const getExternalPortfolioControllerUpdateExternalPortfolioUrl = (portfolioId: number,) => {
-
-
+export const externalPortfolioControllerUpdateExternalPortfolio = (
+    portfolioId: number,
+    updatePortfolioBlockReqDTO: UpdatePortfolioBlockReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ExternalPortfolioControllerUpdateExternalPortfolio200>(
+      {url: `/external-portfolios/${portfolioId}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updatePortfolioBlockReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/external-portfolios/${portfolioId}`
-}
-
-export const externalPortfolioControllerUpdateExternalPortfolio = async (portfolioId: number,
-    updatePortfolioBlockReqDTO: UpdatePortfolioBlockReqDTO, options?: RequestInit): Promise<externalPortfolioControllerUpdateExternalPortfolioResponse> => {
-  
-  const res = await fetch(getExternalPortfolioControllerUpdateExternalPortfolioUrl(portfolioId),
-  {      
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      updatePortfolioBlockReqDTO,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: externalPortfolioControllerUpdateExternalPortfolioResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as externalPortfolioControllerUpdateExternalPortfolioResponse
-}
-  
-
 
 
 export const getExternalPortfolioControllerUpdateExternalPortfolioMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerUpdateExternalPortfolio>>, TError,{portfolioId: number;data: UpdatePortfolioBlockReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerUpdateExternalPortfolio>>, TError,{portfolioId: number;data: UpdatePortfolioBlockReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerUpdateExternalPortfolio>>, TError,{portfolioId: number;data: UpdatePortfolioBlockReqDTO}, TContext> => {
 
 const mutationKey = ['externalPortfolioControllerUpdateExternalPortfolio'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -891,7 +590,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof externalPortfolioControllerUpdateExternalPortfolio>>, {portfolioId: number;data: UpdatePortfolioBlockReqDTO}> = (props) => {
           const {portfolioId,data} = props ?? {};
 
-          return  externalPortfolioControllerUpdateExternalPortfolio(portfolioId,data,fetchOptions)
+          return  externalPortfolioControllerUpdateExternalPortfolio(portfolioId,data,requestOptions)
         }
 
 
@@ -909,7 +608,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary PDF 포트폴리오 텍스트 정리 결과 수정
  */
 export const useExternalPortfolioControllerUpdateExternalPortfolio = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerUpdateExternalPortfolio>>, TError,{portfolioId: number;data: UpdatePortfolioBlockReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerUpdateExternalPortfolio>>, TError,{portfolioId: number;data: UpdatePortfolioBlockReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof externalPortfolioControllerUpdateExternalPortfolio>>,
         TError,
@@ -922,68 +621,30 @@ export const useExternalPortfolioControllerUpdateExternalPortfolio = <TError = C
  * AI가 구조화한 포트폴리오 활동을 삭제합니다. (활동 옆 마이너스 버튼을 눌러 활성화)
  * @summary PDF 포트폴리오 텍스트 정리 결과 삭제
  */
-export type externalPortfolioControllerDeleteExternalPortfolioResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type externalPortfolioControllerDeleteExternalPortfolioResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type externalPortfolioControllerDeleteExternalPortfolioResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type externalPortfolioControllerDeleteExternalPortfolioResponseSuccess = (externalPortfolioControllerDeleteExternalPortfolioResponse200) & {
-  headers: Headers;
-};
-export type externalPortfolioControllerDeleteExternalPortfolioResponseError = (externalPortfolioControllerDeleteExternalPortfolioResponse401 | externalPortfolioControllerDeleteExternalPortfolioResponse404) & {
-  headers: Headers;
-};
-
-export type externalPortfolioControllerDeleteExternalPortfolioResponse = (externalPortfolioControllerDeleteExternalPortfolioResponseSuccess | externalPortfolioControllerDeleteExternalPortfolioResponseError)
-
-export const getExternalPortfolioControllerDeleteExternalPortfolioUrl = (portfolioId: number,) => {
-
-
+export const externalPortfolioControllerDeleteExternalPortfolio = (
+    portfolioId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/external-portfolios/${portfolioId}`, method: 'DELETE', signal
+    },
+      options);
+    }
   
-
-  return `/external-portfolios/${portfolioId}`
-}
-
-export const externalPortfolioControllerDeleteExternalPortfolio = async (portfolioId: number, options?: RequestInit): Promise<externalPortfolioControllerDeleteExternalPortfolioResponse> => {
-  
-  const res = await fetch(getExternalPortfolioControllerDeleteExternalPortfolioUrl(portfolioId),
-  {      
-    ...options,
-    method: 'DELETE'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: externalPortfolioControllerDeleteExternalPortfolioResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as externalPortfolioControllerDeleteExternalPortfolioResponse
-}
-  
-
 
 
 export const getExternalPortfolioControllerDeleteExternalPortfolioMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerDeleteExternalPortfolio>>, TError,{portfolioId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerDeleteExternalPortfolio>>, TError,{portfolioId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerDeleteExternalPortfolio>>, TError,{portfolioId: number}, TContext> => {
 
 const mutationKey = ['externalPortfolioControllerDeleteExternalPortfolio'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -991,7 +652,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof externalPortfolioControllerDeleteExternalPortfolio>>, {portfolioId: number}> = (props) => {
           const {portfolioId} = props ?? {};
 
-          return  externalPortfolioControllerDeleteExternalPortfolio(portfolioId,fetchOptions)
+          return  externalPortfolioControllerDeleteExternalPortfolio(portfolioId,requestOptions)
         }
 
 
@@ -1009,7 +670,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary PDF 포트폴리오 텍스트 정리 결과 삭제
  */
 export const useExternalPortfolioControllerDeleteExternalPortfolio = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerDeleteExternalPortfolio>>, TError,{portfolioId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerDeleteExternalPortfolio>>, TError,{portfolioId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof externalPortfolioControllerDeleteExternalPortfolio>>,
         TError,

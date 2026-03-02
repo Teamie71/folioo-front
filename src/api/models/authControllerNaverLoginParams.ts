@@ -8,11 +8,11 @@
 
 export type AuthControllerNaverLoginParams = {
 /**
- * 리다이렉트 될 base_url을 쿼리 파라미터로 포함합니다.
- */
-redirect_url?: string;
-/**
  * 리다이렉트 될 uri path를 쿼리 파라미터로 포함합니다.
  */
-redirect_path?: string;
+redirect_path?: unknown;
+/**
+ * 리다이렉트 될 base_url을 쿼리 파라미터로 포함합니다.
+ */
+redirect_url?: unknown;
 };

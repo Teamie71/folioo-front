@@ -33,7 +33,10 @@ import type {
   PaymentControllerGetPayment200
 } from '../../models';
 
+import { customInstance } from '../../../lib/axios';
 
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 
@@ -41,69 +44,32 @@ import type {
  * 티켓 상품 ID를 전달하면 결제 요청을 생성하고 REQUESTED 상태로 저장합니다.
  * @summary 결제 요청 생성
  */
-export type paymentControllerCreatePaymentResponse200 = {
-  data: PaymentControllerCreatePayment200
-  status: 200
-}
-
-export type paymentControllerCreatePaymentResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type paymentControllerCreatePaymentResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type paymentControllerCreatePaymentResponseSuccess = (paymentControllerCreatePaymentResponse200) & {
-  headers: Headers;
-};
-export type paymentControllerCreatePaymentResponseError = (paymentControllerCreatePaymentResponse401 | paymentControllerCreatePaymentResponse404) & {
-  headers: Headers;
-};
-
-export type paymentControllerCreatePaymentResponse = (paymentControllerCreatePaymentResponseSuccess | paymentControllerCreatePaymentResponseError)
-
-export const getPaymentControllerCreatePaymentUrl = () => {
-
-
+export const paymentControllerCreatePayment = (
+    createPaymentReqDTO: CreatePaymentReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PaymentControllerCreatePayment200>(
+      {url: `/payments`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createPaymentReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/payments`
-}
-
-export const paymentControllerCreatePayment = async (createPaymentReqDTO: CreatePaymentReqDTO, options?: RequestInit): Promise<paymentControllerCreatePaymentResponse> => {
-  
-  const res = await fetch(getPaymentControllerCreatePaymentUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      createPaymentReqDTO,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: paymentControllerCreatePaymentResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as paymentControllerCreatePaymentResponse
-}
-  
-
 
 
 export const getPaymentControllerCreatePaymentMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentControllerCreatePayment>>, TError,{data: CreatePaymentReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentControllerCreatePayment>>, TError,{data: CreatePaymentReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof paymentControllerCreatePayment>>, TError,{data: CreatePaymentReqDTO}, TContext> => {
 
 const mutationKey = ['paymentControllerCreatePayment'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -111,7 +77,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof paymentControllerCreatePayment>>, {data: CreatePaymentReqDTO}> = (props) => {
           const {data} = props ?? {};
 
-          return  paymentControllerCreatePayment(data,fetchOptions)
+          return  paymentControllerCreatePayment(data,requestOptions)
         }
 
 
@@ -129,7 +95,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 결제 요청 생성
  */
 export const usePaymentControllerCreatePayment = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentControllerCreatePayment>>, TError,{data: CreatePaymentReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentControllerCreatePayment>>, TError,{data: CreatePaymentReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof paymentControllerCreatePayment>>,
         TError,
@@ -142,61 +108,18 @@ export const usePaymentControllerCreatePayment = <TError = CommonResponse,
  * 결제 복귀/새로고침 시 현재 결제 상태를 조회합니다. 본인의 결제만 조회할 수 있습니다.
  * @summary 결제 상태 조회
  */
-export type paymentControllerGetPaymentResponse200 = {
-  data: PaymentControllerGetPayment200
-  status: 200
-}
-
-export type paymentControllerGetPaymentResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type paymentControllerGetPaymentResponse403 = {
-  data: CommonResponse
-  status: 403
-}
-
-export type paymentControllerGetPaymentResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type paymentControllerGetPaymentResponseSuccess = (paymentControllerGetPaymentResponse200) & {
-  headers: Headers;
-};
-export type paymentControllerGetPaymentResponseError = (paymentControllerGetPaymentResponse401 | paymentControllerGetPaymentResponse403 | paymentControllerGetPaymentResponse404) & {
-  headers: Headers;
-};
-
-export type paymentControllerGetPaymentResponse = (paymentControllerGetPaymentResponseSuccess | paymentControllerGetPaymentResponseError)
-
-export const getPaymentControllerGetPaymentUrl = (paymentId: number,) => {
-
-
+export const paymentControllerGetPayment = (
+    paymentId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PaymentControllerGetPayment200>(
+      {url: `/payments/${paymentId}`, method: 'GET', signal
+    },
+      options);
+    }
   
-
-  return `/payments/${paymentId}`
-}
-
-export const paymentControllerGetPayment = async (paymentId: number, options?: RequestInit): Promise<paymentControllerGetPaymentResponse> => {
-  
-  const res = await fetch(getPaymentControllerGetPaymentUrl(paymentId),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: paymentControllerGetPaymentResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as paymentControllerGetPaymentResponse
-}
-  
-
 
 
 
@@ -207,16 +130,16 @@ export const getPaymentControllerGetPaymentQueryKey = (paymentId: number,) => {
     }
 
     
-export const getPaymentControllerGetPaymentQueryOptions = <TData = Awaited<ReturnType<typeof paymentControllerGetPayment>>, TError = CommonResponse>(paymentId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof paymentControllerGetPayment>>, TError, TData>>, fetch?: RequestInit}
+export const getPaymentControllerGetPaymentQueryOptions = <TData = Awaited<ReturnType<typeof paymentControllerGetPayment>>, TError = CommonResponse>(paymentId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof paymentControllerGetPayment>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getPaymentControllerGetPaymentQueryKey(paymentId);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof paymentControllerGetPayment>>> = ({ signal }) => paymentControllerGetPayment(paymentId, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof paymentControllerGetPayment>>> = ({ signal }) => paymentControllerGetPayment(paymentId, requestOptions, signal);
 
       
 
@@ -236,7 +159,7 @@ export function usePaymentControllerGetPayment<TData = Awaited<ReturnType<typeof
           TError,
           Awaited<ReturnType<typeof paymentControllerGetPayment>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function usePaymentControllerGetPayment<TData = Awaited<ReturnType<typeof paymentControllerGetPayment>>, TError = CommonResponse>(
@@ -246,11 +169,11 @@ export function usePaymentControllerGetPayment<TData = Awaited<ReturnType<typeof
           TError,
           Awaited<ReturnType<typeof paymentControllerGetPayment>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function usePaymentControllerGetPayment<TData = Awaited<ReturnType<typeof paymentControllerGetPayment>>, TError = CommonResponse>(
- paymentId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof paymentControllerGetPayment>>, TError, TData>>, fetch?: RequestInit}
+ paymentId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof paymentControllerGetPayment>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -258,7 +181,7 @@ export function usePaymentControllerGetPayment<TData = Awaited<ReturnType<typeof
  */
 
 export function usePaymentControllerGetPayment<TData = Awaited<ReturnType<typeof paymentControllerGetPayment>>, TError = CommonResponse>(
- paymentId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof paymentControllerGetPayment>>, TError, TData>>, fetch?: RequestInit}
+ paymentId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof paymentControllerGetPayment>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -276,62 +199,32 @@ export function usePaymentControllerGetPayment<TData = Awaited<ReturnType<typeof
  * PayApp이 결제 완료 시 호출하는 webhook입니다. 인증 없이 수신하며, mulNo 기반으로 결제를 조회하여 상태를 갱신하고 티켓을 발급합니다. 멱등성이 보장됩니다.
  * @summary PayApp 결제 콜백(feedbackurl) 수신
  */
-export type paymentControllerHandleWebhookResponse400 = {
-  data: CommonResponse
-  status: 400
-}
-
-export type paymentControllerHandleWebhookResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-;
-export type paymentControllerHandleWebhookResponseError = (paymentControllerHandleWebhookResponse400 | paymentControllerHandleWebhookResponse404) & {
-  headers: Headers;
-};
-
-export type paymentControllerHandleWebhookResponse = (paymentControllerHandleWebhookResponseError)
-
-export const getPaymentControllerHandleWebhookUrl = () => {
-
-
+export const paymentControllerHandleWebhook = (
+    payAppWebhookReqDTO: PayAppWebhookReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/payments/webhook`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: payAppWebhookReqDTO, signal
+    },
+      options);
+    }
   
-
-  return `/payments/webhook`
-}
-
-export const paymentControllerHandleWebhook = async (payAppWebhookReqDTO: PayAppWebhookReqDTO, options?: RequestInit): Promise<paymentControllerHandleWebhookResponse> => {
-  
-  const res = await fetch(getPaymentControllerHandleWebhookUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      payAppWebhookReqDTO,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: paymentControllerHandleWebhookResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as paymentControllerHandleWebhookResponse
-}
-  
-
 
 
 export const getPaymentControllerHandleWebhookMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentControllerHandleWebhook>>, TError,{data: PayAppWebhookReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentControllerHandleWebhook>>, TError,{data: PayAppWebhookReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof paymentControllerHandleWebhook>>, TError,{data: PayAppWebhookReqDTO}, TContext> => {
 
 const mutationKey = ['paymentControllerHandleWebhook'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -339,7 +232,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof paymentControllerHandleWebhook>>, {data: PayAppWebhookReqDTO}> = (props) => {
           const {data} = props ?? {};
 
-          return  paymentControllerHandleWebhook(data,fetchOptions)
+          return  paymentControllerHandleWebhook(data,requestOptions)
         }
 
 
@@ -357,7 +250,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary PayApp 결제 콜백(feedbackurl) 수신
  */
 export const usePaymentControllerHandleWebhook = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentControllerHandleWebhook>>, TError,{data: PayAppWebhookReqDTO}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentControllerHandleWebhook>>, TError,{data: PayAppWebhookReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof paymentControllerHandleWebhook>>,
         TError,
@@ -370,83 +263,30 @@ export const usePaymentControllerHandleWebhook = <TError = CommonResponse,
  * 본인의 결제를 취소합니다. PAID 상태의 결제만 취소할 수 있습니다. 이미 취소된 결제는 멱등하게 처리됩니다.
  * @summary 결제 취소 요청
  */
-export type paymentControllerCancelPaymentResponse200 = {
-  data: PaymentControllerCancelPayment200
-  status: 200
-}
-
-export type paymentControllerCancelPaymentResponse401 = {
-  data: CommonResponse
-  status: 401
-}
-
-export type paymentControllerCancelPaymentResponse403 = {
-  data: CommonResponse
-  status: 403
-}
-
-export type paymentControllerCancelPaymentResponse404 = {
-  data: CommonResponse
-  status: 404
-}
-
-export type paymentControllerCancelPaymentResponse409 = {
-  data: CommonResponse
-  status: 409
-}
-
-export type paymentControllerCancelPaymentResponse502 = {
-  data: CommonResponse
-  status: 502
-}
-
-export type paymentControllerCancelPaymentResponseSuccess = (paymentControllerCancelPaymentResponse200) & {
-  headers: Headers;
-};
-export type paymentControllerCancelPaymentResponseError = (paymentControllerCancelPaymentResponse401 | paymentControllerCancelPaymentResponse403 | paymentControllerCancelPaymentResponse404 | paymentControllerCancelPaymentResponse409 | paymentControllerCancelPaymentResponse502) & {
-  headers: Headers;
-};
-
-export type paymentControllerCancelPaymentResponse = (paymentControllerCancelPaymentResponseSuccess | paymentControllerCancelPaymentResponseError)
-
-export const getPaymentControllerCancelPaymentUrl = (paymentId: number,) => {
-
-
+export const paymentControllerCancelPayment = (
+    paymentId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PaymentControllerCancelPayment200>(
+      {url: `/payments/${paymentId}/cancel`, method: 'POST', signal
+    },
+      options);
+    }
   
-
-  return `/payments/${paymentId}/cancel`
-}
-
-export const paymentControllerCancelPayment = async (paymentId: number, options?: RequestInit): Promise<paymentControllerCancelPaymentResponse> => {
-  
-  const res = await fetch(getPaymentControllerCancelPaymentUrl(paymentId),
-  {      
-    ...options,
-    method: 'POST'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: paymentControllerCancelPaymentResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as paymentControllerCancelPaymentResponse
-}
-  
-
 
 
 export const getPaymentControllerCancelPaymentMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentControllerCancelPayment>>, TError,{paymentId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentControllerCancelPayment>>, TError,{paymentId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof paymentControllerCancelPayment>>, TError,{paymentId: number}, TContext> => {
 
 const mutationKey = ['paymentControllerCancelPayment'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -454,7 +294,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof paymentControllerCancelPayment>>, {paymentId: number}> = (props) => {
           const {paymentId} = props ?? {};
 
-          return  paymentControllerCancelPayment(paymentId,fetchOptions)
+          return  paymentControllerCancelPayment(paymentId,requestOptions)
         }
 
 
@@ -472,7 +312,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary 결제 취소 요청
  */
 export const usePaymentControllerCancelPayment = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentControllerCancelPayment>>, TError,{paymentId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentControllerCancelPayment>>, TError,{paymentId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof paymentControllerCancelPayment>>,
         TError,
