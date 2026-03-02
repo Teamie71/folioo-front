@@ -185,7 +185,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
             </div>
           </div>
 
-          <div className='flex flex-col gap-[1.5rem] rounded-[1.25rem] bg-[#FDFDFD] px-[2.25rem] py-[1.5rem]'>
+          <div className='flex flex-col gap-[1.5rem] rounded-[1.25rem] bg-[#FDFDFD] px-[1.75rem] py-[1.5rem]'>
             <div className='flex items-center justify-between'>
               <p className='text-[1.125rem] leading-[150%] text-[#1A1A1A]'>
                 이용권 거래 내역
