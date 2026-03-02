@@ -29,7 +29,9 @@ export default function CorrectionPage() {
     { query: { enabled: true } },
   );
 
-  const responseData = data?.data as PortfolioCorrectionControllerGetCorrections200 | undefined;
+  const responseData = data as
+    | PortfolioCorrectionControllerGetCorrections200
+    | undefined;
   const list = responseData?.result ?? [];
   const items: CorrectionListItem[] = list.map((c) => ({
     title: c.title,
