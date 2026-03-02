@@ -11,6 +11,7 @@ import {
 import {
   useUserControllerGetProfile,
   useUserControllerUpdateProfile,
+  useUserControllerUpdateMarketingConsent,
   getUserControllerGetProfileQueryKey,
 } from '@/api/endpoints/user/user';
 import type { UserProfileResDTO } from '@/api/models/userProfileResDTO';
@@ -131,6 +132,27 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
     updateProfile({ data: { name: trimmed } });
   };
 
+  // 마케팅 정보 수신 동의 변경
+  const { mutate: updateMarketingConsent } =
+    useUserControllerUpdateMarketingConsent({
+      mutation: {
+        onSuccess: (_, variables) => {
+          setProfile((prev) =>
+            prev
+              ? { ...prev, isMarketingAgreed: variables.data.isMarketingAgreed }
+              : null,
+          );
+          queryClient.invalidateQueries({
+            queryKey: getUserControllerGetProfileQueryKey(),
+          });
+        },
+      },
+    });
+
+  const handleMarketingConsentChange = (next: boolean) => {
+    updateMarketingConsent({ data: { isMarketingAgreed: next } });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='flex h-auto w-auto flex-col gap-[1.5rem] p-[2.5rem]'>
@@ -226,11 +248,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
                 </p>
                 <ToggleOnOff
                   checked={profile?.isMarketingAgreed ?? false}
-                  onCheckedChange={(next) =>
-                    setProfile((prev) =>
-                      prev ? { ...prev, isMarketingAgreed: next } : null,
-                    )
-                  }
+                  onCheckedChange={handleMarketingConsentChange}
                 />
               </div>
             </div>
