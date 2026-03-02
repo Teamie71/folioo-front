@@ -60,26 +60,47 @@ export default function Login() {
       </div>
 
       {/* 약관, 개인정보 처리방침, 마케팅 수신 */}
-      <div className='flex items-center gap-[1.25rem]'>
+      <div className='flex items-center'>
         <Link
           href='/login/tos'
-          className='cursor-pointer text-[0.875rem] text-[#74777D] hover:font-bold'
+          className='group cursor-pointer text-[0.875rem] text-[#74777D]'
         >
-          서비스 이용 약관
+          <span className='relative inline-block w-[8.75rem] text-center'>
+            <span className='invisible inline-block font-bold' aria-hidden>
+              서비스 이용 약관
+            </span>
+            <span className='absolute top-0 left-0 w-full text-center group-hover:font-bold'>
+              서비스 이용 약관
+            </span>
+          </span>
         </Link>
         <div className='h-[1rem] w-[0.0625rem] bg-[#74777D]' />
         <Link
           href='/privacy'
-          className='cursor-pointer text-[0.875rem] text-[#74777D] hover:font-bold'
+          className='group cursor-pointer text-[0.875rem] text-[#74777D]'
         >
-          개인정보 처리방침
+          <span className='relative inline-block w-[8.75rem] text-center'>
+            <span className='invisible inline-block font-bold' aria-hidden>
+              개인정보 처리방침
+            </span>
+            <span className='absolute top-0 left-0 w-full text-center group-hover:font-bold'>
+              개인정보 처리방침
+            </span>
+          </span>
         </Link>
         <div className='h-[1rem] w-[0.0625rem] bg-[#74777D]' />
         <Link
           href='/marketing'
-          className='cursor-pointer text-[0.875rem] text-[#74777D] hover:font-bold'
+          className='group cursor-pointer text-[0.875rem] text-[#74777D]'
         >
-          마케팅 정보 수신
+          <span className='relative inline-block w-[8.75rem] text-center'>
+            <span className='invisible inline-block font-bold' aria-hidden>
+              마케팅 정보 수신
+            </span>
+            <span className='absolute top-0 left-0 w-full text-center group-hover:font-bold'>
+              마케팅 정보 수신
+            </span>
+          </span>
         </Link>
       </div>
     </div>
