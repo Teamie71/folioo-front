@@ -75,10 +75,7 @@ export default function LayoutContent({
         subMessage='Folioo와 함께 경험을 강력한 서류로 만들어보세요.'
         validityMessage='지급된 이용권은 일요일까지 사용 가능해요.'
         buttonText='첨삭 의뢰하기 '
-        onButtonClick={() => {
-          const id = crypto.randomUUID();
-          router.push(`/correction/${id}`);
-        }}
+        onButtonClick={() => router.push('/correction/new')}
       />
     </CorrectionNavbarContext.Provider>
   );
