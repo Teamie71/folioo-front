@@ -7,6 +7,11 @@ import {
   externalPortfolioControllerGetExternalPortfolios,
   externalPortfolioControllerUpdateExternalPortfolio,
 } from '@/api/endpoints/portfolio/portfolio';
+import {
+  portfolioCorrectionControllerMapCorrectionWithPortfolios,
+  portfolioCorrectionControllerCreateCorrectionByAI,
+} from '@/api/endpoints/portfolio-correction/portfolio-correction';
+import { useExperienceControllerGetExperiences } from '@/api/endpoints/experience/experience';
 import { mapToPdfActivityBlock, toPatchBody } from '@/services/correction';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -23,17 +28,6 @@ import type {
   Status,
   Step,
 } from '@/types/correction';
-
-const TEXT_PORTFOLIOS: Array<{
-  id: string;
-  title: string;
-  tag: string;
-  date: string;
-}> = [
-  { id: 'text-1', title: '데이터 통계 경진대회', tag: '데이터', date: '2000-00-00' },
-  { id: 'text-2', title: '공공 디자인 공모전', tag: '디자인', date: '2000-00-00' },
-  { id: 'text-3', title: '00기업 서포터즈 활동', tag: '미정', date: '2000-00-00' },
-];
 
 /** 한국어·영어·숫자·공백·특수문자만 허용, 최대 길이 적용 */
 function limitAllowedInput(value: string, maxLength: number): string {
@@ -111,6 +105,18 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [emphasisPointsValue, setEmphasisPointsValue] = useState('');
   const [fileDeleteConfirmTarget, setFileDeleteConfirmTarget] =
     useState<FileDeleteConfirmTarget>(null);
+
+  const { data: experiencesData } = useExperienceControllerGetExperiences(
+    undefined,
+    { query: { enabled: step === 'portfolio' } },
+  );
+  const experiencesList = experiencesData?.result ?? [];
+  const textPortfolios = experiencesList.map((e) => ({
+    id: String(e.id),
+    title: e.name,
+    tag: e.hopeJob,
+    date: e.createdAt.slice(0, 10),
+  }));
 
   // portfolio + PDF 선택 시 창 어디로든 파일 드래그 들어오면 전체 페이지 드롭 오버레이 활성화
   useEffect(() => {
@@ -201,7 +207,10 @@ export function useCorrectionState(correctionId: string | undefined) {
     }, 500);
   }, []);
 
-  const handleNextStep = useCallback(() => {
+  const handleNextStep = useCallback(async () => {
+    const id = effectiveId ? Number(effectiveId) : null;
+    if (id == null || Number.isNaN(id)) return;
+
     if (step === 'portfolio') {
       if (
         selectedPortfolioType === 'text' &&
@@ -210,22 +219,56 @@ export function useCorrectionState(correctionId: string | undefined) {
         setShowTextPortfolioWarning(true);
         return;
       }
-      setStep('analysis');
-    } else if (step === 'analysis') {
+      const portfolioIds =
+        selectedPortfolioType === 'pdf'
+          ? pdfActivities
+              .map((a) => a.portfolioId)
+              .filter((n): n is number => n != null)
+          : selectedTextPortfolioIds
+              .map((s) => Number(s))
+              .filter((n) => !Number.isNaN(n));
+      if (portfolioIds.length === 0) return;
+      try {
+        await portfolioCorrectionControllerMapCorrectionWithPortfolios(id, {
+          portfolioIds,
+        });
+        setStep('analysis');
+      } catch {
+        // 실패 시 단계 유지
+      }
+      return;
+    }
+
+    if (step === 'analysis') {
       if (!analysisInfoValue.trim()) {
         setShowAnalysisInfoWarning(true);
         return;
       }
-      setStatus('ANALYZING');
-      setTimeout(() => {
-        setStatus('DONE');
+      const portfolioIds =
+        selectedPortfolioType === 'pdf'
+          ? pdfActivities
+              .map((a) => a.portfolioId)
+              .filter((n): n is number => n != null)
+          : selectedTextPortfolioIds
+              .map((s) => Number(s))
+              .filter((n) => !Number.isNaN(n));
+      if (portfolioIds.length === 0) return;
+      try {
+        await portfolioCorrectionControllerCreateCorrectionByAI(id, {
+          portfolioIds,
+        });
+        setStatus('ANALYZING');
         setStep('result');
-      }, 2000);
+      } catch {
+        // 실패 시 단계 유지
+      }
     }
   }, [
     step,
+    effectiveId,
     selectedPortfolioType,
-    selectedTextPortfolioIds.length,
+    selectedTextPortfolioIds,
+    pdfActivities,
     analysisInfoValue,
   ]);
 
@@ -296,7 +339,7 @@ export function useCorrectionState(correctionId: string | undefined) {
     setSelectedTextPortfolioIds,
     isEditingTitle,
     setIsEditingTitle,
-    textPortfolios: TEXT_PORTFOLIOS,
+    textPortfolios,
     resultTab,
     setResultTab,
     detailInfoButton,
