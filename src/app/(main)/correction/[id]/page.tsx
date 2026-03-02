@@ -16,7 +16,10 @@ import {
   useCorrectionState,
   type UseCorrectionStateReturn,
 } from '@/features/correction/hooks/useCorrectionState';
-import { portfolioCorrectionControllerUpdateCorrectionTitle } from '@/api/endpoints/portfolio-correction/portfolio-correction';
+import {
+  portfolioCorrectionControllerUpdateCorrectionTitle,
+  portfolioCorrectionControllerDeleteCorrection,
+} from '@/api/endpoints/portfolio-correction/portfolio-correction';
 
 export default function CorrectionSettingsPage() {
   const params = useParams();
@@ -114,9 +117,20 @@ export default function CorrectionSettingsPage() {
           deleteModal={{
             open: s.isDeleteModalOpen,
             onOpenChange: s.setIsDeleteModalOpen,
-            onConfirm: () => {
+            onConfirm: async () => {
+              const id = correctionId ? Number(correctionId) : NaN;
               s.setIsDeleteModalOpen(false);
-              s.router.replace('/correction');
+              if (Number.isNaN(id)) {
+                s.router.replace('/correction');
+                return;
+              }
+              try {
+                await portfolioCorrectionControllerDeleteCorrection(id);
+              } catch {
+                // 삭제 실패 시에도 목록으로 이동
+              } finally {
+                s.router.replace('/correction');
+              }
             },
           }}
           startCorrectionModal={{
