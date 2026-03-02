@@ -1,8 +1,8 @@
 'use client';
 
-import { GoogleLoginButton } from '@/features/login/GoogleLoginButton';
-import { KakaoLoginButton } from '@/features/login/KakaoLoginButton';
-import { NaverLoginButton } from '@/features/login/NaverLoginButton';
+import { GoogleLoginButton } from '@/features/login/components/GoogleLoginButton';
+import { KakaoLoginButton } from '@/features/login/components/KakaoLoginButton';
+import { NaverLoginButton } from '@/features/login/components/NaverLoginButton';
 import { useAuthStore } from '@/store/useAuthStore';
 import Image from 'next/image';
 import Link from 'next/link';
