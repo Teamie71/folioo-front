@@ -5,7 +5,7 @@
  * API document of Folioo Development
  * OpenAPI spec version: 1.0.0
  */
-import type { CorrectionItemResDTO } from './correctionItemResDTO';
+import type { CorrectionSelectionResDTO } from './correctionSelectionResDTO';
 import type { PortfolioCorrectionControllerMapCorrectionWithPortfolios200Error } from './portfolioCorrectionControllerMapCorrectionWithPortfolios200Error';
 
 export type PortfolioCorrectionControllerMapCorrectionWithPortfolios200 = {
@@ -13,5 +13,5 @@ export type PortfolioCorrectionControllerMapCorrectionWithPortfolios200 = {
   isSuccess?: boolean;
   /** @nullable */
   error?: PortfolioCorrectionControllerMapCorrectionWithPortfolios200Error;
-  result?: CorrectionItemResDTO[];
+  result?: CorrectionSelectionResDTO[];
 };
