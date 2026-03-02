@@ -54,11 +54,14 @@ export default function Navbar() {
 
   const linkClass = (href: string) =>
     cn(
-      'inline-block py-[8px] font-[16px] no-underline transition-colors hover:font-bold',
+      'group inline-block py-[8px] font-[16px] no-underline transition-colors',
       pathname === href || (href !== '/' && pathname.startsWith(href))
         ? 'font-bold text-[#5060C5]'
         : 'text-[#333333]',
     );
+
+  const isActive = (href: string) =>
+    pathname === href || (href !== '/' && pathname.startsWith(href));
 
   const handleLogin = () => {
     router.push('/login');
@@ -79,16 +82,64 @@ export default function Navbar() {
               />
             </Link>
 
-            {/* 네비게이션 링크 */}
+            {/* 네비게이션 링크 — hover 시 bold만 적용, 레이아웃 시프트 없음 */}
             <div className='flex items-center gap-[40px]'>
               <Link href='/log' className={linkClass('/log')}>
-                인사이트 로그
+                <span className='relative inline-block'>
+                  <span
+                    className='invisible inline-block whitespace-nowrap font-bold'
+                    aria-hidden
+                  >
+                    인사이트 로그
+                  </span>
+                  <span
+                    className={cn(
+                      'absolute top-0 left-0 whitespace-nowrap',
+                      isActive('/log') && 'font-bold',
+                      'group-hover:font-bold',
+                    )}
+                  >
+                    인사이트 로그
+                  </span>
+                </span>
               </Link>
               <Link href='/experience' className={linkClass('/experience')}>
-                경험 정리
+                <span className='relative inline-block'>
+                  <span
+                    className='invisible inline-block whitespace-nowrap font-bold'
+                    aria-hidden
+                  >
+                    경험 정리
+                  </span>
+                  <span
+                    className={cn(
+                      'absolute top-0 left-0 whitespace-nowrap',
+                      isActive('/experience') && 'font-bold',
+                      'group-hover:font-bold',
+                    )}
+                  >
+                    경험 정리
+                  </span>
+                </span>
               </Link>
               <Link href='/correction' className={linkClass('/correction')}>
-                포트폴리오 첨삭
+                <span className='relative inline-block'>
+                  <span
+                    className='invisible inline-block whitespace-nowrap font-bold'
+                    aria-hidden
+                  >
+                    포트폴리오 첨삭
+                  </span>
+                  <span
+                    className={cn(
+                      'absolute top-0 left-0 whitespace-nowrap',
+                      isActive('/correction') && 'font-bold',
+                      'group-hover:font-bold',
+                    )}
+                  >
+                    포트폴리오 첨삭
+                  </span>
+                </span>
               </Link>
             </div>
           </div>
@@ -99,7 +150,23 @@ export default function Navbar() {
             ) : isLoggedIn ? (
               <div className='flex items-center gap-[2.5rem]'>
                 <Link href='/topup' className={linkClass('/topup')}>
-                  이용권 구매
+                  <span className='relative inline-block'>
+                    <span
+                      className='invisible inline-block whitespace-nowrap font-bold'
+                      aria-hidden
+                    >
+                      이용권 구매
+                    </span>
+                    <span
+                      className={cn(
+                        'absolute top-0 left-0 whitespace-nowrap',
+                        isActive('/topup') && 'font-bold',
+                        'group-hover:font-bold',
+                      )}
+                    >
+                      이용권 구매
+                    </span>
+                  </span>
                 </Link>
                 <ProfileButton
                   ref={myButtonRef}
@@ -117,7 +184,23 @@ export default function Navbar() {
             ) : (
               <div className='flex items-center gap-[2.5rem]'>
                 <Link href='/topup' className={linkClass('/topup')}>
-                  이용권 구매
+                  <span className='relative inline-block'>
+                    <span
+                      className='invisible inline-block whitespace-nowrap font-bold'
+                      aria-hidden
+                    >
+                      이용권 구매
+                    </span>
+                    <span
+                      className={cn(
+                        'absolute top-0 left-0 whitespace-nowrap',
+                        isActive('/topup') && 'font-bold',
+                        'group-hover:font-bold',
+                      )}
+                    >
+                      이용권 구매
+                    </span>
+                  </span>
                 </Link>
                 <CommonButton
                   variantType='Primary'
