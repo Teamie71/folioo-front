@@ -114,7 +114,7 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
                 <button
                   type='button'
                   onClick={() => hasItems && setSelectedTab(tab.label)}
-                  className={`flex items-center gap-[0.5rem] border-b-[0.125rem] px-[1.25rem] py-[0.75rem] ${
+                  className={`group flex items-center gap-[0.5rem] border-b-[0.125rem] px-[1.25rem] py-[0.75rem] ${
                     !hasItems
                       ? 'cursor-default border-b-[#CDD0D5] text-[#CDD0D5]'
                       : isActive
@@ -122,7 +122,17 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
                         : 'cursor-pointer border-[#9EA4A9] text-[#1A1A1A] hover:border-b-[#5060C5] hover:bg-[#F6F5FF] hover:font-bold hover:text-[#5060C5]'
                   } ${tab.roundedClass}`}
                 >
-                  {tab.icon}
+                  <span
+                    className={
+                      !hasItems
+                        ? 'text-[#CDD0D5]'
+                        : isActive
+                          ? 'text-[#5060C5]'
+                          : 'text-[#9EA4A9] group-hover:text-[#5060C5]'
+                    }
+                  >
+                    {tab.icon}
+                  </span>
                   <p>{tab.label}</p>
                 </button>
               </div>
