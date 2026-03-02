@@ -6,6 +6,7 @@ import {
   type CorrectionListItem,
 } from '@/features/correction/components/CorrectionListGrid';
 import { CorrectionListHeader } from '@/features/correction/components/CorrectionListHeader';
+import { CorrectionLoadingSpinner } from '@/features/correction/components/CorrectionLoadingSpinner';
 import { CorrectionListSearch } from '@/features/correction/components/CorrectionListSearch';
 import type { PortfolioCorrectionControllerGetCorrections200 } from '@/api/models';
 import { usePortfolioCorrectionControllerGetCorrections } from '@/api/endpoints/portfolio-correction/portfolio-correction';
@@ -42,7 +43,9 @@ export default function CorrectionPage() {
       <CorrectionListHeader />
       <div className='mx-auto flex w-[66rem] flex-col gap-[3rem]'>
         <CorrectionListSearch value={keyword} onChange={setKeyword} />
-        {!isLoading && items.length === 0 ? (
+        {isLoading ? (
+          <CorrectionLoadingSpinner />
+        ) : items.length === 0 ? (
           <p className='whitespace-pre-line text-[1.125rem] text-center font-bold mt-[3.25rem] text-[#9EA4A9]'>
             {debouncedKeyword.trim()
               ? '앗, 일치하는 결과가 없어요.'
