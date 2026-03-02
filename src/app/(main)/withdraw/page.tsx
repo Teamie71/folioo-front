@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
+import { useUserControllerGetProfile } from '@/api/endpoints/user/user';
 import { BackButton } from '@/components/BackButton';
 import { CommonButton } from '@/components/CommonButton';
 import { Checkbox } from '@/components/ui/CheckBox';
@@ -11,7 +12,6 @@ import { Dropdown } from '@/components/Dropdown';
 import TextField from '@/components/TextField';
 import { CommonModal } from '@/components/CommonModal';
 import { FEEDBACK_FORM_URL } from '@/constants/feedback';
-import { getMe } from '@/services/user';
 
 export default function WithdrawPage() {
   const router = useRouter();
@@ -21,11 +21,11 @@ export default function WithdrawPage() {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
 
+  const { data: profileRes } = useUserControllerGetProfile();
+
   useEffect(() => {
-    getMe()
-      .then((profile) => setUserName(profile.name))
-      .catch(() => setUserName(''));
-  }, []);
+    if (profileRes?.result?.name) setUserName(profileRes.result.name);
+  }, [profileRes?.result?.name]);
 
   const withdrawReasons = [
     { id: '1', label: '이미 취업에 성공했어요.' },
