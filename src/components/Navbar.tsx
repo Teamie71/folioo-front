@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
+import { CommonButton } from '@/components/CommonButton';
 import { ProfileButton } from '@/components/ProfileButton';
 import { ProfileDropdown } from '@/components/ProfileDropdown';
 import { ProfileModal } from '@/components/ProfileModal';
@@ -118,12 +119,14 @@ export default function Navbar() {
                 <Link href='/topup' className={linkClass('/topup')}>
                   이용권 구매
                 </Link>
-                <button
+                <CommonButton
+                  variantType='Primary'
+                  px={28}
+                  py={8}
                   onClick={handleLogin}
-                  className='cursor-pointer rounded-[100px] border-none bg-[#5060C5] px-[28px] py-[8px] text-[16px] font-bold text-[#FFFFFF] outline-none focus:outline-none'
                 >
                   로그인
-                </button>
+                </CommonButton>
               </div>
             )}
           </div>
