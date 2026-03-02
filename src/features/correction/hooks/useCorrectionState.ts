@@ -171,6 +171,46 @@ export function useCorrectionState(correctionId: string | undefined) {
     setShowNavbarOnResult?.(step === 'result');
   }, [step, setShowNavbarOnResult]);
 
+  // result 단계에서 status === 'ANALYZING'이면 /status 주기적으로 폴링해서 DONE 되면 자동 반영
+  useEffect(() => {
+    const id = effectiveId ? Number(effectiveId) : null;
+    if (id == null || Number.isNaN(id)) return;
+    if (step !== 'result' || status !== 'ANALYZING') return;
+
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const poll = async () => {
+      if (cancelled) return;
+      try {
+        const res = await portfolioCorrectionControllerGetCorrectionStatus(id);
+        const apiStatus = (
+          res as { result?: { status?: CorrectionStatusResDTOStatus } }
+        )?.result?.status;
+        const { step: nextStep, status: nextStatus } =
+          mapStatusToStepAndStatus(apiStatus);
+        if (!cancelled) {
+          setStep(nextStep);
+          setStatus(nextStatus);
+          if (nextStep === 'result' && nextStatus === 'ANALYZING') {
+            timer = setTimeout(poll, 3000);
+          }
+        }
+      } catch {
+        if (!cancelled) {
+          timer = setTimeout(poll, 3000);
+        }
+      }
+    };
+
+    timer = setTimeout(poll, 3000);
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [effectiveId, step, status]);
+
   const handlePdfExtractConfirm = useCallback(async () => {
     if (!pdfUploadedFile) return;
     setIsPdfExtractConfirmModalOpen(false);
