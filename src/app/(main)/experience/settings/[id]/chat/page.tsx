@@ -113,7 +113,7 @@ export default function ExperienceSettingsChatPage() {
         </div>
 
         {/* 채팅 영역: 메시지 영역만 스크롤 */}
-        <div className='flex min-h-0 flex-1 flex-col overflow-hidden pb-[14.75rem]'>
+        <div className='flex min-h-0 flex-1 flex-col overflow-hidden pb-[10.75rem]'>
           <ChatMessageSection
             messages={messages}
             onAIMessageClick={() => setIsCompletionModalOpen(true)}
