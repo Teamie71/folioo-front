@@ -1,7 +1,10 @@
 import '../styles/globals.css';
 import localFont from 'next/font/local';
+import { GoogleAnalytics } from '@next/third-parties/google';
 import { AuthProvider } from '@/contexts/AuthProvider';
 import { QueryProvider } from '@/contexts/QueryProvider';
+
+const gaId = process.env.NEXT_PUBLIC_GA_ID ?? '';
 
 const pretendard = localFont({
   src: './fonts/PretendardVariable.woff2',
@@ -35,6 +38,7 @@ export default function RootLayout({
         <QueryProvider>
           <AuthProvider>{children}</AuthProvider>
         </QueryProvider>
+        {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
       </body>
     </html>
   );
