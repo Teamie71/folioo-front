@@ -6,8 +6,10 @@ import { NaverLoginButton } from '@/features/login/components/NaverLoginButton';
 import { useAuthStore } from '@/store/useAuthStore';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect } from 'react';
+
+const LOGIN_REDIRECT_TO_KEY = 'login_redirect_to';
 
 /* 이미 로그인된 상태에서 로그인 페이지 진입 시 이전 페이지로 리다이렉트 */
 function useRedirectIfLoggedIn() {
@@ -28,14 +30,27 @@ function useRedirectIfLoggedIn() {
   }, [sessionRestoreAttempted, accessToken, router]);
 }
 
-export default function Login() {
+function LoginContent() {
   useRedirectIfLoggedIn();
+  const searchParams = useSearchParams();
 
   const accessToken = useAuthStore((s) => s.accessToken);
   const sessionRestoreAttempted = useAuthStore(
     (s) => s.sessionRestoreAttempted,
   );
   const showLogin = !sessionRestoreAttempted || accessToken == null;
+
+  // redirect_to가 있으면 sessionStorage에 저장 (OAuth 후 콜백에서 복원용)
+  useEffect(() => {
+    const redirectTo = searchParams.get('redirect_to');
+    if (redirectTo && typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem(LOGIN_REDIRECT_TO_KEY, redirectTo);
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [searchParams]);
 
   if (!showLogin) {
     return (
@@ -104,5 +119,19 @@ export default function Login() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function Login() {
+  return (
+    <Suspense
+      fallback={
+        <div className='flex min-h-screen items-center justify-center'>
+          <p className='text-[1rem] text-[#666]'>로딩 중...</p>
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   );
 }
