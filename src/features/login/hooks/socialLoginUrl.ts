@@ -17,9 +17,33 @@ function getOrigin(): string {
   return process.env.NEXT_PUBLIC_APP_URL ?? '';
 }
 
+// 로컬 프로필 여부 확인
+function isLocalProfile(): boolean {
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    return hostname === 'localhost' || hostname === '127.0.0.1';
+  }
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (!appUrl) return false;
+  try {
+    const { hostname } = new URL(appUrl);
+    return hostname === 'localhost' || hostname === '127.0.0.1';
+  } catch {
+    return false;
+  }
+}
+
 function getReturnPath(): string {
   if (typeof window !== 'undefined') {
-    const p = window.location.pathname + window.location.search;
+    const url = new URL(window.location.href);
+    const redirectTo = url.searchParams.get('redirect_to');
+
+    // 원하는 경로가 쿼리에 있으면 그 경로를 그대로 사용
+    if (url.pathname === '/login' && redirectTo) {
+      return redirectTo || '/';
+    }
+
+    const p = url.pathname + url.search;
     return p || '/';
   }
   return '/';
@@ -29,11 +53,16 @@ function getReturnPath(): string {
 export function getSocialLoginRedirectParams(): {
   redirect_path: string;
   redirect_url: string;
+  state?: string;
 } {
   const origin = getOrigin();
   const returnPath = getReturnPath();
   const redirectPath = `${CALLBACK_PATH}?redirect_to=${encodeURIComponent(returnPath)}`;
-  return { redirect_path: redirectPath, redirect_url: origin };
+  const state = isLocalProfile() ? 'local' : undefined;
+
+  return state
+    ? { redirect_path: redirectPath, redirect_url: origin, state }
+    : { redirect_path: redirectPath, redirect_url: origin };
 }
 
 /* 카카오 로그인으로 이동할 URL  */

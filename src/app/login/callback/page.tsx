@@ -12,6 +12,7 @@ const ACCESS_TOKEN_PARAM = 'access_token';
 const REFRESH_TOKEN_PARAM = 'refresh_token';
 /* 백엔드가 OAuth 콜백 후 리다이렉트할 때 사용 (refreshToken은 httpOnly 쿠키로 설정) */
 const STATUS_PARAM = 'status';
+const LOGIN_REDIRECT_TO_KEY = 'login_redirect_to';
 
 function LoginCallbackContent() {
   const router = useRouter();
@@ -23,7 +24,20 @@ function LoginCallbackContent() {
     const accessTokenFromUrl = searchParams.get(ACCESS_TOKEN_PARAM);
     const refreshTokenFromUrl = searchParams.get(REFRESH_TOKEN_PARAM);
     const status = searchParams.get(STATUS_PARAM);
-    const redirectTo = searchParams.get('redirect_to') ?? '/';
+    // URL의 redirect_to 우선, 없으면 로그인 페이지에서 저장해 둔 값 사용
+    const redirectTo =
+      searchParams.get('redirect_to') ??
+      (typeof window !== 'undefined'
+        ? sessionStorage.getItem(LOGIN_REDIRECT_TO_KEY)
+        : null) ??
+      '/';
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.removeItem(LOGIN_REDIRECT_TO_KEY);
+      } catch {
+        /* ignore */
+      }
+    }
 
     if (refreshTokenFromUrl) {
       setRefreshTokenCookie(refreshTokenFromUrl);

@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { CommonButton } from '@/components/CommonButton';
+import { LoginRequiredModal } from '@/components/LoginRequiredModal';
 import { ButtonSpinnerIcon } from '@/components/icons/ButtonSpinnerIcon';
 import EtcIcon from '@/components/icons/EtcIcon';
 import { InsightLogIcon } from '@/components/icons/InsightLogIcon';
@@ -31,13 +33,24 @@ import { useActivityTags } from '@/features/log/hooks/useActivityTags';
 import { useLogFormSubmit } from '@/features/log/hooks/useLogFormSubmit';
 import { useLogs } from '@/features/log/hooks/useLogs';
 import { deleteInsightLog, updateInsightLog } from '@/services/insight';
+import { useAuthStore } from '@/store/useAuthStore';
 import {
   useLogStore,
   type TemplateType as StoreTemplateType,
   type LogCardData,
 } from '@/store/useLogStore';
 
+//
+const LOG_FORM_DRAFT_KEY = 'log-form-draft';
+const LOGIN_REQUIRED_REDIRECT_MS = 2000;
+
 export default function LogPage() {
+  const router = useRouter();
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const sessionRestoreAttempted = useAuthStore(
+    (s) => s.sessionRestoreAttempted,
+  );
+  const isLoggedIn = accessToken != null;
   const {
     selectedCategoryId,
     selectedActivityId,
@@ -45,6 +58,8 @@ export default function LogPage() {
     setSelectedCategoryId,
     setSelectedActivityId,
     setFormField,
+    getFormDraft,
+    restoreFormDraft,
   } = useLogStore();
 
   const queryClient = useQueryClient();
@@ -70,6 +85,57 @@ export default function LogPage() {
       },
     },
   );
+
+  // 로그인 필요 모달 (비로그인 시 로그 등록 클릭)
+  const [isLoginRequiredModalOpen, setIsLoginRequiredModalOpen] =
+    useState(false);
+  const loginRequiredTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+
+  // 로그인 후 복귀 시 저장된 폼 드래프트 복원
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = sessionStorage.getItem(LOG_FORM_DRAFT_KEY);
+      if (raw) {
+        const draft = JSON.parse(raw) as Parameters<typeof restoreFormDraft>[0];
+        restoreFormDraft(draft);
+        sessionStorage.removeItem(LOG_FORM_DRAFT_KEY);
+      }
+    } catch {
+      sessionStorage.removeItem(LOG_FORM_DRAFT_KEY);
+    }
+  }, [restoreFormDraft]);
+
+  // 로그인 필요 모달 표시 후 2초 뒤 로그인 페이지로 이동
+  useEffect(() => {
+    if (!isLoginRequiredModalOpen) return;
+    loginRequiredTimerRef.current = setTimeout(() => {
+      loginRequiredTimerRef.current = null;
+      setIsLoginRequiredModalOpen(false);
+      router.push('/login?redirect_to=' + encodeURIComponent('/log'));
+    }, LOGIN_REQUIRED_REDIRECT_MS);
+    return () => {
+      if (loginRequiredTimerRef.current) {
+        clearTimeout(loginRequiredTimerRef.current);
+      }
+    };
+  }, [isLoginRequiredModalOpen, router]);
+
+  const handleRegisterClick = () => {
+    if (sessionRestoreAttempted && accessToken == null) {
+      const draft = getFormDraft();
+      try {
+        sessionStorage.setItem(LOG_FORM_DRAFT_KEY, JSON.stringify(draft));
+      } catch {
+        /* ignore */
+      }
+      setIsLoginRequiredModalOpen(true);
+      return;
+    }
+    handleSubmit();
+  };
 
   // 모달 상태
   const [selectedLog, setSelectedLog] = useState<LogCardData | null>(null);
@@ -196,7 +262,7 @@ export default function LogPage() {
                 ? '!bg-[#5060C5] disabled:!bg-[#5060C5] disabled:hover:!bg-[#404D9E]'
                 : undefined
             }
-            onClick={handleSubmit}
+            onClick={handleRegisterClick}
             disabled={isSubmitting}
           >
             {isSubmitting ? (
@@ -342,7 +408,7 @@ export default function LogPage() {
 
         {/* 카드 */}
         <div className='grid grid-cols-2 gap-[1.5rem]'>
-          {isLoading ? (
+          {isLoggedIn && isLoading ? (
             <div className='col-span-2 mt-[5rem] flex items-center justify-center'>
               <motion.div
                 animate={{ rotate: 720 }}
@@ -425,6 +491,12 @@ export default function LogPage() {
         onConfirm={handleConfirmDeleteLog}
         isDeleting={isDeletingLog}
         errorMessage={deleteLogError}
+      />
+
+      {/* 비로그인 상태로 로그 등록 클릭 시 표시 */}
+      <LoginRequiredModal
+        open={isLoginRequiredModalOpen}
+        onOpenChange={() => {}}
       />
     </div>
   );

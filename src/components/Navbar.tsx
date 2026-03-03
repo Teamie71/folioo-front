@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
+import { LoginRequiredModal } from '@/components/LoginRequiredModal';
 import { ProfileButton } from '@/components/ProfileButton';
 import { ProfileDropdown } from '@/components/ProfileDropdown';
 import { ProfileModal } from '@/components/ProfileModal';
@@ -12,6 +13,8 @@ import { LogoutModal } from '@/components/LogoutModal';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useAuthControllerHandleLogout } from '@/api/endpoints/auth/auth';
 import { cn } from '@/utils/utils';
+
+const LOGIN_REQUIRED_AUTO_CLOSE_MS = 2000;
 
 export default function Navbar() {
   const router = useRouter();
@@ -24,7 +27,9 @@ export default function Navbar() {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isLoginRequiredModalOpen, setIsLoginRequiredModalOpen] = useState(false);
   const myButtonRef = useRef<HTMLButtonElement>(null);
+  const loginRequiredTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { mutate: logout } = useAuthControllerHandleLogout({
     mutation: {
@@ -67,6 +72,70 @@ export default function Navbar() {
     router.push('/login');
   };
 
+  const handleLoginRequiredModalOpenChange = (open: boolean) => {
+    if (!open) {
+      if (loginRequiredTimerRef.current) {
+        clearTimeout(loginRequiredTimerRef.current);
+        loginRequiredTimerRef.current = null;
+      }
+      router.push('/login');
+    }
+    setIsLoginRequiredModalOpen(open);
+  };
+
+  useEffect(() => {
+    if (!isLoginRequiredModalOpen) return;
+    loginRequiredTimerRef.current = setTimeout(() => {
+      loginRequiredTimerRef.current = null;
+      setIsLoginRequiredModalOpen(false);
+      router.push('/login');
+    }, LOGIN_REQUIRED_AUTO_CLOSE_MS);
+    return () => {
+      if (loginRequiredTimerRef.current) {
+        clearTimeout(loginRequiredTimerRef.current);
+      }
+    };
+  }, [isLoginRequiredModalOpen, router]);
+
+  const navLink = (href: string, label: string, requireLogin = false) => {
+    const content = (
+      <span className={linkClass(href)}>
+        <span className='relative inline-block'>
+          <span
+            className='invisible inline-block whitespace-nowrap font-bold'
+            aria-hidden
+          >
+            {label}
+          </span>
+          <span
+            className={cn(
+              'absolute top-0 left-0 whitespace-nowrap',
+              isActive(href) && 'font-bold',
+              'group-hover:font-bold',
+            )}
+          >
+            {label}
+          </span>
+        </span>
+      </span>
+    );
+    if (requireLogin && !isLoggedIn) {
+      return (
+        <button
+          type='button'
+          className='group inline-block py-[8px] font-[16px] no-underline transition-colors bg-transparent border-none cursor-pointer p-0'
+          onClick={(e) => {
+            e.preventDefault();
+            setIsLoginRequiredModalOpen(true);
+          }}
+        >
+          {content}
+        </button>
+      );
+    }
+    return <Link href={href}>{content}</Link>;
+  };
+
   return (
     <nav className='fixed top-0 right-0 left-0 z-50 w-full bg-white'>
       <div className='mx-auto w-[1056px]'>
@@ -84,63 +153,9 @@ export default function Navbar() {
 
             {/* 네비게이션 링크 — hover 시 bold만 적용, 레이아웃 시프트 없음 */}
             <div className='flex items-center gap-[40px]'>
-              <Link href='/log' className={linkClass('/log')}>
-                <span className='relative inline-block'>
-                  <span
-                    className='invisible inline-block whitespace-nowrap font-bold'
-                    aria-hidden
-                  >
-                    인사이트 로그
-                  </span>
-                  <span
-                    className={cn(
-                      'absolute top-0 left-0 whitespace-nowrap',
-                      isActive('/log') && 'font-bold',
-                      'group-hover:font-bold',
-                    )}
-                  >
-                    인사이트 로그
-                  </span>
-                </span>
-              </Link>
-              <Link href='/experience' className={linkClass('/experience')}>
-                <span className='relative inline-block'>
-                  <span
-                    className='invisible inline-block whitespace-nowrap font-bold'
-                    aria-hidden
-                  >
-                    경험 정리
-                  </span>
-                  <span
-                    className={cn(
-                      'absolute top-0 left-0 whitespace-nowrap',
-                      isActive('/experience') && 'font-bold',
-                      'group-hover:font-bold',
-                    )}
-                  >
-                    경험 정리
-                  </span>
-                </span>
-              </Link>
-              <Link href='/correction' className={linkClass('/correction')}>
-                <span className='relative inline-block'>
-                  <span
-                    className='invisible inline-block whitespace-nowrap font-bold'
-                    aria-hidden
-                  >
-                    포트폴리오 첨삭
-                  </span>
-                  <span
-                    className={cn(
-                      'absolute top-0 left-0 whitespace-nowrap',
-                      isActive('/correction') && 'font-bold',
-                      'group-hover:font-bold',
-                    )}
-                  >
-                    포트폴리오 첨삭
-                  </span>
-                </span>
-              </Link>
+              {navLink('/log', '인사이트 로그')}
+              {navLink('/experience', '경험 정리', true)}
+              {navLink('/correction', '포트폴리오 첨삭', true)}
             </div>
           </div>
 
@@ -223,6 +238,10 @@ export default function Navbar() {
         open={isLogoutModalOpen}
         onOpenChange={setIsLogoutModalOpen}
         onConfirm={handleLogoutConfirm}
+      />
+      <LoginRequiredModal
+        open={isLoginRequiredModalOpen}
+        onOpenChange={handleLoginRequiredModalOpenChange}
       />
     </nav>
   );

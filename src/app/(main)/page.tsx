@@ -19,7 +19,11 @@ import Footer from '@/components/Footer';
 function LoginEntryButton() {
   const router = useRouter();
   const accessToken = useAuthStore((s) => s.accessToken);
+  const sessionRestoreAttempted = useAuthStore(
+    (s) => s.sessionRestoreAttempted,
+  );
 
+  if (!sessionRestoreAttempted) return null;
   if (accessToken != null) return null;
 
   return (
@@ -35,6 +39,17 @@ function LoginEntryButton() {
 }
 
 export default function LandingPage() {
+  const router = useRouter();
+  const accessToken = useAuthStore((s) => s.accessToken);
+
+  const navigateWithLoginGuard = (href: string) => {
+    if (accessToken) {
+      router.push(href);
+      return;
+    }
+    router.push(`/login?redirect_to=${encodeURIComponent(href)}`);
+  };
+
   return (
     <div className='w-full overflow-x-hidden'>
       {/* 배경 Wrapper */}
@@ -92,6 +107,7 @@ export default function LandingPage() {
               }
               buttonText='로그 작성하기 →'
               buttonHref='/log'
+              requireLogin
             />
             <ContentCard
               title='경험 정리'
@@ -112,6 +128,7 @@ export default function LandingPage() {
               }
               buttonText='대화 시작하기 →'
               buttonHref='/experience/settings'
+              requireLogin
             />
             <ContentCard
               title='포트폴리오 첨삭'
@@ -163,15 +180,14 @@ export default function LandingPage() {
                   <br />
                   나를 증명하는 스토리로
                 </h1>
-                <Link href='/log'>
-                  <CommonButton
-                    variantType='Gradient'
-                    px='2.25rem'
-                    py='0.75rem'
-                  >
-                    로그 작성하기 →
-                  </CommonButton>
-                </Link>
+                <CommonButton
+                  variantType='Gradient'
+                  px='2.25rem'
+                  py='0.75rem'
+                  onClick={() => navigateWithLoginGuard('/log')}
+                >
+                  로그 작성하기 →
+                </CommonButton>
               </div>
             </div>
 
@@ -230,15 +246,14 @@ export default function LandingPage() {
                   컨설턴트와의 체계적인 대화를 <br />
                   바로 쓸 수 있는 포트폴리오로
                 </h1>
-                <Link href='/experience/settings'>
-                  <CommonButton
-                    variantType='Gradient'
-                    px='2.25rem'
-                    py='0.75rem'
-                  >
-                    대화 시작하기 →
-                  </CommonButton>
-                </Link>
+                <CommonButton
+                  variantType='Gradient'
+                  px='2.25rem'
+                  py='0.75rem'
+                  onClick={() => navigateWithLoginGuard('/experience/settings')}
+                >
+                  대화 시작하기 →
+                </CommonButton>
               </div>
             </div>
 
@@ -389,9 +404,7 @@ export default function LandingPage() {
             지금, <br />
             경험을 서류로 바꾸세요.
           </p>
-          <CommonButton variantType='Gradient' px='2.25rem' py='0.75rem'>
-            무료로 시작하기 →
-          </CommonButton>
+          <LoginEntryButton />
         </motion.div>
       </section>
 

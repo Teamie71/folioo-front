@@ -22,6 +22,23 @@ export type TemplateType =
   | '레퍼런스'
   | '기타';
 
+/** 로그인 리다이렉트 전 폼 상태 저장용 (sessionStorage) */
+export interface LogFormDraft {
+  formData: {
+    title: string;
+    activityName: string;
+    category: string;
+    content: string;
+  };
+  isTemplateEnabled: boolean;
+  selectedTemplate: TemplateType;
+  noTemplateContent: string;
+  interpersonData: InterpersonData;
+  problemSolveData: ProblemSolveData;
+  learningData: LearningData;
+  referenceData: ReferenceData;
+}
+
 export interface LogCardData {
   id: string;
   title: string;
@@ -98,6 +115,10 @@ interface LogStore {
     value: LogStore['formData'][K],
   ) => void;
   resetForm: () => void;
+  /** 로그인 리다이렉트 후 복원용: 현재 폼+템플릿 상태를 직렬화 */
+  getFormDraft: () => LogFormDraft;
+  /** 저장된 드래프트로 폼+템플릿 상태 복원 */
+  restoreFormDraft: (draft: LogFormDraft) => void;
   validateForm: () => {
     isValid: boolean;
     errors: Partial<Record<keyof LogFormData, string>>;
@@ -228,6 +249,32 @@ export const useLogStore = create<LogStore>()(
             thought: '',
             plan: '',
           },
+        }),
+
+      getFormDraft: () => {
+        const state = get();
+        return {
+          formData: { ...state.formData },
+          isTemplateEnabled: state.isTemplateEnabled,
+          selectedTemplate: state.selectedTemplate,
+          noTemplateContent: state.noTemplateContent,
+          interpersonData: { ...state.interpersonData },
+          problemSolveData: { ...state.problemSolveData },
+          learningData: { ...state.learningData },
+          referenceData: { ...state.referenceData },
+        };
+      },
+
+      restoreFormDraft: (draft) =>
+        set({
+          formData: draft.formData,
+          isTemplateEnabled: draft.isTemplateEnabled,
+          selectedTemplate: draft.selectedTemplate,
+          noTemplateContent: draft.noTemplateContent,
+          interpersonData: draft.interpersonData,
+          problemSolveData: draft.problemSolveData,
+          learningData: draft.learningData,
+          referenceData: draft.referenceData,
         }),
 
       validateForm: () => {
