@@ -199,6 +199,68 @@ export const useUserControllerUpdateProfile = <TError = CommonResponse,
       return useMutation(getUserControllerUpdateProfileMutationOptions(options), queryClient);
     }
     /**
+ * 사용자의 계정을 탈퇴 처리하고 연결된 소셜 로그인 계정을 저장된 OAuth 리프레시 토큰 기반으로 연결 해제합니다.
+ * @summary 회원 탈퇴
+ */
+export const userControllerWithdraw = (
+    
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/users/me`, method: 'DELETE', signal
+    },
+      options);
+    }
+  
+
+
+export const getUserControllerWithdrawMutationOptions = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof userControllerWithdraw>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof userControllerWithdraw>>, TError,void, TContext> => {
+
+const mutationKey = ['userControllerWithdraw'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof userControllerWithdraw>>, void> = () => {
+          
+
+          return  userControllerWithdraw(requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UserControllerWithdrawMutationResult = NonNullable<Awaited<ReturnType<typeof userControllerWithdraw>>>
+    
+    export type UserControllerWithdrawMutationError = CommonResponse
+
+    /**
+ * @summary 회원 탈퇴
+ */
+export const useUserControllerWithdraw = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof userControllerWithdraw>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof userControllerWithdraw>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getUserControllerWithdrawMutationOptions(options), queryClient);
+    }
+    /**
  * 사용자의 잔여 이용권 수량을 경험 정리, 포트폴리오 첨삭 유형별로 조회합니다.
  * @summary 잔여 이용권 조회
  */

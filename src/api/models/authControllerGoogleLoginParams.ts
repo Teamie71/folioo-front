@@ -8,6 +8,10 @@
 
 export type AuthControllerGoogleLoginParams = {
 /**
+ * 프론트 프로필(local/dev). prod 서버에서는 무시됩니다.
+ */
+state?: unknown;
+/**
  * 리다이렉트 될 uri path를 쿼리 파라미터로 포함합니다.
  */
 redirect_path?: unknown;

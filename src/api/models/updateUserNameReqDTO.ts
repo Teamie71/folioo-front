@@ -10,7 +10,7 @@ export interface UpdateUserNameReqDTO {
   /**
    * 변경하고자 하는 닉네임을 입력합니다.
    * @minLength 1
-   * @maxLength 10
+   * @maxLength 25
    */
   name: string;
 }
