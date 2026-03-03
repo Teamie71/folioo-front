@@ -114,7 +114,7 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
                 <button
                   type='button'
                   onClick={() => hasItems && setSelectedTab(tab.label)}
-                  className={`flex items-center gap-[0.5rem] border-b-[0.125rem] px-[1.25rem] py-[0.75rem] ${
+                  className={`group flex items-center gap-[0.5rem] border-b-[0.125rem] px-[1.25rem] py-[0.75rem] ${
                     !hasItems
                       ? 'cursor-default border-b-[#CDD0D5] text-[#CDD0D5]'
                       : isActive
@@ -122,7 +122,17 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
                         : 'cursor-pointer border-[#9EA4A9] text-[#1A1A1A] hover:border-b-[#5060C5] hover:bg-[#F6F5FF] hover:font-bold hover:text-[#5060C5]'
                   } ${tab.roundedClass}`}
                 >
-                  {tab.icon}
+                  <span
+                    className={
+                      !hasItems
+                        ? 'text-[#CDD0D5]'
+                        : isActive
+                          ? 'text-[#5060C5]'
+                          : 'text-[#9EA4A9] group-hover:text-[#5060C5]'
+                    }
+                  >
+                    {tab.icon}
+                  </span>
                   <p>{tab.label}</p>
                 </button>
               </div>
@@ -135,7 +145,7 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
             filteredItems.map((item) => (
               <div
                 key={item.id}
-                className='flex w-full cursor-pointer items-center justify-between rounded-[0.25rem] border border-[#CDD0D5] px-[1rem] py-[0.75rem] hover:bg-[#F6F5FF]'
+                className='flex w-full cursor-pointer items-center justify-between rounded-[0.25rem] border border-[#CDD0D5] px-[1rem] py-[0.75rem] hover:bg-[#F6F8FA]'
                 onClick={() => onSelect?.(item.title)}
               >
                 <p className='text-[0.875rem] leading-[150%]'>{item.title}</p>
@@ -146,7 +156,7 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
 
                   <button
                     type='button'
-                    className='h-[1.375rem] w-[4.125rem] cursor-pointer rounded-[0.25rem] bg-[#E9EAEC] text-center text-[0.75rem]'
+                    className='h-[1.375rem] w-[4.125rem] cursor-pointer rounded-[0.25rem] bg-[#E9EAEC] text-center text-[0.75rem] hover:bg-[#ffffff] hover:font-bold'
                     onClick={(e) => handleDetailClick(e, item)}
                   >
                     내용보기
@@ -155,8 +165,12 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
               </div>
             ))
           ) : (
-            <div className='flex flex-1 items-center justify-center text-[0.875rem] text-[#9EA4A9]'>
-              해당 카테고리의 인사이트 로그가 없습니다.
+            <div className='flex flex-1 items-center justify-center text-center text-[0.875rem] font-semibold leading-[150%] text-[#9EA4A9]'>
+              <p>
+                아직 작성한 로그가 없어요.
+                <br />
+                이 경험에서 얻은 인사이트를 채팅으로 알려주세요!
+              </p>
             </div>
           )}
         </div>

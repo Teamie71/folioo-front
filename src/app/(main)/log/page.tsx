@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { CommonButton } from '@/components/CommonButton';
 import { ButtonSpinnerIcon } from '@/components/icons/ButtonSpinnerIcon';
@@ -340,7 +342,25 @@ export default function LogPage() {
 
         {/* 카드 */}
         <div className='grid grid-cols-2 gap-[1.5rem]'>
-          {logCards.length === 0 ? (
+          {isLoading ? (
+            <div className='col-span-2 mt-[5rem] flex items-center justify-center'>
+              <motion.div
+                animate={{ rotate: 720 }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 2,
+                  ease: 'easeOut',
+                }}
+              >
+                <Image
+                  src='/LoadingSpinnerIcon.svg'
+                  alt='loading'
+                  width={64}
+                  height={64}
+                />
+              </motion.div>
+            </div>
+          ) : logCards.length === 0 ? (
             <div className='col-span-2 mt-[5rem] flex items-center justify-center text-center text-[1.125rem] leading-[130%] font-bold text-[#9EA4A9]'>
               {submittedKeyword.trim() ||
               selectedCategoryId ||

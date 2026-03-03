@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
 import { PortfolioCard } from '@/components/PortfolioCard';
 import { useExperienceStore } from '@/store/useExperienceStore';
 import {
@@ -10,10 +12,12 @@ import {
 
 interface ExperienceCardSectionProps {
   searchQuery?: string;
+  isSearching?: boolean;
 }
 
 export function ExperienceCardSection({
   searchQuery = '',
+  isSearching = false,
 }: ExperienceCardSectionProps) {
   const { experienceCards } = useExperienceStore();
   const [returnPaths, setReturnPaths] = useState<
@@ -40,7 +44,25 @@ export function ExperienceCardSection({
 
   return (
     <div className='grid grid-cols-2 gap-[1.5rem]'>
-      {hasNoCards ? (
+      {isSearching ? (
+        <div className='col-span-2 mt-[5rem] flex items-center justify-center'>
+          <motion.div
+            animate={{ rotate: 720 }}
+            transition={{
+              repeat: Infinity,
+              duration: 2,
+              ease: 'easeOut',
+            }}
+          >
+            <Image
+              src='/LoadingSpinnerIcon.svg'
+              alt='loading'
+              width={64}
+              height={64}
+            />
+          </motion.div>
+        </div>
+      ) : hasNoCards ? (
         <div className='col-span-2 mt-[5rem] flex items-center justify-center text-center text-[1.125rem] leading-[130%] font-bold text-[#9EA4A9]'>
           아직 정리한 경험이 없어요. <br />
           경험을 정리하고, 텍스트형 포트폴리오를 받아보세요!

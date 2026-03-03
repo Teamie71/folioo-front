@@ -1,20 +1,45 @@
+import Image from 'next/image';
+
 export const PortfolioComments = () => {
   return (
     <div className='mx-auto flex w-full flex-col items-center gap-[7.75rem]'>
       <div className='flex flex-col items-center gap-[3.25rem]'>
-        <div className='mr-[19.75rem] flex w-[38.5rem] flex-col rounded-[6.25rem] bg-[#FFFFFF] px-[5rem] py-[2rem] text-start shadow-[0px_4px_8px_0px_#00000033]'>
-          <p className='text-[1.125rem] leading-[150%] text-[#000000]'>
-            특정 직무에 적합한 활동을 주로 했는데,
-          </p>
-
-          <div className='flex gap-[0.25rem]'>
+        {/* 상단 말풍선 + 데코 블러 버블들 (레이아웃에 영향 없이 absolute 배치) */}
+        <div className='relative mr-[19.75rem]'>
+          <div className='flex w-[38.5rem] flex-col rounded-[6.25rem] bg-[#FFFFFF] px-[5rem] py-[2rem] text-start shadow-[0px_4px_8px_0px_#00000033]'>
             <p className='text-[1.125rem] leading-[150%] text-[#000000]'>
-              막상 취업 시장에 나와보니
+              특정 직무에 적합한 활동을 주로 했는데,
             </p>
-            <p className='text-[1.25rem] leading-[130%] font-bold text-[#000000]'>
-              다른 직무도 지원할 수밖에 없어요.
-            </p>
+
+            <div className='flex gap-[0.25rem]'>
+              <p className='text-[1.125rem] leading-[150%] text-[#000000]'>
+                막상 취업 시장에 나와보니
+              </p>
+              <p className='text-[1.25rem] leading-[130%] font-bold text-[#000000]'>
+                다른 직무도 지원할 수밖에 없어요.
+              </p>
+            </div>
           </div>
+
+          {/* 왼쪽 3.625rem, 아래 1.5rem 위치의 블러 버블 (레이아웃 비영향) */}
+          <Image
+            src='/LandingBlurBubble1.svg'
+            alt='PortfolioProblems1'
+            width={378}
+            height={88}
+            className='pointer-events-none absolute top-[8.5rem] left-[-3.625rem] -z-10 blur-[0.3rem]'
+            aria-hidden
+          />
+
+          {/* 오른쪽 6rem, 아래 3.75rem 위치의 블러 버블 (레이아웃 비영향) */}
+          <Image
+            src='/LandingBlurBubble2.svg'
+            alt='PortfolioProblems2'
+            width={648}
+            height={118}
+            className='pointer-events-none absolute top-[14rem] right-[-22rem] -z-10 blur-[0.35rem]'
+            aria-hidden
+          />
         </div>
 
         <div className='ml-[16rem] flex w-[40.5rem] flex-col rounded-[6.25rem] bg-[#FFFFFF] px-[5rem] py-[2rem] text-start shadow-[0px_4px_8px_0px_#00000033]'>
