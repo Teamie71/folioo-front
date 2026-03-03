@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import InputArea from '@/components/InputArea';
 import { ExperienceIcon } from '@/components/icons/ExperienceIcon';
 import { SearchButton } from '@/components/SearchButton';
@@ -10,10 +10,18 @@ import { NewExperienceStartButton } from '@/features/experience/components/NewEx
 export default function ExperiencePage() {
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
 
   const handleSearch = () => {
+    setIsSearching(true);
     setSearchQuery(searchInput.trim());
   };
+
+  useEffect(() => {
+    if (!isSearching) return;
+    const id = setTimeout(() => setIsSearching(false), 400);
+    return () => clearTimeout(id);
+  }, [isSearching, searchQuery]);
 
   return (
     <div className='flex flex-col gap-[4.5rem]'>
@@ -60,7 +68,10 @@ export default function ExperiencePage() {
         </div>
 
         {/* 나의 경험 카드 */}
-        <ExperienceCardSection searchQuery={searchQuery} />
+        <ExperienceCardSection
+          searchQuery={searchQuery}
+          isSearching={isSearching}
+        />
       </div>
     </div>
   );
