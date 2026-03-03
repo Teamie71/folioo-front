@@ -19,7 +19,11 @@ import Footer from '@/components/Footer';
 function LoginEntryButton() {
   const router = useRouter();
   const accessToken = useAuthStore((s) => s.accessToken);
+  const sessionRestoreAttempted = useAuthStore(
+    (s) => s.sessionRestoreAttempted,
+  );
 
+  if (!sessionRestoreAttempted) return null;
   if (accessToken != null) return null;
 
   return (
@@ -389,9 +393,7 @@ export default function LandingPage() {
             지금, <br />
             경험을 서류로 바꾸세요.
           </p>
-          <CommonButton variantType='Gradient' px='2.25rem' py='0.75rem'>
-            무료로 시작하기 →
-          </CommonButton>
+          <LoginEntryButton />
         </motion.div>
       </section>
 
