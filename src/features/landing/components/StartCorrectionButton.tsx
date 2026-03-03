@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import type { CommonButtonVariant } from '@/components/CommonButton';
+import { useAuthStore } from '@/store/useAuthStore';
 import { ReactNode } from 'react';
 
 interface StartCorrectionButtonProps {
@@ -21,9 +22,17 @@ export function StartCorrectionButton({
   py = '0.75rem',
 }: StartCorrectionButtonProps) {
   const router = useRouter();
+  const accessToken = useAuthStore((s) => s.accessToken);
 
   const handleClick = () => {
-    router.push('/correction/new');
+    const target = '/correction/new';
+
+    if (!accessToken) {
+      router.push(`/login?redirect_to=${encodeURIComponent(target)}`);
+      return;
+    }
+
+    router.push(target);
   };
 
   return (

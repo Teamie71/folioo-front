@@ -35,7 +35,15 @@ function isLocalProfile(): boolean {
 
 function getReturnPath(): string {
   if (typeof window !== 'undefined') {
-    const p = window.location.pathname + window.location.search;
+    const url = new URL(window.location.href);
+    const redirectTo = url.searchParams.get('redirect_to');
+
+    // 원하는 경로가 쿼리에 있으면 그 경로를 그대로 사용
+    if (url.pathname === '/login' && redirectTo) {
+      return redirectTo || '/';
+    }
+
+    const p = url.pathname + url.search;
     return p || '/';
   }
   return '/';

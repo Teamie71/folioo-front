@@ -1,8 +1,9 @@
 'use client';
 
 import { CommonButton } from '@/components/CommonButton';
+import { useAuthStore } from '@/store/useAuthStore';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ReactNode } from 'react';
 
 interface ContentCardProps {
@@ -15,6 +16,8 @@ interface ContentCardProps {
   buttonHref?: string;
   /* 지정 시 새로 렌더링*/
   customButton?: ReactNode;
+  /* true일 때 로그아웃 상태에서 클릭하면 로그인 페이지로 보냄 */
+  requireLogin?: boolean;
 }
 
 export const ContentCard = ({
@@ -24,7 +27,21 @@ export const ContentCard = ({
   icon,
   buttonHref,
   customButton,
+  requireLogin = false,
 }: ContentCardProps) => {
+  const router = useRouter();
+  const accessToken = useAuthStore((s) => s.accessToken);
+
+  const handleProtectedClick = () => {
+    if (!buttonHref) return;
+
+    if (requireLogin && !accessToken) {
+      router.push(`/login?redirect_to=${encodeURIComponent(buttonHref)}`);
+      return;
+    }
+
+    router.push(buttonHref);
+  };
   return (
     <motion.div
       className='flex h-[25.125rem] w-[21rem] flex-col items-center justify-center gap-[1.75rem] rounded-[1.75rem] bg-[#FCFCFF] shadow-[0px_4px_8px_0px_#00000033]'
@@ -47,12 +64,13 @@ export const ContentCard = ({
       {customButton ? (
         customButton
       ) : buttonHref ? (
-        <Link
-          href={buttonHref}
+        <button
+          type='button'
+          onClick={handleProtectedClick}
           className='inline-flex cursor-pointer items-center justify-center rounded-[6.25rem] border-[0.09375rem] border-[#5060C5] bg-[#F6F5FF] px-[2.25rem] py-[0.5rem] text-[1rem] font-semibold text-[#5060C5] hover:bg-[#EEEDF7]'
         >
           {buttonText}
-        </Link>
+        </button>
       ) : (
         <CommonButton variantType='Outline' px='2.25rem' py='0.5rem'>
           {buttonText}
