@@ -39,8 +39,8 @@ export default function WithdrawPage() {
     { id: '4', label: '기타' },
   ];
 
-  const { mutate: withdraw, isPending: isWithdrawing } = useUserControllerWithdraw(
-    {
+  const { mutate: withdraw, isPending: isWithdrawing } =
+    useUserControllerWithdraw({
       mutation: {
         onSuccess: () => {
           // 계정이 성공적으로 탈퇴되면 로컬 인증 정보도 즉시 정리
@@ -49,11 +49,12 @@ export default function WithdrawPage() {
         },
         onError: () => {
           // 서버 측 탈퇴 처리에 실패한 경우, 사용자에게 재시도를 안내
-          window.alert('탈퇴 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+          window.alert(
+            '탈퇴 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
+          );
         },
       },
-    },
-  );
+    });
 
   const handleWithdraw = () => {
     if (!isAgreed || !withdrawReason || isWithdrawing) return;
@@ -149,8 +150,7 @@ export default function WithdrawPage() {
                 </svg>
               </div>
               <p className='text-[1.125rem] leading-[150%] font-semibold text-[#000000]'>
-                인증된 휴대폰번호는 재가입 시 사용해도 가입 선물이 제공되지
-                않아요.
+                재가입 시에는 가입 선물이 제공되지 않아요.
               </p>
             </div>
           </div>
