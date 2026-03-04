@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     description: 'Folioo와 함께 나의 경쟁력을 발굴하세요.',
     url: SITE_URL,
     siteName: 'Folioo',
-    images: ['/OGImage.svg'],
+    images: [{ url: '/OGImage.png', width: 1200, height: 600 }],
     locale: 'ko_KR',
   },
   verification: {
