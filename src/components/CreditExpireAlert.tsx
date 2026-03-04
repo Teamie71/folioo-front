@@ -6,6 +6,19 @@ import { ButtonProps } from '@/components/ui/Button';
 import { cn } from '@/utils/utils';
 import { useRouter } from 'next/navigation';
 import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
+import { useUserControllerGetExpiringTickets } from '@/api/endpoints/user/user';
+
+/** API 만료일 값을 YYYY.MM.DD 문자열로 변환 */
+function formatExpireDate(
+  value: string | { [key: string]: unknown } | null | undefined
+): string {
+  if (value == null) return '-';
+  if (typeof value === 'string') {
+    const date = value.split('T')[0];
+    return date ? date.replace(/-/g, '.') : '-';
+  }
+  return '-';
+}
 
 interface CreditExpireAlertProps
   extends Omit<ButtonProps, 'variant' | 'children'> {
@@ -13,8 +26,8 @@ interface CreditExpireAlertProps
   px?: string | number;
   py?: string | number;
   href?: string | number;
-  expireDate?: string; // YYYY.MM.DD 형식
-  expireCredits?: number; // 만료 예정 크레딧 수
+  /** 만료 예정 조회 기간(일). 기본 365 */
+  expiringDays?: number;
 }
 
 export function CreditExpireAlert({
@@ -22,10 +35,24 @@ export function CreditExpireAlert({
   message,
   px = '1.25rem',
   py = '0.5rem',
-  expireDate = '2024.12.31',
-  expireCredits = 10,
+  expiringDays = 365,
   ...props
 }: CreditExpireAlertProps) {
+  const { data: expiringData } = useUserControllerGetExpiringTickets({
+    days: expiringDays,
+  });
+
+  const result = expiringData?.result;
+  const experienceCount = result?.experience?.count ?? 0;
+  const portfolioCount = result?.portfolioCorrection?.count ?? 0;
+  const experienceExpireDate = formatExpireDate(
+    result?.experience?.earliestExpiredAt as string | null | undefined
+  );
+  const portfolioExpireDate = formatExpireDate(
+    result?.portfolioCorrection?.earliestExpiredAt as string | null | undefined
+  );
+  const hasExpiring = experienceCount > 0 || portfolioCount > 0;
+
   const [isOpen, setIsOpen] = useState(false);
   const [obtModalOpen, setObtModalOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -48,6 +75,15 @@ export function CreditExpireAlert({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen]);
+
+  if (!hasExpiring) {
+    return (
+      <div
+        className='relative h-[2.75rem]'
+        aria-hidden
+      />
+    );
+  }
 
   return (
     <div ref={containerRef} className='relative'>
@@ -147,8 +183,18 @@ export function CreditExpireAlert({
             {/* 내용 영역 */}
             <div className='absolute inset-0 z-10 flex flex-col justify-center px-[2.5rem] pt-[0.25rem]'>
               <ul className='list-disc pt-[0.5rem] pl-[2.5rem] text-[1rem] font-semibold text-[#1A1A1A]'>
-                <li>{expireDate} 경험 정리 1회 이용권 만료 예정</li>
-                <li>{expireDate} 포트폴리오 첨삭 3회 이용권 만료 예정</li>
+                {experienceCount > 0 && (
+                  <li>
+                    {experienceExpireDate} 경험 정리 {experienceCount}회 이용권
+                    만료 예정
+                  </li>
+                )}
+                {portfolioCount > 0 && (
+                  <li>
+                    {portfolioExpireDate} 포트폴리오 첨삭 {portfolioCount}회
+                    이용권 만료 예정
+                  </li>
+                )}
               </ul>
               <p className='mt-[0.5rem] pl-[1.75rem] text-[0.875rem] text-[#74777D]'>
                 이용권 결제 또는 획득 내역은 {/* OBT 기간 동안 주석 처리 */}
