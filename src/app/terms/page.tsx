@@ -26,10 +26,6 @@ export default function TermsPage() {
   const queryClient = useQueryClient();
   const setAccessToken = useAuthStore((s) => s.setAccessToken);
   const setRefreshTokenCookie = useAuthStore((s) => s.setRefreshTokenCookie);
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const sessionRestoreAttempted = useAuthStore(
-    (s) => s.sessionRestoreAttempted,
-  );
   const processedTokensFromUrlRef = useRef(false);
 
   const [agreedService, setAgreedService] = useState(false);
@@ -78,16 +74,6 @@ export default function TermsPage() {
       window.history.replaceState(null, '', clean || '/terms');
     }
   }, [searchParams, setAccessToken, setRefreshTokenCookie]);
-
-  useEffect(() => {
-    if (!sessionRestoreAttempted || accessToken == null) return;
-    if (processedTokensFromUrlRef.current) return;
-    if (typeof window !== 'undefined' && window.history.length > 1) {
-      router.back();
-    } else {
-      router.replace('/');
-    }
-  }, [sessionRestoreAttempted, accessToken, router]);
 
   const handleSignUp = () => {
     if (!isRequiredAgreed) return;
