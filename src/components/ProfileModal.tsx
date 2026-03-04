@@ -173,13 +173,6 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
                 socialAccounts={profile?.socialAccounts ?? []}
               />
             </div>
-
-            <div className='mt-[1.5rem] mb-[1.5rem] w-full border border-[#CDD0D5]' />
-
-            <div className='flex items-center justify-between text-[1.125rem] leading-[150%] text-[#1A1A1A]'>
-              <p>휴대폰</p>
-              <p>{toDisplayString(profile?.phoneNum)}</p>
-            </div>
           </div>
 
           <div className='flex flex-col gap-[1.5rem] rounded-[1.25rem] bg-[#FDFDFD] px-[1.75rem] py-[1.5rem]'>
