@@ -11,6 +11,7 @@ import { ChallengeModal } from '@/components/ChallengeModal';
 import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { BigTicketIcon } from '@/components/icons/BigTicketIcon';
 import { BigCalendarIcon } from '@/components/icons/BigCalendarIcon';
+import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
 
 type VoucherType = 'experience' | 'portfolio';
 
@@ -36,7 +37,10 @@ const PORTFOLIO_VOUCHERS: VoucherOption[] = [
 type SelectedVoucher = { type: VoucherType; option: VoucherOption };
 
 function TopupPageContent() {
-  const currentCredits = 1; // TODO: 실제 사용자 데이터로 교체
+  const { data: ticketBalance } = useUserControllerGetTicketBalance();
+  const experienceCount = ticketBalance?.result?.experience?.count ?? 0;
+  const portfolioCount = ticketBalance?.result?.portfolioCorrection?.count ?? 0;
+
   const [selectedVoucher, setSelectedVoucher] =
     useState<SelectedVoucher | null>(null);
   const [challengeModalOpen, setChallengeModalOpen] = useState(false);
@@ -123,7 +127,7 @@ function TopupPageContent() {
                   </span>
                   <div>
                     <span className='text-[1.25rem] font-bold text-[#1A1A1A]'>
-                      {currentCredits}
+                      {experienceCount}
                     </span>
                     <span className='text-[1.25rem] font-normal text-[#1A1A1A]'>
                       {' '}
@@ -137,7 +141,7 @@ function TopupPageContent() {
                   </span>
                   <div>
                     <span className='text-[1.25rem] font-bold text-[#1A1A1A]'>
-                      {currentCredits}
+                      {portfolioCount}
                     </span>
                     <span className='text-[1.25rem] font-normal text-[#1A1A1A]'>
                       {' '}
