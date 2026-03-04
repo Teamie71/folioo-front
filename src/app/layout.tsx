@@ -11,6 +11,9 @@ const gaId = process.env.NEXT_PUBLIC_GA_ID ?? '';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: 'Folioo',
+  icons: {
+    icon: [{ url: '/FaviconWeb.svg', type: 'image/svg+xml' }],
+  },
 };
 
 const pretendard = localFont({
