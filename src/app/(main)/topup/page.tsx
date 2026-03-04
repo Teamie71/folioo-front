@@ -62,6 +62,15 @@ function TopupPageContent() {
     {
       id: 'review',
       icon: <BigTicketIcon />,
+      title: 'Folioo 사용 후기를 남기면, 무료 이용권 2종 추가 지급!',
+      description:
+        '이번 주의 첫 피드백을 남겨주시면, 감사의 마음을 담아 무료 이용권을 드려요.',
+      cta: '피드백 남기기',
+    },
+    /* OBT 기간 주석 처리
+    {
+      id: 'review',
+      icon: <BigTicketIcon />,
       title: 'Folioo 사용 후기를 남기면, 원하는 이용권이 하나 더!',
       description:
         '첫 피드백을 남겨주시면, 감사의 마음을 담아 원하시는 무료 이용권을 드려요.',
@@ -73,7 +82,7 @@ function TopupPageContent() {
       title: '제목제목제목',
       description: '설명설명설명',
       cta: 'CTA',
-    },
+    }, */
   ];
 
   const handlePurchaseClick = (type: VoucherType, option: VoucherOption) => {
