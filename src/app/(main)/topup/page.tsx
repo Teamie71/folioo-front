@@ -12,6 +12,7 @@ import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { BigTicketIcon } from '@/components/icons/BigTicketIcon';
 import { BigCalendarIcon } from '@/components/icons/BigCalendarIcon';
 import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
+import { useAuthStore } from '@/store/useAuthStore';
 
 type VoucherType = 'experience' | 'portfolio';
 
@@ -37,6 +38,7 @@ const PORTFOLIO_VOUCHERS: VoucherOption[] = [
 type SelectedVoucher = { type: VoucherType; option: VoucherOption };
 
 function TopupPageContent() {
+  const accessToken = useAuthStore((s) => s.accessToken);
   const { data: ticketBalance } = useUserControllerGetTicketBalance();
   const experienceCount = ticketBalance?.result?.experience?.count ?? 0;
   const portfolioCount = ticketBalance?.result?.portfolioCorrection?.count ?? 0;
@@ -125,40 +127,42 @@ function TopupPageContent() {
                 </div>
               </div>
 
-              {/* 현재 보유 크레딧 */}
-              <div className='relative flex flex-col items-end gap-[0.5rem]'>
-                <span className='mb-[0.75rem] text-[1.25rem] font-bold text-[#1A1A1A]'>
-                  나의 잔여 이용권
-                </span>
-                <div className='flex items-center gap-[1.25rem]'>
-                  <span className='text-[1.125rem] font-normal text-[#1A1A1A]'>
-                    경험 정리
+              {/* 현재 보유 크레딧 (로그인 시에만 표시) */}
+              {accessToken && (
+                <div className='relative flex flex-col items-end gap-[0.5rem]'>
+                  <span className='mb-[0.75rem] text-[1.25rem] font-bold text-[#1A1A1A]'>
+                    나의 잔여 이용권
                   </span>
-                  <div>
-                    <span className='text-[1.25rem] font-bold text-[#1A1A1A]'>
-                      {experienceCount}
+                  <div className='flex items-center gap-[1.25rem]'>
+                    <span className='text-[1.125rem] font-normal text-[#1A1A1A]'>
+                      경험 정리
                     </span>
-                    <span className='text-[1.25rem] font-normal text-[#1A1A1A]'>
-                      {' '}
-                      회
+                    <div>
+                      <span className='text-[1.25rem] font-bold text-[#1A1A1A]'>
+                        {experienceCount}
+                      </span>
+                      <span className='text-[1.25rem] font-normal text-[#1A1A1A]'>
+                        {' '}
+                        회
+                      </span>
+                    </div>
+                  </div>
+                  <div className='flex items-center gap-[1.25rem]'>
+                    <span className='text-[1.125rem] font-normal text-[#1A1A1A]'>
+                      포트폴리오 첨삭
                     </span>
+                    <div>
+                      <span className='text-[1.25rem] font-bold text-[#1A1A1A]'>
+                        {portfolioCount}
+                      </span>
+                      <span className='text-[1.25rem] font-normal text-[#1A1A1A]'>
+                        {' '}
+                        회
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className='flex items-center gap-[1.25rem]'>
-                  <span className='text-[1.125rem] font-normal text-[#1A1A1A]'>
-                    포트폴리오 첨삭
-                  </span>
-                  <div>
-                    <span className='text-[1.25rem] font-bold text-[#1A1A1A]'>
-                      {portfolioCount}
-                    </span>
-                    <span className='text-[1.25rem] font-normal text-[#1A1A1A]'>
-                      {' '}
-                      회
-                    </span>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
