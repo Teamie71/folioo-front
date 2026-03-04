@@ -6,18 +6,33 @@
  * OpenAPI spec version: 1.0.0
  */
 import {
-  useMutation
+  useMutation,
+  useQuery
 } from '@tanstack/react-query';
 import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
   MutationFunction,
   QueryClient,
+  QueryFunction,
+  QueryKey,
+  UndefinedInitialDataOptions,
   UseMutationOptions,
-  UseMutationResult
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult
 } from '@tanstack/react-query';
 
 import type {
   CommonResponse,
-  SendInterviewChatReqDTO
+  InterviewControllerGetSessionState200,
+  SendInterviewChatReqDTO,
+  StreamContentBlockDeltaDTO,
+  StreamMessageCompleteDTO,
+  StreamPingDTO,
+  StreamRetrieverResultDTO,
+  StreamRetrieverStatusDTO
 } from '../../models';
 
 import { customInstance } from '../../../lib/axios';
@@ -37,7 +52,7 @@ export const interviewControllerCreateSessionStream = (
 ) => {
       
       
-      return customInstance<void>(
+      return customInstance<StreamContentBlockDeltaDTO | StreamMessageCompleteDTO>(
       {url: `/interview/experiences/${experienceId}/session/stream`, method: 'POST', signal
     },
       options);
@@ -100,7 +115,7 @@ export const interviewControllerSendChatStream = (
 ) => {
       
       
-      return customInstance<unknown>(
+      return customInstance<StreamRetrieverStatusDTO | StreamRetrieverResultDTO | StreamPingDTO | StreamContentBlockDeltaDTO | StreamMessageCompleteDTO>(
       {url: `/interview/experiences/${experienceId}/messages/stream`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: sendInterviewChatReqDTO, signal
@@ -154,4 +169,94 @@ export const useInterviewControllerSendChatStream = <TError = CommonResponse,
       > => {
       return useMutation(getInterviewControllerSendChatStreamMutationOptions(options), queryClient);
     }
+    /**
+ * AI 서버에서 관리하는 인터뷰 세션 상태를 조회합니다. 메시지 목록과 진행 단계 정보를 포함합니다.
+ * @summary 인터뷰 세션 상태 조회
+ */
+export const interviewControllerGetSessionState = (
+    experienceId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InterviewControllerGetSessionState200>(
+      {url: `/interview/experiences/${experienceId}/status`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getInterviewControllerGetSessionStateQueryKey = (experienceId: number,) => {
+    return [
+    `/interview/experiences/${experienceId}/status`
+    ] as const;
+    }
+
     
+export const getInterviewControllerGetSessionStateQueryOptions = <TData = Awaited<ReturnType<typeof interviewControllerGetSessionState>>, TError = CommonResponse>(experienceId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof interviewControllerGetSessionState>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getInterviewControllerGetSessionStateQueryKey(experienceId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof interviewControllerGetSessionState>>> = ({ signal }) => interviewControllerGetSessionState(experienceId, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(experienceId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof interviewControllerGetSessionState>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type InterviewControllerGetSessionStateQueryResult = NonNullable<Awaited<ReturnType<typeof interviewControllerGetSessionState>>>
+export type InterviewControllerGetSessionStateQueryError = CommonResponse
+
+
+export function useInterviewControllerGetSessionState<TData = Awaited<ReturnType<typeof interviewControllerGetSessionState>>, TError = CommonResponse>(
+ experienceId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof interviewControllerGetSessionState>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof interviewControllerGetSessionState>>,
+          TError,
+          Awaited<ReturnType<typeof interviewControllerGetSessionState>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useInterviewControllerGetSessionState<TData = Awaited<ReturnType<typeof interviewControllerGetSessionState>>, TError = CommonResponse>(
+ experienceId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof interviewControllerGetSessionState>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof interviewControllerGetSessionState>>,
+          TError,
+          Awaited<ReturnType<typeof interviewControllerGetSessionState>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useInterviewControllerGetSessionState<TData = Awaited<ReturnType<typeof interviewControllerGetSessionState>>, TError = CommonResponse>(
+ experienceId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof interviewControllerGetSessionState>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 인터뷰 세션 상태 조회
+ */
+
+export function useInterviewControllerGetSessionState<TData = Awaited<ReturnType<typeof interviewControllerGetSessionState>>, TError = CommonResponse>(
+ experienceId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof interviewControllerGetSessionState>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getInterviewControllerGetSessionStateQueryOptions(experienceId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
