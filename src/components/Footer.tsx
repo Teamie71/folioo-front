@@ -40,20 +40,21 @@ export default function Footer() {
 
             <div className='flex flex-col gap-[0.5rem] text-[0.875rem] leading-[150%] text-[#74777D]'>
               <div className='flex items-center gap-[1.5rem]'>
-                <p>상호명: Teamie</p>
+                <p>상호명: 티미(Teamie)</p>
                 <p>대표자: 김수빈</p>
                 <p>개인정보관리책임자: 김수빈</p>
               </div>
 
               <div className='flex items-center gap-[1.5rem]'>
-                <p>사업자등록번호: 000-00-00000</p>
+                <p>사업자등록번호: 512-16-02706</p>
                 <p>전화번호: 010-5797-0358</p>
                 <p>이메일: teamie0701@gmail.com</p>
               </div>
 
               <div className='flex items-center gap-[1.5rem]'>
                 <p>
-                  주소: (23015) 인천광역시 강화군 하점면 창후로174번길 13-28
+                  주소: (23015) 인천광역시 강화군 하점면 창후로174번길 13-27,
+                  일부
                 </p>
               </div>
             </div>
