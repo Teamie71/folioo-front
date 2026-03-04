@@ -1,10 +1,17 @@
+import type { Metadata } from 'next';
 import '../styles/globals.css';
 import localFont from 'next/font/local';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { AuthProvider } from '@/contexts/AuthProvider';
 import { QueryProvider } from '@/contexts/QueryProvider';
+import { SITE_URL } from '@/constants/seo';
 
 const gaId = process.env.NEXT_PUBLIC_GA_ID ?? '';
+
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: 'Folioo',
+};
 
 const pretendard = localFont({
   src: './fonts/PretendardVariable.woff2',
