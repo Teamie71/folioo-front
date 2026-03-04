@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,7 +20,7 @@ import { cn } from '@/utils/utils';
 const ACCESS_TOKEN_PARAM = 'access_token';
 const REFRESH_TOKEN_PARAM = 'refresh_token';
 
-export default function TermsPage() {
+function TermsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
@@ -924,5 +924,19 @@ stroke={agreedService ? '#FFFFFF' : '#9EA4A9'}
 
       <Footer />
     </div>
+  );
+}
+
+export default function TermsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className='flex min-h-screen items-center justify-center'>
+          <span className='text-[1rem] text-[#666]'>로딩 중...</span>
+        </div>
+      }
+    >
+      <TermsPageContent />
+    </Suspense>
   );
 }
