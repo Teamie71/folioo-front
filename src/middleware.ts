@@ -23,17 +23,26 @@ function isMobilePhone(userAgent: string | null): boolean {
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  // 모바일 차단 페이지, 정적 파일, API, _next 제외
+  const userAgent = request.headers.get('user-agent');
+
+  // /mobile-blocked에서 새로고침 시
+  // - 스마트폰이면 그대로 유지
+  // - 스마트폰이 아니면 기본 페이지(/)로 리다이렉트
+  if (pathname.startsWith('/mobile-blocked')) {
+    if (!isMobilePhone(userAgent)) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // 정적 파일, API, _next 제외
   if (
-    pathname.startsWith('/mobile-blocked') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname.includes('.') // favicon, images, etc.
   ) {
     return NextResponse.next();
   }
-
-  const userAgent = request.headers.get('user-agent');
 
   // 스마트폰만 차단 (태블릿은 허용)
   if (isMobilePhone(userAgent)) {
