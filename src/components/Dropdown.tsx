@@ -155,7 +155,14 @@ export function Dropdown({
                   onMouseLeave={() => setHoveredItemId(null)}
                   onClick={() => handleItemClick(item.id)}
                 >
-                  <span className='text-[1rem] text-[#1A1A1A]'>
+                  <span
+                    className={cn(
+                      'text-[1rem]',
+                      isHovered
+                        ? 'text-[#5060C5] font-semibold'
+                        : 'text-[#1A1A1A]',
+                    )}
+                  >
                     {item.label}
                   </span>
                   <div className='flex h-[28px] w-[28px] flex-shrink-0 items-center justify-center'>
