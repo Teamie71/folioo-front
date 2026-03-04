@@ -6,12 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface SendInterviewChatReqDTO {
-  /**
-   * 사용자 메시지
-   * @minLength 1
-   */
+export interface StreamRetrieverStatusDTO {
+  type: string;
   message: string;
-  /** 언급한 인사이트 ID (단일) */
-  insightId?: number;
 }
