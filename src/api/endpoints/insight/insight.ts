@@ -35,8 +35,6 @@ import type {
   InsightControllerGetLogs200,
   InsightControllerGetLogsParams,
   InsightControllerGetSimpleLogs200,
-  InsightControllerSearchVector200,
-  InsightControllerSearchVectorParams,
   InsightControllerUpdateLog200,
   UpdateInsightReqDTO
 } from '../../models';
@@ -423,98 +421,6 @@ export const useInsightControllerDeleteLog = <TError = CommonResponse,
       return useMutation(getInsightControllerDeleteLogMutationOptions(options), queryClient);
     }
     /**
- * 키워드를 통해 인사이트 로그를 검색합니다.
- * @summary 인사이트 로그 유사도 검색
- */
-export const insightControllerSearchVector = (
-    params: InsightControllerSearchVectorParams,
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
-) => {
-      
-      
-      return customInstance<InsightControllerSearchVector200>(
-      {url: `/insights/search`, method: 'GET',
-        params, signal
-    },
-      options);
-    }
-  
-
-
-
-export const getInsightControllerSearchVectorQueryKey = (params?: InsightControllerSearchVectorParams,) => {
-    return [
-    `/insights/search`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-    
-export const getInsightControllerSearchVectorQueryOptions = <TData = Awaited<ReturnType<typeof insightControllerSearchVector>>, TError = CommonResponse>(params: InsightControllerSearchVectorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerSearchVector>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
-) => {
-
-const {query: queryOptions, request: requestOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getInsightControllerSearchVectorQueryKey(params);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof insightControllerSearchVector>>> = ({ signal }) => insightControllerSearchVector(params, requestOptions, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof insightControllerSearchVector>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type InsightControllerSearchVectorQueryResult = NonNullable<Awaited<ReturnType<typeof insightControllerSearchVector>>>
-export type InsightControllerSearchVectorQueryError = CommonResponse
-
-
-export function useInsightControllerSearchVector<TData = Awaited<ReturnType<typeof insightControllerSearchVector>>, TError = CommonResponse>(
- params: InsightControllerSearchVectorParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerSearchVector>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof insightControllerSearchVector>>,
-          TError,
-          Awaited<ReturnType<typeof insightControllerSearchVector>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useInsightControllerSearchVector<TData = Awaited<ReturnType<typeof insightControllerSearchVector>>, TError = CommonResponse>(
- params: InsightControllerSearchVectorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerSearchVector>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof insightControllerSearchVector>>,
-          TError,
-          Awaited<ReturnType<typeof insightControllerSearchVector>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useInsightControllerSearchVector<TData = Awaited<ReturnType<typeof insightControllerSearchVector>>, TError = CommonResponse>(
- params: InsightControllerSearchVectorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerSearchVector>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary 인사이트 로그 유사도 검색
- */
-
-export function useInsightControllerSearchVector<TData = Awaited<ReturnType<typeof insightControllerSearchVector>>, TError = CommonResponse>(
- params: InsightControllerSearchVectorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof insightControllerSearchVector>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getInsightControllerSearchVectorQueryOptions(params,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-/**
  * 활동명을 생성합니다. 인당 10개 제한이 있으며, 활동명은 unique합니다.
  * @summary 활동 분류 태그 생성
  */

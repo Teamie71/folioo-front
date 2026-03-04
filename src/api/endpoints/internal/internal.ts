@@ -22,7 +22,10 @@ import type {
 
 import type {
   CommonResponse,
-  InternalControllerGetHealth200
+  InternalControllerGetHealth200,
+  InternalControllerGetInternalInsight200,
+  InternalControllerSearchInternalInsights200,
+  InternalControllerSearchInternalInsightsParams
 } from '../../models';
 
 import { customInstance } from '../../../lib/axios';
@@ -43,7 +46,7 @@ export const internalControllerGetHealth = (
       
       
       return customInstance<InternalControllerGetHealth200>(
-      {url: `/api/v1/internal/health`, method: 'GET', signal
+      {url: `/internal/health`, method: 'GET', signal
     },
       options);
     }
@@ -53,7 +56,7 @@ export const internalControllerGetHealth = (
 
 export const getInternalControllerGetHealthQueryKey = () => {
     return [
-    `/api/v1/internal/health`
+    `/internal/health`
     ] as const;
     }
 
@@ -114,6 +117,189 @@ export function useInternalControllerGetHealth<TData = Awaited<ReturnType<typeof
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getInternalControllerGetHealthQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
+ * AI 서버가 키워드 기반으로 사용자 인사이트를 벡터 검색합니다.
+ * @summary 인사이트 로그 유사도 검색 (Internal)
+ */
+export const internalControllerSearchInternalInsights = (
+    params: InternalControllerSearchInternalInsightsParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InternalControllerSearchInternalInsights200>(
+      {url: `/internal/insights/search`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+  
+
+
+
+export const getInternalControllerSearchInternalInsightsQueryKey = (params?: InternalControllerSearchInternalInsightsParams,) => {
+    return [
+    `/internal/insights/search`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getInternalControllerSearchInternalInsightsQueryOptions = <TData = Awaited<ReturnType<typeof internalControllerSearchInternalInsights>>, TError = CommonResponse>(params: InternalControllerSearchInternalInsightsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalControllerSearchInternalInsights>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getInternalControllerSearchInternalInsightsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof internalControllerSearchInternalInsights>>> = ({ signal }) => internalControllerSearchInternalInsights(params, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof internalControllerSearchInternalInsights>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type InternalControllerSearchInternalInsightsQueryResult = NonNullable<Awaited<ReturnType<typeof internalControllerSearchInternalInsights>>>
+export type InternalControllerSearchInternalInsightsQueryError = CommonResponse
+
+
+export function useInternalControllerSearchInternalInsights<TData = Awaited<ReturnType<typeof internalControllerSearchInternalInsights>>, TError = CommonResponse>(
+ params: InternalControllerSearchInternalInsightsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalControllerSearchInternalInsights>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof internalControllerSearchInternalInsights>>,
+          TError,
+          Awaited<ReturnType<typeof internalControllerSearchInternalInsights>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useInternalControllerSearchInternalInsights<TData = Awaited<ReturnType<typeof internalControllerSearchInternalInsights>>, TError = CommonResponse>(
+ params: InternalControllerSearchInternalInsightsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalControllerSearchInternalInsights>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof internalControllerSearchInternalInsights>>,
+          TError,
+          Awaited<ReturnType<typeof internalControllerSearchInternalInsights>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useInternalControllerSearchInternalInsights<TData = Awaited<ReturnType<typeof internalControllerSearchInternalInsights>>, TError = CommonResponse>(
+ params: InternalControllerSearchInternalInsightsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalControllerSearchInternalInsights>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 인사이트 로그 유사도 검색 (Internal)
+ */
+
+export function useInternalControllerSearchInternalInsights<TData = Awaited<ReturnType<typeof internalControllerSearchInternalInsights>>, TError = CommonResponse>(
+ params: InternalControllerSearchInternalInsightsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalControllerSearchInternalInsights>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getInternalControllerSearchInternalInsightsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
+ * AI 서버가 insightId별 인사이트 로그 내용을 가져갈 때 사용합니다.
+ * @summary 인사이트 로그 단건 조회 (Internal)
+ */
+export const internalControllerGetInternalInsight = (
+    insightId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InternalControllerGetInternalInsight200>(
+      {url: `/internal/insights/${insightId}`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getInternalControllerGetInternalInsightQueryKey = (insightId: number,) => {
+    return [
+    `/internal/insights/${insightId}`
+    ] as const;
+    }
+
+    
+export const getInternalControllerGetInternalInsightQueryOptions = <TData = Awaited<ReturnType<typeof internalControllerGetInternalInsight>>, TError = CommonResponse>(insightId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalControllerGetInternalInsight>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getInternalControllerGetInternalInsightQueryKey(insightId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof internalControllerGetInternalInsight>>> = ({ signal }) => internalControllerGetInternalInsight(insightId, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(insightId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof internalControllerGetInternalInsight>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type InternalControllerGetInternalInsightQueryResult = NonNullable<Awaited<ReturnType<typeof internalControllerGetInternalInsight>>>
+export type InternalControllerGetInternalInsightQueryError = CommonResponse
+
+
+export function useInternalControllerGetInternalInsight<TData = Awaited<ReturnType<typeof internalControllerGetInternalInsight>>, TError = CommonResponse>(
+ insightId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalControllerGetInternalInsight>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof internalControllerGetInternalInsight>>,
+          TError,
+          Awaited<ReturnType<typeof internalControllerGetInternalInsight>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useInternalControllerGetInternalInsight<TData = Awaited<ReturnType<typeof internalControllerGetInternalInsight>>, TError = CommonResponse>(
+ insightId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalControllerGetInternalInsight>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof internalControllerGetInternalInsight>>,
+          TError,
+          Awaited<ReturnType<typeof internalControllerGetInternalInsight>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useInternalControllerGetInternalInsight<TData = Awaited<ReturnType<typeof internalControllerGetInternalInsight>>, TError = CommonResponse>(
+ insightId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalControllerGetInternalInsight>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 인사이트 로그 단건 조회 (Internal)
+ */
+
+export function useInternalControllerGetInternalInsight<TData = Awaited<ReturnType<typeof internalControllerGetInternalInsight>>, TError = CommonResponse>(
+ insightId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalControllerGetInternalInsight>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getInternalControllerGetInternalInsightQueryOptions(insightId,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

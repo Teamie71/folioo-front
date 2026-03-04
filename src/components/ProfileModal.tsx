@@ -256,9 +256,14 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
               <p className='text-[1.125rem] leading-[150%] text-[#DC0000]'>
                 회원 탈퇴
               </p>
-              <button className='scale-x-[-1] cursor-pointer'>
+              <Link
+                href='/withdraw'
+                className='scale-x-[-1] cursor-pointer'
+                aria-label='회원 탈퇴'
+                onClick={() => onOpenChange(false)}
+              >
                 <ChevronLeftIcon />
-              </button>
+              </Link>
             </div>
           </div>
         </div>
