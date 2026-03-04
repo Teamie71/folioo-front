@@ -41,7 +41,7 @@ export default function TOSPage() {
                 <p className='font-regular text-[1.125rem] leading-[150%]'>
                   본 약관에서 사용하는 주요 용어의 정의는 다음과 같습니다.{' '}
                   <br />
-                  <div className='ml-[0.25rem]'>
+                  <span className='ml-[0.25rem] block'>
                     1. &quot;이용권&quot;이란 회원이 서비스 내의 특정 기능을
                     이용할 수 있도록 회사가 발행하는 무형의 재화를 말합니다.{' '}
                     <br />
@@ -50,7 +50,7 @@ export default function TOSPage() {
                     통해 무상으로 지급한 이용권을 말합{' '}
                     {'\u00A0\u00A0\u00A0\u00A0\u00A0'}
                     니다.
-                  </div>
+                  </span>
                 </p>
               </div>
 
@@ -88,7 +88,7 @@ export default function TOSPage() {
                   「콘텐츠이용자보호지침」에 따라 아래와 같은 환불 규정을
                   적용합니다.
                   <br />
-                  <div className='ml-[0.25rem]'>
+                  <span className='ml-[0.25rem] block'>
                     1. 전액 환불 (청약 철회)
                     <br />
                     {'\u00A0\u00A0'}
@@ -143,7 +143,7 @@ export default function TOSPage() {
                     {'\u00A0\u00A0\u00A0\u00A0\u00A0'}이용권을 전량 회수하고
                     서비스 이용을 영구 정지할 수 있으며 관련 결제건은 환불되지
                     않습니다.
-                  </div>
+                  </span>
                 </p>
               </div>
 

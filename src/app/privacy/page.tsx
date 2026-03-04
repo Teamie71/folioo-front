@@ -51,7 +51,7 @@ export default function PrivacyPage() {
                   처리하고 있는 개인정보는 다음의 목적 이외의 용도로는 이용되지
                   않으며, 이용 목적이 변경되는 경우에는 별도의 동의를 받는 등
                   필요한 조치를 이행할 예정입니다.
-                  <div className='ml-[0.25rem]'>
+                  <span className='ml-[0.25rem] block'>
                     1. 회원 가입 및 관리
                     <br />
                     {'\u00A0\u00A0'}• 소셜 로그인(OAuth) 연동 본인 확인, 가입
@@ -67,7 +67,7 @@ export default function PrivacyPage() {
                     <br />
                     {'\u00A0\u00A0'}• 서비스 이용 기록 기반의 통계 분석, 신규
                     기능 개발 및 AI 서비스 품질 향상
-                  </div>
+                  </span>
                 </p>
               </div>
 
@@ -75,7 +75,7 @@ export default function PrivacyPage() {
                 제 2조 (수집하는 개인정보의 항목)
                 <br />
                 <p className='font-regular text-[1.125rem] leading-[150%]'>
-                  <div className='ml-[0.25rem]'>
+                  <span className='ml-[0.25rem] block'>
                     1. 회원가입 시 필수 수집 항목
                     <br />
                     {'\u00A0\u00A0'}• 성명, 이메일 주소, 로그인타입,
@@ -95,7 +95,7 @@ export default function PrivacyPage() {
                     <br />
                     {'\u00A0\u00A0'}• 회사는 이용자의 사상·신념, 건강 등에 관한
                     민감정보를 수집하지 않습니다.
-                  </div>
+                  </span>
                 </p>
               </div>
 
@@ -106,7 +106,7 @@ export default function PrivacyPage() {
                   회사는 법령에 따른 개인정보 보유·이용기간 또는 정보주체로부터
                   개인정보를 수집 시에 동의 받은 기간 내에서 개인정보를 처리 및
                   보유합니다.
-                  <div className='ml-[0.25rem]'>
+                  <span className='ml-[0.25rem] block'>
                     1. 원칙적 파기
                     <br />
                     {'\u00A0\u00A0'}• 회원 탈퇴 시 이름, 이메일 주소, 로그인
@@ -137,7 +137,7 @@ export default function PrivacyPage() {
                     {'\u00A0\u00A0\u00A0\u00A0\u00A0'}해제되며, 특정 개인을
                     식별할 수 없는 데이터 상태로 서비스 품질 향상을 위해 영구
                     보관됩니다.
-                  </div>
+                  </span>
                 </p>
               </div>
 
@@ -145,7 +145,7 @@ export default function PrivacyPage() {
                 제 4조 (개인정보의 제 3자 제공 및 처리 위탁)
                 <br />
                 <p className='font-regular text-[1.125rem] leading-[150%]'>
-                  <div className='ml-[0.25rem]'>
+                  <span className='ml-[0.25rem] block'>
                     1. 개인정보 처리 위탁
                     <br />
                     회사는 원활한 서비스 제공을 위하여 다음과 같이 개인정보 처리
@@ -171,7 +171,7 @@ export default function PrivacyPage() {
                     <br />
                     {'\u00A0\u00A0'}• 법령의 규정에 따른 경우 또는 수사 목적으로
                     법령에 정해진 절차와 방법에 따라 수사기관의 요구가 있는 경우
-                  </div>
+                  </span>
                 </p>
               </div>
 
@@ -193,11 +193,11 @@ export default function PrivacyPage() {
                 <p className='font-regular text-[1.125rem] leading-[150%]'>
                   회사는 개인정보 처리에 관한 업무를 총괄하여 책임지는 개인정보
                   보호책임자를 지정하고 있습니다.
-                  <div className='ml-[0.25rem]'>
+                  <span className='ml-[0.25rem] block'>
                     {'\u00A0\u00A0'}• 개인정보 보호책임자: 김수빈
                     <br />
                     {'\u00A0\u00A0'}• 소속/ 직위: 티미(Teamie)/ 대표
-                  </div>
+                  </span>
                 </p>
               </div>
 
@@ -205,12 +205,12 @@ export default function PrivacyPage() {
                 제 7조 (개인정보처리방침의 효력 및 변경)
                 <br />
                 <p className='font-regular text-[1.125rem] leading-[150%]'>
-                  <div className='ml-[0.25rem]'>
+                  <span className='ml-[0.25rem] block'>
                     1. 본 방침은 2026년 3월 9일부터 적용됩니다.
                     <br />
                     2. 법령·정책·서비스 변경에 따라 내용이 변경될 경우, 변경
                     사유 및 시행일자를 명시하여 사전 공지합니다.
-                  </div>
+                  </span>
                 </p>
               </div>
 

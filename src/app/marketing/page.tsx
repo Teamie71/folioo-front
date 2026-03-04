@@ -40,14 +40,14 @@ export default function MarketingPage() {
                 제 2조 (정의)
                 <br />
                 <p className='font-regular text-[1.125rem] leading-[150%]'>
-                  <div className='ml-[0.25rem]'>
+                  <span className='ml-[0.25rem] block'>
                     1. &quot;마케팅 정보&quot;란 회사가 제공하는 서비스 관련
                     소식, 이벤트·프로모션, 설문조사, 신규 기능 안내 등을
                     의미합니다.
                     <br />
                     2. &quot;수신 동의&quot;란 이용자가 회사로부터 마케팅 정보를
                     수신하는 것에 대해 명시적으로 동의하는 행위를 말합니다.
-                  </div>
+                  </span>
                 </p>
               </div>
 
@@ -57,7 +57,7 @@ export default function MarketingPage() {
                 <p className='font-regular text-[1.125rem] leading-[150%]'>
                   본 약관에서 사용하는 주요 용어의 정의는 다음과 같습니다.{' '}
                   <br />
-                  <div className='ml-[0.25rem]'>
+                  <span className='ml-[0.25rem] block'>
                     1. 수집 항목
                     <br />
                     {'\u00A0\u00A0'}• 성명, 이메일 주소, 전화번호
@@ -66,7 +66,7 @@ export default function MarketingPage() {
                     <br />
                     {'\u00A0\u00A0'}• 마케팅 정보의 발송과 통계·분석을 통한
                     서비스 개선
-                  </div>
+                  </span>
                 </p>
               </div>
 
@@ -77,13 +77,13 @@ export default function MarketingPage() {
                   회사는 본 약관에 동의한 이용자에게 아래 채널을 통해 마케팅
                   정보를 발신할 수 있습니다.
                   <br />
-                  <div className='ml-[0.25rem]'>
+                  <span className='ml-[0.25rem] block'>
                     1. 이메일
                     <br />
                     2. SMS (문자)
                     <br />
                     3. 카카오톡 등 메신저 서비스
-                  </div>
+                  </span>
                 </p>
               </div>
 
@@ -91,7 +91,7 @@ export default function MarketingPage() {
                 제 5조 (보유 및 이용 기간)
                 <br />
                 <p className='font-regular text-[1.125rem] leading-[150%]'>
-                  <div className='ml-[0.25rem]'>
+                  <span className='ml-[0.25rem] block'>
                     1. 수신 동의 철회 전까지 회사는 동의 정보를 보유·이용합니다.
                     <br />
                     2. 동의 철회 시 회사는 지체 없이 해당 정보의 &apos;마케팅
@@ -100,7 +100,7 @@ export default function MarketingPage() {
                     <br />
                     {'\u00A0\u00A0\u00A0\u00A0'}「개인정보처리방침」에 명시된
                     기간 동안 안전하게 보관됩니다.
-                  </div>
+                  </span>
                 </p>
               </div>
 
@@ -110,10 +110,10 @@ export default function MarketingPage() {
                 <p className='font-regular text-[1.125rem] leading-[150%]'>
                   본 약관에서 사용하는 주요 용어의 정의는 다음과 같습니다.{' '}
                   <br />
-                  <div className='ml-[0.25rem]'>
+                  <span className='ml-[0.25rem] block'>
                     1. 서비스 내의 [프로필 &gt; &apos;마케팅 정보 수신
                     동의&apos; 토글]을 통해 수신 동의를 철회하실 수 있습니다.
-                  </div>
+                  </span>
                 </p>
               </div>
 
@@ -121,14 +121,14 @@ export default function MarketingPage() {
                 제 7조 (동의 거부에 따른 불이익)
                 <br />
                 <p className='font-regular text-[1.125rem] leading-[150%]'>
-                  <div className='ml-[0.25rem]'>
+                  <span className='ml-[0.25rem] block'>
                     1. 본 동의는 선택 사항이므로 동의를 거부하실 수 있습니다.
                     동의를 거부하시더라도 서비스의 가입 및 이용에는 아무런
                     불이익이 없습니다.
                     <br />
                     {'\u00A0\u00A0\u00A0\u00A0'}단, 동의 거부 시 마케팅 정보를
                     통한 유용한 혜택 제공이 제한될 수 있습니다.
-                  </div>
+                  </span>
                 </p>
               </div>
 
@@ -136,12 +136,12 @@ export default function MarketingPage() {
                 제 8조 (약관의 효력 및 변경)
                 <br />
                 <p className='font-regular text-[1.125rem] leading-[150%]'>
-                  <div className='ml-[0.25rem]'>
+                  <span className='ml-[0.25rem] block'>
                     1. 본 약관은 2026년 3월 9일부터 적용됩니다.
                     <br />
                     2. 법령·정책·서비스 변경에 따라 내용이 변경될 경우, 변경
                     사유 및 시행일자를 명시하여 사전 공지합니다.
-                  </div>
+                  </span>
                 </p>
               </div>
 
