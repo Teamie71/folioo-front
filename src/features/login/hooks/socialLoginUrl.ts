@@ -33,20 +33,25 @@ function isLocalProfile(): boolean {
   }
 }
 
+/* 로그인/회원가입 후 기본으로 갈 경로. 회원가입 시 terms를 반드시 거치도록 /terms 사용 */
+const DEFAULT_POST_LOGIN_PATH = '/terms';
+
 function getReturnPath(): string {
   if (typeof window !== 'undefined') {
     const url = new URL(window.location.href);
     const redirectTo = url.searchParams.get('redirect_to');
 
-    // 원하는 경로가 쿼리에 있으면 그 경로를 그대로 사용
-    if (url.pathname === '/login' && redirectTo) {
-      return redirectTo || '/';
+    // 로그인 페이지에서: redirect_to가 있으면 그대로 사용, 없으면 terms를 거치도록 기본값 /terms
+    if (url.pathname === '/login') {
+      return redirectTo && redirectTo.trim() !== ''
+        ? redirectTo
+        : DEFAULT_POST_LOGIN_PATH;
     }
 
     const p = url.pathname + url.search;
-    return p || '/';
+    return p || DEFAULT_POST_LOGIN_PATH;
   }
-  return '/';
+  return DEFAULT_POST_LOGIN_PATH;
 }
 
 /* 리다이렉트 URL 생성 (카카오/네이버/구글 공통) */

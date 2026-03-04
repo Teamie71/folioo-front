@@ -1,16 +1,37 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
+import {
+  useUserControllerUpdateMarketingConsent,
+  getUserControllerGetProfileQueryKey,
+} from '@/api/endpoints/user/user';
 import { CommonButton } from '@/components/CommonButton';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
+import { ButtonSpinnerIcon } from '@/components/icons/ButtonSpinnerIcon';
 import { DropdownIcon } from '@/components/icons/DropdownIcon';
+import { useAuthStore } from '@/store/useAuthStore';
+import { cn } from '@/utils/utils';
+
+const ACCESS_TOKEN_PARAM = 'access_token';
+const REFRESH_TOKEN_PARAM = 'refresh_token';
 
 export default function TermsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
+  const setAccessToken = useAuthStore((s) => s.setAccessToken);
+  const setRefreshTokenCookie = useAuthStore((s) => s.setRefreshTokenCookie);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const sessionRestoreAttempted = useAuthStore(
+    (s) => s.sessionRestoreAttempted,
+  );
+  const processedTokensFromUrlRef = useRef(false);
+
   const [agreedService, setAgreedService] = useState(false);
   const [agreedPrivacy, setAgreedPrivacy] = useState(false);
   const [agreedMarketing, setAgreedMarketing] = useState(false);
@@ -21,6 +42,59 @@ export default function TermsPage() {
   const isAllAgreed =
     agreedService && agreedPrivacy && agreedMarketing;
   const isRequiredAgreed = agreedService && agreedPrivacy;
+
+  const { mutate: updateMarketingConsent, isPending: isSubmitting } =
+    useUserControllerUpdateMarketingConsent({
+      mutation: {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: getUserControllerGetProfileQueryKey(),
+          });
+          router.replace('/');
+        },
+        onError: () => {
+          window.alert(
+            '동의 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
+          );
+        },
+      },
+    });
+
+  useEffect(() => {
+    const accessTokenFromUrl = searchParams.get(ACCESS_TOKEN_PARAM);
+    const refreshTokenFromUrl = searchParams.get(REFRESH_TOKEN_PARAM);
+    if (accessTokenFromUrl) {
+      setAccessToken(accessTokenFromUrl);
+    }
+    if (refreshTokenFromUrl) {
+      setRefreshTokenCookie(refreshTokenFromUrl);
+    }
+    if (accessTokenFromUrl || refreshTokenFromUrl) {
+      processedTokensFromUrlRef.current = true;
+      const url = new URL(window.location.href);
+      url.searchParams.delete(ACCESS_TOKEN_PARAM);
+      url.searchParams.delete(REFRESH_TOKEN_PARAM);
+      const clean = url.pathname + (url.search || '');
+      window.history.replaceState(null, '', clean || '/terms');
+    }
+  }, [searchParams, setAccessToken, setRefreshTokenCookie]);
+
+  useEffect(() => {
+    if (!sessionRestoreAttempted || accessToken == null) return;
+    if (processedTokensFromUrlRef.current) return;
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+    } else {
+      router.replace('/');
+    }
+  }, [sessionRestoreAttempted, accessToken, router]);
+
+  const handleSignUp = () => {
+    if (!isRequiredAgreed) return;
+    updateMarketingConsent({
+      data: { isMarketingAgreed: agreedMarketing },
+    });
+  };
 
   return (
     <div className='flex min-h-screen flex-col'>
@@ -39,14 +113,23 @@ export default function TermsPage() {
                 variantType='Primary'
                 px='2.25rem'
                 py='0.75rem'
-                disabled={!isRequiredAgreed}
-                onClick={() => {
-                  if (!isRequiredAgreed) return;
-                  router.push('/');
-                }}
-                className={!isRequiredAgreed ? '!bg-[#CDD0D5] hover:!bg-[#CDD0D5]' : undefined}
+                disabled={!isRequiredAgreed || isSubmitting}
+                onClick={handleSignUp}
+                className={cn(
+                  !isRequiredAgreed
+                    ? '!bg-[#CDD0D5] hover:!bg-[#CDD0D5]'
+                    : isSubmitting
+                      ? '!h-[3rem] !w-[8rem] !min-w-0 !bg-[#5060C5] hover:!bg-[#5060C5] disabled:!bg-[#5060C5] disabled:hover:!bg-[#5060C5]'
+                      : undefined,
+                )}
               >
-                가입하기
+                {isSubmitting ? (
+                  <span className='flex items-center justify-center'>
+                    <ButtonSpinnerIcon size={32} />
+                  </span>
+                ) : (
+                  '가입하기'
+                )}
               </CommonButton>
             </div>
 

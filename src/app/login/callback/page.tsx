@@ -13,6 +13,8 @@ const REFRESH_TOKEN_PARAM = 'refresh_token';
 /* 백엔드가 OAuth 콜백 후 리다이렉트할 때 사용 (refreshToken은 httpOnly 쿠키로 설정) */
 const STATUS_PARAM = 'status';
 const LOGIN_REDIRECT_TO_KEY = 'login_redirect_to';
+/** redirect_to가 없을 때 기본 경로. 회원가입 시 terms를 거치도록 /terms */
+const DEFAULT_REDIRECT_TO = '/terms';
 
 function LoginCallbackContent() {
   const router = useRouter();
@@ -24,13 +26,13 @@ function LoginCallbackContent() {
     const accessTokenFromUrl = searchParams.get(ACCESS_TOKEN_PARAM);
     const refreshTokenFromUrl = searchParams.get(REFRESH_TOKEN_PARAM);
     const status = searchParams.get(STATUS_PARAM);
-    // URL의 redirect_to 우선, 없으면 로그인 페이지에서 저장해 둔 값 사용
+    // URL의 redirect_to 우선, 없으면 로그인 페이지에서 저장해 둔 값 사용, 최종 기본값은 /terms(약관)
     const redirectTo =
       searchParams.get('redirect_to') ??
       (typeof window !== 'undefined'
         ? sessionStorage.getItem(LOGIN_REDIRECT_TO_KEY)
         : null) ??
-      '/';
+      DEFAULT_REDIRECT_TO;
     if (typeof window !== 'undefined') {
       try {
         sessionStorage.removeItem(LOGIN_REDIRECT_TO_KEY);
@@ -67,7 +69,8 @@ function LoginCallbackContent() {
 
       try {
         const res = await userControllerGetProfile();
-        if (!res?.isSuccess || !res?.result) throw new Error('프로필 조회 실패');
+        if (!res?.isSuccess || !res?.result)
+          throw new Error('프로필 조회 실패');
       } catch {
         // 프로필 조회 실패 시에도 리다이렉트
       } finally {
@@ -90,7 +93,7 @@ export default function LoginCallbackPage() {
     <Suspense
       fallback={
         <div className='flex min-h-screen items-center justify-center'>
-          <p className='text-[1rem] text-[#1A1A1A]'>로그인 처리 중...</p>
+          <p className='text-[1rem] text-[#1A1A1A]'></p>
         </div>
       }
     >
