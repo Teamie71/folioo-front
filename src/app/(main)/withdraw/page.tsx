@@ -4,7 +4,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
-import { useUserControllerGetProfile } from '@/api/endpoints/user/user';
+import {
+  useUserControllerGetProfile,
+  useUserControllerWithdraw,
+} from '@/api/endpoints/user/user';
 import { BackButton } from '@/components/BackButton';
 import { CommonButton } from '@/components/CommonButton';
 import { Checkbox } from '@/components/ui/CheckBox';
@@ -12,9 +15,11 @@ import { Dropdown } from '@/components/Dropdown';
 import TextField from '@/components/TextField';
 import { CommonModal } from '@/components/CommonModal';
 import { FEEDBACK_FORM_URL } from '@/constants/feedback';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function WithdrawPage() {
   const router = useRouter();
+  const clearAuth = useAuthStore((s) => s.clearAuth);
   const [userName, setUserName] = useState<string>('');
   const [isAgreed, setIsAgreed] = useState(false);
   const [withdrawReason, setWithdrawReason] = useState<string>('');
@@ -34,17 +39,31 @@ export default function WithdrawPage() {
     { id: '4', label: '기타' },
   ];
 
+  const { mutate: withdraw, isPending: isWithdrawing } = useUserControllerWithdraw(
+    {
+      mutation: {
+        onSuccess: () => {
+          // 계정이 성공적으로 탈퇴되면 로컬 인증 정보도 즉시 정리
+          clearAuth();
+          setIsCompleteModalOpen(true);
+        },
+        onError: () => {
+          // 서버 측 탈퇴 처리에 실패한 경우, 사용자에게 재시도를 안내
+          window.alert('탈퇴 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+        },
+      },
+    },
+  );
+
   const handleWithdraw = () => {
-    if (!isAgreed || !withdrawReason) return;
+    if (!isAgreed || !withdrawReason || isWithdrawing) return;
     setIsConfirmModalOpen(true);
   };
 
   const handleConfirmWithdraw = () => {
+    if (isWithdrawing) return;
     setIsConfirmModalOpen(false);
-    // TODO: 탈퇴 API 호출
-    // 회원 탈퇴 로직 구현
-    console.log('회원 탈퇴 처리');
-    setIsCompleteModalOpen(true);
+    withdraw();
   };
 
   return (
