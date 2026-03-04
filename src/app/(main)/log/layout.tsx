@@ -11,13 +11,11 @@ export const metadata: Metadata = {
       '나의 인사이트를 체계적으로 기록하고, 채용 사이클 전체에서 활용 가능한 핵심 자산을 확보하세요.',
     url: `${SITE_URL}/log`,
     siteName: 'Folioo',
-    images: ['/OgImage.svg'],
+    images: ['/OGImage.svg'],
     locale: 'ko_KR',
   },
 };
 
-export default function LogLayout({
-  children,
-}: { children: React.ReactNode }) {
+export default function LogLayout({ children }: { children: React.ReactNode }) {
   return children;
 }

@@ -8,18 +8,17 @@ export const metadata: Metadata = {
   description:
     '인사이트 기록부터 AI 컨설턴트와의 쉽고 체계적인 경험 정리, 지원 맞춤 포트폴리오 첨삭까지. Folioo와 함께 나의 경쟁력을 발굴하세요.',
   openGraph: {
-    title: 'AI 컨설턴트와의 체계적인 경험 정리, 지원 맞춤 포트폴리오 첨삭까지, Folioo',
+    title: 'AI와의 체계적인 경험 정리, 맞춤 포트폴리오 첨삭까지, Folioo',
     description: 'Folioo와 함께 나의 경쟁력을 발굴하세요.',
     url: SITE_URL,
     siteName: 'Folioo',
-    images: ['/OgImage.svg'],
+    images: ['/OGImage.svg'],
     locale: 'ko_KR',
   },
   verification: {
     google: 'zx2xS9zkEKvDTaSxdyddrJI-0z7XyJHLogZ59erqQm4',
     other: {
-      'naver-site-verification':
-        '838193402b08d72203dba9cc1832023167e854b0',
+      'naver-site-verification': '838193402b08d72203dba9cc1832023167e854b0',
     },
   },
 };
