@@ -20,10 +20,14 @@ import { ChatCompleteModal } from '@/features/experience/chat/components/ChatCom
 import {
   useInterviewControllerCreateSessionStream,
   useInterviewControllerGetSessionState,
+  useInterviewControllerSendChatStream,
 } from '@/api/endpoints/interview/interview';
 import type {
   StreamContentBlockDeltaDTO,
   StreamMessageCompleteDTO,
+  StreamPingDTO,
+  StreamRetrieverResultDTO,
+  StreamRetrieverStatusDTO,
 } from '@/api/models';
 
 export default function ExperienceSettingsChatPage() {
@@ -49,6 +53,7 @@ export default function ExperienceSettingsChatPage() {
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isSessionLoading, setIsSessionLoading] = useState(false);
+  const [isAnswerStreaming, setIsAnswerStreaming] = useState(false);
   const sessionStartedRef = useRef(false);
   const accessToken = useAuthStore((s) => s.accessToken);
   const sessionRestoreAttempted = useAuthStore(
@@ -59,12 +64,16 @@ export default function ExperienceSettingsChatPage() {
   const {
     data: sessionStateData,
     isLoading: isSessionStateLoading,
+    refetch: refetchSessionState,
   } = useInterviewControllerGetSessionState(
     Number.isNaN(numericId) ? 0 : numericId,
     {
       query: {
         enabled:
-          !!id && !Number.isNaN(numericId) && sessionRestoreAttempted && !!accessToken,
+          !!id &&
+          !Number.isNaN(numericId) &&
+          sessionRestoreAttempted &&
+          !!accessToken,
       },
     },
   );
@@ -110,6 +119,21 @@ export default function ExperienceSettingsChatPage() {
       },
       onError: () => {
         setIsSessionLoading(false);
+      },
+    },
+  });
+
+  const { mutate: sendChat } = useInterviewControllerSendChatStream({
+    mutation: {
+      onSuccess: async () => {
+        try {
+          await refetchSessionState();
+        } finally {
+          setIsAnswerStreaming(false);
+        }
+      },
+      onError: () => {
+        setIsAnswerStreaming(false);
       },
     },
   });
@@ -165,18 +189,30 @@ export default function ExperienceSettingsChatPage() {
   }, []);
 
   const handleSend = (payload: { content: string; files: FileItem[] }) => {
-    const fileInfos = payload.files.map((f) => ({
-      name: f.file.name,
-      size: f.file.size,
-      type: f.file.type,
-      preview: f.preview,
-    }));
+    // 메시지 전송, TODO: 파일 업로드 처리
+    const content = payload.content.trim();
+    if (!content) return;
+
     setMessages((prev) => [
       ...prev,
-      { role: 'user', content: payload.content, files: fileInfos },
-      { role: 'ai', content: '내용' },
+      {
+        role: 'user',
+        content,
+      },
     ]);
     setInputValue('');
+    setIsAnswerStreaming(true);
+
+    if (!id) return;
+    const numericId = Number(id);
+    if (Number.isNaN(numericId)) return;
+
+    sendChat({
+      experienceId: numericId,
+      data: {
+        message: content,
+      },
+    });
   };
 
   const handleDelete = () => {
@@ -221,7 +257,7 @@ export default function ExperienceSettingsChatPage() {
         <div className='flex min-h-0 flex-1 flex-col overflow-hidden pb-[10.75rem]'>
           <ChatMessageSection
             messages={messages}
-            showLoading={isSessionLoading}
+            showLoading={isSessionLoading || isAnswerStreaming}
             onAIMessageClick={() => setIsCompletionModalOpen(true)}
           />
         </div>

@@ -180,22 +180,20 @@ export function ChatMessageSection({
             ),
           )}
 
-          {/* AI 응답 하단 로딩 말풍선 (스트리밍 중일 때만) */}
-          {showLoading &&
-            messages.length > 0 &&
-            messages[messages.length - 1]?.role === 'ai' && (
-              <div className='flex items-start gap-[1.5rem]'>
-                <Image
-                  src='/ChataiIcon.svg'
-                  alt='AI Loading Icon'
-                  width={48}
-                  height={48}
-                />
-                <div className='font-regular max-w-[53.75rem] rounded-tl-[0.25rem] rounded-tr-[2rem] rounded-br-[2rem] rounded-bl-[2rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2.25rem] py-[1.75rem] text-[1rem] text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
-                  <ChatLoadingMessage />
-                </div>
+          {/* AI 응답 하단 로딩 말풍선 (스트리밍 중일 때) */}
+          {showLoading && (
+            <div className='flex items-start gap-[1.5rem]'>
+              <Image
+                src='/ChataiIcon.svg'
+                alt='AI Loading Icon'
+                width={48}
+                height={48}
+              />
+              <div className='font-regular max-w-[53.75rem] rounded-tl-[0.25rem] rounded-tr-[2rem] rounded-br-[2rem] rounded-bl-[2rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2.25rem] py-[1.75rem] text-[1rem] text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
+                <ChatLoadingMessage />
               </div>
-            )}
+            </div>
+          )}
         </div>
       </div>
       {/* 아래쪽 페이드 */}
