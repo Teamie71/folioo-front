@@ -1,40 +1,36 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChatStepBubble } from './ChatStepBubble';
 import { ChatInput, type FileItem } from './ChatInput';
 
-const STEP_INTERVAL_MS = 2000;
 const FADE_DURATION_MS = 500;
+const TOOLTIP_DURATION_MS = 2000;
 
 interface ChatStepSectionProps {
   inputValue?: string;
   onInputChange?: (value: string) => void;
   onSend?: (payload: { content: string; files: FileItem[] }) => void;
+  /* 진행 상황에 따라 표시할 단계 인덱스 (0~4) */
+  currentStep?: number;
 }
 
 export const ChatStepSection = ({
   inputValue = '',
   onInputChange,
   onSend,
+  currentStep = 0,
 }: ChatStepSectionProps) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [tooltipVisible, setTooltipVisible] = useState(true);
 
   useEffect(() => {
-    timerRef.current = setInterval(() => {
-      setCurrentStep((prev) => {
-        if (prev >= 4) {
-          if (timerRef.current) clearInterval(timerRef.current);
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, STEP_INTERVAL_MS);
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, []);
+    setTooltipVisible(true);
+    const timer = setTimeout(
+      () => setTooltipVisible(false),
+      TOOLTIP_DURATION_MS,
+    );
+    return () => clearTimeout(timer);
+  }, [currentStep]);
 
   const gridCell =
     'h-[1.125rem] w-[1.125rem] border-[0.09375rem] border-[#74777D]';
@@ -45,13 +41,14 @@ export const ChatStepSection = ({
     <div className='relative z-30 flex min-h-[14rem] w-full flex-col'>
       {/* ChatBubble만 페이드 (0~3단계) */}
       <div className='relative min-h-[10rem] flex-1'>
-        {/* 0단계 디자인 */}
+        {/* 0단계 디자인 — 툴팁만 2초 후 사라짐 */}
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity: currentStep === 0 ? 1 : 0,
+            opacity: currentStep === 0 && tooltipVisible ? 1 : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
-            pointerEvents: currentStep === 0 ? 'auto' : 'none',
+            pointerEvents:
+              currentStep === 0 && tooltipVisible ? 'auto' : 'none',
           }}
         >
           <ChatStepBubble>
@@ -64,9 +61,10 @@ export const ChatStepSection = ({
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity: currentStep === 1 ? 1 : 0,
+            opacity: currentStep === 1 && tooltipVisible ? 1 : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
-            pointerEvents: currentStep === 1 ? 'auto' : 'none',
+            pointerEvents:
+              currentStep === 1 && tooltipVisible ? 'auto' : 'none',
           }}
         >
           <ChatStepBubble>
@@ -79,9 +77,10 @@ export const ChatStepSection = ({
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity: currentStep === 2 ? 1 : 0,
+            opacity: currentStep === 2 && tooltipVisible ? 1 : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
-            pointerEvents: currentStep === 2 ? 'auto' : 'none',
+            pointerEvents:
+              currentStep === 2 && tooltipVisible ? 'auto' : 'none',
           }}
         >
           <ChatStepBubble>
@@ -94,15 +93,33 @@ export const ChatStepSection = ({
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity: currentStep === 3 ? 1 : 0,
+            opacity: currentStep === 3 && tooltipVisible ? 1 : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
-            pointerEvents: currentStep === 3 ? 'auto' : 'none',
+            pointerEvents:
+              currentStep === 3 && tooltipVisible ? 'auto' : 'none',
           }}
         >
           <ChatStepBubble>
             대화의 세 번째 단계가 완료되었어요!
             <br />
             마지막 단계만 완료하면 포트폴리오 생성이 시작돼요.
+          </ChatStepBubble>
+        </div>
+
+        {/* 4단계 디자인 (전체 완료) — 툴팁만 2초 후 사라짐 */}
+        <div
+          className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
+          style={{
+            opacity: currentStep === 4 && tooltipVisible ? 1 : 0,
+            transitionDuration: `${FADE_DURATION_MS}ms`,
+            pointerEvents:
+              currentStep === 4 && tooltipVisible ? 'auto' : 'none',
+          }}
+        >
+          <ChatStepBubble>
+            대화의 모든 단계가 완료되었어요!
+            <br />
+            포트폴리오 생성을 시작할 수 있어요.
           </ChatStepBubble>
         </div>
       </div>

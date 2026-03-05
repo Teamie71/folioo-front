@@ -59,14 +59,34 @@ export default function ExperienceSettingsChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isSessionLoading, setIsSessionLoading] = useState(false);
   const [isAnswerStreaming, setIsAnswerStreaming] = useState(false);
+  const [stepTooltipStep, setStepTooltipStep] = useState(0);
   const sessionStartedRef = useRef(false);
   /** 방금 전송한 사용자 메시지 — AI 응답 후 연관 인사이트 로그 검색에 사용 */
   const lastSentMessageRef = useRef('');
+  /** 단계 완료 시 완료 모달을 이미 한 번 띄웠는지 (중복 오픈 방지) */
+  const completionModalAutoOpenedRef = useRef(false);
   const accessToken = useAuthStore((s) => s.accessToken);
   const sessionRestoreAttempted = useAuthStore(
     (s) => s.sessionRestoreAttempted,
   );
   const numericId = Number(id);
+
+  const computeStepFromProgress = (
+    stage?: number,
+    allComplete?: boolean,
+  ): number => {
+    if (allComplete) return 4;
+    if (!stage || stage <= 1) return 0;
+    if (stage === 2) return 1;
+    if (stage === 3) return 2;
+    if (stage >= 4) return 3;
+    return 0;
+  };
+
+  const updateStepTooltip = (stage?: number, allComplete?: boolean) => {
+    const next = computeStepFromProgress(stage, allComplete);
+    setStepTooltipStep((prev) => (next > prev ? next : prev));
+  };
 
   const {
     data: sessionStateData,
@@ -95,6 +115,8 @@ export default function ExperienceSettingsChatPage() {
     const msgs = state.messages ?? [];
     if (msgs.length === 0) return;
 
+    updateStepTooltip(state.currentStage, state.allComplete);
+
     setMessages((prev) => {
       const mapped: ChatMessage[] = msgs.map((m) => ({
         role: m.type?.toLowerCase() === 'ai' ? 'ai' : 'user',
@@ -120,6 +142,13 @@ export default function ExperienceSettingsChatPage() {
     if (id) setExperienceReturnPath(id, 'chat');
   }, [id]);
 
+  useEffect(() => {
+    if (stepTooltipStep === 4 && !completionModalAutoOpenedRef.current) {
+      completionModalAutoOpenedRef.current = true;
+      setIsCompletionModalOpen(true);
+    }
+  }, [stepTooltipStep]);
+
   const { mutate: startSession } = useInterviewControllerCreateSessionStream({
     mutation: {
       onSuccess: (event) => {
@@ -129,6 +158,10 @@ export default function ExperienceSettingsChatPage() {
         if ('message' in maybeComplete && maybeComplete.message) {
           const text = maybeComplete.message.ai_response ?? '';
           setMessages([{ role: 'ai', content: text }]);
+          updateStepTooltip(
+            maybeComplete.message.current_stage,
+            maybeComplete.message.all_complete,
+          );
         } else if ('delta' in maybeDelta && maybeDelta.delta?.text) {
           const text = maybeDelta.delta.text;
           setMessages([{ role: 'ai', content: text }]);
@@ -180,6 +213,10 @@ export default function ExperienceSettingsChatPage() {
           }
         }
         try {
+          updateStepTooltip(
+            complete?.message?.current_stage,
+            complete?.message?.all_complete,
+          );
           await refetchSessionState();
           // 채팅 중 연관 인사이트 로그 자동 검색: 방금 보낸 사용자 메시지로 검색 후 마지막 AI 메시지에 로그 카드 첨부
           const keyword = lastSentMessageRef.current.trim();
@@ -346,7 +383,6 @@ export default function ExperienceSettingsChatPage() {
           <ChatMessageSection
             messages={messages}
             showLoading={isSessionLoading || isAnswerStreaming}
-            onAIMessageClick={() => setIsCompletionModalOpen(true)}
           />
         </div>
       </div>
@@ -354,6 +390,7 @@ export default function ExperienceSettingsChatPage() {
       {/* 채팅 입력 창: 브라우저 바닥 기준 4.75rem 고정 */}
       <div className='fixed bottom-[4.75rem] left-1/2 z-30 flex w-full max-w-[66rem] -translate-x-1/2 items-center px-[1rem]'>
         <ChatStepSection
+          currentStep={stepTooltipStep}
           inputValue={inputValue}
           onInputChange={setInputValue}
           onSend={handleSend}
