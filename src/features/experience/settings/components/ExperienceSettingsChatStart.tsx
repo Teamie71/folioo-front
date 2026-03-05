@@ -41,37 +41,34 @@ export function ExperienceSettingsChatStart({
   const { formData, validateForm, addExperience, resetForm } =
     useExperienceStore();
 
-  const { mutate: createExperience } = useExperienceControllerCreateExperience(
-    {
-      mutation: {
-        onSuccess: (response) => {
-          const experience = response.result;
-          if (!experience) return;
+  const { mutate: createExperience } = useExperienceControllerCreateExperience({
+    mutation: {
+      onSuccess: (response) => {
+        const experience = response.result;
+        if (!experience) return;
 
-          const cardId = String(experience.id);
-          const createdDate = experience.createdAt?.slice(0, 10);
-          const hopeJobLabel =
-            HOPE_JOB_TO_LABEL[experience.hopeJob] ?? '미정';
+        const cardId = String(experience.id);
+        const createdDate = experience.createdAt?.slice(0, 10);
+        const hopeJobLabel = HOPE_JOB_TO_LABEL[experience.hopeJob] ?? '미정';
 
-          addExperience({
-            id: cardId,
-            title: experience.name,
-            tag: hopeJobLabel,
-            date: createdDate ?? '',
-          });
+        addExperience({
+          id: cardId,
+          title: experience.name,
+          tag: hopeJobLabel,
+          date: createdDate ?? '',
+        });
 
-          resetForm();
-          setIsStartChatModalOpen(false);
-          router.push(`/experience/settings/${cardId}/chat`);
-        },
-        onError: () => {
-          // TODO: 에러 토스트/모달 연결 시 교체
-          // eslint-disable-next-line no-console
-          console.error('경험 생성에 실패했습니다.');
-        },
+        resetForm();
+        setIsStartChatModalOpen(false);
+
+        router.push(`/experience/settings/${cardId}/chat?new=1`);
+      },
+      onError: () => {
+        // eslint-disable-next-line no-console
+        console.error('경험 생성에 실패했습니다.');
       },
     },
-  );
+  });
 
   const handleStartChat = () => {
     const hopeJob = JOB_LABEL_TO_HOPE_JOB[formData.desiredJob];

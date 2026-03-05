@@ -14,10 +14,22 @@ export type MessageFile = {
   preview?: string;
 };
 
+/** AI 메시지에 첨부된 인사이트 로그 카드 (LogCard와 동일한 형태) */
+export type ChatAttachedLog = {
+  id: string;
+  title: string;
+  date: string;
+  content: string;
+  activityName: string;
+  category: string;
+};
+
 export type ChatMessage = {
   role: 'ai' | 'user';
   content: string;
   files?: MessageFile[];
+  /** AI 메시지일 때, 연관 인사이트 로그가 검색되면 여기에 담아 표시 */
+  attachedLogs?: ChatAttachedLog[];
 };
 
 const MAX_TITLE_LENGTH = 20;
@@ -114,8 +126,17 @@ export function ChatMessageSection({
                   height={48}
                 />
                 <div className='font-regular max-w-[53.75rem] rounded-tl-[0.25rem] rounded-tr-[2rem] rounded-br-[2rem] rounded-bl-[2rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2.25rem] py-[1.75rem] text-[1rem] whitespace-pre-wrap text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
-                  {msg.content ? (
-                    <span className='whitespace-pre-wrap'>{msg.content}</span>
+                  {msg.content || msg.attachedLogs?.length ? (
+                    msg.attachedLogs?.length ? (
+                      <ChatAnalogs
+                        logs={msg.attachedLogs}
+                        questionText={msg.content || undefined}
+                      />
+                    ) : (
+                      <span className='whitespace-pre-wrap'>
+                        {msg.content}
+                      </span>
+                    )
                   ) : (
                     <ChatAnalogs />
                   )}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { StepProgressBar } from '@/components/StepProgressBar';
@@ -13,6 +13,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import {
   ChatMessageSection,
   type ChatMessage,
+  type ChatAttachedLog,
 } from '@/features/experience/chat/components/ChatMessageSection';
 import { ChatStepSection } from '@/features/experience/chat/components/ChatStepSection';
 import type { FileItem } from '@/features/experience/chat/components/ChatInput';
@@ -22,18 +23,22 @@ import {
   useInterviewControllerGetSessionState,
   useInterviewControllerSendChatStream,
 } from '@/api/endpoints/interview/interview';
+import { insightControllerGetLogs } from '@/api/endpoints/insight/insight';
+import { toLogCardDataList } from '@/features/log/utils/toLogCardData';
 import type {
   StreamContentBlockDeltaDTO,
   StreamMessageCompleteDTO,
-  StreamPingDTO,
-  StreamRetrieverResultDTO,
-  StreamRetrieverStatusDTO,
 } from '@/api/models';
+
+/** StrictMode 재마운트 시 같은 경험에 대해 startSession이 두 번 호출되는 것을 막기 위한 모듈 레벨 가드 */
+let lastStartSessionExperienceId: number | null = null;
 
 export default function ExperienceSettingsChatPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const id = typeof params.id === 'string' ? params.id : '';
+  const isNewExperience = searchParams.get('new') === '1';
   const removeExperience = useExperienceStore(
     (state) => state.removeExperience,
   );
@@ -55,6 +60,8 @@ export default function ExperienceSettingsChatPage() {
   const [isSessionLoading, setIsSessionLoading] = useState(false);
   const [isAnswerStreaming, setIsAnswerStreaming] = useState(false);
   const sessionStartedRef = useRef(false);
+  /** 방금 전송한 사용자 메시지 — AI 응답 후 연관 인사이트 로그 검색에 사용 */
+  const lastSentMessageRef = useRef('');
   const accessToken = useAuthStore((s) => s.accessToken);
   const sessionRestoreAttempted = useAuthStore(
     (s) => s.sessionRestoreAttempted,
@@ -70,6 +77,9 @@ export default function ExperienceSettingsChatPage() {
     {
       query: {
         enabled:
+          // 새로 생성된 경험(new=1)인 경우에는 아직 세션이 없으므로
+          // 상태 조회를 먼저 호출하지 않는다.
+          !isNewExperience &&
           !!id &&
           !Number.isNaN(numericId) &&
           sessionRestoreAttempted &&
@@ -85,12 +95,20 @@ export default function ExperienceSettingsChatPage() {
     const msgs = state.messages ?? [];
     if (msgs.length === 0) return;
 
-    const mapped: ChatMessage[] = msgs.map((m) => ({
-      role: m.type.toLowerCase() === 'ai' ? 'ai' : 'user',
-      content: m.content ?? '',
-    }));
-
-    setMessages(mapped);
+    setMessages((prev) => {
+      const mapped: ChatMessage[] = msgs.map((m) => ({
+        role: m.type?.toLowerCase() === 'ai' ? 'ai' : 'user',
+        content: m.content ?? '',
+      }));
+      // 서버에서 불러와도, 이미 붙여 둔 연관 인사이트 로그(attachedLogs)는 유지
+      return mapped.map((m, i) => ({
+        ...m,
+        attachedLogs:
+          prev[i]?.role === 'ai' && prev[i].attachedLogs?.length
+            ? prev[i].attachedLogs
+            : undefined,
+      }));
+    });
     setIsSessionLoading(false);
   }, [sessionStateData]);
 
@@ -116,8 +134,35 @@ export default function ExperienceSettingsChatPage() {
           setMessages([{ role: 'ai', content: text }]);
         }
         setIsSessionLoading(false);
+
+        // 새로 생성된 경험으로 진입한 경우에는 세션 생성이 끝났으므로
+        // URL 의 new 플래그를 제거해 이후 새로고침 시에는 기존 세션 경로를 타도록 한다.
+        if (isNewExperience) {
+          router.replace(`/experience/settings/${id}/chat`);
+        }
       },
-      onError: () => {
+      onError: (err: unknown) => {
+        // 409 Conflict = 이미 세션이 있음 (예: StrictMode로 인한 두 번째 요청). 기존 세션을 불러와 복구한다.
+        const status = (err as { response?: { status?: number } })?.response
+          ?.status;
+        const is409 = status === 409;
+        if (is409 && numericId) {
+          refetchSessionState().then((result) => {
+            const state = result.data?.result;
+            const msgs = state?.messages ?? [];
+            if (msgs.length > 0) {
+              setMessages(
+                msgs.map((m) => ({
+                  role: m.type?.toLowerCase() === 'ai' ? 'ai' : 'user',
+                  content: m.content ?? '',
+                })),
+              );
+            }
+            if (isNewExperience) {
+              router.replace(`/experience/settings/${id}/chat`);
+            }
+          });
+        }
         setIsSessionLoading(false);
       },
     },
@@ -125,9 +170,48 @@ export default function ExperienceSettingsChatPage() {
 
   const { mutate: sendChat } = useInterviewControllerSendChatStream({
     mutation: {
-      onSuccess: async () => {
+      onSuccess: async (event) => {
+        // SSE 스트림 완료 이벤트(StreamMessageCompleteDTO)에 다음 단계 질문이 포함될 수 있음 → 즉시 반영
+        const complete = event as StreamMessageCompleteDTO;
+        if (complete?.message?.ai_response != null) {
+          const nextText = complete.message.ai_response.trim();
+          if (nextText) {
+            setMessages((prev) => [...prev, { role: 'ai', content: nextText }]);
+          }
+        }
         try {
           await refetchSessionState();
+          // 채팅 중 연관 인사이트 로그 자동 검색: 방금 보낸 사용자 메시지로 검색 후 마지막 AI 메시지에 로그 카드 첨부
+          const keyword = lastSentMessageRef.current.trim();
+          if (keyword) {
+            try {
+              const res = await insightControllerGetLogs({ keyword });
+              const list = res?.result ?? [];
+              const cards: ChatAttachedLog[] = toLogCardDataList(list).slice(
+                0,
+                5,
+              );
+              if (cards.length > 0) {
+                setMessages((prev) => {
+                  const next = [...prev];
+                  const lastIdx = next.length - 1;
+                  if (
+                    lastIdx >= 0 &&
+                    next[lastIdx].role === 'ai' &&
+                    next[lastIdx].content
+                  ) {
+                    next[lastIdx] = {
+                      ...next[lastIdx],
+                      attachedLogs: cards,
+                    };
+                  }
+                  return next;
+                });
+              }
+            } catch {
+              // 인사이트 검색 실패 시 무시 (메시지는 그대로 유지)
+            }
+          }
         } finally {
           setIsAnswerStreaming(false);
         }
@@ -153,17 +237,19 @@ export default function ExperienceSettingsChatPage() {
     }
 
     // 세션 상태 조회가 끝나지 않았으면 대기
-    if (isSessionStateLoading) return;
+    if (!isNewExperience && isSessionStateLoading) return;
 
     const hasExistingSession =
       !!sessionStateData?.result?.messages &&
       sessionStateData.result.messages.length > 0;
     // 이미 세션이 존재하면 새 세션 생성하지 않음
-    if (hasExistingSession) return;
+    if (!isNewExperience && hasExistingSession) return;
 
-    // StrictMode에서 effect가 두 번 실행되는 것을 방지하기 위한 가드
+    // StrictMode 재마운트 시 ref가 초기화되므로, 같은 experienceId에 대한 중복 호출은 모듈 레벨에서도 막는다.
+    if (lastStartSessionExperienceId === numericId) return;
     if (sessionStartedRef.current) return;
     sessionStartedRef.current = true;
+    lastStartSessionExperienceId = numericId;
 
     if (Number.isNaN(numericId)) return;
     setIsSessionLoading(true);
@@ -177,6 +263,7 @@ export default function ExperienceSettingsChatPage() {
     numericId,
     startSession,
     router,
+    isNewExperience,
   ]);
 
   // 브라우저 스크롤 차단
@@ -193,6 +280,7 @@ export default function ExperienceSettingsChatPage() {
     const content = payload.content.trim();
     if (!content) return;
 
+    lastSentMessageRef.current = content;
     setMessages((prev) => [
       ...prev,
       {
