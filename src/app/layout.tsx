@@ -1,12 +1,14 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import '../styles/globals.css';
 import localFont from 'next/font/local';
-import { GoogleAnalytics } from '@next/third-parties/google';
+import { GoogleAnalyticsPageView } from '@/components/GoogleAnalyticsPageView';
 import { AuthProvider } from '@/contexts/AuthProvider';
 import { QueryProvider } from '@/contexts/QueryProvider';
 import { SITE_URL } from '@/constants/seo';
 
-const gaId = process.env.NEXT_PUBLIC_GA_ID ?? '';
+const GA_MEASUREMENT_ID =
+  process.env.NEXT_PUBLIC_GA_ID ?? 'G-ZSXFDE6Q13';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -38,17 +40,35 @@ export default function RootLayout({
     })();
   `;
 
+  const gtagInitScript = `
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '${GA_MEASUREMENT_ID}');
+  `;
+
   return (
     <html lang='ko' className={pretendard.className}>
+      <head>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy='beforeInteractive'
+        />
+        <Script id='gtag-init' strategy='beforeInteractive'>
+          {gtagInitScript}
+        </Script>
+      </head>
       <body suppressHydrationWarning>
         <script
           dangerouslySetInnerHTML={{ __html: bannerScript }}
           suppressHydrationWarning
         />
         <QueryProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            {children}
+            <GoogleAnalyticsPageView />
+          </AuthProvider>
         </QueryProvider>
-        {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
       </body>
     </html>
   );

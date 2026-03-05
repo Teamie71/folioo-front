@@ -12,6 +12,7 @@ import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { BigTicketIcon } from '@/components/icons/BigTicketIcon';
 import { BigCalendarIcon } from '@/components/icons/BigCalendarIcon';
 import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
+import { useAuthStore } from '@/store/useAuthStore';
 
 type VoucherType = 'experience' | 'portfolio';
 
@@ -23,20 +24,21 @@ type VoucherOption = {
 };
 
 const EXPERIENCE_VOUCHERS: VoucherOption[] = [
-  { times: 1, price: 990 },
-  { times: 3, price: 2700, originalPrice: 2970, discountPercent: 9 },
-  { times: 5, price: 4100, originalPrice: 4950, discountPercent: 17 },
+  { times: 1, price: 1000 },
+  { times: 3, price: 2800, originalPrice: 3000, discountPercent: 7 },
+  { times: 5, price: 4400, originalPrice: 5000, discountPercent: 12 },
 ];
 
 const PORTFOLIO_VOUCHERS: VoucherOption[] = [
-  { times: 1, price: 550 },
-  { times: 3, price: 1500, originalPrice: 1650, discountPercent: 9 },
-  { times: 5, price: 2300, originalPrice: 2750, discountPercent: 16 },
+  { times: 1, price: 1000 },
+  { times: 3, price: 2800, originalPrice: 3000, discountPercent: 7 },
+  { times: 5, price: 4400, originalPrice: 5000, discountPercent: 12 },
 ];
 
 type SelectedVoucher = { type: VoucherType; option: VoucherOption };
 
 function TopupPageContent() {
+  const accessToken = useAuthStore((s) => s.accessToken);
   const { data: ticketBalance } = useUserControllerGetTicketBalance();
   const experienceCount = ticketBalance?.result?.experience?.count ?? 0;
   const portfolioCount = ticketBalance?.result?.portfolioCorrection?.count ?? 0;
@@ -62,6 +64,15 @@ function TopupPageContent() {
     {
       id: 'review',
       icon: <BigTicketIcon />,
+      title: 'Folioo 사용 후기를 남기면, 무료 이용권 2종 추가 지급!',
+      description:
+        '이번 주의 첫 피드백을 남겨주시면, 감사의 마음을 담아 무료 이용권을 드려요.',
+      cta: '피드백 남기기',
+    },
+    /* OBT 기간 주석 처리
+    {
+      id: 'review',
+      icon: <BigTicketIcon />,
       title: 'Folioo 사용 후기를 남기면, 원하는 이용권이 하나 더!',
       description:
         '첫 피드백을 남겨주시면, 감사의 마음을 담아 원하시는 무료 이용권을 드려요.',
@@ -73,7 +84,7 @@ function TopupPageContent() {
       title: '제목제목제목',
       description: '설명설명설명',
       cta: 'CTA',
-    },
+    }, */
   ];
 
   const handlePurchaseClick = (type: VoucherType, option: VoucherOption) => {
@@ -116,40 +127,42 @@ function TopupPageContent() {
                 </div>
               </div>
 
-              {/* 현재 보유 크레딧 */}
-              <div className='relative flex flex-col items-end gap-[0.5rem]'>
-                <span className='mb-[0.75rem] text-[1.25rem] font-bold text-[#1A1A1A]'>
-                  나의 잔여 이용권
-                </span>
-                <div className='flex items-center gap-[1.25rem]'>
-                  <span className='text-[1.125rem] font-normal text-[#1A1A1A]'>
-                    경험 정리
+              {/* 현재 보유 크레딧 (로그인 시에만 표시) */}
+              {accessToken && (
+                <div className='relative flex flex-col items-end gap-[0.5rem]'>
+                  <span className='mb-[0.75rem] text-[1.25rem] font-bold text-[#1A1A1A]'>
+                    나의 잔여 이용권
                   </span>
-                  <div>
-                    <span className='text-[1.25rem] font-bold text-[#1A1A1A]'>
-                      {experienceCount}
+                  <div className='flex items-center gap-[1.25rem]'>
+                    <span className='text-[1.125rem] font-normal text-[#1A1A1A]'>
+                      경험 정리
                     </span>
-                    <span className='text-[1.25rem] font-normal text-[#1A1A1A]'>
-                      {' '}
-                      회
+                    <div>
+                      <span className='text-[1.25rem] font-bold text-[#1A1A1A]'>
+                        {experienceCount}
+                      </span>
+                      <span className='text-[1.25rem] font-normal text-[#1A1A1A]'>
+                        {' '}
+                        회
+                      </span>
+                    </div>
+                  </div>
+                  <div className='flex items-center gap-[1.25rem]'>
+                    <span className='text-[1.125rem] font-normal text-[#1A1A1A]'>
+                      포트폴리오 첨삭
                     </span>
+                    <div>
+                      <span className='text-[1.25rem] font-bold text-[#1A1A1A]'>
+                        {portfolioCount}
+                      </span>
+                      <span className='text-[1.25rem] font-normal text-[#1A1A1A]'>
+                        {' '}
+                        회
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className='flex items-center gap-[1.25rem]'>
-                  <span className='text-[1.125rem] font-normal text-[#1A1A1A]'>
-                    포트폴리오 첨삭
-                  </span>
-                  <div>
-                    <span className='text-[1.25rem] font-bold text-[#1A1A1A]'>
-                      {portfolioCount}
-                    </span>
-                    <span className='text-[1.25rem] font-normal text-[#1A1A1A]'>
-                      {' '}
-                      회
-                    </span>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

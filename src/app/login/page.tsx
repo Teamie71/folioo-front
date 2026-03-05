@@ -70,7 +70,6 @@ function LoginContent() {
         <div className='flex flex-col gap-[1.25rem]'>
           <KakaoLoginButton />
           <NaverLoginButton />
-          <GoogleLoginButton />
         </div>
       </div>
 
