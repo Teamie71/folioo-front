@@ -308,7 +308,8 @@ export function useCorrectionState(correctionId: string | undefined) {
         selectedPortfolioType === 'text' &&
         selectedTextPortfolioIds.length === 0
       ) {
-        setShowTextPortfolioWarning(true);
+        // 텍스트형 포트폴리오가 0개일 때는 에러 메시지 없이 버튼만 비활성화
+        if (textPortfolios.length > 0) setShowTextPortfolioWarning(true);
         return;
       }
       const portfolioIds =
@@ -372,6 +373,7 @@ export function useCorrectionState(correctionId: string | undefined) {
     effectiveId,
     selectedPortfolioType,
     selectedTextPortfolioIds,
+    textPortfolios.length,
     pdfActivities,
     analysisInfoValue,
   ]);
