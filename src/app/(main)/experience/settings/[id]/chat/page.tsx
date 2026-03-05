@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
@@ -9,6 +9,7 @@ import { DeleteModalButton } from '@/components/DeleteModalButton';
 import { CommonModal } from '@/components/CommonModal';
 import { InlineEdit } from '@/components/InlineEdit';
 import { useExperienceStore } from '@/store/useExperienceStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import {
   ChatMessageSection,
   type ChatMessage,
@@ -16,6 +17,14 @@ import {
 import { ChatStepSection } from '@/features/experience/chat/components/ChatStepSection';
 import type { FileItem } from '@/features/experience/chat/components/ChatInput';
 import { ChatCompleteModal } from '@/features/experience/chat/components/ChatCompleteModal';
+import {
+  useInterviewControllerCreateSessionStream,
+  useInterviewControllerGetSessionState,
+} from '@/api/endpoints/interview/interview';
+import type {
+  StreamContentBlockDeltaDTO,
+  StreamMessageCompleteDTO,
+} from '@/api/models';
 
 export default function ExperienceSettingsChatPage() {
   const params = useParams();
@@ -38,9 +47,43 @@ export default function ExperienceSettingsChatPage() {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [experienceTitle, setExperienceTitle] = useState(storeTitle);
   const [inputValue, setInputValue] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'ai', content: '내용' },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isSessionLoading, setIsSessionLoading] = useState(false);
+  const sessionStartedRef = useRef(false);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const sessionRestoreAttempted = useAuthStore(
+    (s) => s.sessionRestoreAttempted,
+  );
+  const numericId = Number(id);
+
+  const {
+    data: sessionStateData,
+    isLoading: isSessionStateLoading,
+  } = useInterviewControllerGetSessionState(
+    Number.isNaN(numericId) ? 0 : numericId,
+    {
+      query: {
+        enabled:
+          !!id && !Number.isNaN(numericId) && sessionRestoreAttempted && !!accessToken,
+      },
+    },
+  );
+
+  useEffect(() => {
+    const state = sessionStateData?.result;
+    if (!state) return;
+
+    const msgs = state.messages ?? [];
+    if (msgs.length === 0) return;
+
+    const mapped: ChatMessage[] = msgs.map((m) => ({
+      role: m.type.toLowerCase() === 'ai' ? 'ai' : 'user',
+      content: m.content ?? '',
+    }));
+
+    setMessages(mapped);
+    setIsSessionLoading(false);
+  }, [sessionStateData]);
 
   useEffect(() => {
     setExperienceTitle(storeTitle);
@@ -49,6 +92,68 @@ export default function ExperienceSettingsChatPage() {
   useEffect(() => {
     if (id) setExperienceReturnPath(id, 'chat');
   }, [id]);
+
+  const { mutate: startSession } = useInterviewControllerCreateSessionStream({
+    mutation: {
+      onSuccess: (event) => {
+        const maybeDelta = event as StreamContentBlockDeltaDTO;
+        const maybeComplete = event as StreamMessageCompleteDTO;
+
+        if ('message' in maybeComplete && maybeComplete.message) {
+          const text = maybeComplete.message.ai_response ?? '';
+          setMessages([{ role: 'ai', content: text }]);
+        } else if ('delta' in maybeDelta && maybeDelta.delta?.text) {
+          const text = maybeDelta.delta.text;
+          setMessages([{ role: 'ai', content: text }]);
+        }
+        setIsSessionLoading(false);
+      },
+      onError: () => {
+        setIsSessionLoading(false);
+      },
+    },
+  });
+
+  useEffect(() => {
+    if (!id) return;
+    if (!sessionRestoreAttempted) return;
+
+    // 인증 실패 상태면 로그인 페이지로 리다이렉트
+    if (!accessToken) {
+      router.replace(
+        `/login?redirect_to=${encodeURIComponent(
+          `/experience/settings/${id}/chat`,
+        )}`,
+      );
+      return;
+    }
+
+    // 세션 상태 조회가 끝나지 않았으면 대기
+    if (isSessionStateLoading) return;
+
+    const hasExistingSession =
+      !!sessionStateData?.result?.messages &&
+      sessionStateData.result.messages.length > 0;
+    // 이미 세션이 존재하면 새 세션 생성하지 않음
+    if (hasExistingSession) return;
+
+    // StrictMode에서 effect가 두 번 실행되는 것을 방지하기 위한 가드
+    if (sessionStartedRef.current) return;
+    sessionStartedRef.current = true;
+
+    if (Number.isNaN(numericId)) return;
+    setIsSessionLoading(true);
+    startSession({ experienceId: numericId });
+  }, [
+    id,
+    accessToken,
+    sessionRestoreAttempted,
+    isSessionStateLoading,
+    sessionStateData,
+    numericId,
+    startSession,
+    router,
+  ]);
 
   // 브라우저 스크롤 차단
   useEffect(() => {
@@ -116,6 +221,7 @@ export default function ExperienceSettingsChatPage() {
         <div className='flex min-h-0 flex-1 flex-col overflow-hidden pb-[10.75rem]'>
           <ChatMessageSection
             messages={messages}
+            showLoading={isSessionLoading}
             onAIMessageClick={() => setIsCompletionModalOpen(true)}
           />
         </div>

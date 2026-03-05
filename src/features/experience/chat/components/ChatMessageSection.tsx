@@ -48,12 +48,14 @@ interface ChatMessageSectionProps {
   messages: ChatMessage[];
   onAIMessageClick?: () => void;
   onUserMessageClick?: () => void;
+  showLoading?: boolean;
 }
 
 export function ChatMessageSection({
   messages,
   onAIMessageClick,
   onUserMessageClick,
+  showLoading = false,
 }: ChatMessageSectionProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -112,8 +114,11 @@ export function ChatMessageSection({
                   height={48}
                 />
                 <div className='font-regular max-w-[53.75rem] rounded-tl-[0.25rem] rounded-tr-[2rem] rounded-br-[2rem] rounded-bl-[2rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2.25rem] py-[1.75rem] text-[1rem] whitespace-pre-wrap text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
-                  {/* {msg.content} */}
-                  <ChatAnalogs />
+                  {msg.content ? (
+                    <span className='whitespace-pre-wrap'>{msg.content}</span>
+                  ) : (
+                    <ChatAnalogs />
+                  )}
                 </div>
               </button>
             ) : (
@@ -175,8 +180,9 @@ export function ChatMessageSection({
             ),
           )}
 
-          {/* AI 응답 하단 로딩 말풍선 */}
-          {messages.length > 0 &&
+          {/* AI 응답 하단 로딩 말풍선 (스트리밍 중일 때만) */}
+          {showLoading &&
+            messages.length > 0 &&
             messages[messages.length - 1]?.role === 'ai' && (
               <div className='flex items-start gap-[1.5rem]'>
                 <Image
