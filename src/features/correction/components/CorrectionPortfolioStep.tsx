@@ -150,9 +150,14 @@ export function CorrectionPortfolioStep({
               variantType='Primary'
               px='2.25rem'
               py='0.75rem'
-              disabled={pdfCategoryOverLimit}
+              disabled={
+                pdfCategoryOverLimit ||
+                (selectedPortfolioType === 'text' && textPortfolios.length === 0)
+              }
               className={
-                pdfCategoryOverLimit
+                pdfCategoryOverLimit ||
+                (selectedPortfolioType === 'text' &&
+                  textPortfolios.length === 0)
                   ? 'rounded-[3.75rem] cursor-not-allowed !bg-[#CDD0D5] hover:!bg-[#CDD0D5]'
                   : 'rounded-[3.75rem]'
               }

@@ -11,14 +11,16 @@ import {
 } from '@/utils/weeklyVoucher';
 import { CorrectionNavbarContext } from '@/contexts/CorrectionNavbarContext';
 
-const HIDE_NAVBAR_PATTERNS = [/^\/correction\/[^/]+$/];
+function isCorrectionNewPath(pathname: string) {
+  return /^\/correction\/new\/?$/.test(pathname);
+}
+function isCorrectionDetailPath(pathname: string) {
+  return /^\/correction\/[^/]+$/.test(pathname) && !isCorrectionNewPath(pathname);
+}
 function isExperienceSettingsPathWithoutNavbar(pathname: string) {
   return (
     /^\/experience\/settings/.test(pathname) && !pathname.includes('/portfolio')
   );
-}
-function isCorrectionDetailPath(pathname: string) {
-  return /^\/correction\/[^/]+$/.test(pathname);
 }
 
 export default function LayoutContent({
@@ -31,15 +33,16 @@ export default function LayoutContent({
   const [showNavbarOnResult, setShowNavbarOnResult] = useState(false);
   const [weeklyVoucherModalOpen, setWeeklyVoucherModalOpen] = useState(false);
 
-  const isCorrectionDetail = isCorrectionDetailPath(pathname ?? '');
-  const hideNavbar = isCorrectionDetail
-    ? !showNavbarOnResult
-    : HIDE_NAVBAR_PATTERNS.some((p) => p.test(pathname ?? '')) ||
-      isExperienceSettingsPathWithoutNavbar(pathname ?? '');
+  const path = pathname ?? '';
+  const hideNavbar = isCorrectionNewPath(path)
+    ? true
+    : isCorrectionDetailPath(path)
+      ? false
+      : isExperienceSettingsPathWithoutNavbar(path);
 
   useEffect(() => {
-    if (!isCorrectionDetail) setShowNavbarOnResult(false);
-  }, [isCorrectionDetail]);
+    if (!isCorrectionDetailPath(path)) setShowNavbarOnResult(false);
+  }, [path]);
 
   useEffect(() => {
     // 접속 시 주간 이용권 지급 여부 확인
