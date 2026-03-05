@@ -6,16 +6,20 @@
  * OpenAPI spec version: 1.0.0
  */
 import {
+  useMutation,
   useQuery
 } from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
   DefinedUseQueryResult,
+  MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
@@ -24,8 +28,10 @@ import type {
   CommonResponse,
   InternalControllerGetHealth200,
   InternalControllerGetInternalInsight200,
+  InternalControllerGetInternalPortfolio200,
   InternalControllerSearchInternalInsights200,
-  InternalControllerSearchInternalInsightsParams
+  InternalControllerSearchInternalInsightsParams,
+  UpdatePortfolioResultReqDTO
 } from '../../models';
 
 import { customInstance } from '../../../lib/axios';
@@ -309,3 +315,160 @@ export function useInternalControllerGetInternalInsight<TData = Awaited<ReturnTy
 
 
 
+/**
+ * AI 서버가 첨삭 생성 시 원문 조회를 위해 사용합니다.
+ * @summary 포트폴리오 원문 조회 (Internal)
+ */
+export const internalControllerGetInternalPortfolio = (
+    portfolioId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InternalControllerGetInternalPortfolio200>(
+      {url: `/internal/portfolios/${portfolioId}`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getInternalControllerGetInternalPortfolioQueryKey = (portfolioId: number,) => {
+    return [
+    `/internal/portfolios/${portfolioId}`
+    ] as const;
+    }
+
+    
+export const getInternalControllerGetInternalPortfolioQueryOptions = <TData = Awaited<ReturnType<typeof internalControllerGetInternalPortfolio>>, TError = CommonResponse>(portfolioId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalControllerGetInternalPortfolio>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getInternalControllerGetInternalPortfolioQueryKey(portfolioId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof internalControllerGetInternalPortfolio>>> = ({ signal }) => internalControllerGetInternalPortfolio(portfolioId, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(portfolioId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof internalControllerGetInternalPortfolio>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type InternalControllerGetInternalPortfolioQueryResult = NonNullable<Awaited<ReturnType<typeof internalControllerGetInternalPortfolio>>>
+export type InternalControllerGetInternalPortfolioQueryError = CommonResponse
+
+
+export function useInternalControllerGetInternalPortfolio<TData = Awaited<ReturnType<typeof internalControllerGetInternalPortfolio>>, TError = CommonResponse>(
+ portfolioId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalControllerGetInternalPortfolio>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof internalControllerGetInternalPortfolio>>,
+          TError,
+          Awaited<ReturnType<typeof internalControllerGetInternalPortfolio>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useInternalControllerGetInternalPortfolio<TData = Awaited<ReturnType<typeof internalControllerGetInternalPortfolio>>, TError = CommonResponse>(
+ portfolioId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalControllerGetInternalPortfolio>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof internalControllerGetInternalPortfolio>>,
+          TError,
+          Awaited<ReturnType<typeof internalControllerGetInternalPortfolio>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useInternalControllerGetInternalPortfolio<TData = Awaited<ReturnType<typeof internalControllerGetInternalPortfolio>>, TError = CommonResponse>(
+ portfolioId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalControllerGetInternalPortfolio>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 포트폴리오 원문 조회 (Internal)
+ */
+
+export function useInternalControllerGetInternalPortfolio<TData = Awaited<ReturnType<typeof internalControllerGetInternalPortfolio>>, TError = CommonResponse>(
+ portfolioId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalControllerGetInternalPortfolio>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getInternalControllerGetInternalPortfolioQueryOptions(portfolioId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
+ * AI 서버의 생성 결과를 저장하기 위한 콜백 API
+ * @summary 포트폴리오 AI 생성 결과 저장 (Internal)
+ */
+export const internalControllerUpdateInternalPortfolio = (
+    portfolioId: number,
+    updatePortfolioResultReqDTO: UpdatePortfolioResultReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/internal/portfolios/${portfolioId}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updatePortfolioResultReqDTO, signal
+    },
+      options);
+    }
+  
+
+
+export const getInternalControllerUpdateInternalPortfolioMutationOptions = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof internalControllerUpdateInternalPortfolio>>, TError,{portfolioId: number;data: UpdatePortfolioResultReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof internalControllerUpdateInternalPortfolio>>, TError,{portfolioId: number;data: UpdatePortfolioResultReqDTO}, TContext> => {
+
+const mutationKey = ['internalControllerUpdateInternalPortfolio'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof internalControllerUpdateInternalPortfolio>>, {portfolioId: number;data: UpdatePortfolioResultReqDTO}> = (props) => {
+          const {portfolioId,data} = props ?? {};
+
+          return  internalControllerUpdateInternalPortfolio(portfolioId,data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type InternalControllerUpdateInternalPortfolioMutationResult = NonNullable<Awaited<ReturnType<typeof internalControllerUpdateInternalPortfolio>>>
+    export type InternalControllerUpdateInternalPortfolioMutationBody = UpdatePortfolioResultReqDTO
+    export type InternalControllerUpdateInternalPortfolioMutationError = CommonResponse
+
+    /**
+ * @summary 포트폴리오 AI 생성 결과 저장 (Internal)
+ */
+export const useInternalControllerUpdateInternalPortfolio = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof internalControllerUpdateInternalPortfolio>>, TError,{portfolioId: number;data: UpdatePortfolioResultReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof internalControllerUpdateInternalPortfolio>>,
+        TError,
+        {portfolioId: number;data: UpdatePortfolioResultReqDTO},
+        TContext
+      > => {
+      return useMutation(getInternalControllerUpdateInternalPortfolioMutationOptions(options), queryClient);
+    }
+    
