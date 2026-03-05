@@ -11,12 +11,13 @@ import EtcIcon from '@/components/icons/EtcIcon';
 interface CardMentionDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onMention?: (title: string) => void;
+  onMention?: (title: string, insightId?: number) => void;
   title: string;
   date: string;
   content: string;
   activityName: string;
   category: string;
+  insightId?: number;
 }
 
 export function CardMentionDetailModal({
@@ -28,6 +29,7 @@ export function CardMentionDetailModal({
   content,
   activityName,
   category,
+  insightId,
 }: CardMentionDetailModalProps) {
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -66,7 +68,7 @@ export function CardMentionDetailModal({
   };
 
   const handleMention = () => {
-    onMention?.(title);
+    onMention?.(title, insightId);
     onClose();
   };
 

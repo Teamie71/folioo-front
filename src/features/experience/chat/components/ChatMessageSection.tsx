@@ -33,6 +33,8 @@ export type ChatMessage = {
   attachedLogs?: ChatAttachedLog[];
   /* 답변 생성 오류 시 표시하는 에러 메시지(재시도 버튼 포함) */
   isError?: boolean;
+  /* 사용자 메시지일 때, 선택한 로그 제목만 pill로 표시하는 별도 메시지인 경우 */
+  mentionTitle?: string;
 };
 
 const MAX_TITLE_LENGTH = 20;
@@ -61,6 +63,41 @@ function truncateFileName(
 
 const ERROR_MESSAGE_TEXT =
   '앗, 답변 생성 중 오류가 발생했어요.\n아래 버튼을 눌러 다시 시도해주세요.';
+
+/* 스크린샷과 동일: 연보라 배경·테두리·글자 + 부드러운 그림자로 로그 멘션 pill */
+const MENTION_PILL_CLASS =
+  'inline-flex items-center rounded-[6.25rem] bg-[#F5F3FB] text-[#5060C5] border border-[#5060C5] text-[0.875rem] font-semibold px-[1rem] py-[0.375rem] mx-[0.125rem] cursor-default align-baseline shadow-[0px_1px_4px_0px_rgba(80,96,197,0.25)]';
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/** 한 개 메시지 안에서 입력 내용은 그대로, 선택한 로그 제목만 pill 스타일로 렌더 */
+function renderUserContentWithMention(
+  content: string,
+  mentionTitle: string,
+): React.ReactNode {
+  // '@' 앞에 공백이 있거나 없을 수 있음 (예: "hello@ 제목" / "hello @ 제목")
+  const escapedTitle = escapeRegExp(mentionTitle);
+  const delimiterRegex = new RegExp(
+    `(\\s*@\\s+${escapedTitle})`,
+    'g',
+  );
+  const parts = content.split(delimiterRegex);
+  return (
+    <span className='whitespace-pre-wrap'>
+      {parts.map((part, i) =>
+        new RegExp(`^\\s*@\\s+${escapedTitle}$`).test(part) ? (
+          <span key={i} className={MENTION_PILL_CLASS}>
+            @ {mentionTitle}
+          </span>
+        ) : (
+          part
+        ),
+      )}
+    </span>
+  );
+}
 
 interface ChatMessageSectionProps {
   messages: ChatMessage[];
@@ -214,8 +251,17 @@ export function ChatMessageSection({
                         })}
                       </div>
                     )}
-                    {msg.content ? (
-                      <span className='whitespace-pre-wrap'>{msg.content}</span>
+                    {msg.content || msg.mentionTitle ? (
+                      msg.mentionTitle ? (
+                        renderUserContentWithMention(
+                          msg.content,
+                          msg.mentionTitle,
+                        )
+                      ) : (
+                        <span className='whitespace-pre-wrap'>
+                          {msg.content}
+                        </span>
+                      )
                     ) : null}
                   </div>
                 </div>

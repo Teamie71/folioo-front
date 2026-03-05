@@ -10,7 +10,12 @@ const TOOLTIP_DURATION_MS = 2000;
 interface ChatStepSectionProps {
   inputValue?: string;
   onInputChange?: (value: string) => void;
-  onSend?: (payload: { content: string; files: FileItem[] }) => void;
+  onSend?: (payload: {
+    content: string;
+    files: FileItem[];
+    insightId?: number;
+    mentionTitle?: string;
+  }) => void;
   /* 진행 상황에 따라 표시할 단계 인덱스 (0~4) */
   currentStep?: number;
 }

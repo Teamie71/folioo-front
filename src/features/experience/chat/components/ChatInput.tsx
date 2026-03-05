@@ -26,7 +26,12 @@ export interface FileItem {
 interface ChatInputProps {
   value?: string;
   onChange?: (value: string) => void;
-  onSend?: (payload: { content: string; files: FileItem[] }) => void;
+  onSend?: (payload: {
+    content: string;
+    files: FileItem[];
+    insightId?: number;
+    mentionTitle?: string;
+  }) => void;
 }
 
 const MAX_TITLE_LENGTH = 15;
@@ -80,6 +85,14 @@ export const ChatInput = ({
     bottom: number;
   } | null>(null);
   const [capacityErrorShown, setCapacityErrorShown] = useState(false);
+  /** @ 멘션으로 선택한 인사이트 로그 ID (전송 시 함께 전달 후 초기화) */
+  const [selectedInsightId, setSelectedInsightId] = useState<number | null>(
+    null,
+  );
+  /** @ 멘션으로 선택한 로그 제목 (선택한 로그만 pill 메시지로 표시하기 위해 전달) */
+  const [selectedInsightTitle, setSelectedInsightTitle] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     if (contentRef.current && contentRef.current.textContent !== value) {
@@ -160,9 +173,11 @@ export const ChatInput = ({
   }, []);
 
   const handleMentionSelect = useCallback(
-    (title: string) => {
+    (title: string, insightId?: number) => {
       setMentionOpen(false);
       setMentionPos(null);
+      if (insightId != null) setSelectedInsightId(insightId);
+      setSelectedInsightTitle(title);
 
       if (!contentRef.current) return;
 
@@ -184,11 +199,11 @@ export const ChatInput = ({
       }
 
       if (targetNode && atOffset !== -1) {
-        // 멘션 인라인 요소 생성 (CommonButton Outline 스타일)
+        // 멘션 인라인 요소 생성 (채팅 말풍선과 동일한 pill 스타일)
         const mentionEl = document.createElement('span');
         mentionEl.contentEditable = 'false';
         mentionEl.className =
-          'inline-flex items-center rounded-[6.25rem] bg-[#F6F5FF] text-[#5060C5] border-[0.09375rem] border-[#5060C5] text-[0.875rem] font-semibold px-[1rem] py-[0.125rem] mx-[0.125rem] cursor-default align-baseline';
+          'inline-flex items-center rounded-[6.25rem] bg-[#F5F3FB] text-[#5060C5] border border-[#5060C5] text-[0.875rem] font-semibold px-[1rem] py-[0.375rem] mx-[0.125rem] cursor-default align-baseline shadow-[0px_1px_4px_0px_rgba(80,96,197,0.25)]';
         mentionEl.textContent = `@ ${title}`;
         mentionEl.dataset.mention = title;
 
@@ -222,8 +237,15 @@ export const ChatInput = ({
   const handleSend = () => {
     const content = contentRef.current?.textContent?.trim() ?? '';
     if (!content && files.length === 0) return;
-    onSend?.({ content, files });
+    onSend?.({
+      content,
+      files,
+      insightId: selectedInsightId ?? undefined,
+      mentionTitle: selectedInsightTitle ?? undefined,
+    });
     setFiles([]);
+    setSelectedInsightId(null);
+    setSelectedInsightTitle(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLSpanElement>) => {

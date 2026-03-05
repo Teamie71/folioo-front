@@ -128,11 +128,25 @@ export default function ExperienceSettingsChatPage() {
     updateStepTooltip(state.currentStage, state.allComplete);
 
     setMessages((prev) => {
-      const mapped: ChatMessage[] = msgs.map((m) => ({
-        role: m.type?.toLowerCase() === 'ai' ? 'ai' : 'user',
-        content: m.content ?? '',
-      }));
-      // 서버에서 불러와도, 이미 붙여 둔 연관 인사이트 로그(attachedLogs)는 유지
+      const mapped: ChatMessage[] = msgs.map((m) => {
+        const role = m.type?.toLowerCase() === 'ai' ? 'ai' : 'user';
+        const content = m.content ?? '';
+        const base: ChatMessage = { role, content };
+        if (role === 'user' && content) {
+          const norm = (s: string) => s.replace(/\s+/g, ' ').trim();
+          const sameContent = prev.find(
+            (p) =>
+              p.role === 'user' &&
+              p.mentionTitle &&
+              norm(p.content) === norm(content),
+          );
+          if (sameContent?.mentionTitle) {
+            return { ...base, mentionTitle: sameContent.mentionTitle };
+          }
+        }
+        return base;
+      });
+      // 서버에서 불러와도, 이미 붙여 둔 연관 인사이트 로그(attachedLogs) 및 mentionTitle 유지
       return mapped.map((m, i) => ({
         ...m,
         attachedLogs:
@@ -337,10 +351,15 @@ export default function ExperienceSettingsChatPage() {
     };
   }, []);
 
-  const handleSend = (payload: { content: string; files: FileItem[] }) => {
+  const handleSend = (payload: {
+    content: string;
+    files: FileItem[];
+    insightId?: number;
+    mentionTitle?: string;
+  }) => {
     // 메시지 전송, TODO: 파일 업로드 처리
     const content = payload.content.trim();
-    if (!content) return;
+    if (!content && !payload.mentionTitle) return;
 
     if (extraTurnsRemaining > 0) {
       const nextRemaining = extraTurnsRemaining - 1;
@@ -350,12 +369,17 @@ export default function ExperienceSettingsChatPage() {
       }
     }
 
+    // 로그 멘션 + 입력 내용을 한 개 메시지로 표시 (mentionTitle 있으면 말풍선 안에서만 로그 부분 pill 스타일)
     lastSentMessageRef.current = content;
+
     setMessages((prev) => [
       ...prev,
       {
         role: 'user',
         content,
+        ...(payload.mentionTitle != null && {
+          mentionTitle: payload.mentionTitle,
+        }),
       },
     ]);
     setInputValue('');
@@ -367,7 +391,10 @@ export default function ExperienceSettingsChatPage() {
 
     sendChat({
       experienceId: numericId,
-      data: { message: content },
+      data: {
+        message: content,
+        ...(payload.insightId != null && { insightId: payload.insightId }),
+      },
     });
   };
 

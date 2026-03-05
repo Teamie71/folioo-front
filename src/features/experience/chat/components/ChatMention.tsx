@@ -1,15 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import EtcIcon from '@/components/icons/EtcIcon';
 import InterpersonIcon from '@/components/icons/InterpersonIcon';
 import LearningIcon from '@/components/icons/LearningIcon';
 import ProblemSolveIcon from '@/components/icons/ProblemSolveIcon';
 import ReferenceIcon from '@/components/icons/ReferenceIcon';
+import { useInsightControllerGetLogs } from '@/api/endpoints/insight/insight';
 import { CardMentionDetailModal } from './CardMentionDetailModal';
 
 interface MentionItem {
-  id: string;
+  id: number;
   title: string;
   date: string;
   content: string;
@@ -17,57 +18,50 @@ interface MentionItem {
   category: string;
 }
 
-// 더미 데이터
-const DUMMY_ITEMS: MentionItem[] = [
-  {
-    id: '1',
-    title: '제목',
-    date: '2025.01.10',
-    content: '내용내용',
-    activityName: '미분류',
-    category: '대인관계',
-  },
-  {
-    id: '2',
-    title: '제목제목',
-    date: '2025.01.11',
-    content: '내용내용내용내용내용내용',
-    activityName: '활동 A',
-    category: '문제해결',
-  },
-  {
-    id: '3',
-    title: '제목제목제목',
-    date: '2025.01.12',
-    content: '내용내용내용내용내용내용내용내용',
-    activityName: '활동 BB',
-    category: '학습',
-  },
-  {
-    id: '5',
-    title: '제목제목제목제목제목',
-    date: '2025.01.14',
-    content: '내용내용내용내용내용내용내용내용내용내용내용내용',
-    activityName: '미분류',
-    category: '기타',
-  },
-];
+function formatLogDate(createdAt: string): string {
+  try {
+    const d = new Date(createdAt);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}.${m}.${day}`;
+  } catch {
+    return '';
+  }
+}
 
 interface ChatMentionProps {
-  onSelect?: (title: string) => void;
+  onSelect?: (title: string, insightId?: number) => void;
 }
 
 export const ChatMention = ({ onSelect }: ChatMentionProps) => {
   const [detailItem, setDetailItem] = useState<MentionItem | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>('대인관계');
 
+  const { data: logsResponse, isPending, isError } = useInsightControllerGetLogs(
+    undefined,
+    { query: { staleTime: 30_000 } },
+  );
+
+  const items = useMemo((): MentionItem[] => {
+    const list = logsResponse?.result ?? [];
+    return list.map((log) => ({
+      id: log.id,
+      title: log.title ?? '',
+      date: formatLogDate(log.createdAt ?? ''),
+      content: log.description ?? '',
+      activityName: log.activityNames?.[0] ?? '미분류',
+      category: log.category ?? '기타',
+    }));
+  }, [logsResponse?.result]);
+
   const handleDetailClick = (e: React.MouseEvent, item: MentionItem) => {
     e.stopPropagation();
     setDetailItem(item);
   };
 
-  const handleMention = (title: string) => {
-    onSelect?.(title);
+  const handleMention = (title: string, insightId?: number) => {
+    onSelect?.(title, insightId);
     setDetailItem(null);
   };
 
@@ -96,7 +90,7 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
     },
   ];
 
-  const filteredItems = DUMMY_ITEMS.filter(
+  const filteredItems = items.filter(
     (item) => item.category === selectedTab,
   );
 
@@ -106,7 +100,7 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
         <div className='flex items-center'>
           {tabs.map((tab) => {
             const isActive = selectedTab === tab.label;
-            const hasItems = DUMMY_ITEMS.some(
+            const hasItems = items.some(
               (item) => item.category === tab.label,
             );
             return (
@@ -141,12 +135,20 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
         </div>
 
         <div className='mention-scroll mr-[0.5rem] flex min-h-0 flex-1 flex-col gap-[0.25rem] overflow-y-auto px-[1.25rem] py-[1.125rem] pr-[0.5rem]'>
-          {filteredItems.length > 0 ? (
+          {isPending ? (
+            <div className='flex flex-1 items-center justify-center py-[2rem] text-[0.875rem] text-[#9EA4A9]'>
+              로그 목록을 불러오는 중...
+            </div>
+          ) : isError ? (
+            <div className='flex flex-1 items-center justify-center py-[2rem] text-[0.875rem] text-[#9EA4A9]'>
+              로그를 불러오지 못했어요.
+            </div>
+          ) : filteredItems.length > 0 ? (
             filteredItems.map((item) => (
               <div
                 key={item.id}
                 className='flex w-full cursor-pointer items-center justify-between rounded-[0.25rem] border border-[#CDD0D5] px-[1rem] py-[0.75rem] hover:bg-[#F6F8FA]'
-                onClick={() => onSelect?.(item.title)}
+                onClick={() => onSelect?.(item.title, item.id)}
               >
                 <p className='text-[0.875rem] leading-[150%]'>{item.title}</p>
                 <div className='flex items-center gap-[1rem]'>
@@ -187,6 +189,7 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
           content={detailItem.content}
           activityName={detailItem.activityName}
           category={detailItem.category}
+          insightId={detailItem.id}
         />
       )}
     </>
