@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChatStepBubble } from './ChatStepBubble';
 import { ChatInput, type FileItem } from './ChatInput';
 
@@ -16,8 +16,10 @@ interface ChatStepSectionProps {
     insightId?: number;
     mentionTitle?: string;
   }) => void;
-  /* 진행 상황에 따라 표시할 단계 인덱스 (0~4) */
-  currentStep?: number;
+  /* 진행 상황에 따라 표시할 단계 인덱스 (0~4). null이면 단계 미확정(그리드·툴팁 비표시) */
+  currentStep?: number | null;
+  /* true면 툴팁 절대 미표시(새로고침 복원 시 사용) */
+  suppressTooltip?: boolean;
 }
 
 export const ChatStepSection = ({
@@ -25,17 +27,29 @@ export const ChatStepSection = ({
   onInputChange,
   onSend,
   currentStep = 0,
+  suppressTooltip = false,
 }: ChatStepSectionProps) => {
-  const [tooltipVisible, setTooltipVisible] = useState(true);
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const lastStepRef = useRef<number | null>(null);
+  const step = currentStep ?? null;
 
   useEffect(() => {
+    if (step === null || suppressTooltip) {
+      setTooltipVisible(false);
+      if (step !== null) lastStepRef.current = step;
+      return;
+    }
+    const stepChanged = lastStepRef.current !== step;
+    lastStepRef.current = step;
+    if (!stepChanged) return;
+
     setTooltipVisible(true);
     const timer = setTimeout(
       () => setTooltipVisible(false),
       TOOLTIP_DURATION_MS,
     );
     return () => clearTimeout(timer);
-  }, [currentStep]);
+  }, [step, suppressTooltip]);
 
   const gridCell =
     'h-[1.125rem] w-[1.125rem] border-[0.09375rem] border-[#74777D]';
@@ -50,10 +64,9 @@ export const ChatStepSection = ({
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity: currentStep === 0 && tooltipVisible ? 1 : 0,
+            opacity: step === 0 && tooltipVisible ? 1 : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
-            pointerEvents:
-              currentStep === 0 && tooltipVisible ? 'auto' : 'none',
+            pointerEvents: step === 0 && tooltipVisible ? 'auto' : 'none',
           }}
         >
           <ChatStepBubble>
@@ -66,10 +79,9 @@ export const ChatStepSection = ({
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity: currentStep === 1 && tooltipVisible ? 1 : 0,
+            opacity: step === 1 && tooltipVisible ? 1 : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
-            pointerEvents:
-              currentStep === 1 && tooltipVisible ? 'auto' : 'none',
+            pointerEvents: step === 1 && tooltipVisible ? 'auto' : 'none',
           }}
         >
           <ChatStepBubble>
@@ -82,10 +94,9 @@ export const ChatStepSection = ({
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity: currentStep === 2 && tooltipVisible ? 1 : 0,
+            opacity: step === 2 && tooltipVisible ? 1 : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
-            pointerEvents:
-              currentStep === 2 && tooltipVisible ? 'auto' : 'none',
+            pointerEvents: step === 2 && tooltipVisible ? 'auto' : 'none',
           }}
         >
           <ChatStepBubble>
@@ -98,10 +109,9 @@ export const ChatStepSection = ({
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity: currentStep === 3 && tooltipVisible ? 1 : 0,
+            opacity: step === 3 && tooltipVisible ? 1 : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
-            pointerEvents:
-              currentStep === 3 && tooltipVisible ? 'auto' : 'none',
+            pointerEvents: step === 3 && tooltipVisible ? 'auto' : 'none',
           }}
         >
           <ChatStepBubble>
@@ -115,10 +125,9 @@ export const ChatStepSection = ({
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity: currentStep === 4 && tooltipVisible ? 1 : 0,
+            opacity: step === 4 && tooltipVisible ? 1 : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
-            pointerEvents:
-              currentStep === 4 && tooltipVisible ? 'auto' : 'none',
+            pointerEvents: step === 4 && tooltipVisible ? 'auto' : 'none',
           }}
         >
           <ChatStepBubble>
@@ -136,9 +145,9 @@ export const ChatStepSection = ({
           <div
             className='absolute inset-0 flex flex-col gap-[0.25rem] transition-opacity'
             style={{
-              opacity: currentStep === 0 ? 1 : 0,
+              opacity: step === 0 ? 1 : 0,
               transitionDuration: `${FADE_DURATION_MS}ms`,
-              pointerEvents: currentStep === 0 ? 'auto' : 'none',
+              pointerEvents: step === 0 ? 'auto' : 'none',
             }}
           >
             <div className='flex gap-[0.25rem]'>
@@ -162,9 +171,9 @@ export const ChatStepSection = ({
           <div
             className='absolute inset-0 flex flex-col gap-[0.25rem] transition-opacity'
             style={{
-              opacity: currentStep === 1 ? 1 : 0,
+              opacity: step === 1 ? 1 : 0,
               transitionDuration: `${FADE_DURATION_MS}ms`,
-              pointerEvents: currentStep === 1 ? 'auto' : 'none',
+              pointerEvents: step === 1 ? 'auto' : 'none',
             }}
           >
             <div className='flex gap-[0.25rem]'>
@@ -188,9 +197,9 @@ export const ChatStepSection = ({
           <div
             className='absolute inset-0 flex flex-col gap-[0.25rem] transition-opacity'
             style={{
-              opacity: currentStep === 2 ? 1 : 0,
+              opacity: step === 2 ? 1 : 0,
               transitionDuration: `${FADE_DURATION_MS}ms`,
-              pointerEvents: currentStep === 2 ? 'auto' : 'none',
+              pointerEvents: step === 2 ? 'auto' : 'none',
             }}
           >
             <div className='flex gap-[0.25rem]'>
@@ -214,9 +223,9 @@ export const ChatStepSection = ({
           <div
             className='absolute inset-0 flex flex-col gap-[0.25rem] transition-opacity'
             style={{
-              opacity: currentStep === 3 ? 1 : 0,
+              opacity: step === 3 ? 1 : 0,
               transitionDuration: `${FADE_DURATION_MS}ms`,
-              pointerEvents: currentStep === 3 ? 'auto' : 'none',
+              pointerEvents: step === 3 ? 'auto' : 'none',
             }}
           >
             <div className='flex gap-[0.25rem]'>
@@ -236,9 +245,9 @@ export const ChatStepSection = ({
           <div
             className='absolute inset-0 flex flex-col gap-[0.25rem] transition-opacity'
             style={{
-              opacity: currentStep === 4 ? 1 : 0,
+              opacity: step === 4 ? 1 : 0,
               transitionDuration: `${FADE_DURATION_MS}ms`,
-              pointerEvents: currentStep === 4 ? 'auto' : 'none',
+              pointerEvents: step === 4 ? 'auto' : 'none',
             }}
           >
             <div className='flex gap-[0.25rem]'>

@@ -60,6 +60,8 @@ export default function ExperienceSettingsChatPage() {
   const [isSessionLoading, setIsSessionLoading] = useState(false);
   const [isAnswerStreaming, setIsAnswerStreaming] = useState(false);
   const [stepTooltipStep, setStepTooltipStep] = useState(0);
+  /** 새로고침 복원 직후 툴팁 미표시용(세션 적용 후 한 틱만 true) */
+  const [suppressStepTooltip, setSuppressStepTooltip] = useState(false);
   const sessionStartedRef = useRef(false);
   /** 방금 전송한 사용자 메시지 — AI 응답 후 연관 인사이트 로그 검색에 사용 */
   const lastSentMessageRef = useRef('');
@@ -125,6 +127,7 @@ export default function ExperienceSettingsChatPage() {
     const msgs = state.messages ?? [];
     if (msgs.length === 0) return;
 
+    setSuppressStepTooltip(true);
     updateStepTooltip(state.currentStage, state.allComplete);
 
     setMessages((prev) => {
@@ -156,6 +159,8 @@ export default function ExperienceSettingsChatPage() {
       }));
     });
     setIsSessionLoading(false);
+    const t = setTimeout(() => setSuppressStepTooltip(false), 0);
+    return () => clearTimeout(t);
   }, [sessionStateData]);
 
   useEffect(() => {
@@ -477,7 +482,15 @@ export default function ExperienceSettingsChatPage() {
       {/* 채팅 입력 창: 브라우저 바닥 기준 4.75rem 고정 */}
       <div className='fixed bottom-[4.75rem] left-1/2 z-30 flex w-full max-w-[66rem] -translate-x-1/2 items-center px-[1rem]'>
         <ChatStepSection
-          currentStep={stepTooltipStep}
+          currentStep={
+            isNewExperience || sessionStateData?.result != null
+              ? stepTooltipStep
+              : null
+          }
+          suppressTooltip={
+            (sessionStateData?.result == null && !isNewExperience) ||
+            suppressStepTooltip
+          }
           inputValue={inputValue}
           onInputChange={setInputValue}
           onSend={handleSend}
