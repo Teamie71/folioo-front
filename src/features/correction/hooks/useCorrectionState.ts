@@ -25,6 +25,7 @@ import { mapToPdfActivityBlock, toPatchBody } from '@/services/correction';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCorrectionNavbar } from '@/contexts/CorrectionNavbarContext';
+import { useAuthStore } from '@/store/useAuthStore';
 import {
   INITIAL_PDF_ACTIVITIES,
   PDF_CATEGORY_CHAR_LIMIT,
@@ -132,9 +133,18 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [fileDeleteConfirmTarget, setFileDeleteConfirmTarget] =
     useState<FileDeleteConfirmTarget>(null);
 
+  const accessToken = useAuthStore((s) => s.accessToken);
   const { data: experiencesData } = useExperienceControllerGetExperiences(
     undefined,
-    { query: { enabled: step === 'portfolio' } },
+    {
+      query: {
+        // 토큰이 있을 때만 호출 (세션 복원 전 요청 시 401 방지)
+        enabled:
+          !!accessToken &&
+          step === 'portfolio' &&
+          selectedPortfolioType === 'text',
+      },
+    },
   );
   const experiencesList = experiencesData?.result ?? [];
   const textPortfolios = experiencesList.map((e) => ({
