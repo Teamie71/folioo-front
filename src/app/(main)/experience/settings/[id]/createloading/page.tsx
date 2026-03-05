@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { StepProgressBar } from '@/components/StepProgressBar';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
 import { InlineEdit } from '@/components/InlineEdit';
 import { useExperienceStore } from '@/store/useExperienceStore';
+import { useExperienceControllerGetExperience } from '@/api/endpoints/experience/experience';
+import { ExperienceStateResDTOStatus } from '@/api/models';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { CommonButton } from '@/components/CommonButton';
@@ -16,7 +18,11 @@ import Link from 'next/link';
 export default function ExperienceSettingsChatLoadingPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const id = typeof params.id === 'string' ? params.id : '';
+  const experienceId = Number(id);
+  const portfolioIdParam = searchParams.get('portfolioId');
+  const portfolioId = portfolioIdParam ? Number(portfolioIdParam) : null;
   const removeExperience = useExperienceStore(
     (state) => state.removeExperience,
   );
@@ -31,6 +37,32 @@ export default function ExperienceSettingsChatLoadingPage() {
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [experienceTitle, setExperienceTitle] = useState(storeTitle);
+
+  const { data: experienceData } = useExperienceControllerGetExperience(
+    experienceId,
+    {
+      query: {
+        enabled: !!id && !Number.isNaN(experienceId),
+        refetchInterval: 3000,
+        refetchIntervalInBackground: true,
+      },
+    },
+  );
+
+  const status = experienceData?.result?.status;
+  const isDone =
+    status != null &&
+    String(status).toUpperCase() === ExperienceStateResDTOStatus.DONE;
+
+  useEffect(() => {
+    if (isDone && id) {
+      const q =
+        portfolioId != null && !Number.isNaN(portfolioId)
+          ? `?portfolioId=${portfolioId}`
+          : '';
+      router.replace(`/experience/settings/${id}/portfolio${q}`);
+    }
+  }, [isDone, id, portfolioId, router]);
 
   useEffect(() => {
     setExperienceTitle(storeTitle);
@@ -98,7 +130,7 @@ export default function ExperienceSettingsChatLoadingPage() {
             </motion.div>
           </div>
 
-          <span className='mt-[] text-center text-[1.125rem] leading-[130%] font-bold'>
+          <span className='text-center text-[1.125rem] leading-[130%] font-bold'>
             AI 컨설턴트가 텍스트형 포트폴리오를 생성 중이에요.
             <br />
             페이지를 떠나도 작업은 계속돼요.
@@ -107,12 +139,6 @@ export default function ExperienceSettingsChatLoadingPage() {
           <Link href='/experience'>
             <CommonButton variantType='Outline' px='2.25rem' py='0.5rem'>
               나가기
-            </CommonButton>
-          </Link>
-
-          <Link href={`/experience/settings/${id}/portfolio`}>
-            <CommonButton variantType='Primary' px='2.25rem' py='0.5rem'>
-              포트폴리오 이동(임시)
             </CommonButton>
           </Link>
         </div>

@@ -21,6 +21,7 @@ import { ChatCompleteModal } from '@/features/experience/chat/components/ChatCom
 import {
   useInterviewControllerCreateSessionStream,
   useInterviewControllerGetSessionState,
+  useInterviewControllerGeneratePortfolio,
   useInterviewControllerSendChatStream,
 } from '@/api/endpoints/interview/interview';
 import { insightControllerGetLogs } from '@/api/endpoints/insight/insight';
@@ -75,6 +76,8 @@ export default function ExperienceSettingsChatPage() {
   const inExtraTurnsModeRef = useRef(false);
   /* 답변 생성 오류 시 재시도할 마지막 사용자 메시지 */
   const lastFailedMessageRef = useRef('');
+  /* createloading으로 넘길 portfolioId */
+  const transitionPortfolioIdRef = useRef<number | null>(null);
   /* 세션 재연결(3턴 선택·재시도) 시 startSession 호출 중 — onSuccess에서 기존 메시지 덮어쓰지 않음 */
   const isReconnectFlowRef = useRef(false);
   const accessToken = useAuthStore((s) => s.accessToken);
@@ -178,6 +181,8 @@ export default function ExperienceSettingsChatPage() {
     }
   }, [stepTooltipStep]);
 
+  const { mutate: generatePortfolio } =
+    useInterviewControllerGeneratePortfolio();
   const { mutate: startSession } = useInterviewControllerCreateSessionStream({
     mutation: {
       onSuccess: (event) => {
@@ -283,10 +288,23 @@ export default function ExperienceSettingsChatPage() {
               // 인사이트 검색 실패 시 무시 (메시지는 그대로 유지)
             }
           }
-          if (pendingShowTransitionModalRef.current) {
+          if (
+            pendingShowTransitionModalRef.current &&
+            id &&
+            !Number.isNaN(numericId)
+          ) {
             pendingShowTransitionModalRef.current = false;
             inExtraTurnsModeRef.current = false;
-            setIsTransitionModalOpen(true);
+            generatePortfolio(
+              { experienceId: numericId },
+              {
+                onSuccess: (data) => {
+                  transitionPortfolioIdRef.current =
+                    data?.result?.portfolioId ?? null;
+                  setIsTransitionModalOpen(true);
+                },
+              },
+            );
           }
         } finally {
           setIsAnswerStreaming(false);
@@ -415,7 +433,10 @@ export default function ExperienceSettingsChatPage() {
     if (Number.isNaN(numId)) return;
     setMessages((prev) => {
       const next = [...prev];
-      if (next[next.length - 1]?.role === 'ai' && next[next.length - 1].isError) {
+      if (
+        next[next.length - 1]?.role === 'ai' &&
+        next[next.length - 1].isError
+      ) {
         next.pop();
       }
       return next;
@@ -502,8 +523,18 @@ export default function ExperienceSettingsChatPage() {
         open={isCompletionModalOpen}
         onOpenChange={setIsCompletionModalOpen}
         onEndConversation={() => {
-          setIsCompletionModalOpen(false);
-          setIsTransitionModalOpen(true);
+          if (!id || Number.isNaN(numericId)) return;
+          generatePortfolio(
+            { experienceId: numericId },
+            {
+              onSuccess: (data) => {
+                setIsCompletionModalOpen(false);
+                const pid = data?.result?.portfolioId;
+                const q = pid != null ? `?portfolioId=${pid}` : '';
+                router.push(`/experience/settings/${id}/createloading${q}`);
+              },
+            },
+          );
         }}
         onContinueWithCredits={() => {
           setIsCompletionModalOpen(false);
@@ -518,7 +549,9 @@ export default function ExperienceSettingsChatPage() {
         onOpenChange={(open) => {
           if (!open) {
             setIsTransitionModalOpen(false);
-            router.push(`/experience/settings/${id}/createloading`);
+            const pid = transitionPortfolioIdRef.current;
+            const q = pid != null ? `?portfolioId=${pid}` : '';
+            router.push(`/experience/settings/${id}/createloading${q}`);
           }
         }}
         title={
