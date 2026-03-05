@@ -9,6 +9,7 @@ import { NewExperienceStartButton } from '@/features/experience/components/NewEx
 import { useExperienceControllerGetExperiences } from '@/api/endpoints/experience/experience';
 import { ExperienceResDTOHopeJob } from '@/api/models/experienceResDTOHopeJob';
 import { useExperienceStore } from '@/store/useExperienceStore';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const HOPE_JOB_TO_LABEL: Record<ExperienceResDTOHopeJob, string> = {
   NONE: '미정',
@@ -26,9 +27,16 @@ export default function ExperiencePage() {
   const setExperienceCards = useExperienceStore(
     (state) => state.setExperienceCards,
   );
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const sessionRestoreAttempted = useAuthStore(
+    (s) => s.sessionRestoreAttempted,
+  );
+
+  const isAuthReady = sessionRestoreAttempted && !!accessToken;
 
   const { data, isLoading } = useExperienceControllerGetExperiences(
-    searchQuery ? { keyword: searchQuery } : undefined,
+    isAuthReady && searchQuery ? { keyword: searchQuery } : isAuthReady ? {} : undefined,
+    { query: { enabled: isAuthReady } },
   );
 
   useEffect(() => {
@@ -94,7 +102,10 @@ export default function ExperiencePage() {
         </div>
 
         {/* 나의 경험 카드 */}
-        <ExperienceCardSection searchQuery={searchQuery} isSearching={isLoading} />
+        <ExperienceCardSection
+          searchQuery={searchQuery}
+          isSearching={!sessionRestoreAttempted || isLoading}
+        />
       </div>
     </div>
   );
