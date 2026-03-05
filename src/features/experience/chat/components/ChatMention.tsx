@@ -38,10 +38,11 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
   const [detailItem, setDetailItem] = useState<MentionItem | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>('대인관계');
 
-  const { data: logsResponse, isPending, isError } = useInsightControllerGetLogs(
-    undefined,
-    { query: { staleTime: 30_000 } },
-  );
+  const {
+    data: logsResponse,
+    isPending,
+    isError,
+  } = useInsightControllerGetLogs(undefined, { query: { staleTime: 30_000 } });
 
   const items = useMemo((): MentionItem[] => {
     const list = logsResponse?.result ?? [];
@@ -90,9 +91,7 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
     },
   ];
 
-  const filteredItems = items.filter(
-    (item) => item.category === selectedTab,
-  );
+  const filteredItems = items.filter((item) => item.category === selectedTab);
 
   return (
     <>
@@ -100,9 +99,7 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
         <div className='flex items-center'>
           {tabs.map((tab) => {
             const isActive = selectedTab === tab.label;
-            const hasItems = items.some(
-              (item) => item.category === tab.label,
-            );
+            const hasItems = items.some((item) => item.category === tab.label);
             return (
               <div key={tab.label} className='flex items-center justify-center'>
                 <button
@@ -136,13 +133,9 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
 
         <div className='mention-scroll mr-[0.5rem] flex min-h-0 flex-1 flex-col gap-[0.25rem] overflow-y-auto px-[1.25rem] py-[1.125rem] pr-[0.5rem]'>
           {isPending ? (
-            <div className='flex flex-1 items-center justify-center py-[2rem] text-[0.875rem] text-[#9EA4A9]'>
-              로그 목록을 불러오는 중...
-            </div>
+            <div className='flex flex-1 items-center justify-center py-[2rem] text-[0.875rem] text-[#9EA4A9]'></div>
           ) : isError ? (
-            <div className='flex flex-1 items-center justify-center py-[2rem] text-[0.875rem] text-[#9EA4A9]'>
-              로그를 불러오지 못했어요.
-            </div>
+            <div className='flex flex-1 items-center justify-center py-[2rem] text-[0.875rem] text-[#9EA4A9]'></div>
           ) : filteredItems.length > 0 ? (
             filteredItems.map((item) => (
               <div
@@ -167,11 +160,10 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
               </div>
             ))
           ) : (
-            <div className='flex flex-1 items-center justify-center text-center text-[0.875rem] font-semibold leading-[150%] text-[#9EA4A9]'>
+            <div className='flex flex-1 items-center justify-center text-center text-[0.875rem] leading-[150%] font-semibold text-[#9EA4A9]'>
               <p>
                 아직 작성한 로그가 없어요.
-                <br />
-                이 경험에서 얻은 인사이트를 채팅으로 알려주세요!
+                <br />이 경험에서 얻은 인사이트를 채팅으로 알려주세요!
               </p>
             </div>
           )}
