@@ -1,27 +1,53 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import InputArea from '@/components/InputArea';
 import { ExperienceIcon } from '@/components/icons/ExperienceIcon';
 import { SearchButton } from '@/components/SearchButton';
 import { ExperienceCardSection } from '@/features/experience/components/ExperienceCardSection';
 import { NewExperienceStartButton } from '@/features/experience/components/NewExperienceStartButton';
+import { useExperienceControllerGetExperiences } from '@/api/endpoints/experience/experience';
+import { ExperienceResDTOHopeJob } from '@/api/models/experienceResDTOHopeJob';
+import { useExperienceStore } from '@/store/useExperienceStore';
+
+const HOPE_JOB_TO_LABEL: Record<ExperienceResDTOHopeJob, string> = {
+  NONE: '미정',
+  PLANNING: '기획',
+  MARKETING: '광고/마케팅',
+  DESIGN: '디자인',
+  DEV: 'IT 개발',
+  MEDIA: '영상/미디어',
+  DATA: '데이터',
+};
 
 export default function ExperiencePage() {
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
+  const setExperienceCards = useExperienceStore(
+    (state) => state.setExperienceCards,
+  );
 
-  const handleSearch = () => {
-    setIsSearching(true);
-    setSearchQuery(searchInput.trim());
-  };
+  const { data, isLoading } = useExperienceControllerGetExperiences(
+    searchQuery ? { keyword: searchQuery } : undefined,
+  );
 
   useEffect(() => {
-    if (!isSearching) return;
-    const id = setTimeout(() => setIsSearching(false), 400);
-    return () => clearTimeout(id);
-  }, [isSearching, searchQuery]);
+    if (!data) return;
+
+    const experiences = data.result ?? [];
+    const cards = experiences.map((exp) => ({
+      id: String(exp.id),
+      title: exp.name,
+      tag: HOPE_JOB_TO_LABEL[exp.hopeJob] ?? '미정',
+      date: exp.createdAt.slice(0, 10),
+    }));
+
+    setExperienceCards(cards);
+  }, [data, setExperienceCards]);
+
+  const handleSearch = () => {
+    setSearchQuery(searchInput.trim());
+  };
 
   return (
     <div className='flex flex-col gap-[4.5rem]'>
@@ -68,10 +94,7 @@ export default function ExperiencePage() {
         </div>
 
         {/* 나의 경험 카드 */}
-        <ExperienceCardSection
-          searchQuery={searchQuery}
-          isSearching={isSearching}
-        />
+        <ExperienceCardSection searchQuery={searchQuery} isSearching={isLoading} />
       </div>
     </div>
   );

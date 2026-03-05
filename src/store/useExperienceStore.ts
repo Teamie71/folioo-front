@@ -22,6 +22,7 @@ export interface ExperienceCard {
 interface ExperienceStore {
   /* 나의 경험 카드 목록 (experience 페이지에 표시) */
   experienceCards: ExperienceCard[];
+  setExperienceCards: (cards: ExperienceCard[]) => void;
   addExperience: (card: ExperienceCard) => void;
 
   removeExperience: (id: string) => void;
@@ -49,6 +50,12 @@ export const useExperienceStore = create<ExperienceStore>()(
     (set, get) => ({
       // 나의 경험 카드 목록
       experienceCards: [],
+
+      // 나의 경험 카드 목록 일괄 설정
+      setExperienceCards: (cards) =>
+        set(() => ({
+          experienceCards: cards,
+        })),
 
       // 나의 경험 카드 추가
       addExperience: (card) =>
