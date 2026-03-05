@@ -5,6 +5,7 @@ import { animate } from 'framer-motion';
 import Image from 'next/image';
 import { ChatAnalogs } from './ChatAnalogs';
 import { ChatLoadingMessage } from './ChatLoadingMessage';
+import { CommonButton } from '@/components/CommonButton';
 import { PdfIcon } from '@/components/icons/PdfIcon';
 
 export type MessageFile = {
@@ -30,6 +31,8 @@ export type ChatMessage = {
   files?: MessageFile[];
   /** AI 메시지일 때, 연관 인사이트 로그가 검색되면 여기에 담아 표시 */
   attachedLogs?: ChatAttachedLog[];
+  /* 답변 생성 오류 시 표시하는 에러 메시지(재시도 버튼 포함) */
+  isError?: boolean;
 };
 
 const MAX_TITLE_LENGTH = 20;
@@ -56,11 +59,16 @@ function truncateFileName(
   return `${title.slice(0, maxTitleLen)}...${ext}`;
 }
 
+const ERROR_MESSAGE_TEXT =
+  '앗, 답변 생성 중 오류가 발생했어요.\n아래 버튼을 눌러 다시 시도해주세요.';
+
 interface ChatMessageSectionProps {
   messages: ChatMessage[];
   onAIMessageClick?: () => void;
   onUserMessageClick?: () => void;
   showLoading?: boolean;
+  /* 답변 생성 오류 메시지에서 '다시 시도하기' 클릭 시 호출 */
+  onRetryRequest?: () => void;
 }
 
 export function ChatMessageSection({
@@ -68,6 +76,7 @@ export function ChatMessageSection({
   onAIMessageClick,
   onUserMessageClick,
   showLoading = false,
+  onRetryRequest,
 }: ChatMessageSectionProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -113,11 +122,9 @@ export function ChatMessageSection({
         <div className='flex flex-col gap-[3.75rem]'>
           {messages.map((msg, index) =>
             msg.role === 'ai' ? (
-              <button
+              <div
                 key={`ai-${index}`}
-                type='button'
-                className='flex cursor-pointer items-start gap-[1.5rem] text-left'
-                onClick={onAIMessageClick}
+                className='flex items-start gap-[1.5rem] text-left'
               >
                 <Image
                   src='/ChataiIcon.svg'
@@ -126,22 +133,37 @@ export function ChatMessageSection({
                   height={48}
                 />
                 <div className='font-regular max-w-[53.75rem] rounded-tl-[0.25rem] rounded-tr-[2rem] rounded-br-[2rem] rounded-bl-[2rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2.25rem] py-[1.75rem] text-[1rem] whitespace-pre-wrap text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
-                  {msg.content || msg.attachedLogs?.length ? (
+                  {msg.isError ? (
+                    <div className='flex flex-col gap-[1rem]'>
+                      <p className='whitespace-pre-wrap'>
+                        {ERROR_MESSAGE_TEXT}
+                      </p>
+                      {onRetryRequest && (
+                        <CommonButton
+                          variantType='Outline'
+                          px='2.25rem'
+                          py='0.5rem'
+                          style={{ width: '10rem' }}
+                          onClick={onRetryRequest}
+                        >
+                          다시 시도하기
+                        </CommonButton>
+                      )}
+                    </div>
+                  ) : msg.content || msg.attachedLogs?.length ? (
                     msg.attachedLogs?.length ? (
                       <ChatAnalogs
                         logs={msg.attachedLogs}
                         questionText={msg.content || undefined}
                       />
                     ) : (
-                      <span className='whitespace-pre-wrap'>
-                        {msg.content}
-                      </span>
+                      <span className='whitespace-pre-wrap'>{msg.content}</span>
                     )
                   ) : (
                     <ChatAnalogs />
                   )}
                 </div>
-              </button>
+              </div>
             ) : (
               <button
                 key={`user-${index}`}

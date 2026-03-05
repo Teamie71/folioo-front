@@ -65,6 +65,16 @@ export default function ExperienceSettingsChatPage() {
   const lastSentMessageRef = useRef('');
   /** 단계 완료 시 완료 모달을 이미 한 번 띄웠는지 (중복 오픈 방지) */
   const completionModalAutoOpenedRef = useRef(false);
+  /* '3턴 계속하기' 선택 시 남은 추가 대화 턴 수 (0이면 추가 턴 아님) */
+  const [extraTurnsRemaining, setExtraTurnsRemaining] = useState(0);
+  /* 추가 3턴 중 마지막(3번째) 메시지 응답 수신 후 포트폴리오 안내 모달 띄우기 플래그 */
+  const pendingShowTransitionModalRef = useRef(false);
+  /* '3턴 계속하기' 선택 후 추가 대화 모드 */
+  const inExtraTurnsModeRef = useRef(false);
+  /* 답변 생성 오류 시 재시도할 마지막 사용자 메시지 */
+  const lastFailedMessageRef = useRef('');
+  /* 세션 재연결(3턴 선택·재시도) 시 startSession 호출 중 — onSuccess에서 기존 메시지 덮어쓰지 않음 */
+  const isReconnectFlowRef = useRef(false);
   const accessToken = useAuthStore((s) => s.accessToken);
   const sessionRestoreAttempted = useAuthStore(
     (s) => s.sessionRestoreAttempted,
@@ -152,6 +162,11 @@ export default function ExperienceSettingsChatPage() {
   const { mutate: startSession } = useInterviewControllerCreateSessionStream({
     mutation: {
       onSuccess: (event) => {
+        if (isReconnectFlowRef.current) {
+          isReconnectFlowRef.current = false;
+          setIsSessionLoading(false);
+          return;
+        }
         const maybeDelta = event as StreamContentBlockDeltaDTO;
         const maybeComplete = event as StreamMessageCompleteDTO;
 
@@ -168,14 +183,14 @@ export default function ExperienceSettingsChatPage() {
         }
         setIsSessionLoading(false);
 
-        // 새로 생성된 경험으로 진입한 경우에는 세션 생성이 끝났으므로
-        // URL 의 new 플래그를 제거해 이후 새로고침 시에는 기존 세션 경로를 타도록 한다.
         if (isNewExperience) {
           router.replace(`/experience/settings/${id}/chat`);
         }
       },
       onError: (err: unknown) => {
-        // 409 Conflict = 이미 세션이 있음 (예: StrictMode로 인한 두 번째 요청). 기존 세션을 불러와 복구한다.
+        if (isReconnectFlowRef.current) {
+          isReconnectFlowRef.current = false;
+        }
         const status = (err as { response?: { status?: number } })?.response
           ?.status;
         const is409 = status === 409;
@@ -249,12 +264,22 @@ export default function ExperienceSettingsChatPage() {
               // 인사이트 검색 실패 시 무시 (메시지는 그대로 유지)
             }
           }
+          if (pendingShowTransitionModalRef.current) {
+            pendingShowTransitionModalRef.current = false;
+            inExtraTurnsModeRef.current = false;
+            setIsTransitionModalOpen(true);
+          }
         } finally {
           setIsAnswerStreaming(false);
         }
       },
       onError: () => {
         setIsAnswerStreaming(false);
+        lastFailedMessageRef.current = lastSentMessageRef.current;
+        setMessages((prev) => [
+          ...prev,
+          { role: 'ai', content: '', isError: true },
+        ]);
       },
     },
   });
@@ -317,6 +342,14 @@ export default function ExperienceSettingsChatPage() {
     const content = payload.content.trim();
     if (!content) return;
 
+    if (extraTurnsRemaining > 0) {
+      const nextRemaining = extraTurnsRemaining - 1;
+      setExtraTurnsRemaining(nextRemaining);
+      if (nextRemaining === 0) {
+        pendingShowTransitionModalRef.current = true;
+      }
+    }
+
     lastSentMessageRef.current = content;
     setMessages((prev) => [
       ...prev,
@@ -334,15 +367,41 @@ export default function ExperienceSettingsChatPage() {
 
     sendChat({
       experienceId: numericId,
-      data: {
-        message: content,
-      },
+      data: { message: content },
     });
   };
 
   const handleDelete = () => {
     removeExperience(id);
     router.push('/experience');
+  };
+
+  const handleRetryRequest = () => {
+    const content = lastFailedMessageRef.current.trim();
+    if (!content || !id) return;
+    const numId = Number(id);
+    if (Number.isNaN(numId)) return;
+    setMessages((prev) => {
+      const next = [...prev];
+      if (next[next.length - 1]?.role === 'ai' && next[next.length - 1].isError) {
+        next.pop();
+      }
+      return next;
+    });
+    setIsAnswerStreaming(true);
+    isReconnectFlowRef.current = true;
+    startSession(
+      { experienceId: numId },
+      {
+        onSettled: () => {
+          isReconnectFlowRef.current = false;
+          sendChat({
+            experienceId: numId,
+            data: { message: content },
+          });
+        },
+      },
+    );
   };
 
   return (
@@ -383,6 +442,7 @@ export default function ExperienceSettingsChatPage() {
           <ChatMessageSection
             messages={messages}
             showLoading={isSessionLoading || isAnswerStreaming}
+            onRetryRequest={handleRetryRequest}
           />
         </div>
       </div>
@@ -405,7 +465,11 @@ export default function ExperienceSettingsChatPage() {
           setIsCompletionModalOpen(false);
           setIsTransitionModalOpen(true);
         }}
-        onContinueWithCredits={() => setIsCompletionModalOpen(false)}
+        onContinueWithCredits={() => {
+          setIsCompletionModalOpen(false);
+          setExtraTurnsRemaining(3);
+          inExtraTurnsModeRef.current = true;
+        }}
       />
 
       {/* 포트폴리오 생성 시작 안내 모달 (2초 후 자동 닫힘 → 포트폴리오 페이지 이동) */}
