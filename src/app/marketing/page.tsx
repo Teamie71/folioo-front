@@ -60,7 +60,7 @@ export default function MarketingPage() {
                   <span className='ml-[0.25rem] block'>
                     1. 수집 항목
                     <br />
-                    {'\u00A0\u00A0'}• 성명, 이메일 주소, 전화번호
+                    {'\u00A0\u00A0'}• 성명, 이메일 주소
                     <br />
                     2. 이용 목적
                     <br />
@@ -77,13 +77,7 @@ export default function MarketingPage() {
                   회사는 본 약관에 동의한 이용자에게 아래 채널을 통해 마케팅
                   정보를 발신할 수 있습니다.
                   <br />
-                  <span className='ml-[0.25rem] block'>
-                    1. 이메일
-                    <br />
-                    2. SMS (문자)
-                    <br />
-                    3. 카카오톡 등 메신저 서비스
-                  </span>
+                  <span className='ml-[0.25rem] block'>1. 이메일</span>
                 </p>
               </div>
 
