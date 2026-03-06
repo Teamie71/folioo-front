@@ -1,22 +1,32 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import { BannerBeta } from '@/components/OBT/OBTBanner';
 import { OBTEventModal } from '@/components/OBT/OBTEventModal';
-import {
-  shouldGrantWeeklyVoucher,
-  markWeeklyVoucherGranted,
-} from '@/utils/weeklyVoucher';
+import { markWeeklyVoucherGranted } from '@/utils/weeklyVoucher';
 import { CorrectionNavbarContext } from '@/contexts/CorrectionNavbarContext';
 import { PortfolioCreationPoller } from '@/features/experience/components/PortfolioCreationPoller';
+import { useEventControllerClaimEventReward } from '@/api/endpoints/event/event';
+import {
+  getUserControllerGetTicketBalanceQueryKey,
+  getUserControllerGetExpiringTicketsQueryKey,
+} from '@/api/endpoints/user/user';
+
+/** 회원가입 직후 / 주간 이용권 지급 이벤트 코드 (백엔드와 동일해야 함) */
+const WEEKLY_VOUCHER_EVENT_CODE = 'weekly-voucher';
+/** terms에서 약관 동의 후 가입 시 세션에 세팅되는 키 (랜딩에서 모달 띄운 뒤 제거) */
+const TERMS_FROM_SIGNUP_KEY = 'terms_from_signup';
 
 function isCorrectionNewPath(pathname: string) {
   return /^\/correction\/new\/?$/.test(pathname);
 }
 function isCorrectionDetailPath(pathname: string) {
-  return /^\/correction\/[^/]+$/.test(pathname) && !isCorrectionNewPath(pathname);
+  return (
+    /^\/correction\/[^/]+$/.test(pathname) && !isCorrectionNewPath(pathname)
+  );
 }
 function isExperienceSettingsPathWithoutNavbar(pathname: string) {
   return (
@@ -31,8 +41,13 @@ export default function LayoutContent({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [showNavbarOnResult, setShowNavbarOnResult] = useState(false);
   const [weeklyVoucherModalOpen, setWeeklyVoucherModalOpen] = useState(false);
+  const claimAttemptedRef = useRef(false);
+
+  const { mutateAsync: claimEventReward } =
+    useEventControllerClaimEventReward();
 
   const path = pathname ?? '';
   const hideNavbar = isCorrectionNewPath(path)
@@ -45,13 +60,40 @@ export default function LayoutContent({
     if (!isCorrectionDetailPath(path)) setShowNavbarOnResult(false);
   }, [path]);
 
+  // 루트(/)에서만 모달 오픈: 회원가입 직후(terms에서 약관 동의 후 가입) 한 번만
   useEffect(() => {
-    // 접속 시 주간 이용권 지급 여부 확인
-    if (shouldGrantWeeklyVoucher()) {
+    if (path !== '/') return;
+    if (typeof window === 'undefined') return;
+    const fromSignup = sessionStorage.getItem(TERMS_FROM_SIGNUP_KEY);
+    if (fromSignup) {
+      sessionStorage.removeItem(TERMS_FROM_SIGNUP_KEY);
       setWeeklyVoucherModalOpen(true);
-      markWeeklyVoucherGranted();
     }
-  }, []);
+  }, [path]);
+
+  // 모달이 열릴 때 보상 수령 API 호출
+  useEffect(() => {
+    if (!weeklyVoucherModalOpen) {
+      claimAttemptedRef.current = false;
+      return;
+    }
+    if (claimAttemptedRef.current) return;
+    claimAttemptedRef.current = true;
+    claimEventReward({ eventCode: WEEKLY_VOUCHER_EVENT_CODE })
+      .then(() => {
+        markWeeklyVoucherGranted();
+        // 잔여 이용권·만료 예정 이용권 재조회로 화면 반영
+        queryClient.invalidateQueries({
+          queryKey: getUserControllerGetTicketBalanceQueryKey(),
+        });
+        queryClient.invalidateQueries({
+          queryKey: getUserControllerGetExpiringTicketsQueryKey(),
+        });
+      })
+      .catch(() => {
+        claimAttemptedRef.current = false;
+      });
+  }, [weeklyVoucherModalOpen, claimEventReward, queryClient]);
 
   return (
     <CorrectionNavbarContext.Provider
