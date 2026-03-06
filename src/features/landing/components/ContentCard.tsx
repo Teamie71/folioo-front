@@ -4,7 +4,7 @@ import { CommonButton } from '@/components/CommonButton';
 import { useAuthStore } from '@/store/useAuthStore';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { ReactNode } from 'react';
+import { ReactNode, useRef } from 'react';
 
 interface ContentCardProps {
   title: string;
@@ -18,6 +18,12 @@ interface ContentCardProps {
   customButton?: ReactNode;
   /* true일 때 로그아웃 상태에서 클릭하면 로그인 페이지로 보냄 */
   requireLogin?: boolean;
+  /* 지정 시 카드 클릭 시 해당 id를 가진 섹션으로 스무스 스크롤 */
+  sectionId?: string;
+  /* 지정 시 카드 클릭 시 해당 px만큼 아래로 스크롤 */
+  scrollAmount?: number;
+  /* 지정 시 카드 클릭 시 (카드 하단 + 이 값) 위치가 뷰포트 상단에 오도록 스크롤 */
+  scrollToBelowCard?: number;
 }
 
 export const ContentCard = ({
@@ -28,9 +34,13 @@ export const ContentCard = ({
   buttonHref,
   customButton,
   requireLogin = false,
+  sectionId,
+  scrollAmount,
+  scrollToBelowCard,
 }: ContentCardProps) => {
   const router = useRouter();
   const accessToken = useAuthStore((s) => s.accessToken);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const handleProtectedClick = () => {
     if (!buttonHref) return;
@@ -42,9 +52,56 @@ export const ContentCard = ({
 
     router.push(buttonHref);
   };
+
+  const hasScrollAction =
+    scrollAmount != null || sectionId != null || scrollToBelowCard != null;
+
+  const scrollToBelowCardPosition = (element: HTMLElement) => {
+    if (scrollToBelowCard == null) return;
+    const rect = element.getBoundingClientRect();
+    const targetScrollTop = rect.bottom + window.scrollY + scrollToBelowCard;
+    window.scrollTo({ top: targetScrollTop, behavior: 'smooth' });
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('button, a')) return;
+    if (scrollToBelowCard != null) {
+      scrollToBelowCardPosition(e.currentTarget as HTMLElement);
+      return;
+    }
+    if (scrollAmount != null) {
+      window.scrollBy({ top: scrollAmount, behavior: 'smooth' });
+      return;
+    }
+    if (sectionId) {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    e.preventDefault();
+    if (scrollToBelowCard != null && cardRef.current) {
+      scrollToBelowCardPosition(cardRef.current);
+      return;
+    }
+    if (scrollAmount != null) {
+      window.scrollBy({ top: scrollAmount, behavior: 'smooth' });
+      return;
+    }
+    if (sectionId) {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <motion.div
-      className='flex h-[25.125rem] w-[21rem] flex-col items-center justify-center gap-[1.75rem] rounded-[1.75rem] bg-[#FCFCFF] shadow-[0px_4px_8px_0px_#00000033]'
+      ref={cardRef}
+      role={hasScrollAction ? 'button' : undefined}
+      tabIndex={hasScrollAction ? 0 : undefined}
+      onClick={hasScrollAction ? handleCardClick : undefined}
+      onKeyDown={hasScrollAction ? handleKeyDown : undefined}
+      className={`flex h-[25.125rem] w-[21rem] flex-col items-center justify-center gap-[1.75rem] rounded-[1.75rem] bg-[#FCFCFF] shadow-[0px_4px_8px_0px_#00000033] ${hasScrollAction ? 'cursor-pointer' : ''}`}
       whileHover={{
         y: -8,
       }}
@@ -62,11 +119,16 @@ export const ContentCard = ({
         </p>
       </div>
       {customButton ? (
-        customButton
+        <div onClick={(e) => e.stopPropagation()} role='presentation'>
+          {customButton}
+        </div>
       ) : buttonHref ? (
         <button
           type='button'
-          onClick={handleProtectedClick}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleProtectedClick();
+          }}
           className='inline-flex cursor-pointer items-center justify-center rounded-[6.25rem] border-[0.09375rem] border-[#5060C5] bg-[#F6F5FF] px-[2.25rem] py-[0.5rem] text-[1rem] font-semibold text-[#5060C5] hover:bg-[#EEEDF7]'
         >
           {buttonText}
