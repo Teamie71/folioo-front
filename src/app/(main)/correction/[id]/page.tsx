@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { redirect } from 'next/navigation';
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
@@ -32,6 +32,10 @@ export default function CorrectionSettingsPage() {
   const s: UseCorrectionStateReturn = useCorrectionState(correctionId);
   /** OBT 기간 동안 막아둔 기능: PDF 포트폴리오 */
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+
+  useEffect(() => {
+    document.title = `${s.title} - Folioo`;
+  }, [s.title]);
 
   if (!correctionId) {
     redirect('/correction');

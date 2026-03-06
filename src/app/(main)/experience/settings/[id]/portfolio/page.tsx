@@ -44,6 +44,10 @@ export default function ExperienceSettingsPortfolioPage() {
   }, [id, storeTitle]);
 
   useEffect(() => {
+    document.title = `${experienceTitle} - Folioo`;
+  }, [experienceTitle]);
+
+  useEffect(() => {
     if (id) setExperienceReturnPath(id, 'portfolio');
   }, [id]);
 

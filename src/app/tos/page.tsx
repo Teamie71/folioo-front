@@ -1,6 +1,11 @@
+import type { Metadata } from 'next';
 import { BackButton } from '@/components/BackButton';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
+
+export const metadata: Metadata = {
+  title: '서비스이용약관 - Folioo',
+};
 
 export default function TOSPage() {
   return (

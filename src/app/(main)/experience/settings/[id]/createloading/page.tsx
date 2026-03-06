@@ -37,6 +37,10 @@ export default function ExperienceSettingsChatLoadingPage() {
   }, [id, storeTitle]);
 
   useEffect(() => {
+    document.title = `${experienceTitle} - Folioo`;
+  }, [experienceTitle]);
+
+  useEffect(() => {
     if (id) setExperienceReturnPath(id, 'createloading');
   }, [id]);
 

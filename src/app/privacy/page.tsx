@@ -1,6 +1,11 @@
+import type { Metadata } from 'next';
 import { BackButton } from '@/components/BackButton';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
+
+export const metadata: Metadata = {
+  title: '개인정보처리방침 - Folioo',
+};
 
 export default function PrivacyPage() {
   return (

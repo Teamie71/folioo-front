@@ -47,6 +47,10 @@ export default function ExperienceSettingsChatPage() {
   }, [id, storeTitle]);
 
   useEffect(() => {
+    document.title = `${experienceTitle} - Folioo`;
+  }, [experienceTitle]);
+
+  useEffect(() => {
     if (id) setExperienceReturnPath(id, 'chat');
   }, [id]);
 

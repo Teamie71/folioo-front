@@ -1,6 +1,11 @@
+import type { Metadata } from 'next';
 import { BackButton } from '@/components/BackButton';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
+
+export const metadata: Metadata = {
+  title: '마케팅정보수신 - Folioo',
+};
 
 export default function MarketingPage() {
   return (
