@@ -18,6 +18,7 @@ import type {
   FileItem,
 } from '@/features/experience/chat/components/ChatInput';
 import { ChatCompleteModal } from '@/features/experience/chat/components/ChatCompleteModal';
+import { PortfolioCreateModal } from '@/features/experience/chat/components/PortfolioCreateModal';
 import { fetchSSEStream } from '@/lib/sseStream';
 import {
   interviewControllerGetSessionState,
@@ -56,6 +57,8 @@ export default function ExperienceSettingsChatPage() {
   );
 
   const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
+  const [isPortfolioCreateModalOpen, setIsPortfolioCreateModalOpen] =
+    useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [experienceTitle, setExperienceTitle] = useState(storeTitle);
   const [inputValue, setInputValue] = useState('');
@@ -70,6 +73,10 @@ export default function ExperienceSettingsChatPage() {
   const [showStepTooltip, setShowStepTooltip] = useState(false);
 
   const prevStageRef = useRef(0);
+  /* 3턴 이어가기 모드: true면 연장 세션 중 */
+  const isExtendedSessionRef = useRef(false);
+  /* 연장 세션에서 완료된 턴 수 (AI 응답 1회 = 1턴, 3턴이면 CompleteModal 오픈) */
+  const extendedTurnCountRef = useRef(0);
   const { mutateAsync: generatePortfolio } =
     useInterviewControllerGeneratePortfolio();
 
@@ -316,18 +323,40 @@ export default function ExperienceSettingsChatPage() {
       },
       onDone: () => {
         setIsStreaming(false);
+        if (isExtendedSessionRef.current) {
+          extendedTurnCountRef.current += 1;
+          if (extendedTurnCountRef.current >= 3) {
+            isExtendedSessionRef.current = false;
+            setIsPortfolioCreateModalOpen(true);
+          }
+        }
       },
     });
   };
+
+  /* PortfolioCreateModal 오픈 시: 즉시 API 호출, 2초 후 모달 닫고 createloading 이동 */
+  useEffect(() => {
+    if (!isPortfolioCreateModalOpen) return;
+    generatePortfolio({ experienceId }).catch(() =>
+      setIsPortfolioCreateModalOpen(false),
+    );
+    const t = setTimeout(() => {
+      setIsPortfolioCreateModalOpen(false);
+      router.push(`/experience/settings/${id}/createloading`);
+    }, 2000);
+    return () => clearTimeout(t);
+  }, [isPortfolioCreateModalOpen]);
 
   const handleDelete = () => {
     removeExperience(id);
     router.push('/experience');
   };
 
-  /** 3턴 대화 이어가기: 모달 닫고 연장 스트림으로 첫 AI 질문 수신 */
+  /** 3턴 대화 이어가기: 모달 닫고 연장 스트림으로 첫 AI 질문 수신, 3턴만 진행 후 CompleteModal */
   const handleContinueChat = () => {
     setIsCompletionModalOpen(false);
+    isExtendedSessionRef.current = true;
+    extendedTurnCountRef.current = 0;
     setMessages((prev) => [...prev, { role: 'ai', content: '' }]);
     setIsStreaming(true);
     const abort = new AbortController();
@@ -527,16 +556,17 @@ export default function ExperienceSettingsChatPage() {
       <ChatCompleteModal
         open={isCompletionModalOpen}
         onOpenChange={setIsCompletionModalOpen}
-        onEndConversation={async () => {
-          try {
-            await generatePortfolio({ experienceId });
-            setIsCompletionModalOpen(false);
-            router.push(`/experience/settings/${id}/createloading`);
-          } catch {
-            // 에러 시 모달은 유지, 사용자가 재시도 가능
-          }
+        onEndConversation={() => {
+          setIsCompletionModalOpen(false);
+          setIsPortfolioCreateModalOpen(true);
         }}
         onContinueWithCredits={handleContinueChat}
+      />
+
+      {/* 3턴 연장 후: 안내 모달 → 포트폴리오 생성 API 호출 후 createloading 이동 (3턴은 한 번만) */}
+      <PortfolioCreateModal
+        open={isPortfolioCreateModalOpen}
+        onOpenChange={setIsPortfolioCreateModalOpen}
       />
     </div>
   );
