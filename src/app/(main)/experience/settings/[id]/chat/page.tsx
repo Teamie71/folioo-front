@@ -6,7 +6,6 @@ import { setExperienceReturnPath } from '@/features/experience/utils/experienceR
 import { BackButton } from '@/components/BackButton';
 import { StepProgressBar } from '@/components/StepProgressBar';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
-import { CommonModal } from '@/components/CommonModal';
 import { InlineEdit } from '@/components/InlineEdit';
 import { useExperienceStore } from '@/store/useExperienceStore';
 import {
@@ -20,12 +19,23 @@ import type {
 } from '@/features/experience/chat/components/ChatInput';
 import { ChatCompleteModal } from '@/features/experience/chat/components/ChatCompleteModal';
 import { fetchSSEStream } from '@/lib/sseStream';
-import { interviewControllerGetSessionState } from '@/api/endpoints/interview/interview';
+import {
+  interviewControllerGetSessionState,
+  useInterviewControllerGeneratePortfolio,
+} from '@/api/endpoints/interview/interview';
 
 const SESSION_STREAM_PATH = (experienceId: number) =>
   `/interview/experiences/${experienceId}/session/stream`;
 const MESSAGES_STREAM_PATH = (experienceId: number) =>
   `/interview/experiences/${experienceId}/messages/stream`;
+const EXTEND_STREAM_PATH = (experienceId: number) =>
+  `/interview/experiences/${experienceId}/extend/stream`;
+
+/* API currentStage(1~n) + allComplete → 그리드 단계 0~4 */
+function toGridStep(currentStage: number, allComplete?: boolean): number {
+  if (allComplete) return 4;
+  return Math.min(Math.max(0, (currentStage ?? 1) - 1), 4);
+}
 
 export default function ExperienceSettingsChatPage() {
   const params = useParams();
@@ -46,7 +56,6 @@ export default function ExperienceSettingsChatPage() {
   );
 
   const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
-  const [isTransitionModalOpen, setIsTransitionModalOpen] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [experienceTitle, setExperienceTitle] = useState(storeTitle);
   const [inputValue, setInputValue] = useState('');
@@ -55,6 +64,22 @@ export default function ExperienceSettingsChatPage() {
   const [sessionStreamError, setSessionStreamError] = useState<string | null>(
     null,
   );
+  /* 인터뷰 단계 */
+  const [currentStage, setCurrentStage] = useState(0);
+  /* true면 해당 단계 툴팁 표시, 새로고침 시 false */
+  const [showStepTooltip, setShowStepTooltip] = useState(false);
+
+  const prevStageRef = useRef(0);
+  const { mutateAsync: generatePortfolio } =
+    useInterviewControllerGeneratePortfolio();
+
+  /* 단계가 다 채워지면( currentStage === 4 ) 완료 모달 */
+  useEffect(() => {
+    if (currentStage === 4 && prevStageRef.current !== 4) {
+      setIsCompletionModalOpen(true);
+    }
+    prevStageRef.current = currentStage;
+  }, [currentStage]);
 
   useEffect(() => {
     setExperienceTitle(storeTitle);
@@ -67,6 +92,30 @@ export default function ExperienceSettingsChatPage() {
   useEffect(() => {
     if (id) setExperienceReturnPath(id, 'chat');
   }, [id]);
+
+  useEffect(() => {
+    if (!showStepTooltip) return;
+    const t = setTimeout(() => setShowStepTooltip(false), 2000);
+    return () => clearTimeout(t);
+  }, [showStepTooltip]);
+
+  /* 스트리밍이 3분 넘게 유지되면 오류 메시지 표시 */
+  const STREAM_TIMEOUT_MS = 3 * 60 * 1000;
+  useEffect(() => {
+    if (!isStreaming) return;
+    const t = setTimeout(() => {
+      setMessages((prev) => {
+        const next = [...prev];
+        const last = next[next.length - 1];
+        if (last?.role === 'ai') {
+          next[next.length - 1] = { ...last, content: '', isError: true };
+        }
+        return next;
+      });
+      setIsStreaming(false);
+    }, STREAM_TIMEOUT_MS);
+    return () => clearTimeout(t);
+  }, [isStreaming]);
 
   // 진입 시: 세션 있으면 기존 대화 로드, 없으면 세션 스트림 시작
   useEffect(() => {
@@ -87,7 +136,11 @@ export default function ExperienceSettingsChatPage() {
         signal,
         onEvent: (event: {
           delta?: { text?: string };
-          message?: { ai_response?: string };
+          message?: {
+            ai_response?: string;
+            current_stage?: number;
+            all_complete?: boolean;
+          };
         }) => {
           if (cancelled) return;
           setMessages((prev) => {
@@ -106,6 +159,18 @@ export default function ExperienceSettingsChatPage() {
                 ...last,
                 content: event.message.ai_response,
               };
+              if (
+                typeof event.message.current_stage === 'number' ||
+                event.message.all_complete
+              ) {
+                setCurrentStage(
+                  toGridStep(
+                    event.message.current_stage ?? 1,
+                    event.message.all_complete,
+                  ),
+                );
+                setShowStepTooltip(true);
+              }
               return next;
             }
             return prev;
@@ -134,6 +199,10 @@ export default function ExperienceSettingsChatPage() {
               content: m.content ?? '',
             })),
           );
+          setCurrentStage(
+            toGridStep(res.result?.currentStage ?? 1, res.result?.allComplete),
+          );
+          setShowStepTooltip(false);
           setSessionStreamError(null);
           setIsStreaming(false);
           return;
@@ -187,6 +256,7 @@ export default function ExperienceSettingsChatPage() {
     setIsStreaming(true);
 
     const abort = new AbortController();
+
     fetchSSEStream({
       path: MESSAGES_STREAM_PATH(experienceId),
       method: 'POST',
@@ -194,7 +264,11 @@ export default function ExperienceSettingsChatPage() {
       signal: abort.signal,
       onEvent: (event: {
         delta?: { text?: string };
-        message?: { ai_response?: string };
+        message?: {
+          ai_response?: string;
+          current_stage?: number;
+          all_complete?: boolean;
+        };
       }) => {
         setMessages((prev) => {
           const next = [...prev];
@@ -213,6 +287,18 @@ export default function ExperienceSettingsChatPage() {
               ...last,
               content: event.message.ai_response,
             };
+            if (
+              typeof event.message.current_stage === 'number' ||
+              event.message.all_complete
+            ) {
+              setCurrentStage(
+                toGridStep(
+                  event.message.current_stage ?? 1,
+                  event.message.all_complete,
+                ),
+              );
+              setShowStepTooltip(true);
+            }
             return next;
           }
           return prev;
@@ -223,10 +309,7 @@ export default function ExperienceSettingsChatPage() {
           const next = [...prev];
           const last = next[next.length - 1];
           if (last?.role === 'ai' && last.content === '') {
-            next[next.length - 1] = {
-              ...last,
-              content: '응답을 불러오지 못했어요. 다시 시도해주세요.',
-            };
+            next[next.length - 1] = { ...last, content: '', isError: true };
           }
           return next;
         });
@@ -240,6 +323,142 @@ export default function ExperienceSettingsChatPage() {
   const handleDelete = () => {
     removeExperience(id);
     router.push('/experience');
+  };
+
+  /** 3턴 대화 이어가기: 모달 닫고 연장 스트림으로 첫 AI 질문 수신 */
+  const handleContinueChat = () => {
+    setIsCompletionModalOpen(false);
+    setMessages((prev) => [...prev, { role: 'ai', content: '' }]);
+    setIsStreaming(true);
+    const abort = new AbortController();
+    fetchSSEStream({
+      path: EXTEND_STREAM_PATH(experienceId),
+      method: 'POST',
+      signal: abort.signal,
+      onEvent: (event: {
+        delta?: { text?: string };
+        message?: {
+          ai_response?: string;
+          current_stage?: number;
+          all_complete?: boolean;
+        };
+      }) => {
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (!last || last.role !== 'ai') return prev;
+          if ('delta' in event && event.delta?.text) {
+            next[next.length - 1] = {
+              ...last,
+              content: last.content + (event.delta.text ?? ''),
+            };
+            return next;
+          }
+          if ('message' in event && event.message?.ai_response != null) {
+            next[next.length - 1] = {
+              ...last,
+              content: event.message.ai_response,
+            };
+            if (
+              typeof event.message.current_stage === 'number' ||
+              event.message.all_complete
+            ) {
+              setCurrentStage(
+                toGridStep(
+                  event.message.current_stage ?? 1,
+                  event.message.all_complete,
+                ),
+              );
+              /* 3턴 이어가기에서는 툴팁 표시 안 함 */
+            }
+            return next;
+          }
+          return prev;
+        });
+      },
+      onError: () => {
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (last?.role === 'ai' && last.content === '') {
+            next[next.length - 1] = { ...last, content: '', isError: true };
+          }
+          return next;
+        });
+      },
+      onDone: () => setIsStreaming(false),
+    });
+  };
+
+  /* 실패한 AI 메시지에 대해 마지막 사용자 메시지로 재요청 */
+  const handleRetryAIMessage = (aiMessageIndex: number) => {
+    const userMsg = messages[aiMessageIndex - 1];
+    if (!userMsg || userMsg.role !== 'user' || !userMsg.content.trim()) return;
+    const content = userMsg.content.trim();
+    setMessages((prev) => [
+      ...prev.slice(0, aiMessageIndex),
+      { role: 'ai' as const, content: '' },
+    ]);
+    setIsStreaming(true);
+    const abort = new AbortController();
+    fetchSSEStream({
+      path: MESSAGES_STREAM_PATH(experienceId),
+      method: 'POST',
+      body: JSON.stringify({ message: content }),
+      signal: abort.signal,
+      onEvent: (event: {
+        delta?: { text?: string };
+        message?: {
+          ai_response?: string;
+          current_stage?: number;
+          all_complete?: boolean;
+        };
+      }) => {
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (!last || last.role !== 'ai') return prev;
+          if ('delta' in event && event.delta?.text) {
+            next[next.length - 1] = {
+              ...last,
+              content: last.content + (event.delta.text ?? ''),
+            };
+            return next;
+          }
+          if ('message' in event && event.message?.ai_response != null) {
+            next[next.length - 1] = {
+              ...last,
+              content: event.message.ai_response,
+            };
+            if (
+              typeof event.message.current_stage === 'number' ||
+              event.message.all_complete
+            ) {
+              setCurrentStage(
+                toGridStep(
+                  event.message.current_stage ?? 1,
+                  event.message.all_complete,
+                ),
+              );
+              setShowStepTooltip(true);
+            }
+            return next;
+          }
+          return prev;
+        });
+      },
+      onError: () => {
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (last?.role === 'ai' && last.content === '') {
+            next[next.length - 1] = { ...last, content: '', isError: true };
+          }
+          return next;
+        });
+      },
+      onDone: () => setIsStreaming(false),
+    });
   };
 
   return (
@@ -280,10 +499,11 @@ export default function ExperienceSettingsChatPage() {
           <ChatMessageSection
             messages={messages}
             isStreaming={isStreaming}
+            onRetryAIMessage={handleRetryAIMessage}
             searchKeyword={
-              [...messages].reverse().find((m) => m.role === 'user')?.content ?? ''
+              [...messages].reverse().find((m) => m.role === 'user')?.content ??
+              ''
             }
-            onAIMessageClick={() => setIsCompletionModalOpen(true)}
           />
           {sessionStreamError && (
             <p className='mt-2 text-sm text-red-600'>{sessionStreamError}</p>
@@ -298,36 +518,25 @@ export default function ExperienceSettingsChatPage() {
           onInputChange={setInputValue}
           onSend={handleSend}
           disabled={isStreaming}
+          currentStep={currentStage}
+          showStepTooltip={showStepTooltip}
         />
       </div>
 
-      {/* 대화 완료 모달 */}
+      {/* 대화 완료 모달: 단계가 다 채워졌을 때만 표시 */}
       <ChatCompleteModal
         open={isCompletionModalOpen}
         onOpenChange={setIsCompletionModalOpen}
-        onEndConversation={() => {
-          setIsCompletionModalOpen(false);
-          setIsTransitionModalOpen(true);
-        }}
-        onContinueWithCredits={() => setIsCompletionModalOpen(false)}
-      />
-
-      {/* 포트폴리오 생성 시작 안내 모달 (2초 후 자동 닫힘 → 포트폴리오 페이지 이동) */}
-      <CommonModal
-        open={isTransitionModalOpen}
-        onOpenChange={(open) => {
-          if (!open) {
-            setIsTransitionModalOpen(false);
+        onEndConversation={async () => {
+          try {
+            await generatePortfolio({ experienceId });
+            setIsCompletionModalOpen(false);
             router.push(`/experience/settings/${id}/createloading`);
+          } catch {
+            // 에러 시 모달은 유지, 사용자가 재시도 가능
           }
         }}
-        title={
-          <>
-            AI 컨설턴트가 충분한 정보를 학습했어요!
-            <br />
-            대화 내용을 바탕으로 텍스트형 포트폴리오 생성을 시작할게요.
-          </>
-        }
+        onContinueWithCredits={handleContinueChat}
       />
     </div>
   );

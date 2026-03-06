@@ -48,19 +48,16 @@ export const ChatAnalogs = ({ searchKeyword }: ChatAnalogsProps) => {
     return <ChatLoadingMessage />;
   }
 
-  if (isError || insights.length === 0) {
+  if (isError) {
     return (
-      <div className='flex flex-col gap-[1.75rem]'>
-        <p className='text-[1rem] leading-[160%] text-[#1A1A1A]'>
-          대화 내용을 바탕으로 유사도가 높은 인사이트 로그를 읽었어요.
-        </p>
-        <p className='text-[0.875rem] text-[#74777D]'>
-          {insights.length === 0
-            ? '이번 대화와 유사한 인사이트 로그가 없어요.'
-            : '인사이트를 불러오지 못했어요.'}
-        </p>
+      <div className='flex flex-col'>
+        <ChatLoadingMessage />
       </div>
     );
+  }
+
+  if (insights.length === 0) {
+    return <ChatLoadingMessage />;
   }
 
   return (
