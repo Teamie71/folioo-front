@@ -15,7 +15,7 @@ const ALLOWED_FILE_TYPES = [
   'image/jpeg',
   'image/jpg',
 ];
-const MAX_CHARS = 400;
+const MAX_CHARS = 250;
 
 export interface FileItem {
   id: string;
@@ -110,6 +110,7 @@ export const ChatInput = ({
     bottom: number;
   } | null>(null);
   const [capacityErrorShown, setCapacityErrorShown] = useState(false);
+  const [charLimitToastShown, setCharLimitToastShown] = useState(false);
 
   useEffect(() => {
     if (contentRef.current && contentRef.current.textContent !== value) {
@@ -139,6 +140,23 @@ export const ChatInput = ({
   const handleInput = () => {
     const el = contentRef.current;
     const text = el?.textContent || '';
+
+    // 250자 초과 시 입력 차단 + 토스트 표시
+    if (text.length > MAX_CHARS) {
+      setCharLimitToastShown(true);
+      const truncated = text.slice(0, MAX_CHARS);
+      if (el) {
+        el.textContent = truncated;
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+      }
+      onChange?.(truncated);
+      return;
+    }
 
     // 내용이 완전히 비어 있으면 DOM도 비움 :empty placeholder가 다시 보이도록 처리
     if (el && text.length === 0) {
@@ -314,14 +332,13 @@ export const ChatInput = ({
   };
 
   const totalBytes = files.reduce((sum, item) => sum + item.file.size, 0);
-  const error: ChatErrorType | null =
-    value.length > MAX_CHARS
-      ? 'charLimit'
-      : capacityErrorShown || totalBytes > MAX_UPLOAD_BYTES
-        ? 'capacity'
-        : formatErrorShown
-          ? 'format'
-          : null;
+  const error: ChatErrorType | null = charLimitToastShown
+    ? 'charLimit'
+    : capacityErrorShown || totalBytes > MAX_UPLOAD_BYTES
+      ? 'capacity'
+      : formatErrorShown
+        ? 'format'
+        : null;
 
   const [errorSuppressed, setErrorSuppressed] = useState(false);
 
@@ -346,6 +363,12 @@ export const ChatInput = ({
     const t = setTimeout(() => setCapacityErrorShown(false), 2000);
     return () => clearTimeout(t);
   }, [capacityErrorShown]);
+
+  useEffect(() => {
+    if (!charLimitToastShown) return;
+    const t = setTimeout(() => setCharLimitToastShown(false), 2000);
+    return () => clearTimeout(t);
+  }, [charLimitToastShown]);
 
   const showError = error && !errorSuppressed ? error : null;
 
