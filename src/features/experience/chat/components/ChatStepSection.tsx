@@ -15,12 +15,15 @@ interface ChatStepSectionProps {
     contentParts?: ContentPart[];
     files: FileItem[];
   }) => void;
+  /* 스트리밍 중일 때 true면 전송 비활성화 */
+  disabled?: boolean;
 }
 
 export const ChatStepSection = ({
   inputValue = '',
   onInputChange,
   onSend,
+  disabled = false,
 }: ChatStepSectionProps) => {
   const [currentStep, setCurrentStep] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -240,6 +243,7 @@ export const ChatStepSection = ({
             value={inputValue}
             onChange={onInputChange}
             onSend={onSend}
+            disabled={disabled}
           />
         </div>
       </div>
