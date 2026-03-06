@@ -12,6 +12,8 @@ const ACCESS_TOKEN_PARAM = 'access_token';
 const REFRESH_TOKEN_PARAM = 'refresh_token';
 /* 백엔드가 OAuth 콜백 후 리다이렉트할 때 사용 (refreshToken은 httpOnly 쿠키로 설정) */
 const STATUS_PARAM = 'status';
+/** 소셜 로그인 후 백엔드가 내려주는 신규 회원 여부 (true: 약관 동의 필요 → /terms, false: 기존 회원 → 홈 등) */
+const IS_NEW_USER_PARAM = 'isNewUser';
 const LOGIN_REDIRECT_TO_KEY = 'login_redirect_to';
 /** redirect_to가 없을 때 기본 경로. 회원가입 시 terms를 거치도록 /terms */
 const DEFAULT_REDIRECT_TO = '/terms';
@@ -28,13 +30,25 @@ function LoginCallbackContent() {
     const accessTokenFromUrl = searchParams.get(ACCESS_TOKEN_PARAM);
     const refreshTokenFromUrl = searchParams.get(REFRESH_TOKEN_PARAM);
     const status = searchParams.get(STATUS_PARAM);
-    // URL의 redirect_to 우선, 없으면 로그인 페이지에서 저장해 둔 값 사용, 최종 기본값은 /terms(약관)
-    const redirectTo =
+    const isNewUser = searchParams.get(IS_NEW_USER_PARAM);
+
+    const redirectFromParamsOrStorage =
       searchParams.get('redirect_to') ??
       (typeof window !== 'undefined'
         ? sessionStorage.getItem(LOGIN_REDIRECT_TO_KEY)
         : null) ??
       DEFAULT_REDIRECT_TO;
+
+    // isNewUser === true → 약관 동의 전 → /terms, false → 이미 동의한 회원 → 홈
+    const redirectTo =
+      isNewUser === 'true'
+        ? '/terms'
+        : isNewUser === 'false'
+          ? redirectFromParamsOrStorage !== DEFAULT_REDIRECT_TO
+            ? redirectFromParamsOrStorage
+            : '/'
+          : redirectFromParamsOrStorage;
+
     if (typeof window !== 'undefined') {
       try {
         sessionStorage.removeItem(LOGIN_REDIRECT_TO_KEY);
