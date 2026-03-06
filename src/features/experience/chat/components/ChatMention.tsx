@@ -101,7 +101,7 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
           i === 0
             ? 'rounded-tl-[1rem]'
             : i === CATEGORY_TAB_LABELS.length - 1
-              ? 'hover:rounded-tr-[1rem]'
+              ? 'rounded-tr-[1rem]'
               : undefined,
       })),
     [],
