@@ -249,6 +249,8 @@ export const ChatInput = ({
     [onChange],
   );
 
+  const canSend = value.trim() !== '' || files.length > 0;
+
   const handleSend = () => {
     const root = contentRef.current;
     const content = root?.textContent?.trim() ?? '';
@@ -264,7 +266,12 @@ export const ChatInput = ({
       handleCloseMention();
       return;
     }
-    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+    if (
+      e.key === 'Enter' &&
+      !e.shiftKey &&
+      !e.nativeEvent.isComposing &&
+      canSend
+    ) {
       e.preventDefault();
       handleSend();
     }
@@ -438,7 +445,7 @@ export const ChatInput = ({
         />
         <div className='flex shrink-0 items-center gap-[0.5rem]'>
           <ChatFileUploader onFileSelect={handleFileSelect} />
-          <ChatSendButton onClick={handleSend} />
+          <ChatSendButton onClick={handleSend} disabled={!canSend} />
         </div>
       </div>
     </div>

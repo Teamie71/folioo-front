@@ -2,13 +2,22 @@ import { ChatSendIcon } from '@/components/icons/ChatSendIcon';
 
 interface ChatSendButtonProps {
   onClick?: () => void;
+  disabled?: boolean;
 }
 
-export const ChatSendButton = ({ onClick }: ChatSendButtonProps) => {
+export const ChatSendButton = ({
+  onClick,
+  disabled = false,
+}: ChatSendButtonProps) => {
   return (
     <button
       type='button'
-      className='mr-[0.25rem] flex cursor-pointer items-center justify-center text-[#5060C5] transition-colors hover:text-[#404D9E]'
+      disabled={disabled}
+      className={`mr-[0.25rem] flex items-center justify-center transition-colors ${
+        disabled
+          ? 'cursor-default text-[#CDD0D5]'
+          : 'cursor-pointer text-[#5060C5] hover:text-[#404D9E]'
+      }`}
       onClick={onClick}
     >
       <ChatSendIcon />
