@@ -15,7 +15,7 @@ const ALLOWED_FILE_TYPES = [
   'image/jpeg',
   'image/jpg',
 ];
-const MAX_CHARS = 400;
+const MAX_CHARS = 250;
 
 export interface FileItem {
   id: string;
@@ -23,10 +23,40 @@ export interface FileItem {
   preview?: string;
 }
 
+/* 전송/표시 시 멘션과 일반 텍스트 구분 */
+export type ContentPart =
+  | { type: 'mention'; title: string }
+  | { type: 'text'; text: string };
+
+function getContentParts(root: HTMLElement): ContentPart[] {
+  const parts: ContentPart[] = [];
+  function walk(node: Node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent ?? '';
+      if (text.length > 0) parts.push({ type: 'text', text });
+      return;
+    }
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as HTMLElement;
+      if (el.dataset.mention !== undefined) {
+        parts.push({ type: 'mention', title: el.dataset.mention });
+        return;
+      }
+      el.childNodes.forEach(walk);
+    }
+  }
+  root.childNodes.forEach(walk);
+  return parts;
+}
+
 interface ChatInputProps {
   value?: string;
   onChange?: (value: string) => void;
-  onSend?: (payload: { content: string; files: FileItem[] }) => void;
+  onSend?: (payload: {
+    content: string;
+    contentParts?: ContentPart[];
+    files: FileItem[];
+  }) => void;
 }
 
 const MAX_TITLE_LENGTH = 15;
@@ -80,6 +110,7 @@ export const ChatInput = ({
     bottom: number;
   } | null>(null);
   const [capacityErrorShown, setCapacityErrorShown] = useState(false);
+  const [charLimitToastShown, setCharLimitToastShown] = useState(false);
 
   useEffect(() => {
     if (contentRef.current && contentRef.current.textContent !== value) {
@@ -109,6 +140,23 @@ export const ChatInput = ({
   const handleInput = () => {
     const el = contentRef.current;
     const text = el?.textContent || '';
+
+    // 250자 초과 시 입력 차단 + 토스트 표시
+    if (text.length > MAX_CHARS) {
+      setCharLimitToastShown(true);
+      const truncated = text.slice(0, MAX_CHARS);
+      if (el) {
+        el.textContent = truncated;
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+      }
+      onChange?.(truncated);
+      return;
+    }
 
     // 내용이 완전히 비어 있으면 DOM도 비움 :empty placeholder가 다시 보이도록 처리
     if (el && text.length === 0) {
@@ -219,10 +267,14 @@ export const ChatInput = ({
     [onChange],
   );
 
+  const canSend = value.trim() !== '' || files.length > 0;
+
   const handleSend = () => {
-    const content = contentRef.current?.textContent?.trim() ?? '';
+    const root = contentRef.current;
+    const content = root?.textContent?.trim() ?? '';
+    const contentParts = root ? getContentParts(root) : [];
     if (!content && files.length === 0) return;
-    onSend?.({ content, files });
+    onSend?.({ content, contentParts, files });
     setFiles([]);
   };
 
@@ -232,7 +284,12 @@ export const ChatInput = ({
       handleCloseMention();
       return;
     }
-    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+    if (
+      e.key === 'Enter' &&
+      !e.shiftKey &&
+      !e.nativeEvent.isComposing &&
+      canSend
+    ) {
       e.preventDefault();
       handleSend();
     }
@@ -275,14 +332,13 @@ export const ChatInput = ({
   };
 
   const totalBytes = files.reduce((sum, item) => sum + item.file.size, 0);
-  const error: ChatErrorType | null =
-    value.length > MAX_CHARS
-      ? 'charLimit'
-      : capacityErrorShown || totalBytes > MAX_UPLOAD_BYTES
-        ? 'capacity'
-        : formatErrorShown
-          ? 'format'
-          : null;
+  const error: ChatErrorType | null = charLimitToastShown
+    ? 'charLimit'
+    : capacityErrorShown || totalBytes > MAX_UPLOAD_BYTES
+      ? 'capacity'
+      : formatErrorShown
+        ? 'format'
+        : null;
 
   const [errorSuppressed, setErrorSuppressed] = useState(false);
 
@@ -307,6 +363,12 @@ export const ChatInput = ({
     const t = setTimeout(() => setCapacityErrorShown(false), 2000);
     return () => clearTimeout(t);
   }, [capacityErrorShown]);
+
+  useEffect(() => {
+    if (!charLimitToastShown) return;
+    const t = setTimeout(() => setCharLimitToastShown(false), 2000);
+    return () => clearTimeout(t);
+  }, [charLimitToastShown]);
 
   const showError = error && !errorSuppressed ? error : null;
 
@@ -406,7 +468,7 @@ export const ChatInput = ({
         />
         <div className='flex shrink-0 items-center gap-[0.5rem]'>
           <ChatFileUploader onFileSelect={handleFileSelect} />
-          <ChatSendButton onClick={handleSend} />
+          <ChatSendButton onClick={handleSend} disabled={!canSend} />
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { animate } from 'framer-motion';
 import Image from 'next/image';
+import type { ContentPart } from './ChatInput';
 import { ChatAnalogs } from './ChatAnalogs';
 import { ChatLoadingMessage } from './ChatLoadingMessage';
 import { PdfIcon } from '@/components/icons/PdfIcon';
@@ -17,6 +18,8 @@ export type MessageFile = {
 export type ChatMessage = {
   role: 'ai' | 'user';
   content: string;
+  /* 멘션 + 텍스트 파트(있으면 말풍선에서 멘션 디자인 유지) */
+  contentParts?: ContentPart[];
   files?: MessageFile[];
 };
 
@@ -166,7 +169,22 @@ export function ChatMessageSection({
                         })}
                       </div>
                     )}
-                    {msg.content ? (
+                    {msg.contentParts && msg.contentParts.length > 0 ? (
+                      <span className='whitespace-pre-wrap'>
+                        {msg.contentParts.map((part, i) =>
+                          part.type === 'mention' ? (
+                            <span
+                              key={i}
+                              className='mx-[0.125rem] inline-flex items-center rounded-[6.25rem] border-[0.09375rem] border-[#5060C5] bg-[#F6F5FF] px-[1rem] py-[0.125rem] align-baseline text-[0.875rem] font-semibold text-[#5060C5]'
+                            >
+                              @ {part.title}
+                            </span>
+                          ) : (
+                            <span key={i}>{part.text}</span>
+                          ),
+                        )}
+                      </span>
+                    ) : msg.content ? (
                       <span className='whitespace-pre-wrap'>{msg.content}</span>
                     ) : null}
                   </div>

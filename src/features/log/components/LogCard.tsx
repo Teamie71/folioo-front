@@ -1,3 +1,4 @@
+import { cn } from '@/utils/utils';
 import InterpersonIcon from '@/components/icons/InterpersonIcon';
 import ProblemSolveIcon from '@/components/icons/ProblemSolveIcon';
 import LearningIcon from '@/components/icons/LearningIcon';
@@ -11,6 +12,7 @@ interface LogCardProps {
   activityName: string;
   category: string;
   onClick?: () => void;
+  className?: string;
 }
 
 export function LogCard({
@@ -20,6 +22,7 @@ export function LogCard({
   activityName,
   category,
   onClick,
+  className,
 }: LogCardProps) {
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -59,7 +62,10 @@ export function LogCard({
 
   return (
     <div
-      className='flex h-[13.625rem] w-[32.25rem] cursor-pointer flex-col gap-[1.5rem] rounded-[1.25rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.5rem] shadow-[0px_4px_8px_0px_#00000033] transition-shadow hover:shadow-[0px_6px_12px_0px_#00000033]'
+      className={cn(
+        'flex h-[13.625rem] w-[32.25rem] cursor-pointer flex-col gap-[1.5rem] rounded-[1.25rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2rem] py-[1.5rem] shadow-[0px_4px_8px_0px_#00000033] transition-shadow hover:shadow-[0px_6px_12px_0px_#00000033]',
+        className,
+      )}
       onClick={onClick}
     >
       {/* 제목, 날짜 */}

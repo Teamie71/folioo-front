@@ -90,6 +90,7 @@ export default function LandingClient() {
           >
             <ContentCard
               title='인사이트 로그'
+              scrollToBelowCard={50}
               icon={
                 <Image
                   src='/InsightLogIconLanding.svg'
@@ -106,10 +107,10 @@ export default function LandingClient() {
               }
               buttonText='로그 작성하기 →'
               buttonHref='/log'
-              requireLogin
             />
             <ContentCard
               title='경험 정리'
+              sectionId='section-experience'
               icon={
                 <Image
                   src='/ExperienceIconLanding.svg'
@@ -131,6 +132,7 @@ export default function LandingClient() {
             />
             <ContentCard
               title='포트폴리오 첨삭'
+              sectionId='section-portfolio-correction'
               icon={
                 <Image
                   src='/CorrectionIconLanding.svg'
@@ -161,6 +163,7 @@ export default function LandingClient() {
 
         {/* ~ 인사이트 로그 */}
         <motion.section
+          id='section-insight-log'
           className='relative z-10 mx-auto w-[66rem] pb-[10rem]'
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -183,7 +186,7 @@ export default function LandingClient() {
                   variantType='Gradient'
                   px='2.25rem'
                   py='0.75rem'
-                  onClick={() => navigateWithLoginGuard('/log')}
+                  onClick={() => router.push('/log')}
                 >
                   로그 작성하기 →
                 </CommonButton>
@@ -226,7 +229,10 @@ export default function LandingClient() {
         </motion.section>
       </div>
       {/* ~ 경험 정리 */}
-      <section className='mx-auto w-full bg-[#E6E9FF]/30 pt-[10rem] pb-[10rem] pb-[13.75rem]'>
+      <section
+        id='section-experience'
+        className='mx-auto w-full bg-[#E6E9FF]/30 pt-[10rem] pb-[10rem] pb-[13.75rem]'
+      >
         <div className='flex flex-col gap-[16.25rem]'>
           <motion.div
             className='mx-auto flex w-[66rem] flex-col gap-[4.5rem]'
@@ -302,7 +308,10 @@ export default function LandingClient() {
         </div>
       </section>
       {/* ~ 포트폴리오 첨삭 + 시작하기 */}
-      <section className='mx-auto flex flex-col gap-[28.75rem] pt-[10rem] pb-[25rem]'>
+      <section
+        id='section-portfolio-correction'
+        className='mx-auto flex flex-col gap-[28.75rem] pt-[10rem] pb-[25rem]'
+      >
         <div>
           {/* 배경 Wrapper */}
           <div className='relative'>

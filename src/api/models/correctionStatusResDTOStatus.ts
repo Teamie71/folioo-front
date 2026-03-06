@@ -10,9 +10,10 @@ export type CorrectionStatusResDTOStatus = typeof CorrectionStatusResDTOStatus[k
 
 
 export const CorrectionStatusResDTOStatus = {
-  DONE: 'DONE',
   NOT_STARTED: 'NOT_STARTED',
   DOING_RAG: 'DOING_RAG',
   COMPANY_INSIGHT: 'COMPANY_INSIGHT',
   GENERATING: 'GENERATING',
+  DONE: 'DONE',
+  FAILED: 'FAILED',
 } as const;

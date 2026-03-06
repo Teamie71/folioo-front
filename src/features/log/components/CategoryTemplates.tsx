@@ -91,6 +91,7 @@ export function NoTemplateForm({
           height='13.75rem'
           placeholder='오늘은 어떤 인사이트를 얻으셨나요?'
           value={content}
+          maxLength={MAX_CONTENT_LENGTH}
           onChange={(e) =>
             setContent(e.target.value.slice(0, MAX_CONTENT_LENGTH))
           }

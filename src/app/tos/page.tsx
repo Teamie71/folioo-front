@@ -1,6 +1,11 @@
+import type { Metadata } from 'next';
 import { BackButton } from '@/components/BackButton';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
+
+export const metadata: Metadata = {
+  title: '서비스이용약관 - Folioo',
+};
 
 export default function TOSPage() {
   return (
@@ -15,9 +20,7 @@ export default function TOSPage() {
           <div className='flex flex-col gap-[1.25rem]'>
             <div className='flex items-center gap-[1.25rem]'>
               <BackButton />
-              <span className='text-[1.5rem] font-bold'>
-                Folioo 서비스 이용 약관
-              </span>
+              <span className='text-[1.5rem] font-bold'>서비스 이용약관</span>
             </div>
 
             <p className='w-full border border-[#CDD0D5]' />
@@ -94,7 +97,9 @@ export default function TOSPage() {
                     {'\u00A0\u00A0'}
                     • 회원은 유료 이용권 결제일로부터 7일 이내에, 구매한
                     이용권을 단 1회도 사용하지 않은 상태에 한하여 100% 결제 취소
-                    및 전액 환불을 요청할 수 있습니다.
+                    및 전액 환불을 요청할
+                    <br />
+                    {'\u00A0\u00A0\u00A0\u00A0\u00A0'}수 있습니다.
                     <br />
                     2. 부분 환불
                     <br />
@@ -111,9 +116,10 @@ export default function TOSPage() {
                     <br />
                     {'\u00A0\u00A0'}• 위 산정식에서 &apos;1회 이용권
                     정상가&apos;라 함은 서비스 내 결제 화면에 명시된 해당 기능의
-                    &quot;할인이 적용되지 않은 2회권 가격의 50%&quot;에 해당하는
+                    &quot;할인이 적용되지 않은 1회권 가격&quot;에 해당하는
+                    금액을
                     <br />
-                    {'\u00A0\u00A0\u00A0\u00A0'} 금액을 의미합니다. (예: 묶음/
+                    {'\u00A0\u00A0\u00A0\u00A0\u00A0'}의미합니다. (예: 묶음/
                     할인 프로모션을 통해 5회권을 구매한 후 부분 환불 시에도,
                     이미 사용한 횟수는 할인가가 아닌 본 항에서 정의한
                     <br />

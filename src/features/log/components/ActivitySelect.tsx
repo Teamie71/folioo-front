@@ -110,7 +110,7 @@ export function ActivitySelect({
 
   // 입력값 변경 시
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange?.(e.target.value);
+    onChange?.(e.target.value.slice(0, 20));
   };
 
   return (

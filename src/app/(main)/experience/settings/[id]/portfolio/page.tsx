@@ -44,6 +44,10 @@ export default function ExperienceSettingsPortfolioPage() {
   }, [id, storeTitle]);
 
   useEffect(() => {
+    document.title = `${experienceTitle} - Folioo`;
+  }, [experienceTitle]);
+
+  useEffect(() => {
     if (id) setExperienceReturnPath(id, 'portfolio');
   }, [id]);
 
@@ -147,7 +151,7 @@ export default function ExperienceSettingsPortfolioPage() {
           </Link>
 
           {/* 포트폴리오 첨삭 받기 */}
-          <Link href={`/correction/${id}`}>
+          <Link href='/correction/new'>
             <button className='flex cursor-pointer items-center gap-[0.75rem] rounded-[6.25rem] border-none bg-[#5060C5] px-[2.25rem] py-[0.75rem]'>
               <CorrectionIconWhite />
               <span className='text-[1rem] font-bold text-[#ffffff]'>

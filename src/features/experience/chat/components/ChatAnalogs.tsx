@@ -14,6 +14,7 @@ export const ChatAnalogs = () => {
         <ChevronColorLeftIcon />
         <div className='w-full min-w-0 flex-1'>
           <LogCard
+            className='w-full'
             title='인사이트 로그 제목'
             date='2026-02-15'
             content='인사이트 로그 내용'

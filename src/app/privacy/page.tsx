@@ -1,6 +1,11 @@
+import type { Metadata } from 'next';
 import { BackButton } from '@/components/BackButton';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
+
+export const metadata: Metadata = {
+  title: '개인정보처리방침 - Folioo',
+};
 
 export default function PrivacyPage() {
   return (
@@ -55,8 +60,8 @@ export default function PrivacyPage() {
                     1. 회원 가입 및 관리
                     <br />
                     {'\u00A0\u00A0'}• 소셜 로그인(OAuth) 연동 본인 확인, 가입
-                    의사 확인, 계정 통합 처리, 다중 계정 생성 및 이용권 부정
-                    수급 방지, 고객 문의 대응
+                    의사 확인, 다중 계정 생성 및 이용권 부정 수급 방지, 고객
+                    문의 대응
                     <br />
                     2. 재화 및 서비스 제공
                     <br />
@@ -79,7 +84,7 @@ export default function PrivacyPage() {
                     1. 회원가입 시 필수 수집 항목
                     <br />
                     {'\u00A0\u00A0'}• 성명, 이메일 주소, 로그인타입,
-                    로그인식별자, 전화번호
+                    로그인식별자
                     <br />
                     2. 서비스 이용 과정에서 자동으로 생성·수집되는 항목
                     <br />
@@ -109,16 +114,16 @@ export default function PrivacyPage() {
                   <span className='ml-[0.25rem] block'>
                     1. 원칙적 파기
                     <br />
-                    {'\u00A0\u00A0'}• 회원 탈퇴 시 이름, 이메일 주소, 로그인
-                    식별자 등 기본 식별 정보는 지체 없이 영구 파기됩니다.
+                    {'\u00A0\u00A0'}• 회원 탈퇴 시 이름, 이메일 주소는 지체 없이
+                    영구 파기됩니다.
                     <br />
-                    2. 부정이용 방지를 위한 전화번호 보관
+                    2. 부정이용 방지를 위한 로그인식별자 보관
                     <br />
                     {'\u00A0\u00A0'}• 무료 이용권 중복 수급, 다중 계정 생성 등
                     서비스 부정 이용 방지를 위하여 회원 탈퇴일로부터 1년간
-                    전화번호를 암호화하여 보관한 후 파기합
+                    로그인식별자를 암호화하여 보관한 후 파기
                     <br />
-                    {'\u00A0\u00A0\u00A0\u00A0\u00A0'}니다.
+                    {'\u00A0\u00A0\u00A0\u00A0\u00A0'}합니다.
                     <br />
                     3. 이용권 거래 내역 보관
                     <br />
@@ -151,16 +156,15 @@ export default function PrivacyPage() {
                     회사는 원활한 서비스 제공을 위하여 다음과 같이 개인정보 처리
                     업무를 외부에 위탁하고 있습니다.
                     <br />
-                    {'\u00A0\u00A0'}• 서버 및 데이터 보관: Amazon Web Services
-                    (AWS)
+                    {'\u00A0\u00A0'}• Amazon Web Services (AWS), Vercel, Render:
+                    클라우드 서버 인프라 제공 및 데이터 보관 (AWS)
                     <br />
-                    {'\u00A0\u00A0'}• 결제 처리 (PG): PayAPP (페이앱)
+                    {'\u00A0\u00A0'}• Supabase, Inc.: 회원 데이터베이스 관리
                     <br />
-                    {'\u00A0\u00A0'}• AI 텍스트 및 이미지 처리: OpenAI (※ 전송된
-                    데이터는 AI 모델 학습용으로 사용되지 않습니다.)
+                    {'\u00A0\u00A0'}• PayAPP (페이앱): 결제 처리 (PG)
                     <br />
-                    {'\u00A0\u00A0'}• 서비스 이용 기록 기반의 통계 분석, 신규
-                    기능 개발 및 AI 서비스 품질 향상
+                    {'\u00A0\u00A0'}• OpenRouter: AI 텍스트 및 이미지 처리 (※
+                    전송된 데이터는 AI 모델 학습용으로 사용되지 않습니다.)
                     <br />
                     2. 개인정보의 제3자 제공
                     <br />

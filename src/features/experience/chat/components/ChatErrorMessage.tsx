@@ -7,7 +7,7 @@ export type ChatErrorType = 'capacity' | 'format' | 'charLimit';
 const ERROR_MESSAGES: Record<ChatErrorType, string> = {
   capacity: '업로드 가능한 총 용량(10MB)을 초과했어요.',
   format: 'PDF, PNG, JPG 형식만 업로드 가능해요.',
-  charLimit: '입력 가능한 최대 글자수 (400자)를 초과했어요.',
+  charLimit: '입력 가능한 최대 글자수 (250자)를 초과했어요.',
 };
 
 interface ChatErrorMessageProps {

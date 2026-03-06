@@ -297,7 +297,9 @@ export default function LogPage() {
               <InputArea
                 placeholder='제목 입력'
                 value={formData.title}
-                onChange={(e) => setFormField('title', e.target.value)}
+                onChange={(e) =>
+                  setFormField('title', e.target.value.slice(0, 20))
+                }
                 maxLength={20}
               />
             </div>
@@ -350,7 +352,9 @@ export default function LogPage() {
                 placeholder='검색어를 입력하세요.'
                 maxLength={100}
                 value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
+                onChange={(e) =>
+                  setSearchInput(e.target.value.slice(0, 100))
+                }
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
@@ -434,7 +438,7 @@ export default function LogPage() {
                 <>앗, 일치하는 결과가 없어요.</>
               ) : (
                 <>
-                  아직 작성한 로그가 없어요 <br />
+                  아직 작성한 로그가 없어요. <br />
                   로그를 작성하고 인사이트를 기록해보세요!
                 </>
               )}
@@ -467,6 +471,9 @@ export default function LogPage() {
           onSave={handleSaveLog}
           isSaving={isSavingLog}
           saveError={saveLogError}
+          otherLogTitles={logCards
+            .filter((log) => log.id !== selectedLog.id)
+            .map((log) => log.title)}
           title={selectedLog.title}
           date={selectedLog.date}
           content={selectedLog.content}
