@@ -35,8 +35,7 @@ function TermsPageContent() {
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isMarketingOpen, setIsMarketingOpen] = useState(false);
 
-  const isAllAgreed =
-    agreedService && agreedPrivacy && agreedMarketing;
+  const isAllAgreed = agreedService && agreedPrivacy && agreedMarketing;
   const isRequiredAgreed = agreedService && agreedPrivacy;
 
   const { mutate: updateMarketingConsent, isPending: isSubmitting } =
@@ -84,7 +83,7 @@ function TermsPageContent() {
 
   return (
     <div className='flex min-h-screen flex-col'>
-      <div className='mx-auto flex w-[66rem] min-w-[66rem] flex-col gap-[3.75rem] pt-[3.75rem] pb-[6.25rem]'>
+      <div className='mx-auto flex w-[66rem] min-w-[66rem] flex-col gap-[3.75rem] pt-[3.75rem] pb-[12.5rem]'>
         {/* 로고 */}
         <Image src='/MainLogo.svg' alt='MainLogo' width={128} height={32} />
 
@@ -178,7 +177,9 @@ function TermsPageContent() {
               <CheckboxPrimitive.Root
                 id='terms-service'
                 checked={agreedService}
-                onCheckedChange={(checked) => setAgreedService(checked === true)}
+                onCheckedChange={(checked) =>
+                  setAgreedService(checked === true)
+                }
                 className='ml-[1.25rem] flex cursor-pointer items-center gap-[0.75rem] rounded border-none bg-transparent outline-none focus-visible:ring-2 focus-visible:ring-[#5060C5] focus-visible:ring-offset-2'
               >
                 <span className='flex h-[1.25rem] w-[1.25rem] shrink-0 items-center justify-center'>
@@ -200,14 +201,14 @@ function TermsPageContent() {
                       />
                       <path
                         d='M6.66699 10L9.16699 12.5L14.167 7.5'
-stroke={agreedService ? '#FFFFFF' : '#9EA4A9'}
-                    strokeWidth='2'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                  />
-                </g>
-                <defs>
-                  <clipPath id='clip0_terms_agree2'>
+                        stroke={agreedService ? '#FFFFFF' : '#9EA4A9'}
+                        strokeWidth='2'
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                      />
+                    </g>
+                    <defs>
+                      <clipPath id='clip0_terms_agree2'>
                         <rect width='20' height='20' fill='white' />
                       </clipPath>
                     </defs>
@@ -460,7 +461,9 @@ stroke={agreedService ? '#FFFFFF' : '#9EA4A9'}
               <CheckboxPrimitive.Root
                 id='terms-privacy'
                 checked={agreedPrivacy}
-                onCheckedChange={(checked) => setAgreedPrivacy(checked === true)}
+                onCheckedChange={(checked) =>
+                  setAgreedPrivacy(checked === true)
+                }
                 className='ml-[1.25rem] flex cursor-pointer items-center gap-[0.75rem] rounded border-none bg-transparent outline-none focus-visible:ring-2 focus-visible:ring-[#5060C5] focus-visible:ring-offset-2'
               >
                 <span className='flex h-[1.25rem] w-[1.25rem] shrink-0 items-center justify-center'>
