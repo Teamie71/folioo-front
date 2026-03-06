@@ -323,4 +323,66 @@ export const useInterviewControllerGeneratePortfolio = <TError = CommonResponse,
       > => {
       return useMutation(getInterviewControllerGeneratePortfolioMutationOptions(options), queryClient);
     }
+    /**
+ * 완료된 인터뷰 세션을 연장 모드로 전환하고 첫 질문을 SSE로 스트리밍합니다. 인터뷰가 모두 완료된 상태에서만 요청 가능합니다.
+ * @summary 연장 모드 시작 (SSE 스트리밍)
+ */
+export const interviewControllerExtendSessionStream = (
+    experienceId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<StreamContentBlockDeltaDTO | StreamMessageCompleteDTO>(
+      {url: `/interview/experiences/${experienceId}/extend/stream`, method: 'POST', signal
+    },
+      options);
+    }
+  
+
+
+export const getInterviewControllerExtendSessionStreamMutationOptions = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof interviewControllerExtendSessionStream>>, TError,{experienceId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof interviewControllerExtendSessionStream>>, TError,{experienceId: number}, TContext> => {
+
+const mutationKey = ['interviewControllerExtendSessionStream'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof interviewControllerExtendSessionStream>>, {experienceId: number}> = (props) => {
+          const {experienceId} = props ?? {};
+
+          return  interviewControllerExtendSessionStream(experienceId,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type InterviewControllerExtendSessionStreamMutationResult = NonNullable<Awaited<ReturnType<typeof interviewControllerExtendSessionStream>>>
+    
+    export type InterviewControllerExtendSessionStreamMutationError = CommonResponse
+
+    /**
+ * @summary 연장 모드 시작 (SSE 스트리밍)
+ */
+export const useInterviewControllerExtendSessionStream = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof interviewControllerExtendSessionStream>>, TError,{experienceId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof interviewControllerExtendSessionStream>>,
+        TError,
+        {experienceId: number},
+        TContext
+      > => {
+      return useMutation(getInterviewControllerExtendSessionStreamMutationOptions(options), queryClient);
+    }
     
