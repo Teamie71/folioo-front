@@ -77,44 +77,23 @@ function LoginContent() {
       <div className='flex items-center'>
         <Link
           href='/tos'
-          className='group cursor-pointer text-[0.875rem] text-[#74777D]'
+          className='group w-[8.75rem] cursor-pointer text-center text-[0.875rem] text-[#74777D] hover:underline'
         >
-          <span className='relative inline-block w-[8.75rem] text-center'>
-            <span className='invisible inline-block font-bold' aria-hidden>
-              서비스 이용약관
-            </span>
-            <span className='absolute top-0 left-0 w-full text-center group-hover:font-bold'>
-              서비스 이용약관
-            </span>
-          </span>
+          서비스 이용약관
         </Link>
         <div className='h-[1rem] w-[0.0625rem] bg-[#74777D]' />
         <Link
           href='/privacy'
-          className='group cursor-pointer text-[0.875rem] text-[#74777D]'
+          className='group w-[8.75rem] cursor-pointer text-center text-[0.875rem] font-bold text-[#74777D] hover:underline'
         >
-          <span className='relative inline-block w-[8.75rem] text-center'>
-            <span className='invisible inline-block font-bold' aria-hidden>
-              개인정보 처리방침
-            </span>
-            <span className='absolute top-0 left-0 w-full text-center group-hover:font-bold'>
-              개인정보 처리방침
-            </span>
-          </span>
+          개인정보 처리방침
         </Link>
         <div className='h-[1rem] w-[0.0625rem] bg-[#74777D]' />
         <Link
           href='/marketing'
-          className='group cursor-pointer text-[0.875rem] text-[#74777D]'
+          className='group w-[8.75rem] cursor-pointer text-center text-[0.875rem] text-[#74777D] hover:underline'
         >
-          <span className='relative inline-block w-[8.75rem] text-center'>
-            <span className='invisible inline-block font-bold' aria-hidden>
-              마케팅 정보 수신
-            </span>
-            <span className='absolute top-0 left-0 w-full text-center group-hover:font-bold'>
-              마케팅 정보 수신
-            </span>
-          </span>
+          마케팅 정보 수신
         </Link>
       </div>
     </div>
