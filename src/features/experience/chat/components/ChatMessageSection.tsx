@@ -6,7 +6,6 @@ import Image from 'next/image';
 import type { ContentPart } from './ChatInput';
 import { ChatAnalogs } from './ChatAnalogs';
 import { ChatLoadingMessage } from './ChatLoadingMessage';
-import { CommonButton } from '@/components/CommonButton';
 import { PdfIcon } from '@/components/icons/PdfIcon';
 
 export type MessageFile = {
@@ -117,7 +116,7 @@ export function ChatMessageSection({
               <div
                 key={`ai-${index}`}
                 role={onAIMessageClick ? 'button' : undefined}
-                className={`flex items-start gap-[1.5rem] text-left ${onAIMessageClick ? 'cursor-pointer' : ''}`}
+                className={`flex items-start gap-[1.5rem] text-left ${onAIMessageClick ? '' : ''}`}
                 onClick={onAIMessageClick}
                 onKeyDown={
                   onAIMessageClick
@@ -140,21 +139,19 @@ export function ChatMessageSection({
                 <div className='font-regular max-w-[53.75rem] rounded-tl-[0.25rem] rounded-tr-[2rem] rounded-br-[2rem] rounded-bl-[2rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2.25rem] py-[1.75rem] text-[1rem] whitespace-pre-wrap text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
                   {msg.isError ? (
                     <div className='flex flex-col gap-[1rem]'>
-                      <p className='leading-[160%]'>
+                      <p className='text-[1rem] leading-[160%]'>
                         앗, 답변 생성 중 오류가 발생했어요.
-                      </p>
-                      <p className='text-[0.875rem] text-[#74777D]'>
+                        <br />
                         아래 버튼을 눌러 다시 시도해주세요.
                       </p>
-                      <CommonButton
-                        variantType='Outline'
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onRetryAIMessage?.(index);
-                        }}
+                      <button
+                        type='button'
+                        style={{ width: '10rem', height: '2.5rem' }}
+                        className='shrink-0 cursor-pointer rounded-[6.25rem] border-[0.09375rem] border-[#5060C5] bg-[#F6F5FF] px-4 py-2 text-[1rem] font-semibold text-[#5060C5] hover:bg-[#EEEDF7] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5060C5]'
+                        onClick={() => onRetryAIMessage?.(index)}
                       >
                         다시 시도하기
-                      </CommonButton>
+                      </button>
                     </div>
                   ) : msg.content ? (
                     msg.content
@@ -169,7 +166,7 @@ export function ChatMessageSection({
               <button
                 key={`user-${index}`}
                 type='button'
-                className='flex w-full cursor-pointer justify-end text-left'
+                className='flex w-full justify-end text-left'
                 onClick={onUserMessageClick}
               >
                 <div className='font-regular mr-[0.5rem] max-w-[53.75rem] rounded-tl-[2rem] rounded-tr-[0.25rem] rounded-br-[2rem] rounded-bl-[2rem] border border-none bg-[#F6F5FF] px-[2.25rem] py-[1.75rem] text-[1rem] text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
