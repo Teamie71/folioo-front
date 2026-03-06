@@ -156,10 +156,24 @@ export function InsightTemplateSelector({
   // 체크박스 변경 핸들러 (해제 시에도 선택된 태그 유지)
   const handleCheckboxChange = (checked: boolean) => {
     if (!checked) {
-      // 전체 입력값을 텍스트 영역에 유지
+      // 템플릿 해제: 현재 템플릿 포맷 내용을 noTemplateContent로 반영
       setNoTemplateContent(getFormattedContent());
       setIsTemplateEnabled(false);
     } else {
+      // 템플릿 적용: 현재 noTemplateContent를 선택된 템플릿의 첫 항목에 반영
+      const template = selectedTemplate;
+      const contentFirst =
+        template === 'none' || template === '기타'
+          ? noTemplateContent
+          : stripTemplateLabels(noTemplateContent);
+      const n = getTemplateItemCount(template);
+      const newFields =
+        n === 4
+          ? [contentFirst ?? '', '', '', '']
+          : n === 3
+            ? [contentFirst ?? '', '', '']
+            : [contentFirst ?? ''];
+      applyTemplateData(template, newFields);
       setIsTemplateEnabled(true);
     }
   };
