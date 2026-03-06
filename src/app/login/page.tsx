@@ -81,10 +81,10 @@ function LoginContent() {
         >
           <span className='relative inline-block w-[8.75rem] text-center'>
             <span className='invisible inline-block font-bold' aria-hidden>
-              서비스 이용 약관
+              서비스 이용약관
             </span>
             <span className='absolute top-0 left-0 w-full text-center group-hover:font-bold'>
-              서비스 이용 약관
+              서비스 이용약관
             </span>
           </span>
         </Link>
