@@ -107,7 +107,6 @@ export default function LandingClient() {
               }
               buttonText='로그 작성하기 →'
               buttonHref='/log'
-              requireLogin
             />
             <ContentCard
               title='경험 정리'
@@ -187,7 +186,7 @@ export default function LandingClient() {
                   variantType='Gradient'
                   px='2.25rem'
                   py='0.75rem'
-                  onClick={() => navigateWithLoginGuard('/log')}
+                  onClick={() => router.push('/log')}
                 >
                   로그 작성하기 →
                 </CommonButton>
