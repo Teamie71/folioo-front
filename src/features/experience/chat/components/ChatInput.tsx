@@ -23,10 +23,40 @@ export interface FileItem {
   preview?: string;
 }
 
+/* 전송/표시 시 멘션과 일반 텍스트 구분 */
+export type ContentPart =
+  | { type: 'mention'; title: string }
+  | { type: 'text'; text: string };
+
+function getContentParts(root: HTMLElement): ContentPart[] {
+  const parts: ContentPart[] = [];
+  function walk(node: Node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent ?? '';
+      if (text.length > 0) parts.push({ type: 'text', text });
+      return;
+    }
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as HTMLElement;
+      if (el.dataset.mention !== undefined) {
+        parts.push({ type: 'mention', title: el.dataset.mention });
+        return;
+      }
+      el.childNodes.forEach(walk);
+    }
+  }
+  root.childNodes.forEach(walk);
+  return parts;
+}
+
 interface ChatInputProps {
   value?: string;
   onChange?: (value: string) => void;
-  onSend?: (payload: { content: string; files: FileItem[] }) => void;
+  onSend?: (payload: {
+    content: string;
+    contentParts?: ContentPart[];
+    files: FileItem[];
+  }) => void;
 }
 
 const MAX_TITLE_LENGTH = 15;
@@ -220,9 +250,11 @@ export const ChatInput = ({
   );
 
   const handleSend = () => {
-    const content = contentRef.current?.textContent?.trim() ?? '';
+    const root = contentRef.current;
+    const content = root?.textContent?.trim() ?? '';
+    const contentParts = root ? getContentParts(root) : [];
     if (!content && files.length === 0) return;
-    onSend?.({ content, files });
+    onSend?.({ content, contentParts, files });
     setFiles([]);
   };
 

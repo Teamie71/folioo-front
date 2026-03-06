@@ -1,11 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import Image from 'next/image';
 import EtcIcon from '@/components/icons/EtcIcon';
 import InterpersonIcon from '@/components/icons/InterpersonIcon';
 import LearningIcon from '@/components/icons/LearningIcon';
 import ProblemSolveIcon from '@/components/icons/ProblemSolveIcon';
 import ReferenceIcon from '@/components/icons/ReferenceIcon';
+import type { InsightLogResDTO } from '@/api/models';
+import { useInsightControllerGetLogs } from '@/api/endpoints/insight/insight';
 import { CardMentionDetailModal } from './CardMentionDetailModal';
 
 interface MentionItem {
@@ -17,49 +20,67 @@ interface MentionItem {
   category: string;
 }
 
-// 더미 데이터
-const DUMMY_ITEMS: MentionItem[] = [
-  {
-    id: '1',
-    title: '제목',
-    date: '2025.01.10',
-    content: '내용내용',
-    activityName: '미분류',
-    category: '대인관계',
-  },
-  {
-    id: '2',
-    title: '제목제목',
-    date: '2025.01.11',
-    content: '내용내용내용내용내용내용',
-    activityName: '활동 A',
-    category: '문제해결',
-  },
-  {
-    id: '3',
-    title: '제목제목제목',
-    date: '2025.01.12',
-    content: '내용내용내용내용내용내용내용내용',
-    activityName: '활동 BB',
-    category: '학습',
-  },
-  {
-    id: '5',
-    title: '제목제목제목제목제목',
-    date: '2025.01.14',
-    content: '내용내용내용내용내용내용내용내용내용내용내용내용',
-    activityName: '미분류',
-    category: '기타',
-  },
-];
+const CATEGORY_TAB_LABELS = [
+  '대인관계',
+  '문제해결',
+  '학습',
+  '레퍼런스',
+  '기타',
+] as const;
+
+function formatDate(createdAt: string | undefined): string {
+  if (!createdAt) return '';
+  const [y, m, d] = createdAt.split('T')[0].split('-');
+  return [y, m, d].join('.');
+}
+
+function toMentionItem(dto: InsightLogResDTO): MentionItem {
+  return {
+    id: String(dto.id),
+    title: dto.title,
+    date: formatDate(dto.createdAt),
+    content: dto.description ?? '',
+    activityName: dto.activityNames?.[0] ?? '미분류',
+    category: dto.category,
+  };
+}
 
 interface ChatMentionProps {
   onSelect?: (title: string) => void;
 }
 
+const TAB_ICONS: Record<string, React.ReactNode> = {
+  대인관계: <InterpersonIcon />,
+  문제해결: <ProblemSolveIcon />,
+  학습: <LearningIcon />,
+  레퍼런스: <ReferenceIcon />,
+  기타: <EtcIcon />,
+};
+
 export const ChatMention = ({ onSelect }: ChatMentionProps) => {
   const [detailItem, setDetailItem] = useState<MentionItem | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>('대인관계');
+
+  const { data, isLoading, isError } = useInsightControllerGetLogs(undefined, {
+    query: { enabled: true },
+  });
+
+  const items: MentionItem[] = useMemo(() => {
+    const result = data?.result;
+    if (!Array.isArray(result)) return [];
+    return result.map(toMentionItem);
+  }, [data?.result]);
+
+  // 로그가 있으면 로그가 있는 카테고리 중 첫 번째로 탭 선택
+  useEffect(() => {
+    if (items.length === 0) return;
+    const firstCategoryWithItems = CATEGORY_TAB_LABELS.find((label) =>
+      items.some((i) => i.category === label),
+    );
+    if (firstCategoryWithItems != null) {
+      setSelectedTab(firstCategoryWithItems);
+    }
+  }, [items]);
 
   const handleDetailClick = (e: React.MouseEvent, item: MentionItem) => {
     e.stopPropagation();
@@ -71,44 +92,35 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
     setDetailItem(null);
   };
 
-  const tabs = [
-    {
-      label: '대인관계',
-      icon: <InterpersonIcon />,
-      roundedClass: 'rounded-tl-[1rem]',
-    },
-    {
-      label: '문제해결',
-      icon: <ProblemSolveIcon />,
-    },
-    {
-      label: '학습',
-      icon: <LearningIcon />,
-    },
-    {
-      label: '레퍼런스',
-      icon: <ReferenceIcon />,
-    },
-    {
-      label: '기타',
-      icon: <EtcIcon />,
-      roundedClass: 'hover:rounded-tr-[1rem]',
-    },
-  ];
-
-  const filteredItems = DUMMY_ITEMS.filter(
-    (item) => item.category === selectedTab,
+  const tabs = useMemo(
+    () =>
+      CATEGORY_TAB_LABELS.map((label, i) => ({
+        label,
+        icon: TAB_ICONS[label] ?? null,
+        roundedClass:
+          i === 0
+            ? 'rounded-tl-[1rem]'
+            : i === CATEGORY_TAB_LABELS.length - 1
+              ? 'hover:rounded-tr-[1rem]'
+              : undefined,
+      })),
+    [],
   );
+
+  const filteredItems = items.filter((item) => item.category === selectedTab);
+
+  const hasItemsByCategory = useMemo(() => {
+    const set = new Set(items.map((i) => i.category));
+    return (label: string) => set.has(label);
+  }, [items]);
 
   return (
     <>
-      <div className='flex h-[15rem] w-[35.2rem] flex-col rounded-[1rem] border border-[#CDD0D5] bg-[#FDFDFD] shadow-[0px_0px_32px_0px_#00000040]'>
+      <div className='flex h-[15rem] w-auto flex-col rounded-[1rem] border border-[#CDD0D5] bg-[#FDFDFD] shadow-[0px_0px_32px_0px_#00000040]'>
         <div className='flex items-center'>
           {tabs.map((tab) => {
             const isActive = selectedTab === tab.label;
-            const hasItems = DUMMY_ITEMS.some(
-              (item) => item.category === tab.label,
-            );
+            const hasItems = hasItemsByCategory(tab.label);
             return (
               <div key={tab.label} className='flex items-center justify-center'>
                 <button
@@ -120,7 +132,7 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
                       : isActive
                         ? 'cursor-pointer border-b-[#5060C5] bg-[#F6F5FF] font-bold text-[#5060C5]'
                         : 'cursor-pointer border-[#9EA4A9] text-[#1A1A1A] hover:border-b-[#5060C5] hover:bg-[#F6F5FF] hover:font-bold hover:text-[#5060C5]'
-                  } ${tab.roundedClass}`}
+                  } ${tab.roundedClass ?? ''}`}
                 >
                   <span
                     className={
@@ -141,7 +153,19 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
         </div>
 
         <div className='mention-scroll mr-[0.5rem] flex min-h-0 flex-1 flex-col gap-[0.25rem] overflow-y-auto px-[1.25rem] py-[1.125rem] pr-[0.5rem]'>
-          {filteredItems.length > 0 ? (
+          {isLoading ? (
+            <div className='flex flex-1 items-center justify-center'>
+              <Image
+                src='/LoadingSpinnerIcon.svg'
+                alt=''
+                width={40}
+                height={40}
+                className='animate-spin'
+              />
+            </div>
+          ) : isError ? (
+            <div className='flex flex-1 items-center justify-center text-center text-[0.875rem] leading-[150%] font-semibold text-[#DC0000]'></div>
+          ) : filteredItems.length > 0 ? (
             filteredItems.map((item) => (
               <div
                 key={item.id}
@@ -165,11 +189,10 @@ export const ChatMention = ({ onSelect }: ChatMentionProps) => {
               </div>
             ))
           ) : (
-            <div className='flex flex-1 items-center justify-center text-center text-[0.875rem] font-semibold leading-[150%] text-[#9EA4A9]'>
+            <div className='flex flex-1 items-center justify-center text-center text-[0.875rem] leading-[150%] font-semibold text-[#9EA4A9]'>
               <p>
                 아직 작성한 로그가 없어요.
-                <br />
-                이 경험에서 얻은 인사이트를 채팅으로 알려주세요!
+                <br />이 경험에서 얻은 인사이트를 채팅으로 알려주세요!
               </p>
             </div>
           )}

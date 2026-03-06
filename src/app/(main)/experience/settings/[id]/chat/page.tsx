@@ -14,7 +14,10 @@ import {
   type ChatMessage,
 } from '@/features/experience/chat/components/ChatMessageSection';
 import { ChatStepSection } from '@/features/experience/chat/components/ChatStepSection';
-import type { FileItem } from '@/features/experience/chat/components/ChatInput';
+import type {
+  ContentPart,
+  FileItem,
+} from '@/features/experience/chat/components/ChatInput';
 import { ChatCompleteModal } from '@/features/experience/chat/components/ChatCompleteModal';
 
 export default function ExperienceSettingsChatPage() {
@@ -63,7 +66,11 @@ export default function ExperienceSettingsChatPage() {
     };
   }, []);
 
-  const handleSend = (payload: { content: string; files: FileItem[] }) => {
+  const handleSend = (payload: {
+    content: string;
+    contentParts?: ContentPart[];
+    files: FileItem[];
+  }) => {
     const fileInfos = payload.files.map((f) => ({
       name: f.file.name,
       size: f.file.size,
@@ -72,7 +79,12 @@ export default function ExperienceSettingsChatPage() {
     }));
     setMessages((prev) => [
       ...prev,
-      { role: 'user', content: payload.content, files: fileInfos },
+      {
+        role: 'user',
+        content: payload.content,
+        contentParts: payload.contentParts,
+        files: fileInfos,
+      },
       { role: 'ai', content: '내용' },
     ]);
     setInputValue('');
