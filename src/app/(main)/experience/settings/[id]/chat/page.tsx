@@ -280,6 +280,9 @@ export default function ExperienceSettingsChatPage() {
           <ChatMessageSection
             messages={messages}
             isStreaming={isStreaming}
+            searchKeyword={
+              [...messages].reverse().find((m) => m.role === 'user')?.content ?? ''
+            }
             onAIMessageClick={() => setIsCompletionModalOpen(true)}
           />
           {sessionStreamError && (

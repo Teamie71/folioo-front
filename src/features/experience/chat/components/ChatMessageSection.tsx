@@ -53,6 +53,8 @@ interface ChatMessageSectionProps {
   onUserMessageClick?: () => void;
   /* AI 메시지가 스트리밍 중일 때 true*/
   isStreaming?: boolean;
+  /** 유사 인사이트 검색용 키워드 (마지막 사용자 메시지 등) */
+  searchKeyword?: string;
 }
 
 export function ChatMessageSection({
@@ -60,6 +62,7 @@ export function ChatMessageSection({
   onAIMessageClick,
   onUserMessageClick,
   isStreaming = false,
+  searchKeyword,
 }: ChatMessageSectionProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -123,7 +126,7 @@ export function ChatMessageSection({
                   ) : isStreaming && index === messages.length - 1 ? (
                     <ChatLoadingMessage />
                   ) : (
-                    <ChatAnalogs />
+                    <ChatAnalogs searchKeyword={searchKeyword} />
                   )}
                 </div>
               </button>
