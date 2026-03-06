@@ -297,7 +297,9 @@ export default function LogPage() {
               <InputArea
                 placeholder='제목 입력'
                 value={formData.title}
-                onChange={(e) => setFormField('title', e.target.value)}
+                onChange={(e) =>
+                  setFormField('title', e.target.value.slice(0, 20))
+                }
                 maxLength={20}
               />
             </div>
@@ -350,7 +352,9 @@ export default function LogPage() {
                 placeholder='검색어를 입력하세요.'
                 maxLength={100}
                 value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
+                onChange={(e) =>
+                  setSearchInput(e.target.value.slice(0, 100))
+                }
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();

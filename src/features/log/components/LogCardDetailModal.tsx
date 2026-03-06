@@ -168,6 +168,7 @@ export function LogDetailModal({
               variant='wide'
               value={editContent}
               onChange={handleContentChange}
+              maxLength={MAX_CONTENT_LENGTH}
               onKeyDown={(e) => {
                 if (editContent.length >= MAX_CONTENT_LENGTH) {
                   if (e.key === 'Enter') {
