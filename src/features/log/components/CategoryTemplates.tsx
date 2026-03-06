@@ -8,8 +8,8 @@ const COUNT_WARN_THRESHOLD = 240;
 
 /* 템플릿별 고정 라벨 문자열(스토어 포맷과 동일). 선택 시 항상 글자수에 포함됨 */
 const TEMPLATE_LABELS = {
-  interperson: ['상황/대상 - ', '대응 - ', '결과 - ', '배운 점/계획 - '],
-  problemSolve: ['문제 상황 - ', '해결 시도 - ', '결과 - ', '배운 점/계획 - '],
+  interperson: ['상황/ 대상 - ', '대응 - ', '결과 - ', '배운 점/ 계획 - '],
+  problemSolve: ['문제 상황 - ', '해결 시도 - ', '결과 - ', '배운 점/ 계획 - '],
   learning: ['학습 경로 - ', '배운 내용 - ', '적용 계획 - '],
   reference: ['출처 - ', '내용 - ', '나의 생각 - ', '적용 계획 - '],
 } as const;
@@ -159,7 +159,7 @@ export function InterpersonTemplateForm({
         <div className='flex flex-col gap-[1.25rem]'>
           {/* 상황/대상 */}
           <div className='flex items-center justify-between'>
-            <span className='text-[1rem] text-[#1A1A1A]'>상황/대상</span>
+            <span className='text-[1rem] text-[#1A1A1A]'>상황/ 대상</span>
             <input
               className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
               placeholder='누구와, 어떤 상황이 발생했나요?'
@@ -207,7 +207,7 @@ export function InterpersonTemplateForm({
 
           {/* 배운 점/계획 */}
           <div className='flex items-center justify-between'>
-            <span className='text-[1rem] text-[#1A1A1A]'>배운 점/계획</span>
+            <span className='text-[1rem] text-[#1A1A1A]'>배운 점/ 계획</span>
             <input
               className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
               placeholder='무엇을 배웠고, 앞으로는 비슷한 상황에서 어떻게 대응할건가요?'
@@ -333,7 +333,7 @@ export function ProblemSolveTemplateForm({
 
           {/* 배운 점/계획 */}
           <div className='flex items-center justify-between'>
-            <span className='text-[1rem] text-[#1A1A1A]'>배운 점/계획</span>
+            <span className='text-[1rem] text-[#1A1A1A]'>배운 점/ 계획</span>
             <InputArea
               width='51.25rem'
               placeholder='무엇을 배웠고, 앞으로는 비슷한 상황에서 어떻게 대응할건가요?'
