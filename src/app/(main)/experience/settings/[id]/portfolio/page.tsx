@@ -16,7 +16,7 @@ import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 import { ExperienceIconWhite } from '@/components/icons/ExperienceIconWhite';
 import { CorrectionIconWhite } from '@/components/icons/CorrectionIconWhite';
 import { usePortfolioControllerGetPortfolio } from '@/api/endpoints/portfolio/portfolio';
-import { PortfolioDetailResDTOHopeJob } from '@/api/models/portfolioDetailResDTOHopeJob';
+import { PortfolioDetailResDTOHopeJob } from '@/api/models';
 
 const HOPE_JOB_LABEL: Record<string, string> = {
   [PortfolioDetailResDTOHopeJob.NONE]: '직무',

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { StepProgressBar } from '@/components/StepProgressBar';
@@ -25,7 +26,9 @@ import {
   interviewControllerGetSessionState,
   useInterviewControllerGeneratePortfolio,
 } from '@/api/endpoints/interview/interview';
-import { GeneratePortfolioResDTOPortfolioStatus } from '@/api/models/generatePortfolioResDTOPortfolioStatus';
+import { getPortfolioControllerGetPortfolioQueryKey } from '@/api/endpoints/portfolio/portfolio';
+import type { GeneratePortfolioResDTO } from '@/api/models';
+import { GeneratePortfolioResDTOPortfolioStatus } from '@/api/models';
 
 const SESSION_STREAM_PATH = (experienceId: number) =>
   `/interview/experiences/${experienceId}/session/stream`;
@@ -79,6 +82,7 @@ export default function ExperienceSettingsChatPage() {
   const isExtendedSessionRef = useRef(false);
   /* 연장 세션에서 완료된 턴 수 (AI 응답 1회 = 1턴, 3턴이면 CompleteModal 오픈) */
   const extendedTurnCountRef = useRef(0);
+  const queryClient = useQueryClient();
   const { mutateAsync: generatePortfolio } =
     useInterviewControllerGeneratePortfolio();
   const setPendingPortfolio = usePortfolioCreationStore((s) => s.setPending);
@@ -346,18 +350,24 @@ export default function ExperienceSettingsChatPage() {
     generatePortfolio({ experienceId })
       .then((res) => {
         if (cancelled) return;
-        const result = res?.result;
+        const result = res?.result as GeneratePortfolioResDTO | undefined;
         const portfolioId = result?.portfolioId;
         const status = result?.portfolioStatus;
         if (status === GeneratePortfolioResDTOPortfolioStatus.completed && portfolioId != null) {
           if (timeoutId) clearTimeout(timeoutId);
           setIsPortfolioCreateModalOpen(false);
           setResolvedPortfolio(id, portfolioId);
+          queryClient.invalidateQueries({
+            queryKey: getPortfolioControllerGetPortfolioQueryKey(portfolioId),
+          });
           router.push(`/experience/settings/${id}/portfolio?portfolioId=${portfolioId}`);
           return;
         }
         if (portfolioId != null) {
           setPendingPortfolio(id, portfolioId);
+          queryClient.invalidateQueries({
+            queryKey: getPortfolioControllerGetPortfolioQueryKey(portfolioId),
+          });
         }
       })
       .catch(() => {
