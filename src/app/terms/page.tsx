@@ -6,7 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import {
-  useUserControllerUpdateMarketingConsent,
+  useUserControllerAgreeTerms,
   getUserControllerGetProfileQueryKey,
 } from '@/api/endpoints/user/user';
 import { CommonButton } from '@/components/CommonButton';
@@ -19,6 +19,8 @@ import { cn } from '@/utils/utils';
 
 const ACCESS_TOKEN_PARAM = 'access_token';
 const REFRESH_TOKEN_PARAM = 'refresh_token';
+/* 회원가입 직후에만 terms 진입 */
+const TERMS_FROM_SIGNUP_KEY = 'terms_from_signup';
 
 function TermsPageContent() {
   const router = useRouter();
@@ -38,10 +40,13 @@ function TermsPageContent() {
   const isAllAgreed = agreedService && agreedPrivacy && agreedMarketing;
   const isRequiredAgreed = agreedService && agreedPrivacy;
 
-  const { mutate: updateMarketingConsent, isPending: isSubmitting } =
-    useUserControllerUpdateMarketingConsent({
+  const { mutate: agreeTerms, isPending: isSubmitting } =
+    useUserControllerAgreeTerms({
       mutation: {
         onSuccess: () => {
+          if (typeof window !== 'undefined') {
+            sessionStorage.removeItem(TERMS_FROM_SIGNUP_KEY);
+          }
           queryClient.invalidateQueries({
             queryKey: getUserControllerGetProfileQueryKey(),
           });
@@ -55,6 +60,7 @@ function TermsPageContent() {
       },
     });
 
+  // URL에 토큰이 있으면 저장 후 플래그 설정, 쿼리 제거
   useEffect(() => {
     const accessTokenFromUrl = searchParams.get(ACCESS_TOKEN_PARAM);
     const refreshTokenFromUrl = searchParams.get(REFRESH_TOKEN_PARAM);
@@ -66,6 +72,9 @@ function TermsPageContent() {
     }
     if (accessTokenFromUrl || refreshTokenFromUrl) {
       processedTokensFromUrlRef.current = true;
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(TERMS_FROM_SIGNUP_KEY, '1');
+      }
       const url = new URL(window.location.href);
       url.searchParams.delete(ACCESS_TOKEN_PARAM);
       url.searchParams.delete(REFRESH_TOKEN_PARAM);
@@ -74,10 +83,28 @@ function TermsPageContent() {
     }
   }, [searchParams, setAccessToken, setRefreshTokenCookie]);
 
+  // 회원가입 직후가 아니면 이전 페이지로
+  useEffect(() => {
+    const hasTokensInUrl =
+      searchParams.get(ACCESS_TOKEN_PARAM) ??
+      searchParams.get(REFRESH_TOKEN_PARAM);
+    if (hasTokensInUrl) return;
+    const fromSignup =
+      typeof window !== 'undefined' &&
+      sessionStorage.getItem(TERMS_FROM_SIGNUP_KEY);
+    if (!fromSignup) {
+      router.back();
+    }
+  }, [searchParams, router]);
+
   const handleSignUp = () => {
     if (!isRequiredAgreed) return;
-    updateMarketingConsent({
-      data: { isMarketingAgreed: agreedMarketing },
+    agreeTerms({
+      data: {
+        isServiceAgreed: agreedService,
+        isPrivacyAgreed: agreedPrivacy,
+        isMarketingAgreed: agreedMarketing,
+      },
     });
   };
 
