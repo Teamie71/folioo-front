@@ -15,6 +15,8 @@ const STATUS_PARAM = 'status';
 const LOGIN_REDIRECT_TO_KEY = 'login_redirect_to';
 /** redirect_to가 없을 때 기본 경로. 회원가입 시 terms를 거치도록 /terms */
 const DEFAULT_REDIRECT_TO = '/terms';
+/* 회원가입 직후에만 terms 진입 */
+const TERMS_FROM_SIGNUP_KEY = 'terms_from_signup';
 
 function LoginCallbackContent() {
   const router = useRouter();
@@ -74,6 +76,9 @@ function LoginCallbackContent() {
       } catch {
         // 프로필 조회 실패 시에도 리다이렉트
       } finally {
+        if (redirectTo === '/terms' && typeof window !== 'undefined') {
+          sessionStorage.setItem(TERMS_FROM_SIGNUP_KEY, '1');
+        }
         router.replace(redirectTo);
       }
     };

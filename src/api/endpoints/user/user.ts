@@ -26,8 +26,10 @@ import type {
 
 import type {
   AgreeMarketingReqDTO,
+  AgreeTermsReqDTO,
   CommonResponse,
   UpdateUserNameReqDTO,
+  UserControllerAgreeTerms200,
   UserControllerGetExpiringTickets200,
   UserControllerGetExpiringTicketsParams,
   UserControllerGetProfile200,
@@ -259,6 +261,70 @@ export const useUserControllerWithdraw = <TError = CommonResponse,
         TContext
       > => {
       return useMutation(getUserControllerWithdrawMutationOptions(options), queryClient);
+    }
+    /**
+ * 회원가입 후 서비스 이용약관, 개인정보 처리방침, 마케팅 수신 동의를 처리합니다. 필수 약관(서비스, 개인정보) 동의 시 사용자 상태가 ACTIVE로 전환됩니다.
+ * @summary 온보딩 약관 동의
+ */
+export const userControllerAgreeTerms = (
+    agreeTermsReqDTO: AgreeTermsReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<UserControllerAgreeTerms200>(
+      {url: `/users/me/terms`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: agreeTermsReqDTO, signal
+    },
+      options);
+    }
+  
+
+
+export const getUserControllerAgreeTermsMutationOptions = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof userControllerAgreeTerms>>, TError,{data: AgreeTermsReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof userControllerAgreeTerms>>, TError,{data: AgreeTermsReqDTO}, TContext> => {
+
+const mutationKey = ['userControllerAgreeTerms'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof userControllerAgreeTerms>>, {data: AgreeTermsReqDTO}> = (props) => {
+          const {data} = props ?? {};
+
+          return  userControllerAgreeTerms(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UserControllerAgreeTermsMutationResult = NonNullable<Awaited<ReturnType<typeof userControllerAgreeTerms>>>
+    export type UserControllerAgreeTermsMutationBody = AgreeTermsReqDTO
+    export type UserControllerAgreeTermsMutationError = CommonResponse
+
+    /**
+ * @summary 온보딩 약관 동의
+ */
+export const useUserControllerAgreeTerms = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof userControllerAgreeTerms>>, TError,{data: AgreeTermsReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof userControllerAgreeTerms>>,
+        TError,
+        {data: AgreeTermsReqDTO},
+        TContext
+      > => {
+      return useMutation(getUserControllerAgreeTermsMutationOptions(options), queryClient);
     }
     /**
  * 사용자의 잔여 이용권 수량을 경험 정리, 포트폴리오 첨삭 유형별로 조회합니다.
