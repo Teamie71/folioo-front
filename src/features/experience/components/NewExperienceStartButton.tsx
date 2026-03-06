@@ -3,15 +3,16 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { CommonButton } from '@/components/CommonButton';
-import { useExperienceStore } from '@/store/useExperienceStore';
+import { useExperienceControllerGetExperiences } from '@/api/endpoints/experience/experience';
 import { ExperienceCardMaxModal } from './ExperienceCardMaxModal';
 
 const MAX_EXPERIENCE_CARDS = 15;
 
 export function NewExperienceStartButton() {
-  const { experienceCards } = useExperienceStore();
+  const { data } = useExperienceControllerGetExperiences();
   const [modalOpen, setModalOpen] = useState(false);
-  const isMaxCards = experienceCards.length >= MAX_EXPERIENCE_CARDS;
+  const experienceCount = data?.result?.length ?? 0;
+  const isMaxCards = experienceCount >= MAX_EXPERIENCE_CARDS;
 
   if (isMaxCards) {
     return (

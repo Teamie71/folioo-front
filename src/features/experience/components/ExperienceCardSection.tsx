@@ -4,11 +4,33 @@ import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { PortfolioCard } from '@/components/PortfolioCard';
-import { useExperienceStore } from '@/store/useExperienceStore';
 import {
   getExperienceReturnPaths,
   type ExperienceReturnPath,
 } from '@/features/experience/utils/experienceReturnPath';
+import { useExperienceControllerGetExperiences } from '@/api/endpoints/experience/experience';
+import { ExperienceResDTOHopeJob } from '@/api/models';
+import type { ExperienceResDTO } from '@/api/models';
+
+/* API hopeJob enum → 카드 태그 라벨 */
+const HOPE_JOB_TO_LABEL: Record<string, string> = {
+  [ExperienceResDTOHopeJob.NONE]: '미정',
+  [ExperienceResDTOHopeJob.PLANNING]: '기획',
+  [ExperienceResDTOHopeJob.MARKETING]: '광고/마케팅',
+  [ExperienceResDTOHopeJob.DESIGN]: '디자인',
+  [ExperienceResDTOHopeJob.DEV]: 'IT 개발',
+  [ExperienceResDTOHopeJob.MEDIA]: '영상/미디어',
+  [ExperienceResDTOHopeJob.DATA]: '데이터',
+};
+
+function toCard(item: ExperienceResDTO) {
+  return {
+    id: String(item.id),
+    title: item.name,
+    tag: HOPE_JOB_TO_LABEL[item.hopeJob] ?? '미정',
+    date: item.createdAt.slice(0, 10),
+  };
+}
 
 interface ExperienceCardSectionProps {
   searchQuery?: string;
@@ -19,32 +41,29 @@ export function ExperienceCardSection({
   searchQuery = '',
   isSearching = false,
 }: ExperienceCardSectionProps) {
-  const { experienceCards } = useExperienceStore();
   const [returnPaths, setReturnPaths] = useState<
     Record<string, ExperienceReturnPath>
   >({});
+
+  const { data, isLoading, isFetching } = useExperienceControllerGetExperiences(
+    searchQuery.trim() ? { keyword: searchQuery.trim() } : undefined,
+  );
+
+  const experienceList = data?.result ?? [];
+  const cards = useMemo(() => experienceList.map(toCard), [experienceList]);
 
   useEffect(() => {
     setReturnPaths(getExperienceReturnPaths());
   }, []);
 
-  const filteredCards = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-    if (query === '') return experienceCards;
-    return experienceCards.filter(
-      (card) =>
-        card.title.toLowerCase().includes(query) ||
-        card.tag.toLowerCase().includes(query),
-    );
-  }, [experienceCards, searchQuery]);
-
-  const hasNoCards = experienceCards.length === 0;
+  const hasNoCards = cards.length === 0;
   const hasQuery = searchQuery.trim() !== '';
-  const hasNoResults = hasQuery && filteredCards.length === 0;
+  const hasNoResults = hasQuery && hasNoCards;
+  const showLoading = isLoading || (isSearching && isFetching);
 
   return (
     <div className='grid grid-cols-2 gap-[1.5rem]'>
-      {isSearching ? (
+      {showLoading ? (
         <div className='col-span-2 mt-[5rem] flex items-center justify-center'>
           <motion.div
             animate={{ rotate: 720 }}
@@ -72,7 +91,7 @@ export function ExperienceCardSection({
           앗, 일치하는 결과가 없어요.
         </div>
       ) : (
-        filteredCards.map((card) => {
+        cards.map((card) => {
           const subPath = returnPaths[card.id] ?? 'chat';
           return (
             <PortfolioCard
