@@ -8,6 +8,7 @@ import { StepProgressBar } from '@/components/StepProgressBar';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
 import { InlineEdit } from '@/components/InlineEdit';
 import { useExperienceStore } from '@/store/useExperienceStore';
+import { useExperienceControllerUpdateExperience } from '@/api/endpoints/experience/experience';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { CommonButton } from '@/components/CommonButton';
@@ -17,12 +18,15 @@ export default function ExperienceSettingsChatLoadingPage() {
   const params = useParams();
   const router = useRouter();
   const id = typeof params.id === 'string' ? params.id : '';
+  const experienceId = id ? Number(id) : NaN;
   const removeExperience = useExperienceStore(
     (state) => state.removeExperience,
   );
   const updateExperienceTitle = useExperienceStore(
     (state) => state.updateExperienceTitle,
   );
+  const { mutateAsync: updateExperience } =
+    useExperienceControllerUpdateExperience();
   const storeTitle = useExperienceStore(
     (state) =>
       state.experienceCards.find((c) => c.id === id)?.title ??
@@ -61,9 +65,24 @@ export default function ExperienceSettingsChatLoadingPage() {
               isEditing={isEditingTitle}
               onEdit={() => setIsEditingTitle(true)}
               onSave={(newTitle) => {
-                setExperienceTitle(newTitle);
-                updateExperienceTitle(id, newTitle);
-                setIsEditingTitle(false);
+                if (!Number.isFinite(experienceId)) {
+                  setExperienceTitle(newTitle);
+                  updateExperienceTitle(id, newTitle);
+                  setIsEditingTitle(false);
+                  return;
+                }
+                updateExperience({
+                  experienceId,
+                  data: { name: newTitle },
+                })
+                  .then(() => {
+                    setExperienceTitle(newTitle);
+                    updateExperienceTitle(id, newTitle);
+                    setIsEditingTitle(false);
+                  })
+                  .catch(() => {
+                    setIsEditingTitle(false);
+                  });
               }}
             />
           </div>

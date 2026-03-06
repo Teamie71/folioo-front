@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
@@ -15,6 +16,11 @@ import Link from 'next/link';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 import { ExperienceIconWhite } from '@/components/icons/ExperienceIconWhite';
 import { CorrectionIconWhite } from '@/components/icons/CorrectionIconWhite';
+import {
+  getExperienceControllerGetExperienceQueryKey,
+  useExperienceControllerGetExperience,
+  useExperienceControllerUpdateExperience,
+} from '@/api/endpoints/experience/experience';
 import { usePortfolioControllerGetPortfolio } from '@/api/endpoints/portfolio/portfolio';
 import { PortfolioDetailResDTOHopeJob } from '@/api/models';
 
@@ -33,6 +39,7 @@ export default function ExperienceSettingsPortfolioPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = typeof params.id === 'string' ? params.id : '';
+  const experienceId = id ? Number(id) : NaN;
   const portfolioIdParam = searchParams.get('portfolioId');
   const getPortfolioIdFromStore = usePortfolioCreationStore(
     (s) => s.getPortfolioId,
@@ -49,6 +56,9 @@ export default function ExperienceSettingsPortfolioPage() {
   const updateExperienceTitle = useExperienceStore(
     (state) => state.updateExperienceTitle,
   );
+  const queryClient = useQueryClient();
+  const { mutateAsync: updateExperience } =
+    useExperienceControllerUpdateExperience();
   const storeTitle = useExperienceStore(
     (state) =>
       state.experienceCards.find((c) => c.id === id)?.title ??
@@ -64,6 +74,15 @@ export default function ExperienceSettingsPortfolioPage() {
   const [hopeJobTag, setHopeJobTag] = useState('IT 개발');
   const exportContentRef = useRef<HTMLDivElement>(null);
 
+  const { data: experienceData } = useExperienceControllerGetExperience(
+    experienceId,
+    {
+      query: {
+        enabled: Number.isFinite(experienceId),
+      },
+    },
+  );
+
   const { data: portfolioData, isLoading } = usePortfolioControllerGetPortfolio(
     portfolioId,
     {
@@ -74,6 +93,7 @@ export default function ExperienceSettingsPortfolioPage() {
   );
 
   const portfolio = portfolioData?.result;
+  const experienceName = experienceData?.result?.name;
 
   useEffect(() => {
     if (!portfolio) return;
@@ -87,8 +107,12 @@ export default function ExperienceSettingsPortfolioPage() {
   }, [portfolio]);
 
   useEffect(() => {
-    setExperienceTitle(storeTitle);
-  }, [id, storeTitle]);
+    const title = experienceName ?? storeTitle ?? '새로운 경험 정리';
+    setExperienceTitle(title);
+    if (experienceName != null && id) {
+      updateExperienceTitle(id, experienceName);
+    }
+  }, [id, experienceName, storeTitle, updateExperienceTitle]);
 
   useEffect(() => {
     document.title = `${experienceTitle} - Folioo`;
@@ -116,9 +140,29 @@ export default function ExperienceSettingsPortfolioPage() {
                 isEditing={isEditingTitle}
                 onEdit={() => setIsEditingTitle(true)}
                 onSave={(newTitle) => {
-                  setExperienceTitle(newTitle);
-                  updateExperienceTitle(id, newTitle);
-                  setIsEditingTitle(false);
+                  if (!Number.isFinite(experienceId)) {
+                    setExperienceTitle(newTitle);
+                    updateExperienceTitle(id, newTitle);
+                    setIsEditingTitle(false);
+                    return;
+                  }
+                  updateExperience({
+                    experienceId,
+                    data: { name: newTitle },
+                  })
+                    .then(() => {
+                      setExperienceTitle(newTitle);
+                      updateExperienceTitle(id, newTitle);
+                      queryClient.invalidateQueries({
+                        queryKey: getExperienceControllerGetExperienceQueryKey(
+                          experienceId,
+                        ),
+                      });
+                      setIsEditingTitle(false);
+                    })
+                    .catch(() => {
+                      setIsEditingTitle(false);
+                    });
                 }}
               />
             </div>

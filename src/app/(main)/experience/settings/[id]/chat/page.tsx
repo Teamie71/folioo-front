@@ -22,6 +22,7 @@ import type {
 import { ChatCompleteModal } from '@/features/experience/chat/components/ChatCompleteModal';
 import { PortfolioCreateModal } from '@/features/experience/chat/components/PortfolioCreateModal';
 import { fetchSSEStream } from '@/lib/sseStream';
+import { useExperienceControllerUpdateExperience } from '@/api/endpoints/experience/experience';
 import {
   interviewControllerGetSessionState,
   useInterviewControllerGeneratePortfolio,
@@ -85,6 +86,8 @@ export default function ExperienceSettingsChatPage() {
   const queryClient = useQueryClient();
   const { mutateAsync: generatePortfolio } =
     useInterviewControllerGeneratePortfolio();
+  const { mutateAsync: updateExperience } =
+    useExperienceControllerUpdateExperience();
   const setPendingPortfolio = usePortfolioCreationStore((s) => s.setPending);
   const setResolvedPortfolio = usePortfolioCreationStore((s) => s.setResolved);
 
@@ -539,9 +542,24 @@ export default function ExperienceSettingsChatPage() {
               isEditing={isEditingTitle}
               onEdit={() => setIsEditingTitle(true)}
               onSave={(newTitle) => {
-                setExperienceTitle(newTitle);
-                updateExperienceTitle(id, newTitle);
-                setIsEditingTitle(false);
+                if (!Number.isFinite(experienceId)) {
+                  setExperienceTitle(newTitle);
+                  updateExperienceTitle(id, newTitle);
+                  setIsEditingTitle(false);
+                  return;
+                }
+                updateExperience({
+                  experienceId,
+                  data: { name: newTitle },
+                })
+                  .then(() => {
+                    setExperienceTitle(newTitle);
+                    updateExperienceTitle(id, newTitle);
+                    setIsEditingTitle(false);
+                  })
+                  .catch(() => {
+                    setIsEditingTitle(false);
+                  });
               }}
             />
           </div>
