@@ -8,6 +8,7 @@ import { StepProgressBar } from '@/components/StepProgressBar';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
 import { InlineEdit } from '@/components/InlineEdit';
 import { useExperienceStore } from '@/store/useExperienceStore';
+import { usePortfolioCreationStore } from '@/store/usePortfolioCreationStore';
 import {
   ChatMessageSection,
   type ChatMessage,
@@ -24,6 +25,7 @@ import {
   interviewControllerGetSessionState,
   useInterviewControllerGeneratePortfolio,
 } from '@/api/endpoints/interview/interview';
+import { GeneratePortfolioResDTOPortfolioStatus } from '@/api/models/generatePortfolioResDTOPortfolioStatus';
 
 const SESSION_STREAM_PATH = (experienceId: number) =>
   `/interview/experiences/${experienceId}/session/stream`;
@@ -79,6 +81,8 @@ export default function ExperienceSettingsChatPage() {
   const extendedTurnCountRef = useRef(0);
   const { mutateAsync: generatePortfolio } =
     useInterviewControllerGeneratePortfolio();
+  const setPendingPortfolio = usePortfolioCreationStore((s) => s.setPending);
+  const setResolvedPortfolio = usePortfolioCreationStore((s) => s.setResolved);
 
   /* 단계가 다 채워지면( currentStage === 4 ) 완료 모달 */
   useEffect(() => {
@@ -334,17 +338,40 @@ export default function ExperienceSettingsChatPage() {
     });
   };
 
-  /* PortfolioCreateModal 오픈 시: 즉시 API 호출, 2초 후 모달 닫고 createloading 이동 */
+  /* PortfolioCreateModal 오픈 시: API 호출 후 완료면 portfolio로, 아니면 createloading으로 + 폴링으로 완료 시 portfolio 이동 */
   useEffect(() => {
     if (!isPortfolioCreateModalOpen) return;
-    generatePortfolio({ experienceId }).catch(() =>
-      setIsPortfolioCreateModalOpen(false),
-    );
-    const t = setTimeout(() => {
+    let cancelled = false;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    generatePortfolio({ experienceId })
+      .then((res) => {
+        if (cancelled) return;
+        const result = res?.result;
+        const portfolioId = result?.portfolioId;
+        const status = result?.portfolioStatus;
+        if (status === GeneratePortfolioResDTOPortfolioStatus.completed && portfolioId != null) {
+          if (timeoutId) clearTimeout(timeoutId);
+          setIsPortfolioCreateModalOpen(false);
+          setResolvedPortfolio(id, portfolioId);
+          router.push(`/experience/settings/${id}/portfolio?portfolioId=${portfolioId}`);
+          return;
+        }
+        if (portfolioId != null) {
+          setPendingPortfolio(id, portfolioId);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setIsPortfolioCreateModalOpen(false);
+      });
+    timeoutId = setTimeout(() => {
+      if (cancelled) return;
       setIsPortfolioCreateModalOpen(false);
       router.push(`/experience/settings/${id}/createloading`);
     }, 2000);
-    return () => clearTimeout(t);
+    return () => {
+      cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [isPortfolioCreateModalOpen]);
 
   const handleDelete = () => {

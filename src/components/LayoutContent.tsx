@@ -10,6 +10,7 @@ import {
   markWeeklyVoucherGranted,
 } from '@/utils/weeklyVoucher';
 import { CorrectionNavbarContext } from '@/contexts/CorrectionNavbarContext';
+import { PortfolioCreationPoller } from '@/features/experience/components/PortfolioCreationPoller';
 
 function isCorrectionNewPath(pathname: string) {
   return /^\/correction\/new\/?$/.test(pathname);
@@ -66,6 +67,9 @@ export default function LayoutContent({
       <div className={hideNavbar ? '' : 'layout-content-below-header'}>
         {children}
       </div>
+
+      {/* 포트폴리오 생성 완료 시 어디서든 portfolio 페이지로 리다이렉트 */}
+      <PortfolioCreationPoller />
 
       {/* 주간 이용권 지급 모달 */}
       <OBTEventModal

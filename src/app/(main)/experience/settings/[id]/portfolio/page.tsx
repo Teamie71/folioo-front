@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
 import { InlineEdit } from '@/components/InlineEdit';
 import { useExperienceStore } from '@/store/useExperienceStore';
+import { usePortfolioCreationStore } from '@/store/usePortfolioCreationStore';
 import { ContributionBar } from '@/features/experience/components/ContributionBar';
 import { ExperienceExport } from '@/features/experience/portfolio/components/ExperienceExport';
 import SpanArea from '@/components/SpanArea';
@@ -14,11 +15,34 @@ import Link from 'next/link';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 import { ExperienceIconWhite } from '@/components/icons/ExperienceIconWhite';
 import { CorrectionIconWhite } from '@/components/icons/CorrectionIconWhite';
+import { usePortfolioControllerGetPortfolio } from '@/api/endpoints/portfolio/portfolio';
+import { PortfolioDetailResDTOHopeJob } from '@/api/models/portfolioDetailResDTOHopeJob';
+
+const HOPE_JOB_LABEL: Record<string, string> = {
+  [PortfolioDetailResDTOHopeJob.NONE]: '직무',
+  [PortfolioDetailResDTOHopeJob.PLANNING]: '기획',
+  [PortfolioDetailResDTOHopeJob.MARKETING]: '마케팅',
+  [PortfolioDetailResDTOHopeJob.DESIGN]: '디자인',
+  [PortfolioDetailResDTOHopeJob.DEV]: 'IT 개발',
+  [PortfolioDetailResDTOHopeJob.MEDIA]: '미디어',
+  [PortfolioDetailResDTOHopeJob.DATA]: '데이터',
+};
 
 export default function ExperienceSettingsPortfolioPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const id = typeof params.id === 'string' ? params.id : '';
+  const portfolioIdParam = searchParams.get('portfolioId');
+  const getPortfolioIdFromStore = usePortfolioCreationStore(
+    (s) => s.getPortfolioId,
+  );
+  const portfolioIdNum =
+    (portfolioIdParam ? Number(portfolioIdParam) : NaN) ||
+    getPortfolioIdFromStore(id);
+  const portfolioId =
+    portfolioIdNum && !Number.isNaN(portfolioIdNum) ? portfolioIdNum : 0;
+
   const removeExperience = useExperienceStore(
     (state) => state.removeExperience,
   );
@@ -33,11 +57,34 @@ export default function ExperienceSettingsPortfolioPage() {
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [experienceTitle, setExperienceTitle] = useState(storeTitle);
-  const [detailInfo, setDetailInfo] = useState('내용');
-  const [roleContent, setRoleContent] = useState('내용');
-  const [problemContent, setProblemContent] = useState('내용');
-  const [learnContent, setLearnContent] = useState('내용');
+  const [detailInfo, setDetailInfo] = useState('');
+  const [roleContent, setRoleContent] = useState('');
+  const [problemContent, setProblemContent] = useState('');
+  const [learnContent, setLearnContent] = useState('');
+  const [hopeJobTag, setHopeJobTag] = useState('IT 개발');
   const exportContentRef = useRef<HTMLDivElement>(null);
+
+  const { data: portfolioData, isLoading } = usePortfolioControllerGetPortfolio(
+    portfolioId,
+    {
+      query: {
+        enabled: !!portfolioId,
+      },
+    },
+  );
+
+  const portfolio = portfolioData?.result;
+
+  useEffect(() => {
+    if (!portfolio) return;
+    setDetailInfo(portfolio.description ?? '');
+    setRoleContent(portfolio.responsibilities ?? '');
+    setProblemContent(portfolio.problemSolving ?? '');
+    setLearnContent(portfolio.learnings ?? '');
+    setHopeJobTag(
+      (portfolio.hopeJob && HOPE_JOB_LABEL[portfolio.hopeJob]) ?? 'IT 개발',
+    );
+  }, [portfolio]);
 
   useEffect(() => {
     setExperienceTitle(storeTitle);
@@ -100,11 +147,17 @@ export default function ExperienceSettingsPortfolioPage() {
         {/* 기여도 & 태그 영역 */}
         <div className='flex items-center justify-between'>
           {/* 기여도 */}
-          <ContributionBar duration={300} />
+          <ContributionBar
+            duration={
+              portfolio?.contributionRate != null
+                ? Math.round((portfolio.contributionRate ?? 0) * 10)
+                : 300
+            }
+          />
 
           {/* 직무 태그 */}
           <div className='rounded-[3.75rem] border-[0.09375rem] border-[#5060C5] bg-[#F6F5FF] px-[1.75rem] py-[0.25rem] text-[1rem] font-semibold text-[#5060C5]'>
-            IT 개발
+            {hopeJobTag}
           </div>
         </div>
 
@@ -113,29 +166,37 @@ export default function ExperienceSettingsPortfolioPage() {
           ref={exportContentRef}
           className='flex flex-col gap-[3.75rem] pt-[3.75rem] pb-[3.75rem]'
         >
-          {/* 상세정보 */}
-          <div className='flex flex-col gap-[1rem]'>
-            <span className='text-[1.125rem] font-bold'>상세정보</span>
-            <SpanArea>{detailInfo}</SpanArea>
-          </div>
+          {isLoading && !portfolio ? (
+            <p className='text-[1rem] text-[#74777D]'></p>
+          ) : !portfolioId ? (
+            <p className='text-[1rem] text-[#74777D]'></p>
+          ) : (
+            <>
+              {/* 상세정보 */}
+              <div className='flex flex-col gap-[1rem]'>
+                <span className='text-[1.125rem] font-bold'>상세정보</span>
+                <SpanArea>{detailInfo || '내용'}</SpanArea>
+              </div>
 
-          {/* 담당업무 */}
-          <div className='flex flex-col gap-[1rem]'>
-            <span className='text-[1.125rem] font-bold'>담당업무</span>
-            <SpanArea>{roleContent}</SpanArea>
-          </div>
+              {/* 담당업무 */}
+              <div className='flex flex-col gap-[1rem]'>
+                <span className='text-[1.125rem] font-bold'>담당업무</span>
+                <SpanArea>{roleContent || '내용'}</SpanArea>
+              </div>
 
-          {/* 문제해결 */}
-          <div className='flex flex-col gap-[1rem]'>
-            <span className='text-[1.125rem] font-bold'>문제해결</span>
-            <SpanArea>{problemContent}</SpanArea>
-          </div>
+              {/* 문제해결 */}
+              <div className='flex flex-col gap-[1rem]'>
+                <span className='text-[1.125rem] font-bold'>문제해결</span>
+                <SpanArea>{problemContent || '내용'}</SpanArea>
+              </div>
 
-          {/* 배운 점 */}
-          <div className='flex flex-col gap-[1rem]'>
-            <span className='text-[1.125rem] font-bold'>배운 점</span>
-            <SpanArea>{learnContent}</SpanArea>
-          </div>
+              {/* 배운 점 */}
+              <div className='flex flex-col gap-[1rem]'>
+                <span className='text-[1.125rem] font-bold'>배운 점</span>
+                <SpanArea>{learnContent || '내용'}</SpanArea>
+              </div>
+            </>
+          )}
         </div>
 
         {/* 버튼 영역 */}
