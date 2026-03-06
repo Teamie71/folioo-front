@@ -14,7 +14,14 @@ import Link from 'next/link';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 import { ExperienceIconWhite } from '@/components/icons/ExperienceIconWhite';
 import { CorrectionIconWhite } from '@/components/icons/CorrectionIconWhite';
-import { usePortfolioControllerGetPortfolio } from '@/api/endpoints/portfolio/portfolio';
+import {
+  usePortfolioControllerGetPortfolio,
+  usePortfolioControllerUpdatePortfolio,
+} from '@/api/endpoints/portfolio/portfolio';
+import {
+  useExperienceControllerUpdateExperience,
+  useExperienceControllerGetExperience,
+} from '@/api/endpoints/experience/experience';
 import { PortfolioDetailResDTOHopeJob } from '@/api/models';
 
 const HOPE_JOB_LABEL: Record<string, string> = {
@@ -55,13 +62,30 @@ export default function ExperienceSettingsPortfolioPage() {
   );
   const portfolio = portfolioData?.result;
 
+  const experienceId = Number(id);
+  const { data: experienceData } = useExperienceControllerGetExperience(
+    experienceId,
+    {
+      query: {
+        enabled: !!id && !Number.isNaN(experienceId) && !hasValidPortfolioId,
+      },
+    },
+  );
+
+  const { mutate: updatePortfolio } =
+    usePortfolioControllerUpdatePortfolio();
+  const { mutate: updateExperience } =
+    useExperienceControllerUpdateExperience();
+
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [experienceTitle, setExperienceTitle] = useState(storeTitle);
   const exportContentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setExperienceTitle(portfolio?.name ?? storeTitle);
-  }, [id, storeTitle, portfolio?.name]);
+    const name =
+      portfolio?.name ?? experienceData?.result?.name ?? storeTitle;
+    setExperienceTitle(name);
+  }, [portfolio?.name, experienceData?.result?.name, storeTitle, id]);
 
   useEffect(() => {
     if (id) setExperienceReturnPath(id, 'portfolio');
@@ -85,9 +109,25 @@ export default function ExperienceSettingsPortfolioPage() {
                 isEditing={isEditingTitle}
                 onEdit={() => setIsEditingTitle(true)}
                 onSave={(newTitle) => {
-                  setExperienceTitle(newTitle);
-                  updateExperienceTitle(id, newTitle);
-                  setIsEditingTitle(false);
+                  const name = newTitle.trim() || experienceTitle;
+                  const onSuccess = () => {
+                    setExperienceTitle(name);
+                    updateExperienceTitle(id, name);
+                    setIsEditingTitle(false);
+                  };
+                  if (hasValidPortfolioId && portfolioId != null) {
+                    updatePortfolio(
+                      { portfolioId, data: { name } },
+                      { onSuccess },
+                    );
+                  } else {
+                    const experienceId = Number(id);
+                    if (Number.isNaN(experienceId)) return;
+                    updateExperience(
+                      { experienceId, data: { name } },
+                      { onSuccess },
+                    );
+                  }
                 }}
               />
             </div>

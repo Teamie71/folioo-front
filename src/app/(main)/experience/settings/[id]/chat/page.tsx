@@ -24,6 +24,10 @@ import {
   useInterviewControllerGeneratePortfolio,
   useInterviewControllerSendChatStream,
 } from '@/api/endpoints/interview/interview';
+import {
+  useExperienceControllerUpdateExperience,
+  useExperienceControllerGetExperience,
+} from '@/api/endpoints/experience/experience';
 import { insightControllerGetLogs } from '@/api/endpoints/insight/insight';
 import { toLogCardDataList } from '@/features/log/utils/toLogCardData';
 import type {
@@ -123,6 +127,15 @@ export default function ExperienceSettingsChatPage() {
     },
   );
 
+  const { data: experienceData } = useExperienceControllerGetExperience(
+    numericId,
+    {
+      query: {
+        enabled: !!id && !Number.isNaN(numericId),
+      },
+    },
+  );
+
   useEffect(() => {
     const state = sessionStateData?.result;
     if (!state) return;
@@ -167,8 +180,12 @@ export default function ExperienceSettingsChatPage() {
   }, [sessionStateData]);
 
   useEffect(() => {
-    setExperienceTitle(storeTitle);
-  }, [id, storeTitle]);
+    const name =
+      experienceData?.result?.name ??
+      sessionStateData?.result?.experienceName ??
+      storeTitle;
+    setExperienceTitle(name);
+  }, [experienceData?.result?.name, sessionStateData?.result?.experienceName, storeTitle, id]);
 
   useEffect(() => {
     if (id) setExperienceReturnPath(id, 'chat');
@@ -183,6 +200,8 @@ export default function ExperienceSettingsChatPage() {
 
   const { mutate: generatePortfolio } =
     useInterviewControllerGeneratePortfolio();
+  const { mutate: updateExperience } =
+    useExperienceControllerUpdateExperience();
   const { mutate: startSession } = useInterviewControllerCreateSessionStream({
     mutation: {
       onSuccess: (event) => {
@@ -469,9 +488,18 @@ export default function ExperienceSettingsChatPage() {
               isEditing={isEditingTitle}
               onEdit={() => setIsEditingTitle(true)}
               onSave={(newTitle) => {
-                setExperienceTitle(newTitle);
-                updateExperienceTitle(id, newTitle);
-                setIsEditingTitle(false);
+                const name = newTitle.trim() || experienceTitle;
+                if (Number.isNaN(numericId)) return;
+                updateExperience(
+                  { experienceId: numericId, data: { name } },
+                  {
+                    onSuccess: () => {
+                      setExperienceTitle(name);
+                      updateExperienceTitle(id, name);
+                      setIsEditingTitle(false);
+                    },
+                  },
+                );
               }}
             />
           </div>

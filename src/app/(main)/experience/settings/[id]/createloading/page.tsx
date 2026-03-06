@@ -8,7 +8,10 @@ import { StepProgressBar } from '@/components/StepProgressBar';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
 import { InlineEdit } from '@/components/InlineEdit';
 import { useExperienceStore } from '@/store/useExperienceStore';
-import { useExperienceControllerGetExperience } from '@/api/endpoints/experience/experience';
+import {
+  useExperienceControllerGetExperience,
+  useExperienceControllerUpdateExperience,
+} from '@/api/endpoints/experience/experience';
 import { ExperienceStateResDTOStatus } from '@/api/models';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
@@ -38,6 +41,8 @@ export default function ExperienceSettingsChatLoadingPage() {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [experienceTitle, setExperienceTitle] = useState(storeTitle);
 
+  const { mutate: updateExperience } =
+    useExperienceControllerUpdateExperience();
   const { data: experienceData } = useExperienceControllerGetExperience(
     experienceId,
     {
@@ -65,8 +70,9 @@ export default function ExperienceSettingsChatLoadingPage() {
   }, [isDone, id, portfolioId, router]);
 
   useEffect(() => {
-    setExperienceTitle(storeTitle);
-  }, [id, storeTitle]);
+    const name = experienceData?.result?.name ?? storeTitle;
+    setExperienceTitle(name);
+  }, [experienceData?.result?.name, storeTitle, id]);
 
   useEffect(() => {
     if (id) setExperienceReturnPath(id, 'createloading');
@@ -89,9 +95,18 @@ export default function ExperienceSettingsChatLoadingPage() {
               isEditing={isEditingTitle}
               onEdit={() => setIsEditingTitle(true)}
               onSave={(newTitle) => {
-                setExperienceTitle(newTitle);
-                updateExperienceTitle(id, newTitle);
-                setIsEditingTitle(false);
+                const name = newTitle.trim() || experienceTitle;
+                if (Number.isNaN(experienceId)) return;
+                updateExperience(
+                  { experienceId, data: { name } },
+                  {
+                    onSuccess: () => {
+                      setExperienceTitle(name);
+                      updateExperienceTitle(id, name);
+                      setIsEditingTitle(false);
+                    },
+                  },
+                );
               }}
             />
           </div>
