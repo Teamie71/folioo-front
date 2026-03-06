@@ -36,6 +36,8 @@ interface LogDetailModalProps {
   onSave?: (data: { title: string; content: string }) => void | Promise<void>;
   isSaving?: boolean;
   saveError?: string | null;
+  /** 다른 로그들의 제목 목록 (현재 로그 제외). 제목 중복 검사용 */
+  otherLogTitles?: string[];
   title: string;
   date: string;
   content: string;
@@ -51,6 +53,7 @@ export function LogDetailModal({
   onSave,
   isSaving = false,
   saveError,
+  otherLogTitles = [],
   title,
   date,
   content,
@@ -60,6 +63,10 @@ export function LogDetailModal({
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
   const [editContent, setEditContent] = useState(content);
+
+  const isTitleDuplicate =
+    editTitle.trim() !== '' &&
+    otherLogTitles.some((t) => t.trim() === editTitle.trim());
 
   // 모달이 열릴 때마다 초기값으로 리셋
   useEffect(() => {
@@ -243,25 +250,40 @@ export function LogDetailModal({
               </div>
             </div>
 
-            <div className='flex w-full translate-y-[-0.75rem] flex-col items-end gap-2'>
+            <div className='flex w-full translate-y-[-0.75rem] flex-col gap-2'>
               {saveError && (
                 <p className='w-full text-sm text-[#DC0000]'>{saveError}</p>
               )}
-              <CommonButton
-                variantType='Primary'
-                px='1.5rem'
-                py='0.375rem'
-                style={{ width: '6.75rem', height: '2.25rem' }}
-                className={
-                  isSaving
-                    ? '!bg-[#5060C5] disabled:!bg-[#5060C5] disabled:hover:!bg-[#404D9E]'
-                    : undefined
-                }
-                onClick={handleSave}
-                disabled={isSaving || !editTitle.trim() || !editContent.trim()}
-              >
-                {isSaving ? <ButtonSpinnerIcon size={24} /> : '수정 완료'}
-              </CommonButton>
+              <div className='flex w-full items-center justify-between'>
+                <p
+                  className={cn(
+                    'text-[0.875rem] text-[#DC0000]',
+                    !isTitleDuplicate && 'invisible',
+                  )}
+                >
+                  인사이트 로그의 제목은 중복 될 수 없어요.
+                </p>
+                <CommonButton
+                  variantType='Primary'
+                  px='1.5rem'
+                  py='0.375rem'
+                  style={{ width: '6.75rem', height: '2.25rem' }}
+                  className={
+                    isSaving
+                      ? '!bg-[#5060C5] disabled:!bg-[#5060C5] disabled:hover:!bg-[#404D9E]'
+                      : undefined
+                  }
+                  onClick={handleSave}
+                  disabled={
+                    isSaving ||
+                    !editTitle.trim() ||
+                    !editContent.trim() ||
+                    isTitleDuplicate
+                  }
+                >
+                  {isSaving ? <ButtonSpinnerIcon size={24} /> : '수정 완료'}
+                </CommonButton>
+              </div>
             </div>
           </>
         ) : (

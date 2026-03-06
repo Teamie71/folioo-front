@@ -471,6 +471,9 @@ export default function LogPage() {
           onSave={handleSaveLog}
           isSaving={isSavingLog}
           saveError={saveLogError}
+          otherLogTitles={logCards
+            .filter((log) => log.id !== selectedLog.id)
+            .map((log) => log.title)}
           title={selectedLog.title}
           date={selectedLog.date}
           content={selectedLog.content}
