@@ -6,10 +6,13 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type CorrectionStatusResDTOStatus = typeof CorrectionStatusResDTOStatus[keyof typeof CorrectionStatusResDTOStatus];
+/**
+ * 변경할 상태값
+ */
+export type UpdateCorrectionStatusReqDTOStatus = typeof UpdateCorrectionStatusReqDTOStatus[keyof typeof UpdateCorrectionStatusReqDTOStatus];
 
 
-export const CorrectionStatusResDTOStatus = {
+export const UpdateCorrectionStatusReqDTOStatus = {
   NOT_STARTED: 'NOT_STARTED',
   DOING_RAG: 'DOING_RAG',
   COMPANY_INSIGHT: 'COMPANY_INSIGHT',

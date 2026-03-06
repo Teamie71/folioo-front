@@ -6,10 +6,10 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type CorrectionStatusResDTOStatus = typeof CorrectionStatusResDTOStatus[keyof typeof CorrectionStatusResDTOStatus];
+export type InternalCorrectionResDTOStatus = typeof InternalCorrectionResDTOStatus[keyof typeof InternalCorrectionResDTOStatus];
 
 
-export const CorrectionStatusResDTOStatus = {
+export const InternalCorrectionResDTOStatus = {
   NOT_STARTED: 'NOT_STARTED',
   DOING_RAG: 'DOING_RAG',
   COMPANY_INSIGHT: 'COMPANY_INSIGHT',

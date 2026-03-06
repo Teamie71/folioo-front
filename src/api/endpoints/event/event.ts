@@ -285,8 +285,8 @@ export const useEventControllerClaimEventReward = <TError = CommonResponse,
       return useMutation(getEventControllerClaimEventRewardMutationOptions(options), queryClient);
     }
     /**
- * 운영/PM이 외부 피드백 제출건 확인 후 전화번호 기준으로 보상을 수동 지급합니다.
- * @summary 피드백 이벤트 수동 보상 지급
+ * 운영/PM이 외부 피드백 제출건 확인 후 전화번호 기준으로 보상을 수동 지급합니다. Admin 대시보드(/admin/event-rewards) 사용을 권장합니다.
+ * @summary [Deprecated] 피드백 이벤트 수동 보상 지급 (전화번호 기반)
  */
 export const eventControllerGrantFeedbackRewardByPhone = (
     eventCode: string,
@@ -337,7 +337,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type EventControllerGrantFeedbackRewardByPhoneMutationError = CommonResponse
 
     /**
- * @summary 피드백 이벤트 수동 보상 지급
+ * @summary [Deprecated] 피드백 이벤트 수동 보상 지급 (전화번호 기반)
  */
 export const useEventControllerGrantFeedbackRewardByPhone = <TError = CommonResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof eventControllerGrantFeedbackRewardByPhone>>, TError,{eventCode: string;data: GrantFeedbackRewardReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}

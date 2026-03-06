@@ -26,6 +26,7 @@ import type {
 
 import type {
   CommonResponse,
+  InterviewControllerGeneratePortfolio200,
   InterviewControllerGetSessionState200,
   SendInterviewChatReqDTO,
   StreamContentBlockDeltaDTO,
@@ -260,3 +261,66 @@ export function useInterviewControllerGetSessionState<TData = Awaited<ReturnType
 
 
 
+/**
+ * 경험 정리의 인터뷰 세션을 기반으로 포트폴리오 생성을 AI 서버에 위임합니다. 경험 상태가 ON_CHAT일 때만 요청 가능합니다.
+ * @summary 포트폴리오 생성 시작
+ */
+export const interviewControllerGeneratePortfolio = (
+    experienceId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<InterviewControllerGeneratePortfolio200>(
+      {url: `/interview/experiences/${experienceId}/portfolio/generate`, method: 'POST', signal
+    },
+      options);
+    }
+  
+
+
+export const getInterviewControllerGeneratePortfolioMutationOptions = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof interviewControllerGeneratePortfolio>>, TError,{experienceId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof interviewControllerGeneratePortfolio>>, TError,{experienceId: number}, TContext> => {
+
+const mutationKey = ['interviewControllerGeneratePortfolio'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof interviewControllerGeneratePortfolio>>, {experienceId: number}> = (props) => {
+          const {experienceId} = props ?? {};
+
+          return  interviewControllerGeneratePortfolio(experienceId,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type InterviewControllerGeneratePortfolioMutationResult = NonNullable<Awaited<ReturnType<typeof interviewControllerGeneratePortfolio>>>
+    
+    export type InterviewControllerGeneratePortfolioMutationError = CommonResponse
+
+    /**
+ * @summary 포트폴리오 생성 시작
+ */
+export const useInterviewControllerGeneratePortfolio = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof interviewControllerGeneratePortfolio>>, TError,{experienceId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof interviewControllerGeneratePortfolio>>,
+        TError,
+        {experienceId: number},
+        TContext
+      > => {
+      return useMutation(getInterviewControllerGeneratePortfolioMutationOptions(options), queryClient);
+    }
+    
