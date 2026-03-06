@@ -251,7 +251,7 @@ export default function WithdrawPage() {
               <p className='text-[1rem] leading-[150%] text-[#000000]'>
                 Folioo에서는 이벤트를 통해서도 이용권 구매가 가능해요.
                 <br />
-                이용권 구매 페이지와 공식 인스타그램 계정 (@Folioo_AI)에
+                이용권 구매 페이지와 공식 인스타그램 계정 (@folioo_ai)에
                 업데이트 되는 이벤트를 확인하고,
                 <br />
                 참여하여 무료 이용권을 받아보세요!
