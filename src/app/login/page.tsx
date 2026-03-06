@@ -76,7 +76,7 @@ function LoginContent() {
       {/* 약관, 개인정보 처리방침, 마케팅 수신 */}
       <div className='flex items-center'>
         <Link
-          href='/login/tos'
+          href='/tos'
           className='group cursor-pointer text-[0.875rem] text-[#74777D]'
         >
           <span className='relative inline-block w-[8.75rem] text-center'>
