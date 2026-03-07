@@ -32,8 +32,8 @@ import type {
   ExternalPortfolioControllerGetExternalPortfolios200,
   ExternalPortfolioControllerGetExternalPortfoliosParams,
   ExternalPortfolioControllerUpdateExternalPortfolio200,
-  PortfolioControllerExportPortfolio200,
   PortfolioControllerGetPortfolio200,
+  PortfolioControllerGetPortfolios200,
   PortfolioControllerUpdatePortfolio200,
   UpdatePortfolioBlockReqDTO,
   UpdatePortfolioReqDTO
@@ -43,6 +43,97 @@ import { customInstance } from '../../../lib/axios';
 
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
+
+
+/**
+ * 사용자의 생성 완료된 포트폴리오 목록을 조회합니다. 경험 정리가 완료되어 포트폴리오가 생성된 항목만 반환됩니다.
+ * @summary 포트폴리오 목록 조회
+ */
+export const portfolioControllerGetPortfolios = (
+    
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PortfolioControllerGetPortfolios200>(
+      {url: `/portfolios`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getPortfolioControllerGetPortfoliosQueryKey = () => {
+    return [
+    `/portfolios`
+    ] as const;
+    }
+
+    
+export const getPortfolioControllerGetPortfoliosQueryOptions = <TData = Awaited<ReturnType<typeof portfolioControllerGetPortfolios>>, TError = CommonResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioControllerGetPortfolios>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getPortfolioControllerGetPortfoliosQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof portfolioControllerGetPortfolios>>> = ({ signal }) => portfolioControllerGetPortfolios(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof portfolioControllerGetPortfolios>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type PortfolioControllerGetPortfoliosQueryResult = NonNullable<Awaited<ReturnType<typeof portfolioControllerGetPortfolios>>>
+export type PortfolioControllerGetPortfoliosQueryError = CommonResponse
+
+
+export function usePortfolioControllerGetPortfolios<TData = Awaited<ReturnType<typeof portfolioControllerGetPortfolios>>, TError = CommonResponse>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioControllerGetPortfolios>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof portfolioControllerGetPortfolios>>,
+          TError,
+          Awaited<ReturnType<typeof portfolioControllerGetPortfolios>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePortfolioControllerGetPortfolios<TData = Awaited<ReturnType<typeof portfolioControllerGetPortfolios>>, TError = CommonResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioControllerGetPortfolios>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof portfolioControllerGetPortfolios>>,
+          TError,
+          Awaited<ReturnType<typeof portfolioControllerGetPortfolios>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePortfolioControllerGetPortfolios<TData = Awaited<ReturnType<typeof portfolioControllerGetPortfolios>>, TError = CommonResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioControllerGetPortfolios>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 포트폴리오 목록 조회
+ */
+
+export function usePortfolioControllerGetPortfolios<TData = Awaited<ReturnType<typeof portfolioControllerGetPortfolios>>, TError = CommonResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof portfolioControllerGetPortfolios>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getPortfolioControllerGetPortfoliosQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
 
 
 
@@ -201,130 +292,6 @@ export const usePortfolioControllerUpdatePortfolio = <TError = CommonResponse,
         TContext
       > => {
       return useMutation(getPortfolioControllerUpdatePortfolioMutationOptions(options), queryClient);
-    }
-    /**
- * 경험 정리가 완료된 포트폴리오의 내용을 삭제합니다.
- * @summary 개별 포트폴리오 삭제
- */
-export const portfolioControllerDeletePortfolio = (
-    portfolioId: number,
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
-) => {
-      
-      
-      return customInstance<unknown>(
-      {url: `/portfolios/${portfolioId}`, method: 'DELETE', signal
-    },
-      options);
-    }
-  
-
-
-export const getPortfolioControllerDeletePortfolioMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>, TError,{portfolioId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>, TError,{portfolioId: number}, TContext> => {
-
-const mutationKey = ['portfolioControllerDeletePortfolio'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>, {portfolioId: number}> = (props) => {
-          const {portfolioId} = props ?? {};
-
-          return  portfolioControllerDeletePortfolio(portfolioId,requestOptions)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PortfolioControllerDeletePortfolioMutationResult = NonNullable<Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>>
-    
-    export type PortfolioControllerDeletePortfolioMutationError = CommonResponse
-
-    /**
- * @summary 개별 포트폴리오 삭제
- */
-export const usePortfolioControllerDeletePortfolio = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>, TError,{portfolioId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>,
-        TError,
-        {portfolioId: number},
-        TContext
-      > => {
-      return useMutation(getPortfolioControllerDeletePortfolioMutationOptions(options), queryClient);
-    }
-    /**
- * 경험 정리가 완료된 포트폴리오를 pdf로 내보냅니다.
- * @summary 포트폴리오 내보내기
- */
-export const portfolioControllerExportPortfolio = (
-    portfolioId: number,
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
-) => {
-      
-      
-      return customInstance<PortfolioControllerExportPortfolio200>(
-      {url: `/portfolios/${portfolioId}/export`, method: 'POST', signal
-    },
-      options);
-    }
-  
-
-
-export const getPortfolioControllerExportPortfolioMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerExportPortfolio>>, TError,{portfolioId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerExportPortfolio>>, TError,{portfolioId: number}, TContext> => {
-
-const mutationKey = ['portfolioControllerExportPortfolio'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof portfolioControllerExportPortfolio>>, {portfolioId: number}> = (props) => {
-          const {portfolioId} = props ?? {};
-
-          return  portfolioControllerExportPortfolio(portfolioId,requestOptions)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PortfolioControllerExportPortfolioMutationResult = NonNullable<Awaited<ReturnType<typeof portfolioControllerExportPortfolio>>>
-    
-    export type PortfolioControllerExportPortfolioMutationError = CommonResponse
-
-    /**
- * @summary 포트폴리오 내보내기
- */
-export const usePortfolioControllerExportPortfolio = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerExportPortfolio>>, TError,{portfolioId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof portfolioControllerExportPortfolio>>,
-        TError,
-        {portfolioId: number},
-        TContext
-      > => {
-      return useMutation(getPortfolioControllerExportPortfolioMutationOptions(options), queryClient);
     }
     /**
  * 업로드한 포트폴리오 파일에서 텍스트를 추출합니다.

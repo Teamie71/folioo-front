@@ -354,4 +354,66 @@ export const useExperienceControllerUpdateExperience = <TError = CommonResponse,
       > => {
       return useMutation(getExperienceControllerUpdateExperienceMutationOptions(options), queryClient);
     }
+    /**
+ * 경험 정리를 삭제합니다. 연결된 포트폴리오가 있으면 함께 삭제됩니다. 연결된 첨삭이 존재하는 경우 삭제할 수 없습니다.
+ * @summary 경험 정리 삭제
+ */
+export const experienceControllerDeleteExperience = (
+    experienceId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/experiences/${experienceId}`, method: 'DELETE', signal
+    },
+      options);
+    }
+  
+
+
+export const getExperienceControllerDeleteExperienceMutationOptions = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof experienceControllerDeleteExperience>>, TError,{experienceId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof experienceControllerDeleteExperience>>, TError,{experienceId: number}, TContext> => {
+
+const mutationKey = ['experienceControllerDeleteExperience'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof experienceControllerDeleteExperience>>, {experienceId: number}> = (props) => {
+          const {experienceId} = props ?? {};
+
+          return  experienceControllerDeleteExperience(experienceId,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ExperienceControllerDeleteExperienceMutationResult = NonNullable<Awaited<ReturnType<typeof experienceControllerDeleteExperience>>>
+    
+    export type ExperienceControllerDeleteExperienceMutationError = CommonResponse
+
+    /**
+ * @summary 경험 정리 삭제
+ */
+export const useExperienceControllerDeleteExperience = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof experienceControllerDeleteExperience>>, TError,{experienceId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof experienceControllerDeleteExperience>>,
+        TError,
+        {experienceId: number},
+        TContext
+      > => {
+      return useMutation(getExperienceControllerDeleteExperienceMutationOptions(options), queryClient);
+    }
     

@@ -514,68 +514,6 @@ export const usePortfolioCorrectionControllerUpdateCompanyInsight = <TError = Co
       return useMutation(getPortfolioCorrectionControllerUpdateCompanyInsightMutationOptions(options), queryClient);
     }
     /**
- * 특정 AI 첨삭의 기업 분석 정보를 재생성합니다. (미구현)
- * @summary 기업 분석 정보 재생성
- */
-export const portfolioCorrectionControllerReCreateCompanyInsight = (
-    correctionId: number,
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
-) => {
-      
-      
-      return customInstance<unknown>(
-      {url: `/portfolio-corrections/${correctionId}/regenerate-insight`, method: 'POST', signal
-    },
-      options);
-    }
-  
-
-
-export const getPortfolioCorrectionControllerReCreateCompanyInsightMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerReCreateCompanyInsight>>, TError,{correctionId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerReCreateCompanyInsight>>, TError,{correctionId: number}, TContext> => {
-
-const mutationKey = ['portfolioCorrectionControllerReCreateCompanyInsight'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof portfolioCorrectionControllerReCreateCompanyInsight>>, {correctionId: number}> = (props) => {
-          const {correctionId} = props ?? {};
-
-          return  portfolioCorrectionControllerReCreateCompanyInsight(correctionId,requestOptions)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PortfolioCorrectionControllerReCreateCompanyInsightMutationResult = NonNullable<Awaited<ReturnType<typeof portfolioCorrectionControllerReCreateCompanyInsight>>>
-    
-    export type PortfolioCorrectionControllerReCreateCompanyInsightMutationError = CommonResponse
-
-    /**
- * @summary 기업 분석 정보 재생성
- */
-export const usePortfolioCorrectionControllerReCreateCompanyInsight = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioCorrectionControllerReCreateCompanyInsight>>, TError,{correctionId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof portfolioCorrectionControllerReCreateCompanyInsight>>,
-        TError,
-        {correctionId: number},
-        TContext
-      > => {
-      return useMutation(getPortfolioCorrectionControllerReCreateCompanyInsightMutationOptions(options), queryClient);
-    }
-    /**
  * 첨삭을 진행할 포트폴리오를 선택하고 매핑 테이블에서 활성화합니다.
  * @summary 포트폴리오 선택
  */
