@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
 import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { OBTTicketModal } from '@/components/OBT/OBTTicketModal';
+import { CorrectionLimitModal } from '@/components/CorrectionLimitModal';
 import { CorrectionLayout } from '@/features/correction/components/CorrectionLayout';
 import { CorrectionPageHeader } from '@/features/correction/components/CorrectionPageHeader';
 import { CorrectionInformationStep } from '@/features/correction/components/CorrectionInformationStep';
@@ -152,6 +153,11 @@ export default function NewCorrectionPage() {
       <OBTTicketModal
         open={s.isTicketExhaustedModalOpen}
         onOpenChange={s.setIsTicketExhaustedModalOpen}
+      />
+      {/* 첨삭 15개 초과 시 (API 에러) */}
+      <CorrectionLimitModal
+        open={s.isCorrectionLimitModalOpen}
+        onOpenChange={s.setIsCorrectionLimitModalOpen}
       />
     </CorrectionLayout>
   );

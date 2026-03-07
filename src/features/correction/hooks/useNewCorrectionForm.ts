@@ -49,6 +49,8 @@ export function useNewCorrectionForm() {
     useState(false);
   const [isTicketExhaustedModalOpen, setIsTicketExhaustedModalOpen] =
     useState(false);
+  const [isCorrectionLimitModalOpen, setIsCorrectionLimitModalOpen] =
+    useState(false);
   const [isJdDropOverlayActive, setIsJdDropOverlayActive] = useState(false);
   const jdFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -102,8 +104,13 @@ export function useNewCorrectionForm() {
       if (newId != null) {
         router.replace(`/correction/${newId}`);
       }
-    } catch {
-      // 실패 시 모달 유지
+    } catch (err: unknown) {
+      const errObj = err as { response?: { data?: { error?: { errorCode?: string } } } };
+      const code = errObj?.response?.data?.error?.errorCode ?? '';
+      if (code === 'CORRECTION4091') {
+        setIsStartCorrectionModalOpen(false);
+        setIsCorrectionLimitModalOpen(true);
+      }
     }
   }, [jdMode, companyName, jobTitle, jobDescription, router]);
 
@@ -207,6 +214,8 @@ export function useNewCorrectionForm() {
     setIsStartCorrectionModalOpen,
     isTicketExhaustedModalOpen,
     setIsTicketExhaustedModalOpen,
+    isCorrectionLimitModalOpen,
+    setIsCorrectionLimitModalOpen,
     isJdDropOverlayActive,
     setIsJdDropOverlayActive,
     jdFileInputRef,
