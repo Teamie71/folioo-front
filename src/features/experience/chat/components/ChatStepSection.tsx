@@ -1,10 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import { ChatStepBubble } from './ChatStepBubble';
 import { ChatInput, type ContentPart, type FileItem } from './ChatInput';
 
-const STEP_INTERVAL_MS = 2000;
 const FADE_DURATION_MS = 500;
 
 interface ChatStepSectionProps {
@@ -15,31 +13,22 @@ interface ChatStepSectionProps {
     contentParts?: ContentPart[];
     files: FileItem[];
   }) => void;
+  /* 스트리밍 중일 때 true면 전송 비활성화 */
+  disabled?: boolean;
+  /* 현재 단계 (0~4) */
+  currentStep?: number;
+  /* true일 때만 단계 툴팁 표시 (스트림으로 도달 시 true, 새로고침 후 복원 시 false) */
+  showStepTooltip?: boolean;
 }
 
 export const ChatStepSection = ({
   inputValue = '',
   onInputChange,
   onSend,
+  disabled = false,
+  currentStep = 0,
+  showStepTooltip = false,
 }: ChatStepSectionProps) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    timerRef.current = setInterval(() => {
-      setCurrentStep((prev) => {
-        if (prev >= 4) {
-          if (timerRef.current) clearInterval(timerRef.current);
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, STEP_INTERVAL_MS);
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, []);
-
   const gridCell =
     'h-[1.125rem] w-[1.125rem] border-[0.09375rem] border-[#74777D]';
   const gridCellGradient =
@@ -47,15 +36,15 @@ export const ChatStepSection = ({
 
   return (
     <div className='relative z-30 flex min-h-[14rem] w-full flex-col'>
-      {/* ChatBubble만 페이드 (0~3단계) */}
+      {/* 툴팁: showStepTooltip일 때만 표시 (새로고침 시에는 그리드만 유지) */}
       <div className='relative min-h-[10rem] flex-1'>
-        {/* 0단계 디자인 */}
+        {/* 0단계 툴팁 */}
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity: currentStep === 0 ? 1 : 0,
+            opacity: currentStep === 0 && showStepTooltip ? 1 : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
-            pointerEvents: currentStep === 0 ? 'auto' : 'none',
+            pointerEvents: currentStep === 0 && showStepTooltip ? 'auto' : 'none',
           }}
         >
           <ChatStepBubble>
@@ -64,13 +53,13 @@ export const ChatStepSection = ({
           </ChatStepBubble>
         </div>
 
-        {/* 1단계 디자인 */}
+        {/* 1단계 툴팁 */}
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity: currentStep === 1 ? 1 : 0,
+            opacity: currentStep === 1 && showStepTooltip ? 1 : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
-            pointerEvents: currentStep === 1 ? 'auto' : 'none',
+            pointerEvents: currentStep === 1 && showStepTooltip ? 'auto' : 'none',
           }}
         >
           <ChatStepBubble>
@@ -79,13 +68,13 @@ export const ChatStepSection = ({
           </ChatStepBubble>
         </div>
 
-        {/* 2단계 디자인 */}
+        {/* 2단계 툴팁 */}
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity: currentStep === 2 ? 1 : 0,
+            opacity: currentStep === 2 && showStepTooltip ? 1 : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
-            pointerEvents: currentStep === 2 ? 'auto' : 'none',
+            pointerEvents: currentStep === 2 && showStepTooltip ? 'auto' : 'none',
           }}
         >
           <ChatStepBubble>
@@ -94,13 +83,13 @@ export const ChatStepSection = ({
           </ChatStepBubble>
         </div>
 
-        {/* 3단계 디자인 */}
+        {/* 3단계 툴팁 */}
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity: currentStep === 3 ? 1 : 0,
+            opacity: currentStep === 3 && showStepTooltip ? 1 : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
-            pointerEvents: currentStep === 3 ? 'auto' : 'none',
+            pointerEvents: currentStep === 3 && showStepTooltip ? 'auto' : 'none',
           }}
         >
           <ChatStepBubble>
@@ -240,6 +229,7 @@ export const ChatStepSection = ({
             value={inputValue}
             onChange={onInputChange}
             onSend={onSend}
+            disabled={disabled}
           />
         </div>
       </div>

@@ -57,6 +57,8 @@ interface ChatInputProps {
     contentParts?: ContentPart[];
     files: FileItem[];
   }) => void;
+  /* true면 전송 버튼 비활성화 */
+  disabled?: boolean;
 }
 
 const MAX_TITLE_LENGTH = 15;
@@ -98,6 +100,7 @@ export const ChatInput = ({
   value = '',
   onChange,
   onSend,
+  disabled = false,
 }: ChatInputProps): React.ReactElement => {
   const contentRef = useRef<HTMLSpanElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -267,7 +270,7 @@ export const ChatInput = ({
     [onChange],
   );
 
-  const canSend = value.trim() !== '' || files.length > 0;
+  const canSend = (value.trim() !== '' || files.length > 0) && !disabled;
 
   const handleSend = () => {
     const root = contentRef.current;

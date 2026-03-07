@@ -351,13 +351,13 @@ export const useLogStore = create<LogStore>()(
             case '대인관계':
               formattedContent = [
                 state.interpersonData.situation &&
-                  `상황/대상 - ${toLine(state.interpersonData.situation)}`,
+                  `상황/ 대상 - ${toLine(state.interpersonData.situation)}`,
                 state.interpersonData.response &&
                   `대응 - ${toLine(state.interpersonData.response)}`,
                 state.interpersonData.result &&
                   `결과 - ${toLine(state.interpersonData.result)}`,
                 state.interpersonData.lesson &&
-                  `배운 점/계획 - ${toLine(state.interpersonData.lesson)}`,
+                  `배운 점/ 계획 - ${toLine(state.interpersonData.lesson)}`,
               ]
                 .filter(Boolean)
                 .join('\n');
@@ -371,7 +371,7 @@ export const useLogStore = create<LogStore>()(
                 state.problemSolveData.result &&
                   `결과 - ${toLine(state.problemSolveData.result)}`,
                 state.problemSolveData.lesson &&
-                  `배운 점/계획 - ${toLine(state.problemSolveData.lesson)}`,
+                  `배운 점/ 계획 - ${toLine(state.problemSolveData.lesson)}`,
               ]
                 .filter(Boolean)
                 .join('\n');

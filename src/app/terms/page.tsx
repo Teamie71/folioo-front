@@ -44,12 +44,10 @@ function TermsPageContent() {
     useUserControllerAgreeTerms({
       mutation: {
         onSuccess: () => {
-          if (typeof window !== 'undefined') {
-            sessionStorage.removeItem(TERMS_FROM_SIGNUP_KEY);
-          }
           queryClient.invalidateQueries({
             queryKey: getUserControllerGetProfileQueryKey(),
           });
+          // 랜딩(/)으로 이동 → LayoutContent에서 회원가입 보상 모달 띄우고 키 제거
           router.replace('/');
         },
         onError: () => {

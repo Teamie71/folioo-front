@@ -8,6 +8,7 @@ import { StepProgressBar } from '@/components/StepProgressBar';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
 import { InlineEdit } from '@/components/InlineEdit';
 import { useExperienceStore } from '@/store/useExperienceStore';
+import { useExperienceControllerUpdateExperience } from '@/api/endpoints/experience/experience';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { CommonButton } from '@/components/CommonButton';
@@ -17,12 +18,15 @@ export default function ExperienceSettingsChatLoadingPage() {
   const params = useParams();
   const router = useRouter();
   const id = typeof params.id === 'string' ? params.id : '';
+  const experienceId = id ? Number(id) : NaN;
   const removeExperience = useExperienceStore(
     (state) => state.removeExperience,
   );
   const updateExperienceTitle = useExperienceStore(
     (state) => state.updateExperienceTitle,
   );
+  const { mutateAsync: updateExperience } =
+    useExperienceControllerUpdateExperience();
   const storeTitle = useExperienceStore(
     (state) =>
       state.experienceCards.find((c) => c.id === id)?.title ??
@@ -61,9 +65,24 @@ export default function ExperienceSettingsChatLoadingPage() {
               isEditing={isEditingTitle}
               onEdit={() => setIsEditingTitle(true)}
               onSave={(newTitle) => {
-                setExperienceTitle(newTitle);
-                updateExperienceTitle(id, newTitle);
-                setIsEditingTitle(false);
+                if (!Number.isFinite(experienceId)) {
+                  setExperienceTitle(newTitle);
+                  updateExperienceTitle(id, newTitle);
+                  setIsEditingTitle(false);
+                  return;
+                }
+                updateExperience({
+                  experienceId,
+                  data: { name: newTitle },
+                })
+                  .then(() => {
+                    setExperienceTitle(newTitle);
+                    updateExperienceTitle(id, newTitle);
+                    setIsEditingTitle(false);
+                  })
+                  .catch(() => {
+                    setIsEditingTitle(false);
+                  });
               }}
             />
           </div>
@@ -102,7 +121,7 @@ export default function ExperienceSettingsChatLoadingPage() {
             </motion.div>
           </div>
 
-          <span className='mt-[] text-center text-[1.125rem] leading-[130%] font-bold'>
+          <span className='mt-4 text-center text-[1.125rem] leading-[130%] font-bold'>
             AI 컨설턴트가 텍스트형 포트폴리오를 생성 중이에요.
             <br />
             페이지를 떠나도 작업은 계속돼요.
@@ -111,12 +130,6 @@ export default function ExperienceSettingsChatLoadingPage() {
           <Link href='/experience'>
             <CommonButton variantType='Outline' px='2.25rem' py='0.5rem'>
               나가기
-            </CommonButton>
-          </Link>
-
-          <Link href={`/experience/settings/${id}/portfolio`}>
-            <CommonButton variantType='Primary' px='2.25rem' py='0.5rem'>
-              포트폴리오 이동(임시)
             </CommonButton>
           </Link>
         </div>

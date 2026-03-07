@@ -1,14 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { StepProgressBar } from '@/components/StepProgressBar';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
-import { CommonModal } from '@/components/CommonModal';
 import { InlineEdit } from '@/components/InlineEdit';
 import { useExperienceStore } from '@/store/useExperienceStore';
+import { usePortfolioCreationStore } from '@/store/usePortfolioCreationStore';
 import {
   ChatMessageSection,
   type ChatMessage,
@@ -19,11 +20,36 @@ import type {
   FileItem,
 } from '@/features/experience/chat/components/ChatInput';
 import { ChatCompleteModal } from '@/features/experience/chat/components/ChatCompleteModal';
+import { PortfolioCreateModal } from '@/features/experience/chat/components/PortfolioCreateModal';
+import { fetchSSEStream } from '@/lib/sseStream';
+import { useExperienceControllerUpdateExperience } from '@/api/endpoints/experience/experience';
+import {
+  interviewControllerGetSessionState,
+  useInterviewControllerGeneratePortfolio,
+} from '@/api/endpoints/interview/interview';
+import { getPortfolioControllerGetPortfolioQueryKey } from '@/api/endpoints/portfolio/portfolio';
+import type { GeneratePortfolioResDTO } from '@/api/models';
+import { GeneratePortfolioResDTOPortfolioStatus } from '@/api/models';
+
+const SESSION_STREAM_PATH = (experienceId: number) =>
+  `/interview/experiences/${experienceId}/session/stream`;
+const MESSAGES_STREAM_PATH = (experienceId: number) =>
+  `/interview/experiences/${experienceId}/messages/stream`;
+const EXTEND_STREAM_PATH = (experienceId: number) =>
+  `/interview/experiences/${experienceId}/extend/stream`;
+
+/* API currentStage(1~n) + allComplete → 그리드 단계 0~4 */
+function toGridStep(currentStage: number, allComplete?: boolean): number {
+  if (allComplete) return 4;
+  return Math.min(Math.max(0, (currentStage ?? 1) - 1), 4);
+}
 
 export default function ExperienceSettingsChatPage() {
   const params = useParams();
   const router = useRouter();
   const id = typeof params.id === 'string' ? params.id : '';
+  const experienceId = id ? Number(id) : NaN;
+  const sessionAbortRef = useRef<AbortController | null>(null);
   const removeExperience = useExperienceStore(
     (state) => state.removeExperience,
   );
@@ -37,13 +63,41 @@ export default function ExperienceSettingsChatPage() {
   );
 
   const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
-  const [isTransitionModalOpen, setIsTransitionModalOpen] = useState(false);
+  const [isPortfolioCreateModalOpen, setIsPortfolioCreateModalOpen] =
+    useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [experienceTitle, setExperienceTitle] = useState(storeTitle);
   const [inputValue, setInputValue] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'ai', content: '내용' },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [sessionStreamError, setSessionStreamError] = useState<string | null>(
+    null,
+  );
+  /* 인터뷰 단계 */
+  const [currentStage, setCurrentStage] = useState(0);
+  /* true면 해당 단계 툴팁 표시, 새로고침 시 false */
+  const [showStepTooltip, setShowStepTooltip] = useState(false);
+
+  const prevStageRef = useRef(0);
+  /* 3턴 이어가기 모드: true면 연장 세션 중 */
+  const isExtendedSessionRef = useRef(false);
+  /* 연장 세션에서 완료된 턴 수 (AI 응답 1회 = 1턴, 3턴이면 CompleteModal 오픈) */
+  const extendedTurnCountRef = useRef(0);
+  const queryClient = useQueryClient();
+  const { mutateAsync: generatePortfolio } =
+    useInterviewControllerGeneratePortfolio();
+  const { mutateAsync: updateExperience } =
+    useExperienceControllerUpdateExperience();
+  const setPendingPortfolio = usePortfolioCreationStore((s) => s.setPending);
+  const setResolvedPortfolio = usePortfolioCreationStore((s) => s.setResolved);
+
+  /* 단계가 다 채워지면( currentStage === 4 ) 완료 모달 */
+  useEffect(() => {
+    if (currentStage === 4 && prevStageRef.current !== 4) {
+      setIsCompletionModalOpen(true);
+    }
+    prevStageRef.current = currentStage;
+  }, [currentStage]);
 
   useEffect(() => {
     setExperienceTitle(storeTitle);
@@ -56,6 +110,132 @@ export default function ExperienceSettingsChatPage() {
   useEffect(() => {
     if (id) setExperienceReturnPath(id, 'chat');
   }, [id]);
+
+  useEffect(() => {
+    if (!showStepTooltip) return;
+    const t = setTimeout(() => setShowStepTooltip(false), 2000);
+    return () => clearTimeout(t);
+  }, [showStepTooltip]);
+
+  /* 스트리밍이 3분 넘게 유지되면 오류 메시지 표시 */
+  const STREAM_TIMEOUT_MS = 3 * 60 * 1000;
+  useEffect(() => {
+    if (!isStreaming) return;
+    const t = setTimeout(() => {
+      setMessages((prev) => {
+        const next = [...prev];
+        const last = next[next.length - 1];
+        if (last?.role === 'ai') {
+          next[next.length - 1] = { ...last, content: '', isError: true };
+        }
+        return next;
+      });
+      setIsStreaming(false);
+    }, STREAM_TIMEOUT_MS);
+    return () => clearTimeout(t);
+  }, [isStreaming]);
+
+  // 진입 시: 세션 있으면 기존 대화 로드, 없으면 세션 스트림 시작
+  useEffect(() => {
+    if (!id || Number.isNaN(experienceId)) return;
+
+    sessionAbortRef.current = new AbortController();
+    const signal = sessionAbortRef.current.signal;
+    let cancelled = false;
+
+    const startSessionStream = () => {
+      if (cancelled) return;
+      setMessages([{ role: 'ai', content: '' }]);
+      setSessionStreamError(null);
+      setIsStreaming(true);
+      fetchSSEStream({
+        path: SESSION_STREAM_PATH(experienceId),
+        method: 'POST',
+        signal,
+        onEvent: (event: {
+          delta?: { text?: string };
+          message?: {
+            ai_response?: string;
+            current_stage?: number;
+            all_complete?: boolean;
+          };
+        }) => {
+          if (cancelled) return;
+          setMessages((prev) => {
+            const next = [...prev];
+            const last = next[next.length - 1];
+            if (!last || last.role !== 'ai') return prev;
+            if ('delta' in event && event.delta?.text) {
+              next[next.length - 1] = {
+                ...last,
+                content: last.content + (event.delta.text ?? ''),
+              };
+              return next;
+            }
+            if ('message' in event && event.message?.ai_response != null) {
+              next[next.length - 1] = {
+                ...last,
+                content: event.message.ai_response,
+              };
+              if (
+                typeof event.message.current_stage === 'number' ||
+                event.message.all_complete
+              ) {
+                setCurrentStage(
+                  toGridStep(
+                    event.message.current_stage ?? 1,
+                    event.message.all_complete,
+                  ),
+                );
+                setShowStepTooltip(true);
+              }
+              return next;
+            }
+            return prev;
+          });
+        },
+        onError: (err) => {
+          if (cancelled) return;
+          setSessionStreamError(err.message);
+        },
+        onDone: () => {
+          if (cancelled) return;
+          setIsStreaming(false);
+        },
+      });
+    };
+
+    (async () => {
+      try {
+        const res = await interviewControllerGetSessionState(experienceId);
+        if (cancelled) return;
+        const list = res?.result?.messages;
+        if (list && list.length > 0) {
+          setMessages(
+            list.map((m) => ({
+              role: (m.type === 'ai' ? 'ai' : 'user') as 'ai' | 'user',
+              content: m.content ?? '',
+            })),
+          );
+          setCurrentStage(
+            toGridStep(res.result?.currentStage ?? 1, res.result?.allComplete),
+          );
+          setShowStepTooltip(false);
+          setSessionStreamError(null);
+          setIsStreaming(false);
+          return;
+        }
+      } catch {
+        if (cancelled) return;
+      }
+      startSessionStream();
+    })();
+
+    return () => {
+      cancelled = true;
+      sessionAbortRef.current?.abort();
+    };
+  }, [id, experienceId]);
 
   // 브라우저 스크롤 차단
   useEffect(() => {
@@ -71,12 +251,15 @@ export default function ExperienceSettingsChatPage() {
     contentParts?: ContentPart[];
     files: FileItem[];
   }) => {
+    if (isStreaming || !payload.content.trim()) return;
+
     const fileInfos = payload.files.map((f) => ({
       name: f.file.name,
       size: f.file.size,
       type: f.file.type,
       preview: f.preview,
     }));
+
     setMessages((prev) => [
       ...prev,
       {
@@ -85,14 +268,266 @@ export default function ExperienceSettingsChatPage() {
         contentParts: payload.contentParts,
         files: fileInfos,
       },
-      { role: 'ai', content: '내용' },
+      { role: 'ai', content: '' },
     ]);
     setInputValue('');
+    setIsStreaming(true);
+
+    const abort = new AbortController();
+
+    fetchSSEStream({
+      path: MESSAGES_STREAM_PATH(experienceId),
+      method: 'POST',
+      body: JSON.stringify({ message: payload.content.trim() }),
+      signal: abort.signal,
+      onEvent: (event: {
+        delta?: { text?: string };
+        message?: {
+          ai_response?: string;
+          current_stage?: number;
+          all_complete?: boolean;
+        };
+      }) => {
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (!last || last.role !== 'ai') return prev;
+
+          if ('delta' in event && event.delta?.text) {
+            next[next.length - 1] = {
+              ...last,
+              content: last.content + (event.delta.text ?? ''),
+            };
+            return next;
+          }
+          if ('message' in event && event.message?.ai_response != null) {
+            next[next.length - 1] = {
+              ...last,
+              content: event.message.ai_response,
+            };
+            if (
+              typeof event.message.current_stage === 'number' ||
+              event.message.all_complete
+            ) {
+              setCurrentStage(
+                toGridStep(
+                  event.message.current_stage ?? 1,
+                  event.message.all_complete,
+                ),
+              );
+              setShowStepTooltip(true);
+            }
+            return next;
+          }
+          return prev;
+        });
+      },
+      onError: () => {
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (last?.role === 'ai' && last.content === '') {
+            next[next.length - 1] = { ...last, content: '', isError: true };
+          }
+          return next;
+        });
+      },
+      onDone: () => {
+        setIsStreaming(false);
+        if (isExtendedSessionRef.current) {
+          extendedTurnCountRef.current += 1;
+          if (extendedTurnCountRef.current >= 3) {
+            isExtendedSessionRef.current = false;
+            setIsPortfolioCreateModalOpen(true);
+          }
+        }
+      },
+    });
   };
+
+  /* PortfolioCreateModal 오픈 시: API 호출 후 완료면 portfolio로, 아니면 createloading으로 + 폴링으로 완료 시 portfolio 이동 */
+  useEffect(() => {
+    if (!isPortfolioCreateModalOpen) return;
+    let cancelled = false;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    generatePortfolio({ experienceId })
+      .then((res) => {
+        if (cancelled) return;
+        const result = res?.result as GeneratePortfolioResDTO | undefined;
+        const portfolioId = result?.portfolioId;
+        const status = result?.portfolioStatus;
+        if (status === GeneratePortfolioResDTOPortfolioStatus.completed && portfolioId != null) {
+          if (timeoutId) clearTimeout(timeoutId);
+          setIsPortfolioCreateModalOpen(false);
+          setResolvedPortfolio(id, portfolioId);
+          queryClient.invalidateQueries({
+            queryKey: getPortfolioControllerGetPortfolioQueryKey(portfolioId),
+          });
+          router.push(`/experience/settings/${id}/portfolio?portfolioId=${portfolioId}`);
+          return;
+        }
+        if (portfolioId != null) {
+          setPendingPortfolio(id, portfolioId);
+          queryClient.invalidateQueries({
+            queryKey: getPortfolioControllerGetPortfolioQueryKey(portfolioId),
+          });
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setIsPortfolioCreateModalOpen(false);
+      });
+    timeoutId = setTimeout(() => {
+      if (cancelled) return;
+      setIsPortfolioCreateModalOpen(false);
+      router.push(`/experience/settings/${id}/createloading`);
+    }, 2000);
+    return () => {
+      cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [isPortfolioCreateModalOpen]);
 
   const handleDelete = () => {
     removeExperience(id);
     router.push('/experience');
+  };
+
+  /** 3턴 대화 이어가기: 모달 닫고 연장 스트림으로 첫 AI 질문 수신, 3턴만 진행 후 CompleteModal */
+  const handleContinueChat = () => {
+    setIsCompletionModalOpen(false);
+    isExtendedSessionRef.current = true;
+    extendedTurnCountRef.current = 0;
+    setMessages((prev) => [...prev, { role: 'ai', content: '' }]);
+    setIsStreaming(true);
+    const abort = new AbortController();
+    fetchSSEStream({
+      path: EXTEND_STREAM_PATH(experienceId),
+      method: 'POST',
+      signal: abort.signal,
+      onEvent: (event: {
+        delta?: { text?: string };
+        message?: {
+          ai_response?: string;
+          current_stage?: number;
+          all_complete?: boolean;
+        };
+      }) => {
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (!last || last.role !== 'ai') return prev;
+          if ('delta' in event && event.delta?.text) {
+            next[next.length - 1] = {
+              ...last,
+              content: last.content + (event.delta.text ?? ''),
+            };
+            return next;
+          }
+          if ('message' in event && event.message?.ai_response != null) {
+            next[next.length - 1] = {
+              ...last,
+              content: event.message.ai_response,
+            };
+            if (
+              typeof event.message.current_stage === 'number' ||
+              event.message.all_complete
+            ) {
+              setCurrentStage(
+                toGridStep(
+                  event.message.current_stage ?? 1,
+                  event.message.all_complete,
+                ),
+              );
+              /* 3턴 이어가기에서는 툴팁 표시 안 함 */
+            }
+            return next;
+          }
+          return prev;
+        });
+      },
+      onError: () => {
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (last?.role === 'ai' && last.content === '') {
+            next[next.length - 1] = { ...last, content: '', isError: true };
+          }
+          return next;
+        });
+      },
+      onDone: () => setIsStreaming(false),
+    });
+  };
+
+  /* 실패한 AI 메시지에 대해 마지막 사용자 메시지로 재요청 */
+  const handleRetryAIMessage = (aiMessageIndex: number) => {
+    const userMsg = messages[aiMessageIndex - 1];
+    if (!userMsg || userMsg.role !== 'user' || !userMsg.content.trim()) return;
+    const content = userMsg.content.trim();
+    setMessages((prev) => [
+      ...prev.slice(0, aiMessageIndex),
+      { role: 'ai' as const, content: '' },
+    ]);
+    setIsStreaming(true);
+    const abort = new AbortController();
+    fetchSSEStream({
+      path: MESSAGES_STREAM_PATH(experienceId),
+      method: 'POST',
+      body: JSON.stringify({ message: content }),
+      signal: abort.signal,
+      onEvent: (event: {
+        delta?: { text?: string };
+        message?: {
+          ai_response?: string;
+          current_stage?: number;
+          all_complete?: boolean;
+        };
+      }) => {
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (!last || last.role !== 'ai') return prev;
+          if ('delta' in event && event.delta?.text) {
+            next[next.length - 1] = {
+              ...last,
+              content: last.content + (event.delta.text ?? ''),
+            };
+            return next;
+          }
+          if ('message' in event && event.message?.ai_response != null) {
+            next[next.length - 1] = {
+              ...last,
+              content: event.message.ai_response,
+            };
+            if (
+              typeof event.message.current_stage === 'number' ||
+              event.message.all_complete
+            ) {
+              setCurrentStage(
+                toGridStep(
+                  event.message.current_stage ?? 1,
+                  event.message.all_complete,
+                ),
+              );
+              setShowStepTooltip(true);
+            }
+            return next;
+          }
+          return prev;
+        });
+      },
+      onError: () => {
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (last?.role === 'ai' && last.content === '') {
+            next[next.length - 1] = { ...last, content: '', isError: true };
+          }
+          return next;
+        });
+      },
+      onDone: () => setIsStreaming(false),
+    });
   };
 
   return (
@@ -107,9 +542,24 @@ export default function ExperienceSettingsChatPage() {
               isEditing={isEditingTitle}
               onEdit={() => setIsEditingTitle(true)}
               onSave={(newTitle) => {
-                setExperienceTitle(newTitle);
-                updateExperienceTitle(id, newTitle);
-                setIsEditingTitle(false);
+                if (!Number.isFinite(experienceId)) {
+                  setExperienceTitle(newTitle);
+                  updateExperienceTitle(id, newTitle);
+                  setIsEditingTitle(false);
+                  return;
+                }
+                updateExperience({
+                  experienceId,
+                  data: { name: newTitle },
+                })
+                  .then(() => {
+                    setExperienceTitle(newTitle);
+                    updateExperienceTitle(id, newTitle);
+                    setIsEditingTitle(false);
+                  })
+                  .catch(() => {
+                    setIsEditingTitle(false);
+                  });
               }}
             />
           </div>
@@ -132,8 +582,16 @@ export default function ExperienceSettingsChatPage() {
         <div className='flex min-h-0 flex-1 flex-col overflow-hidden pb-[10.75rem]'>
           <ChatMessageSection
             messages={messages}
-            onAIMessageClick={() => setIsCompletionModalOpen(true)}
+            isStreaming={isStreaming}
+            onRetryAIMessage={handleRetryAIMessage}
+            searchKeyword={
+              [...messages].reverse().find((m) => m.role === 'user')?.content ??
+              ''
+            }
           />
+          {sessionStreamError && (
+            <p className='mt-2 text-sm text-red-600'>{sessionStreamError}</p>
+          )}
         </div>
       </div>
 
@@ -143,36 +601,27 @@ export default function ExperienceSettingsChatPage() {
           inputValue={inputValue}
           onInputChange={setInputValue}
           onSend={handleSend}
+          disabled={isStreaming}
+          currentStep={currentStage}
+          showStepTooltip={showStepTooltip}
         />
       </div>
 
-      {/* 대화 완료 모달 */}
+      {/* 대화 완료 모달: 단계가 다 채워졌을 때만 표시 */}
       <ChatCompleteModal
         open={isCompletionModalOpen}
         onOpenChange={setIsCompletionModalOpen}
         onEndConversation={() => {
           setIsCompletionModalOpen(false);
-          setIsTransitionModalOpen(true);
+          setIsPortfolioCreateModalOpen(true);
         }}
-        onContinueWithCredits={() => setIsCompletionModalOpen(false)}
+        onContinueWithCredits={handleContinueChat}
       />
 
-      {/* 포트폴리오 생성 시작 안내 모달 (2초 후 자동 닫힘 → 포트폴리오 페이지 이동) */}
-      <CommonModal
-        open={isTransitionModalOpen}
-        onOpenChange={(open) => {
-          if (!open) {
-            setIsTransitionModalOpen(false);
-            router.push(`/experience/settings/${id}/createloading`);
-          }
-        }}
-        title={
-          <>
-            AI 컨설턴트가 충분한 정보를 학습했어요!
-            <br />
-            대화 내용을 바탕으로 텍스트형 포트폴리오 생성을 시작할게요.
-          </>
-        }
+      {/* 3턴 연장 후: 안내 모달 → 포트폴리오 생성 API 호출 후 createloading 이동 (3턴은 한 번만) */}
+      <PortfolioCreateModal
+        open={isPortfolioCreateModalOpen}
+        onOpenChange={setIsPortfolioCreateModalOpen}
       />
     </div>
   );

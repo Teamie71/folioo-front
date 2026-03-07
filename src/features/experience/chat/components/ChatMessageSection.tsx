@@ -21,6 +21,8 @@ export type ChatMessage = {
   /* 멘션 + 텍스트 파트(있으면 말풍선에서 멘션 디자인 유지) */
   contentParts?: ContentPart[];
   files?: MessageFile[];
+  /** AI 응답 생성 실패 시 true → 에러 문구 + 다시 시도하기 버튼 표시 */
+  isError?: boolean;
 };
 
 const MAX_TITLE_LENGTH = 20;
@@ -51,12 +53,21 @@ interface ChatMessageSectionProps {
   messages: ChatMessage[];
   onAIMessageClick?: () => void;
   onUserMessageClick?: () => void;
+  /** AI 메시지 생성 실패 시 해당 인덱스로 재시도 */
+  onRetryAIMessage?: (aiMessageIndex: number) => void;
+  /* AI 메시지가 스트리밍 중일 때 true*/
+  isStreaming?: boolean;
+  /** 유사 인사이트 검색용 키워드 (마지막 사용자 메시지 등) */
+  searchKeyword?: string;
 }
 
 export function ChatMessageSection({
   messages,
   onAIMessageClick,
   onUserMessageClick,
+  onRetryAIMessage,
+  isStreaming = false,
+  searchKeyword,
 }: ChatMessageSectionProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -102,11 +113,22 @@ export function ChatMessageSection({
         <div className='flex flex-col gap-[3.75rem]'>
           {messages.map((msg, index) =>
             msg.role === 'ai' ? (
-              <button
+              <div
                 key={`ai-${index}`}
-                type='button'
-                className='flex cursor-pointer items-start gap-[1.5rem] text-left'
+                role={onAIMessageClick ? 'button' : undefined}
+                className={`flex items-start gap-[1.5rem] text-left ${onAIMessageClick ? '' : ''}`}
                 onClick={onAIMessageClick}
+                onKeyDown={
+                  onAIMessageClick
+                    ? (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          onAIMessageClick();
+                        }
+                      }
+                    : undefined
+                }
+                tabIndex={onAIMessageClick ? 0 : undefined}
               >
                 <Image
                   src='/ChataiIcon.svg'
@@ -115,15 +137,36 @@ export function ChatMessageSection({
                   height={48}
                 />
                 <div className='font-regular max-w-[53.75rem] rounded-tl-[0.25rem] rounded-tr-[2rem] rounded-br-[2rem] rounded-bl-[2rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2.25rem] py-[1.75rem] text-[1rem] whitespace-pre-wrap text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
-                  {/* {msg.content} */}
-                  <ChatAnalogs />
+                  {msg.isError ? (
+                    <div className='flex flex-col gap-[1rem]'>
+                      <p className='text-[1rem] leading-[160%]'>
+                        앗, 답변 생성 중 오류가 발생했어요.
+                        <br />
+                        아래 버튼을 눌러 다시 시도해주세요.
+                      </p>
+                      <button
+                        type='button'
+                        style={{ width: '10rem', height: '2.5rem' }}
+                        className='shrink-0 cursor-pointer rounded-[6.25rem] border-[0.09375rem] border-[#5060C5] bg-[#F6F5FF] px-4 py-2 text-[1rem] font-semibold text-[#5060C5] hover:bg-[#EEEDF7] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5060C5]'
+                        onClick={() => onRetryAIMessage?.(index)}
+                      >
+                        다시 시도하기
+                      </button>
+                    </div>
+                  ) : msg.content ? (
+                    msg.content
+                  ) : isStreaming && index === messages.length - 1 ? (
+                    <ChatLoadingMessage />
+                  ) : (
+                    <ChatAnalogs searchKeyword={searchKeyword} />
+                  )}
                 </div>
-              </button>
+              </div>
             ) : (
               <button
                 key={`user-${index}`}
                 type='button'
-                className='flex w-full cursor-pointer justify-end text-left'
+                className='flex w-full justify-end text-left'
                 onClick={onUserMessageClick}
               >
                 <div className='font-regular mr-[0.5rem] max-w-[53.75rem] rounded-tl-[2rem] rounded-tr-[0.25rem] rounded-br-[2rem] rounded-bl-[2rem] border border-none bg-[#F6F5FF] px-[2.25rem] py-[1.75rem] text-[1rem] text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
@@ -192,22 +235,6 @@ export function ChatMessageSection({
               </button>
             ),
           )}
-
-          {/* AI 응답 하단 로딩 말풍선 */}
-          {messages.length > 0 &&
-            messages[messages.length - 1]?.role === 'ai' && (
-              <div className='flex items-start gap-[1.5rem]'>
-                <Image
-                  src='/ChataiIcon.svg'
-                  alt='AI Loading Icon'
-                  width={48}
-                  height={48}
-                />
-                <div className='font-regular max-w-[53.75rem] rounded-tl-[0.25rem] rounded-tr-[2rem] rounded-br-[2rem] rounded-bl-[2rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2.25rem] py-[1.75rem] text-[1rem] text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
-                  <ChatLoadingMessage />
-                </div>
-              </div>
-            )}
         </div>
       </div>
       {/* 아래쪽 페이드 */}
