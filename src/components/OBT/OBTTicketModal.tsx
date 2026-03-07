@@ -15,7 +15,6 @@ export const OBTTicketModal = ({
     <CommonModal
       open={open}
       onOpenChange={onOpenChange}
-      closeButtonOnly
       title={
         <span className='text-[1.125rem] leading-[130%] font-bold text-[#1A1A1A]'>
           이번 주의 이용권이 모두 소진되었어요.
