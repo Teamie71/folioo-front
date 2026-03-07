@@ -4,6 +4,7 @@ import {
   portfolioCorrectionControllerCreateCorrection,
   portfolioCorrectionControllerGetCorrections,
 } from '@/api/endpoints/portfolio-correction/portfolio-correction';
+import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
 import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type {
@@ -46,8 +47,13 @@ export function useNewCorrectionForm() {
   const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
   const [isStartCorrectionModalOpen, setIsStartCorrectionModalOpen] =
     useState(false);
+  const [isTicketExhaustedModalOpen, setIsTicketExhaustedModalOpen] =
+    useState(false);
   const [isJdDropOverlayActive, setIsJdDropOverlayActive] = useState(false);
   const jdFileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: ticketBalance } = useUserControllerGetTicketBalance();
+  const portfolioCount = ticketBalance?.result?.portfolioCorrection?.count ?? 0;
 
   const hasJdImageUploaded = jdUploadedFiles.length >= 1;
 
@@ -62,13 +68,20 @@ export function useNewCorrectionForm() {
       jobTitle: jobTitleEmpty,
       jobDescription: jobDescriptionEmpty,
     });
-    if (!hasError) setIsStartCorrectionModalOpen(true);
+    if (!hasError) {
+      if (portfolioCount < 1) {
+        setIsTicketExhaustedModalOpen(true);
+      } else {
+        setIsStartCorrectionModalOpen(true);
+      }
+    }
   }, [
     companyName,
     jobTitle,
     jobDescription,
     jdMode,
     hasJdImageUploaded,
+    portfolioCount,
   ]);
 
   const handleStartCorrectionConfirm = useCallback(async () => {
@@ -192,6 +205,8 @@ export function useNewCorrectionForm() {
     setIsQuitModalOpen,
     isStartCorrectionModalOpen,
     setIsStartCorrectionModalOpen,
+    isTicketExhaustedModalOpen,
+    setIsTicketExhaustedModalOpen,
     isJdDropOverlayActive,
     setIsJdDropOverlayActive,
     jdFileInputRef,

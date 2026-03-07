@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { CommonModal } from '@/components/CommonModal';
+import { OBTTicketModal } from '@/components/OBT/OBTTicketModal';
 import { useExperienceStore } from '@/store/useExperienceStore';
 import { ChatStartIcon } from '@/components/icons/ChatStartIcon';
 import { useExperienceControllerCreateExperience } from '@/api/endpoints/experience/experience';
+import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
 import {
   CreateExperienceReqDTOHopeJob,
   type CreateExperienceReqDTOHopeJob as HopeJobType,
@@ -34,8 +36,13 @@ export function ExperienceSettingsChatStart({
 }: ExperienceSettingsChatStartProps) {
   const router = useRouter();
   const [isStartChatModalOpen, setIsStartChatModalOpen] = useState(false);
+  const [isTicketExhaustedModalOpen, setIsTicketExhaustedModalOpen] =
+    useState(false);
   const { formData, validateForm, addExperience, resetForm } =
     useExperienceStore();
+
+  const { data: ticketBalance } = useUserControllerGetTicketBalance();
+  const experienceCount = ticketBalance?.result?.experience?.count ?? 0;
 
   /* 경험 정리 생성 */
   const { mutateAsync: createExperience, isPending: isCreating } =
@@ -89,6 +96,10 @@ export function ExperienceSettingsChatStart({
       return;
     }
     onValidationError({});
+    if (experienceCount < 1) {
+      setIsTicketExhaustedModalOpen(true);
+      return;
+    }
     setIsStartChatModalOpen(true);
   };
 
@@ -136,6 +147,12 @@ export function ExperienceSettingsChatStart({
             </button>
           </>
         }
+      />
+
+      {/* 경험 정리 이용권 소진 시 */}
+      <OBTTicketModal
+        open={isTicketExhaustedModalOpen}
+        onOpenChange={setIsTicketExhaustedModalOpen}
       />
     </>
   );
