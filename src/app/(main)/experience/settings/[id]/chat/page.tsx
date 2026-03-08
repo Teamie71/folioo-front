@@ -29,7 +29,6 @@ import {
 } from '@/api/endpoints/interview/interview';
 import { getPortfolioControllerGetPortfolioQueryKey } from '@/api/endpoints/portfolio/portfolio';
 import type { GeneratePortfolioResDTO } from '@/api/models';
-import { GeneratePortfolioResDTOPortfolioStatus } from '@/api/models';
 
 const SESSION_STREAM_PATH = (experienceId: number) =>
   `/interview/experiences/${experienceId}/session/stream`;
@@ -383,7 +382,7 @@ export default function ExperienceSettingsChatPage() {
     });
   };
 
-  /* PortfolioCreateModal 오픈 시: API 호출 후 완료면 portfolio로, 아니면 createloading으로 + 폴링으로 완료 시 portfolio 이동 */
+  /* PortfolioCreateModal 오픈 시: 포트폴리오 생성 API 호출 → createloading 이동 → 폴러가 완료 시 portfolio로 리다이렉트 */
   useEffect(() => {
     if (!isPortfolioCreateModalOpen) return;
     let cancelled = false;
@@ -393,17 +392,6 @@ export default function ExperienceSettingsChatPage() {
         if (cancelled) return;
         const result = res?.result as GeneratePortfolioResDTO | undefined;
         const portfolioId = result?.portfolioId;
-        const status = result?.portfolioStatus;
-        if (status === GeneratePortfolioResDTOPortfolioStatus.completed && portfolioId != null) {
-          if (timeoutId) clearTimeout(timeoutId);
-          setIsPortfolioCreateModalOpen(false);
-          setResolvedPortfolio(id, portfolioId);
-          queryClient.invalidateQueries({
-            queryKey: getPortfolioControllerGetPortfolioQueryKey(portfolioId),
-          });
-          router.push(`/experience/settings/${id}/portfolio?portfolioId=${portfolioId}`);
-          return;
-        }
         if (portfolioId != null) {
           setPendingPortfolio(id, portfolioId);
           queryClient.invalidateQueries({
@@ -496,7 +484,16 @@ export default function ExperienceSettingsChatPage() {
           return next;
         });
       },
-      onDone: () => setIsStreaming(false),
+      onDone: () => {
+        setIsStreaming(false);
+        if (isExtendedSessionRef.current) {
+          extendedTurnCountRef.current += 1;
+          if (extendedTurnCountRef.current >= 3) {
+            isExtendedSessionRef.current = false;
+            setIsPortfolioCreateModalOpen(true);
+          }
+        }
+      },
     });
   };
 
