@@ -20,7 +20,7 @@ import type {
   ExternalPortfolioControllerGetSelectedPortfolios200,
   ExternalPortfolioControllerCreateExternalPortfolioBlock200,
 } from '@/api/models';
-import { useExperienceControllerGetExperiences } from '@/api/endpoints/experience/experience';
+import { usePortfolioControllerGetPortfolios } from '@/api/endpoints/portfolio/portfolio';
 import { mapToPdfActivityBlock, toPatchBody } from '@/services/correction';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -135,16 +135,12 @@ export function useCorrectionState(correctionId: string | undefined) {
     useState<FileDeleteConfirmTarget>(null);
 
   const accessToken = useAuthStore((s) => s.accessToken);
-  const { data: experiencesData } = useExperienceControllerGetExperiences(
-    undefined,
-    {
-      query: {
-        // 토큰이 있을 때만 호출 (세션 복원 전 요청 시 401 방지)
-        enabled:
-          !!accessToken &&
-          step === 'portfolio' &&
-          selectedPortfolioType === 'text',
-      },
+  const { data: portfoliosData } = usePortfolioControllerGetPortfolios({
+    query: {
+      enabled:
+        !!accessToken &&
+        step === 'portfolio' &&
+        selectedPortfolioType === 'text',
     },
   );
   const experiencesList = experiencesData?.result ?? [];
@@ -153,6 +149,13 @@ export function useCorrectionState(correctionId: string | undefined) {
     title: e.name,
     tag: getHopeJobLabel(e.hopeJob),
     date: e.createdAt.slice(0, 10),
+  });
+  const portfoliosList = portfoliosData?.result ?? [];
+  const textPortfolios = portfoliosList.map((p) => ({
+    id: String(p.id),
+    title: p.name,
+    tag: p.hopeJob != null ? String(p.hopeJob) : '',
+    date: p.createdAt.slice(0, 10),
   }));
 
   // portfolio + PDF 선택 시 창 어디로든 파일 드래그 들어오면 전체 페이지 드롭 오버레이 활성화
@@ -228,10 +231,13 @@ export function useCorrectionState(correctionId: string | undefined) {
 
   const handlePdfExtractConfirm = useCallback(async () => {
     if (!pdfUploadedFile) return;
+    const id = effectiveId ? Number(effectiveId) : null;
+    if (id == null || Number.isNaN(id)) return;
     setIsPdfExtractConfirmModalOpen(false);
     setIsPdfTextExtracting(true);
     try {
       await externalPortfolioControllerExtractPortfolios({
+        correctionId: id,
         file: pdfUploadedFile.file,
       });
       setIsPdfTextExtracted(true);
@@ -249,6 +255,17 @@ export function useCorrectionState(correctionId: string | undefined) {
         setPdfActivities(activities);
         if (activities.length > 0) setSelectedActivityId(activities[0].id);
       }
+      const listRes =
+        await externalPortfolioControllerGetSelectedPortfolios({
+          correctionId: id,
+        });
+      const listResult = (listRes as ExternalPortfolioControllerGetSelectedPortfolios200)
+        .result;
+      const activities = (listResult ?? []).map((dto, i) =>
+        mapToPdfActivityBlock(dto, i),
+      );
+      setPdfActivities(activities);
+      if (activities.length > 0) setSelectedActivityId(activities[0].id);
     } catch {
       // 실패 시 상태만 복구
     } finally {

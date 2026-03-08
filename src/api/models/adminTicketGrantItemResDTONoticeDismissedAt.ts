@@ -6,9 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type PortfolioCorrectionControllerGetCorrectionsParams = {
 /**
- * 제목 기준 검색 키워드
+ * @nullable
  */
-keyword?: string;
-};
+export type AdminTicketGrantItemResDTONoticeDismissedAt = { [key: string]: unknown } | null;

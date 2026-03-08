@@ -12,4 +12,5 @@ export type TicketHistoryItemResDTOSource = typeof TicketHistoryItemResDTOSource
 export const TicketHistoryItemResDTOSource = {
   PURCHASE: 'PURCHASE',
   EVENT: 'EVENT',
+  ADMIN: 'ADMIN',
 } as const;

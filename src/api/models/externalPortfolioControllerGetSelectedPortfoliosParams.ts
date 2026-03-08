@@ -7,5 +7,8 @@
  */
 
 export type ExternalPortfolioControllerGetSelectedPortfoliosParams = {
+/**
+ * 조회할 첨삭 ID
+ */
 correctionId: number;
 };
