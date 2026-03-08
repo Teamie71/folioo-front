@@ -11,7 +11,7 @@ interface Option {
 
 // 컴포넌트 속성
 interface SingleButtonGroupProps {
-  options: Option[];
+  options: readonly Option[];
   className?: string;
   onValueChange?: (value: string) => void;
   defaultValue?: string;
