@@ -4,7 +4,7 @@ import {
   externalPortfolioControllerCreateExternalPortfolioBlock,
   externalPortfolioControllerDeleteExternalPortfolio,
   externalPortfolioControllerExtractPortfolios,
-  externalPortfolioControllerGetExternalPortfolios,
+  externalPortfolioControllerGetSelectedPortfolios,
   externalPortfolioControllerUpdateExternalPortfolio,
 } from '@/api/endpoints/portfolio/portfolio';
 import {
@@ -17,7 +17,7 @@ import {
 } from '@/api/endpoints/portfolio-correction/portfolio-correction';
 import type {
   CorrectionStatusResDTOStatus,
-  ExternalPortfolioControllerGetExternalPortfolios200,
+  ExternalPortfolioControllerGetSelectedPortfolios200,
   ExternalPortfolioControllerCreateExternalPortfolioBlock200,
 } from '@/api/models';
 import { usePortfolioControllerGetPortfolios } from '@/api/endpoints/portfolio/portfolio';
@@ -233,10 +233,10 @@ export function useCorrectionState(correctionId: string | undefined) {
       const id = effectiveId ? Number(effectiveId) : null;
       if (id != null && !Number.isNaN(id)) {
         const listRes =
-          await externalPortfolioControllerGetExternalPortfolios({
+          await externalPortfolioControllerGetSelectedPortfolios({
             correctionId: id,
           });
-        const listResult = (listRes as ExternalPortfolioControllerGetExternalPortfolios200)
+        const listResult = (listRes as ExternalPortfolioControllerGetSelectedPortfolios200)
           .result;
         const activities = (listResult ?? []).map((dto, i) =>
           mapToPdfActivityBlock(dto, i),
