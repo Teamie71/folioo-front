@@ -28,6 +28,7 @@ import type {
   CommonResponse,
   CreateExperienceReqDTO,
   ExperienceControllerCreateExperience200,
+  ExperienceControllerDeleteExperience200,
   ExperienceControllerGetExperience200,
   ExperienceControllerGetExperiences200,
   ExperienceControllerGetExperiencesParams,
@@ -364,7 +365,7 @@ export const experienceControllerDeleteExperience = (
 ) => {
       
       
-      return customInstance<unknown>(
+      return customInstance<ExperienceControllerDeleteExperience200>(
       {url: `/experiences/${experienceId}`, method: 'DELETE', signal
     },
       options);

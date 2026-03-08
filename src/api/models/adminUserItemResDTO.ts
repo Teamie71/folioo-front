@@ -19,4 +19,8 @@ export interface AdminUserItemResDTO {
   /** @nullable */
   phoneNum?: AdminUserItemResDTOPhoneNum;
   isActive: boolean;
+  /** 잔여 경험 정리 이용권 수량 */
+  experienceTickets: number;
+  /** 잔여 포트폴리오 첨삭 이용권 수량 */
+  correctionTickets: number;
 }

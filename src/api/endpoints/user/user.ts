@@ -32,10 +32,15 @@ import type {
   UserControllerAgreeTerms200,
   UserControllerGetExpiringTickets200,
   UserControllerGetExpiringTicketsParams,
+  UserControllerGetNextTicketGrantNotice200,
   UserControllerGetProfile200,
   UserControllerGetTicketBalance200,
+  UserControllerGetTicketHistory200,
+  UserControllerMarkTicketGrantNoticeDismissed200,
+  UserControllerMarkTicketGrantNoticeShown200,
   UserControllerUpdateMarketingConsent200,
-  UserControllerUpdateProfile200
+  UserControllerUpdateProfile200,
+  UserControllerWithdraw200
 } from '../../models';
 
 import { customInstance } from '../../../lib/axios';
@@ -210,7 +215,7 @@ export const userControllerWithdraw = (
 ) => {
       
       
-      return customInstance<unknown>(
+      return customInstance<UserControllerWithdraw200>(
       {url: `/users/me`, method: 'DELETE', signal
     },
       options);
@@ -510,6 +515,312 @@ export function useUserControllerGetExpiringTickets<TData = Awaited<ReturnType<t
 
 
 /**
+ * 사용자의 이용권 발급/사용/만료 내역을 최신순으로 조회합니다.
+ * @summary 이용권 거래 내역 조회
+ */
+export const userControllerGetTicketHistory = (
+    
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<UserControllerGetTicketHistory200>(
+      {url: `/users/me/tickets/history`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getUserControllerGetTicketHistoryQueryKey = () => {
+    return [
+    `/users/me/tickets/history`
+    ] as const;
+    }
+
+    
+export const getUserControllerGetTicketHistoryQueryOptions = <TData = Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError = CommonResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getUserControllerGetTicketHistoryQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerGetTicketHistory>>> = ({ signal }) => userControllerGetTicketHistory(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type UserControllerGetTicketHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof userControllerGetTicketHistory>>>
+export type UserControllerGetTicketHistoryQueryError = CommonResponse
+
+
+export function useUserControllerGetTicketHistory<TData = Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError = CommonResponse>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof userControllerGetTicketHistory>>,
+          TError,
+          Awaited<ReturnType<typeof userControllerGetTicketHistory>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useUserControllerGetTicketHistory<TData = Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError = CommonResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof userControllerGetTicketHistory>>,
+          TError,
+          Awaited<ReturnType<typeof userControllerGetTicketHistory>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useUserControllerGetTicketHistory<TData = Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError = CommonResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 이용권 거래 내역 조회
+ */
+
+export function useUserControllerGetTicketHistory<TData = Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError = CommonResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getUserControllerGetTicketHistoryQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
+ * 로그인 사용자의 다음 PENDING 보상 안내 1건을 최신순으로 조회합니다. 없으면 null을 반환합니다.
+ * @summary 다음 보상 안내 조회
+ */
+export const userControllerGetNextTicketGrantNotice = (
+    
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<UserControllerGetNextTicketGrantNotice200>(
+      {url: `/users/me/ticket-grant-notices/next`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getUserControllerGetNextTicketGrantNoticeQueryKey = () => {
+    return [
+    `/users/me/ticket-grant-notices/next`
+    ] as const;
+    }
+
+    
+export const getUserControllerGetNextTicketGrantNoticeQueryOptions = <TData = Awaited<ReturnType<typeof userControllerGetNextTicketGrantNotice>>, TError = CommonResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetNextTicketGrantNotice>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getUserControllerGetNextTicketGrantNoticeQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerGetNextTicketGrantNotice>>> = ({ signal }) => userControllerGetNextTicketGrantNotice(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof userControllerGetNextTicketGrantNotice>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type UserControllerGetNextTicketGrantNoticeQueryResult = NonNullable<Awaited<ReturnType<typeof userControllerGetNextTicketGrantNotice>>>
+export type UserControllerGetNextTicketGrantNoticeQueryError = CommonResponse
+
+
+export function useUserControllerGetNextTicketGrantNotice<TData = Awaited<ReturnType<typeof userControllerGetNextTicketGrantNotice>>, TError = CommonResponse>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetNextTicketGrantNotice>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof userControllerGetNextTicketGrantNotice>>,
+          TError,
+          Awaited<ReturnType<typeof userControllerGetNextTicketGrantNotice>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useUserControllerGetNextTicketGrantNotice<TData = Awaited<ReturnType<typeof userControllerGetNextTicketGrantNotice>>, TError = CommonResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetNextTicketGrantNotice>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof userControllerGetNextTicketGrantNotice>>,
+          TError,
+          Awaited<ReturnType<typeof userControllerGetNextTicketGrantNotice>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useUserControllerGetNextTicketGrantNotice<TData = Awaited<ReturnType<typeof userControllerGetNextTicketGrantNotice>>, TError = CommonResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetNextTicketGrantNotice>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 다음 보상 안내 조회
+ */
+
+export function useUserControllerGetNextTicketGrantNotice<TData = Awaited<ReturnType<typeof userControllerGetNextTicketGrantNotice>>, TError = CommonResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetNextTicketGrantNotice>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getUserControllerGetNextTicketGrantNoticeQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
+ * 사용자가 보상 안내를 실제 확인한 시점을 shown 상태로 기록합니다.
+ * @summary 보상 안내 shown 처리
+ */
+export const userControllerMarkTicketGrantNoticeShown = (
+    noticeId: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<UserControllerMarkTicketGrantNoticeShown200>(
+      {url: `/users/me/ticket-grant-notices/${noticeId}/shown`, method: 'PATCH', signal
+    },
+      options);
+    }
+  
+
+
+export const getUserControllerMarkTicketGrantNoticeShownMutationOptions = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof userControllerMarkTicketGrantNoticeShown>>, TError,{noticeId: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof userControllerMarkTicketGrantNoticeShown>>, TError,{noticeId: string}, TContext> => {
+
+const mutationKey = ['userControllerMarkTicketGrantNoticeShown'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof userControllerMarkTicketGrantNoticeShown>>, {noticeId: string}> = (props) => {
+          const {noticeId} = props ?? {};
+
+          return  userControllerMarkTicketGrantNoticeShown(noticeId,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UserControllerMarkTicketGrantNoticeShownMutationResult = NonNullable<Awaited<ReturnType<typeof userControllerMarkTicketGrantNoticeShown>>>
+    
+    export type UserControllerMarkTicketGrantNoticeShownMutationError = CommonResponse
+
+    /**
+ * @summary 보상 안내 shown 처리
+ */
+export const useUserControllerMarkTicketGrantNoticeShown = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof userControllerMarkTicketGrantNoticeShown>>, TError,{noticeId: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof userControllerMarkTicketGrantNoticeShown>>,
+        TError,
+        {noticeId: string},
+        TContext
+      > => {
+      return useMutation(getUserControllerMarkTicketGrantNoticeShownMutationOptions(options), queryClient);
+    }
+    /**
+ * 사용자가 보상 안내 모달을 닫았음을 기록합니다.
+ * @summary 보상 안내 dismiss 처리
+ */
+export const userControllerMarkTicketGrantNoticeDismissed = (
+    noticeId: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<UserControllerMarkTicketGrantNoticeDismissed200>(
+      {url: `/users/me/ticket-grant-notices/${noticeId}/dismiss`, method: 'PATCH', signal
+    },
+      options);
+    }
+  
+
+
+export const getUserControllerMarkTicketGrantNoticeDismissedMutationOptions = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof userControllerMarkTicketGrantNoticeDismissed>>, TError,{noticeId: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof userControllerMarkTicketGrantNoticeDismissed>>, TError,{noticeId: string}, TContext> => {
+
+const mutationKey = ['userControllerMarkTicketGrantNoticeDismissed'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof userControllerMarkTicketGrantNoticeDismissed>>, {noticeId: string}> = (props) => {
+          const {noticeId} = props ?? {};
+
+          return  userControllerMarkTicketGrantNoticeDismissed(noticeId,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UserControllerMarkTicketGrantNoticeDismissedMutationResult = NonNullable<Awaited<ReturnType<typeof userControllerMarkTicketGrantNoticeDismissed>>>
+    
+    export type UserControllerMarkTicketGrantNoticeDismissedMutationError = CommonResponse
+
+    /**
+ * @summary 보상 안내 dismiss 처리
+ */
+export const useUserControllerMarkTicketGrantNoticeDismissed = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof userControllerMarkTicketGrantNoticeDismissed>>, TError,{noticeId: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof userControllerMarkTicketGrantNoticeDismissed>>,
+        TError,
+        {noticeId: string},
+        TContext
+      > => {
+      return useMutation(getUserControllerMarkTicketGrantNoticeDismissedMutationOptions(options), queryClient);
+    }
+    /**
  * 사용자의 마케팅 정보 수신 동의 여부를 동의 -> 비동의 또는 비동의 -> 동의로 변경합니다.
  * @summary 마케팅 정보 수신 동의 여부 변경
  */

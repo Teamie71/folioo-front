@@ -30,6 +30,7 @@ import type {
   CreateInsightLogReqDTO,
   InsightControllerCreateActivityTag200,
   InsightControllerCreateLog200,
+  InsightControllerDeleteActivityTag200,
   InsightControllerDeleteLog200,
   InsightControllerGetActivityTags200,
   InsightControllerGetLogs200,
@@ -585,7 +586,7 @@ export const insightControllerDeleteActivityTag = (
 ) => {
       
       
-      return customInstance<unknown>(
+      return customInstance<InsightControllerDeleteActivityTag200>(
       {url: `/insights/tags/${tagId}`, method: 'DELETE', signal
     },
       options);

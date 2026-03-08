@@ -7,5 +7,8 @@
  */
 
 export type PortfolioCorrectionControllerGetCorrectionsParams = {
+/**
+ * 제목 기준 검색 키워드
+ */
 keyword?: string;
 };

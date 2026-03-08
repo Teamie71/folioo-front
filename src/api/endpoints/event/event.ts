@@ -28,9 +28,7 @@ import type {
   CommonResponse,
   EventControllerClaimEventReward200,
   EventControllerGetFeedbackModal200,
-  EventControllerGetProgressCard200,
-  EventControllerGrantFeedbackRewardByPhone200,
-  GrantFeedbackRewardReqDTO
+  EventControllerGetProgressCard200
 } from '../../models';
 
 import { customInstance } from '../../../lib/axios';
@@ -283,70 +281,5 @@ export const useEventControllerClaimEventReward = <TError = CommonResponse,
         TContext
       > => {
       return useMutation(getEventControllerClaimEventRewardMutationOptions(options), queryClient);
-    }
-    /**
- * 운영/PM이 외부 피드백 제출건 확인 후 전화번호 기준으로 보상을 수동 지급합니다. Admin 대시보드(/admin/event-rewards) 사용을 권장합니다.
- * @summary [Deprecated] 피드백 이벤트 수동 보상 지급 (전화번호 기반)
- */
-export const eventControllerGrantFeedbackRewardByPhone = (
-    eventCode: string,
-    grantFeedbackRewardReqDTO: GrantFeedbackRewardReqDTO,
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
-) => {
-      
-      
-      return customInstance<EventControllerGrantFeedbackRewardByPhone200>(
-      {url: `/events/admin/${eventCode}/feedback-rewards/grants`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: grantFeedbackRewardReqDTO, signal
-    },
-      options);
-    }
-  
-
-
-export const getEventControllerGrantFeedbackRewardByPhoneMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof eventControllerGrantFeedbackRewardByPhone>>, TError,{eventCode: string;data: GrantFeedbackRewardReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof eventControllerGrantFeedbackRewardByPhone>>, TError,{eventCode: string;data: GrantFeedbackRewardReqDTO}, TContext> => {
-
-const mutationKey = ['eventControllerGrantFeedbackRewardByPhone'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof eventControllerGrantFeedbackRewardByPhone>>, {eventCode: string;data: GrantFeedbackRewardReqDTO}> = (props) => {
-          const {eventCode,data} = props ?? {};
-
-          return  eventControllerGrantFeedbackRewardByPhone(eventCode,data,requestOptions)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type EventControllerGrantFeedbackRewardByPhoneMutationResult = NonNullable<Awaited<ReturnType<typeof eventControllerGrantFeedbackRewardByPhone>>>
-    export type EventControllerGrantFeedbackRewardByPhoneMutationBody = GrantFeedbackRewardReqDTO
-    export type EventControllerGrantFeedbackRewardByPhoneMutationError = CommonResponse
-
-    /**
- * @summary [Deprecated] 피드백 이벤트 수동 보상 지급 (전화번호 기반)
- */
-export const useEventControllerGrantFeedbackRewardByPhone = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof eventControllerGrantFeedbackRewardByPhone>>, TError,{eventCode: string;data: GrantFeedbackRewardReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof eventControllerGrantFeedbackRewardByPhone>>,
-        TError,
-        {eventCode: string;data: GrantFeedbackRewardReqDTO},
-        TContext
-      > => {
-      return useMutation(getEventControllerGrantFeedbackRewardByPhoneMutationOptions(options), queryClient);
     }
     

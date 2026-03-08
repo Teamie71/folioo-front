@@ -27,4 +27,32 @@ export interface AdminGrantRewardReqDTO {
    * @maxLength 500
    */
   reviewNote?: string;
+  /** 보상 안내 모달 생성 여부 */
+  createNotice?: boolean;
+  /**
+   * 사용자 노출 사유 문구
+   * @maxLength 100
+   */
+  displayReason?: string;
+  /**
+   * 보상 안내 제목
+   * @maxLength 100
+   */
+  noticeTitle?: string;
+  /**
+   * 보상 안내 본문
+   * @maxLength 1000
+   */
+  noticeBody?: string;
+  /**
+   * 보상 안내 CTA 문구
+   * @maxLength 50
+   */
+  noticeCtaText?: string;
+  /**
+   * 보상 안내 CTA 링크
+   * @maxLength 255
+   * @pattern NOTICE_CTA_LINK_REGEX
+   */
+  noticeCtaLink?: string;
 }
