@@ -31,6 +31,7 @@ import type {
   InternalControllerGetInternalPortfolio200,
   InternalControllerSearchInternalInsights200,
   InternalControllerSearchInternalInsightsParams,
+  InternalControllerUpdateInternalPortfolio200,
   UpdatePortfolioResultReqDTO
 } from '../../models';
 
@@ -417,7 +418,7 @@ export const internalControllerUpdateInternalPortfolio = (
 ) => {
       
       
-      return customInstance<unknown>(
+      return customInstance<InternalControllerUpdateInternalPortfolio200>(
       {url: `/internal/portfolios/${portfolioId}`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: updatePortfolioResultReqDTO, signal

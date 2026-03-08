@@ -4,6 +4,7 @@ import {
   portfolioCorrectionControllerCreateCorrection,
   portfolioCorrectionControllerGetCorrections,
 } from '@/api/endpoints/portfolio-correction/portfolio-correction';
+import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
 import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type {
@@ -46,8 +47,15 @@ export function useNewCorrectionForm() {
   const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
   const [isStartCorrectionModalOpen, setIsStartCorrectionModalOpen] =
     useState(false);
+  const [isTicketExhaustedModalOpen, setIsTicketExhaustedModalOpen] =
+    useState(false);
+  const [isCorrectionLimitModalOpen, setIsCorrectionLimitModalOpen] =
+    useState(false);
   const [isJdDropOverlayActive, setIsJdDropOverlayActive] = useState(false);
   const jdFileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: ticketBalance } = useUserControllerGetTicketBalance();
+  const portfolioCount = ticketBalance?.result?.portfolioCorrection?.count ?? 0;
 
   const hasJdImageUploaded = jdUploadedFiles.length >= 1;
 
@@ -62,13 +70,20 @@ export function useNewCorrectionForm() {
       jobTitle: jobTitleEmpty,
       jobDescription: jobDescriptionEmpty,
     });
-    if (!hasError) setIsStartCorrectionModalOpen(true);
+    if (!hasError) {
+      if (portfolioCount < 1) {
+        setIsTicketExhaustedModalOpen(true);
+      } else {
+        setIsStartCorrectionModalOpen(true);
+      }
+    }
   }, [
     companyName,
     jobTitle,
     jobDescription,
     jdMode,
     hasJdImageUploaded,
+    portfolioCount,
   ]);
 
   const handleStartCorrectionConfirm = useCallback(async () => {
@@ -89,8 +104,13 @@ export function useNewCorrectionForm() {
       if (newId != null) {
         router.replace(`/correction/${newId}`);
       }
-    } catch {
-      // 실패 시 모달 유지
+    } catch (err: unknown) {
+      const errObj = err as { response?: { data?: { error?: { errorCode?: string } } } };
+      const code = errObj?.response?.data?.error?.errorCode ?? '';
+      if (code === 'CORRECTION4091') {
+        setIsStartCorrectionModalOpen(false);
+        setIsCorrectionLimitModalOpen(true);
+      }
     }
   }, [jdMode, companyName, jobTitle, jobDescription, router]);
 
@@ -192,6 +212,10 @@ export function useNewCorrectionForm() {
     setIsQuitModalOpen,
     isStartCorrectionModalOpen,
     setIsStartCorrectionModalOpen,
+    isTicketExhaustedModalOpen,
+    setIsTicketExhaustedModalOpen,
+    isCorrectionLimitModalOpen,
+    setIsCorrectionLimitModalOpen,
     isJdDropOverlayActive,
     setIsJdDropOverlayActive,
     jdFileInputRef,

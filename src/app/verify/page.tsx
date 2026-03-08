@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuthControllerHandleSmsSend, useAuthControllerHandleSmsVerify } from '@/api/endpoints/auth/auth';
+import { useMutation } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import InputArea from '@/components/InputArea';
@@ -36,8 +36,19 @@ export default function VerifyPage() {
   const [timer, setTimer] = useState(TIMER_INITIAL);
   const [isError, setIsError] = useState(false);
 
-  const sendSmsMutation = useAuthControllerHandleSmsSend();
-  const verifySmsMutation = useAuthControllerHandleSmsVerify();
+  // TODO: OpenAPI에 SMS 인증 엔드포인트 추가 후 auth API 훅으로 교체
+  const sendSmsMutation = useMutation({
+    mutationFn: async (_vars: { data: { phoneNum: string } }) => {
+      throw new Error('SMS 인증 API가 준비 중입니다.');
+    },
+  });
+  const verifySmsMutation = useMutation({
+    mutationFn: async (_vars: {
+      data: { phoneNum: string; verifyToken: string };
+    }) => {
+      throw new Error('SMS 인증 API가 준비 중입니다.');
+    },
+  });
 
   // 1단계: 휴대폰 번호 입력
   if (!codeSent) {

@@ -28,9 +28,11 @@ import type {
   CommonResponse,
   CreateExternalPortfolioReqDTO,
   ExternalPortfolioControllerCreateExternalPortfolioBlock200,
+  ExternalPortfolioControllerDeleteExternalPortfolio200,
+  ExternalPortfolioControllerExtractPortfolios200,
   ExternalPortfolioControllerExtractPortfoliosBody,
-  ExternalPortfolioControllerGetExternalPortfolios200,
-  ExternalPortfolioControllerGetExternalPortfoliosParams,
+  ExternalPortfolioControllerGetSelectedPortfolios200,
+  ExternalPortfolioControllerGetSelectedPortfoliosParams,
   ExternalPortfolioControllerUpdateExternalPortfolio200,
   PortfolioControllerGetPortfolio200,
   PortfolioControllerGetPortfolios200,
@@ -365,14 +367,10 @@ export const externalPortfolioControllerExtractPortfolios = (
 ) => {
       
       const formData = new FormData();
-if(externalPortfolioControllerExtractPortfoliosBody.correctionId !== undefined) {
- formData.append(`correctionId`, externalPortfolioControllerExtractPortfoliosBody.correctionId.toString())
- }
-if(externalPortfolioControllerExtractPortfoliosBody.file !== undefined) {
- formData.append(`file`, externalPortfolioControllerExtractPortfoliosBody.file);
- }
+formData.append(`correctionId`, externalPortfolioControllerExtractPortfoliosBody.correctionId.toString())
+formData.append(`file`, externalPortfolioControllerExtractPortfoliosBody.file);
 
-      return customInstance<unknown>(
+      return customInstance<ExternalPortfolioControllerExtractPortfolios200>(
       {url: `/external-portfolios/extract`, method: 'POST',
        data: formData, signal
     },
@@ -493,13 +491,13 @@ export const useExternalPortfolioControllerCreateExternalPortfolioBlock = <TErro
  * AI가 구조화한 포트폴리오 정보를 조회합니다.
  * @summary PDF 포트폴리오 텍스트 정리 결과 조회
  */
-export const externalPortfolioControllerGetExternalPortfolios = (
-    params: ExternalPortfolioControllerGetExternalPortfoliosParams,
+export const externalPortfolioControllerGetSelectedPortfolios = (
+    params: ExternalPortfolioControllerGetSelectedPortfoliosParams,
  options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
-      return customInstance<ExternalPortfolioControllerGetExternalPortfolios200>(
+      return customInstance<ExternalPortfolioControllerGetSelectedPortfolios200>(
       {url: `/external-portfolios`, method: 'GET',
         params, signal
     },
@@ -509,69 +507,69 @@ export const externalPortfolioControllerGetExternalPortfolios = (
 
 
 
-export const getExternalPortfolioControllerGetExternalPortfoliosQueryKey = (params?: ExternalPortfolioControllerGetExternalPortfoliosParams,) => {
+export const getExternalPortfolioControllerGetSelectedPortfoliosQueryKey = (params?: ExternalPortfolioControllerGetSelectedPortfoliosParams,) => {
     return [
     `/external-portfolios`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getExternalPortfolioControllerGetExternalPortfoliosQueryOptions = <TData = Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError = CommonResponse>(params: ExternalPortfolioControllerGetExternalPortfoliosParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+export const getExternalPortfolioControllerGetSelectedPortfoliosQueryOptions = <TData = Awaited<ReturnType<typeof externalPortfolioControllerGetSelectedPortfolios>>, TError = CommonResponse>(params: ExternalPortfolioControllerGetSelectedPortfoliosParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof externalPortfolioControllerGetSelectedPortfolios>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getExternalPortfolioControllerGetExternalPortfoliosQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getExternalPortfolioControllerGetSelectedPortfoliosQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>> = ({ signal }) => externalPortfolioControllerGetExternalPortfolios(params, requestOptions, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof externalPortfolioControllerGetSelectedPortfolios>>> = ({ signal }) => externalPortfolioControllerGetSelectedPortfolios(params, requestOptions, signal);
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof externalPortfolioControllerGetSelectedPortfolios>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type ExternalPortfolioControllerGetExternalPortfoliosQueryResult = NonNullable<Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>>
-export type ExternalPortfolioControllerGetExternalPortfoliosQueryError = CommonResponse
+export type ExternalPortfolioControllerGetSelectedPortfoliosQueryResult = NonNullable<Awaited<ReturnType<typeof externalPortfolioControllerGetSelectedPortfolios>>>
+export type ExternalPortfolioControllerGetSelectedPortfoliosQueryError = CommonResponse
 
 
-export function useExternalPortfolioControllerGetExternalPortfolios<TData = Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError = CommonResponse>(
- params: ExternalPortfolioControllerGetExternalPortfoliosParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError, TData>> & Pick<
+export function useExternalPortfolioControllerGetSelectedPortfolios<TData = Awaited<ReturnType<typeof externalPortfolioControllerGetSelectedPortfolios>>, TError = CommonResponse>(
+ params: ExternalPortfolioControllerGetSelectedPortfoliosParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof externalPortfolioControllerGetSelectedPortfolios>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>,
+          Awaited<ReturnType<typeof externalPortfolioControllerGetSelectedPortfolios>>,
           TError,
-          Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>
+          Awaited<ReturnType<typeof externalPortfolioControllerGetSelectedPortfolios>>
         > , 'initialData'
       >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useExternalPortfolioControllerGetExternalPortfolios<TData = Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError = CommonResponse>(
- params: ExternalPortfolioControllerGetExternalPortfoliosParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError, TData>> & Pick<
+export function useExternalPortfolioControllerGetSelectedPortfolios<TData = Awaited<ReturnType<typeof externalPortfolioControllerGetSelectedPortfolios>>, TError = CommonResponse>(
+ params: ExternalPortfolioControllerGetSelectedPortfoliosParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof externalPortfolioControllerGetSelectedPortfolios>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>,
+          Awaited<ReturnType<typeof externalPortfolioControllerGetSelectedPortfolios>>,
           TError,
-          Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>
+          Awaited<ReturnType<typeof externalPortfolioControllerGetSelectedPortfolios>>
         > , 'initialData'
       >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useExternalPortfolioControllerGetExternalPortfolios<TData = Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError = CommonResponse>(
- params: ExternalPortfolioControllerGetExternalPortfoliosParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+export function useExternalPortfolioControllerGetSelectedPortfolios<TData = Awaited<ReturnType<typeof externalPortfolioControllerGetSelectedPortfolios>>, TError = CommonResponse>(
+ params: ExternalPortfolioControllerGetSelectedPortfoliosParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof externalPortfolioControllerGetSelectedPortfolios>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary PDF 포트폴리오 텍스트 정리 결과 조회
  */
 
-export function useExternalPortfolioControllerGetExternalPortfolios<TData = Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError = CommonResponse>(
- params: ExternalPortfolioControllerGetExternalPortfoliosParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof externalPortfolioControllerGetExternalPortfolios>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+export function useExternalPortfolioControllerGetSelectedPortfolios<TData = Awaited<ReturnType<typeof externalPortfolioControllerGetSelectedPortfolios>>, TError = CommonResponse>(
+ params: ExternalPortfolioControllerGetSelectedPortfoliosParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof externalPortfolioControllerGetSelectedPortfolios>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getExternalPortfolioControllerGetExternalPortfoliosQueryOptions(params,options)
+  const queryOptions = getExternalPortfolioControllerGetSelectedPortfoliosQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -656,7 +654,7 @@ export const externalPortfolioControllerDeleteExternalPortfolio = (
 ) => {
       
       
-      return customInstance<unknown>(
+      return customInstance<ExternalPortfolioControllerDeleteExternalPortfolio200>(
       {url: `/external-portfolios/${portfolioId}`, method: 'DELETE', signal
     },
       options);

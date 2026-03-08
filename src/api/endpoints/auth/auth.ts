@@ -26,6 +26,8 @@ import type {
 
 import type {
   AuthControllerGoogleLoginParams,
+  AuthControllerHandleLogout200,
+  AuthControllerHandleRefresh201,
   AuthControllerKakaoLoginParams,
   AuthControllerNaverLoginParams,
   CommonResponse
@@ -597,7 +599,7 @@ export const authControllerHandleRefresh = (
 ) => {
       
       
-      return customInstance<unknown>(
+      return customInstance<AuthControllerHandleRefresh201>(
       {url: `/auth/refresh`, method: 'POST', signal
     },
       options);
@@ -659,7 +661,7 @@ export const authControllerHandleLogout = (
 ) => {
       
       
-      return customInstance<unknown>(
+      return customInstance<AuthControllerHandleLogout200>(
       {url: `/auth/logout`, method: 'POST', signal
     },
       options);

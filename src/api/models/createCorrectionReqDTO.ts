@@ -8,17 +8,28 @@
 import type { CreateCorrectionReqDTOJobDescriptionType } from './createCorrectionReqDTOJobDescriptionType';
 
 export interface CreateCorrectionReqDTO {
-  jobDescriptionType: CreateCorrectionReqDTOJobDescriptionType;
   /**
+   * 첨삭 제목
+   * @minLength 1
+   * @maxLength 20
+   */
+  title: string;
+  /**
+   * 지원 회사명
    * @minLength 1
    * @maxLength 20
    */
   companyName: string;
   /**
+   * 지원 포지션명
    * @minLength 1
    * @maxLength 20
    */
   positionName: string;
-  /** @maxLength 700 */
+  /**
+   * 채용 공고 또는 직무 설명
+   * @maxLength 700
+   */
   jobDescription?: string;
+  jobDescriptionType: CreateCorrectionReqDTOJobDescriptionType;
 }

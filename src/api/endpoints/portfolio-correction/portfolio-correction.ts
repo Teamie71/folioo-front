@@ -28,7 +28,10 @@ import type {
   CommonResponse,
   CreateCorrectionReqDTO,
   MapCorrectionWithPortfoliosReqDTO,
+  PortfolioCorrectionControllerCreateCompanyInsight200,
+  PortfolioCorrectionControllerCreateCorrection200,
   PortfolioCorrectionControllerCreateCorrectionByAI200,
+  PortfolioCorrectionControllerDeleteCorrection200,
   PortfolioCorrectionControllerGetCompanyInsight200,
   PortfolioCorrectionControllerGetCorrection200,
   PortfolioCorrectionControllerGetCorrectionStatus200,
@@ -150,7 +153,7 @@ export const portfolioCorrectionControllerCreateCorrection = (
 ) => {
       
       
-      return customInstance<unknown>(
+      return customInstance<PortfolioCorrectionControllerCreateCorrection200>(
       {url: `/portfolio-corrections`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: createCorrectionReqDTO, signal
@@ -305,7 +308,7 @@ export const portfolioCorrectionControllerCreateCompanyInsight = (
 ) => {
       
       
-      return customInstance<unknown>(
+      return customInstance<PortfolioCorrectionControllerCreateCompanyInsight200>(
       {url: `/portfolio-corrections/${correctionId}/company-insight`, method: 'POST', signal
     },
       options);
@@ -806,7 +809,7 @@ export const portfolioCorrectionControllerDeleteCorrection = (
 ) => {
       
       
-      return customInstance<unknown>(
+      return customInstance<PortfolioCorrectionControllerDeleteCorrection200>(
       {url: `/portfolio-corrections/${correctionId}`, method: 'DELETE', signal
     },
       options);
