@@ -75,8 +75,10 @@ export default function ExperienceSettingsChatPage() {
   );
   /* 인터뷰 단계 */
   const [currentStage, setCurrentStage] = useState(0);
-  /* true면 해당 단계 툴팁 표시, 새로고침 시 false */
-  const [showStepTooltip, setShowStepTooltip] = useState(false);
+  /* 2·3·4단계(grid 1,2,3) 진입 시에만 해당 단계 툴팁 표시. 진입한 단계 번호 또는 null */
+  const [showTooltipForStep, setShowTooltipForStep] = useState<number | null>(
+    null,
+  );
 
   const prevStageRef = useRef(0);
   /* 3턴 이어가기 모드: true면 연장 세션 중 */
@@ -112,10 +114,10 @@ export default function ExperienceSettingsChatPage() {
   }, [id]);
 
   useEffect(() => {
-    if (!showStepTooltip) return;
-    const t = setTimeout(() => setShowStepTooltip(false), 2000);
+    if (showTooltipForStep == null) return;
+    const t = setTimeout(() => setShowTooltipForStep(null), 2000);
     return () => clearTimeout(t);
-  }, [showStepTooltip]);
+  }, [showTooltipForStep]);
 
   /* 스트리밍이 3분 넘게 유지되면 오류 메시지 표시 */
   const STREAM_TIMEOUT_MS = 3 * 60 * 1000;
@@ -181,13 +183,19 @@ export default function ExperienceSettingsChatPage() {
                 typeof event.message.current_stage === 'number' ||
                 event.message.all_complete
               ) {
-                setCurrentStage(
-                  toGridStep(
-                    event.message.current_stage ?? 1,
-                    event.message.all_complete,
-                  ),
+                const newStage = toGridStep(
+                  event.message.current_stage ?? 1,
+                  event.message.all_complete,
                 );
-                setShowStepTooltip(true);
+                if (
+                  newStage >= 1 &&
+                  newStage <= 3 &&
+                  newStage !== prevStageRef.current
+                ) {
+                  setShowTooltipForStep(newStage);
+                }
+                prevStageRef.current = newStage;
+                setCurrentStage(newStage);
               }
               return next;
             }
@@ -217,10 +225,13 @@ export default function ExperienceSettingsChatPage() {
               content: m.content ?? '',
             })),
           );
-          setCurrentStage(
-            toGridStep(res.result?.currentStage ?? 1, res.result?.allComplete),
+          const restoredStage = toGridStep(
+            res.result?.currentStage ?? 1,
+            res.result?.allComplete,
           );
-          setShowStepTooltip(false);
+          prevStageRef.current = restoredStage;
+          setCurrentStage(restoredStage);
+          setShowTooltipForStep(null);
           setSessionStreamError(null);
           setIsStreaming(false);
           return;
@@ -309,13 +320,19 @@ export default function ExperienceSettingsChatPage() {
               typeof event.message.current_stage === 'number' ||
               event.message.all_complete
             ) {
-              setCurrentStage(
-                toGridStep(
-                  event.message.current_stage ?? 1,
-                  event.message.all_complete,
-                ),
+              const newStage = toGridStep(
+                event.message.current_stage ?? 1,
+                event.message.all_complete,
               );
-              setShowStepTooltip(true);
+              if (
+                newStage >= 1 &&
+                newStage <= 3 &&
+                newStage !== prevStageRef.current
+              ) {
+                setShowTooltipForStep(newStage);
+              }
+              prevStageRef.current = newStage;
+              setCurrentStage(newStage);
             }
             return next;
           }
@@ -503,13 +520,19 @@ export default function ExperienceSettingsChatPage() {
               typeof event.message.current_stage === 'number' ||
               event.message.all_complete
             ) {
-              setCurrentStage(
-                toGridStep(
-                  event.message.current_stage ?? 1,
-                  event.message.all_complete,
-                ),
+              const newStage = toGridStep(
+                event.message.current_stage ?? 1,
+                event.message.all_complete,
               );
-              setShowStepTooltip(true);
+              if (
+                newStage >= 1 &&
+                newStage <= 3 &&
+                newStage !== prevStageRef.current
+              ) {
+                setShowTooltipForStep(newStage);
+              }
+              prevStageRef.current = newStage;
+              setCurrentStage(newStage);
             }
             return next;
           }
@@ -603,7 +626,7 @@ export default function ExperienceSettingsChatPage() {
           onSend={handleSend}
           disabled={isStreaming}
           currentStep={currentStage}
-          showStepTooltip={showStepTooltip}
+          showTooltipForStep={showTooltipForStep}
         />
       </div>
 
