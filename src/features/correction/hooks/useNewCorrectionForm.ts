@@ -88,6 +88,7 @@ export function useNewCorrectionForm() {
 
   const handleStartCorrectionConfirm = useCallback(async () => {
     const body = {
+      title: '새로운 포트폴리오 첨삭',
       jobDescriptionType: jdMode === 'text' ? ('TEXT' as const) : ('IMAGE' as const),
       companyName: companyName.trim(),
       positionName: jobTitle.trim(),
