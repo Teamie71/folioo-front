@@ -20,6 +20,10 @@ import type {
   UseQueryResult
 } from '@tanstack/react-query';
 
+import type {
+  AppControllerGetHello200
+} from '../../models';
+
 import { customInstance } from '../../../lib/axios';
 
 
@@ -37,7 +41,7 @@ export const appControllerGetHello = (
 ) => {
       
       
-      return customInstance<unknown>(
+      return customInstance<AppControllerGetHello200>(
       {url: `/health`, method: 'GET', signal
     },
       options);

@@ -34,8 +34,10 @@ import type {
   UserControllerGetExpiringTicketsParams,
   UserControllerGetProfile200,
   UserControllerGetTicketBalance200,
+  UserControllerGetTicketHistory200,
   UserControllerUpdateMarketingConsent200,
-  UserControllerUpdateProfile200
+  UserControllerUpdateProfile200,
+  UserControllerWithdraw200
 } from '../../models';
 
 import { customInstance } from '../../../lib/axios';
@@ -210,7 +212,7 @@ export const userControllerWithdraw = (
 ) => {
       
       
-      return customInstance<unknown>(
+      return customInstance<UserControllerWithdraw200>(
       {url: `/users/me`, method: 'DELETE', signal
     },
       options);
@@ -500,6 +502,97 @@ export function useUserControllerGetExpiringTickets<TData = Awaited<ReturnType<t
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getUserControllerGetExpiringTicketsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
+ * 사용자의 이용권 발급/사용/만료 내역을 최신순으로 조회합니다.
+ * @summary 이용권 거래 내역 조회
+ */
+export const userControllerGetTicketHistory = (
+    
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<UserControllerGetTicketHistory200>(
+      {url: `/users/me/tickets/history`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getUserControllerGetTicketHistoryQueryKey = () => {
+    return [
+    `/users/me/tickets/history`
+    ] as const;
+    }
+
+    
+export const getUserControllerGetTicketHistoryQueryOptions = <TData = Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError = CommonResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getUserControllerGetTicketHistoryQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerGetTicketHistory>>> = ({ signal }) => userControllerGetTicketHistory(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type UserControllerGetTicketHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof userControllerGetTicketHistory>>>
+export type UserControllerGetTicketHistoryQueryError = CommonResponse
+
+
+export function useUserControllerGetTicketHistory<TData = Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError = CommonResponse>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof userControllerGetTicketHistory>>,
+          TError,
+          Awaited<ReturnType<typeof userControllerGetTicketHistory>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useUserControllerGetTicketHistory<TData = Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError = CommonResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof userControllerGetTicketHistory>>,
+          TError,
+          Awaited<ReturnType<typeof userControllerGetTicketHistory>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useUserControllerGetTicketHistory<TData = Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError = CommonResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 이용권 거래 내역 조회
+ */
+
+export function useUserControllerGetTicketHistory<TData = Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError = CommonResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerGetTicketHistory>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getUserControllerGetTicketHistoryQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
