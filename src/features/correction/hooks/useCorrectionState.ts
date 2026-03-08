@@ -223,27 +223,27 @@ export function useCorrectionState(correctionId: string | undefined) {
 
   const handlePdfExtractConfirm = useCallback(async () => {
     if (!pdfUploadedFile) return;
+    const id = effectiveId ? Number(effectiveId) : null;
+    if (id == null || Number.isNaN(id)) return;
     setIsPdfExtractConfirmModalOpen(false);
     setIsPdfTextExtracting(true);
     try {
       await externalPortfolioControllerExtractPortfolios({
+        correctionId: id,
         file: pdfUploadedFile.file,
       });
       setIsPdfTextExtracted(true);
-      const id = effectiveId ? Number(effectiveId) : null;
-      if (id != null && !Number.isNaN(id)) {
-        const listRes =
-          await externalPortfolioControllerGetSelectedPortfolios({
-            correctionId: id,
-          });
-        const listResult = (listRes as ExternalPortfolioControllerGetSelectedPortfolios200)
-          .result;
-        const activities = (listResult ?? []).map((dto, i) =>
-          mapToPdfActivityBlock(dto, i),
-        );
-        setPdfActivities(activities);
-        if (activities.length > 0) setSelectedActivityId(activities[0].id);
-      }
+      const listRes =
+        await externalPortfolioControllerGetSelectedPortfolios({
+          correctionId: id,
+        });
+      const listResult = (listRes as ExternalPortfolioControllerGetSelectedPortfolios200)
+        .result;
+      const activities = (listResult ?? []).map((dto, i) =>
+        mapToPdfActivityBlock(dto, i),
+      );
+      setPdfActivities(activities);
+      if (activities.length > 0) setSelectedActivityId(activities[0].id);
     } catch {
       // 실패 시 상태만 복구
     } finally {
