@@ -8,12 +8,6 @@
 
 export interface UpdatePortfolioReqDTO {
   /**
-   * 포트폴리오 이름
-   * @minLength 1
-   * @maxLength 20
-   */
-  name?: string;
-  /**
    * 기여도(0~100). 입력하지 않으면 기존 값을 유지합니다.
    * @minimum 0
    * @maximum 100

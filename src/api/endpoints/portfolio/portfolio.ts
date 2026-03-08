@@ -231,8 +231,8 @@ export function usePortfolioControllerGetPortfolio<TData = Awaited<ReturnType<ty
 
 
 /**
- * 경험 정리가 완료된 포트폴리오의 내용을 수정합니다.
- * @summary 개별 포트폴리오 수정
+ * 경험 정리가 완료된 포트폴리오의 기여도를 수정합니다.
+ * @summary 개별 포트폴리오 수정 (기여도 수정)
  */
 export const portfolioControllerUpdatePortfolio = (
     portfolioId: number,
@@ -283,7 +283,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type PortfolioControllerUpdatePortfolioMutationError = CommonResponse
 
     /**
- * @summary 개별 포트폴리오 수정
+ * @summary 개별 포트폴리오 수정 (기여도 수정)
  */
 export const usePortfolioControllerUpdatePortfolio = <TError = CommonResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerUpdatePortfolio>>, TError,{portfolioId: number;data: UpdatePortfolioReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
