@@ -30,6 +30,7 @@ import {
   INITIAL_PDF_ACTIVITIES,
   PDF_CATEGORY_CHAR_LIMIT,
 } from '@/features/correction/constants';
+import { getHopeJobLabel } from '@/constants/hopeJob';
 import type {
   FileDeleteConfirmTarget,
   PdfActivityBlock,
@@ -150,7 +151,7 @@ export function useCorrectionState(correctionId: string | undefined) {
   const textPortfolios = experiencesList.map((e) => ({
     id: String(e.id),
     title: e.name,
-    tag: e.hopeJob,
+    tag: getHopeJobLabel(e.hopeJob),
     date: e.createdAt.slice(0, 10),
   }));
 
