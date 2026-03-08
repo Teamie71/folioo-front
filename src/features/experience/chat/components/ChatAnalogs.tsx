@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { LogCard } from '@/features/log/components/LogCard';
 import { ChevronColorLeftIcon } from '@/components/icons/ChevronColorLeftIcon';
 import { ChatLoadingMessage } from '@/features/experience/chat/components/ChatLoadingMessage';
@@ -60,6 +60,13 @@ export const ChatAnalogs = ({ searchKeyword }: ChatAnalogsProps) => {
     return <ChatLoadingMessage />;
   }
 
+  const [currentIndex, setCurrentIndex] = useState(0);
+  useEffect(() => {
+    setCurrentIndex((i) => Math.min(i, Math.max(0, insights.length - 1)));
+  }, [insights.length]);
+  const canGoPrev = currentIndex > 0;
+  const canGoNext = currentIndex < insights.length - 1;
+
   return (
     <div className='flex flex-col gap-[1.75rem]'>
       <p className='text-[1rem] leading-[160%] text-[#1A1A1A]'>
@@ -67,25 +74,43 @@ export const ChatAnalogs = ({ searchKeyword }: ChatAnalogsProps) => {
       </p>
 
       <div className='flex w-full items-center gap-[1.25rem]'>
-        <div className='invisible shrink-0' aria-hidden>
+        <button
+          type='button'
+          onClick={() => setCurrentIndex((i) => Math.max(0, i - 1))}
+          disabled={!canGoPrev}
+          className={`shrink-0 focus:outline-none rounded ${!canGoPrev ? 'invisible pointer-events-none' : ''}`}
+          aria-label='이전 인사이트'
+        >
           <ChevronColorLeftIcon />
-        </div>
-        <div className='w-full min-w-0 flex-1 space-y-[1.25rem]'>
-          {insights.slice(0, 3).map((log) => (
-            <LogCard
+        </button>
+        <div className='min-w-0 flex-1 overflow-hidden'>
+          {insights.slice(0, 3).map((log, index) => (
+            <div
               key={log.id}
-              className='w-full'
-              title={log.title}
-              date={formatDate(log.createdAt)}
-              content={log.description}
-              activityName={log.activityNames?.[0] ?? ''}
-              category={log.category}
-            />
+              className={index === currentIndex ? 'block' : 'hidden'}
+            >
+              <LogCard
+                className='w-full max-w-[32.25rem]'
+                title={log.title}
+                date={formatDate(log.createdAt)}
+                content={log.description}
+                activityName={log.activityNames?.[0] ?? ''}
+                category={log.category}
+              />
+            </div>
           ))}
         </div>
-        <div className='rotate-180'>
+        <button
+          type='button'
+          onClick={() =>
+            setCurrentIndex((i) => Math.min(insights.length - 1, i + 1))
+          }
+          disabled={!canGoNext}
+          className={`shrink-0 rotate-180 focus:outline-none rounded ${!canGoNext ? 'invisible pointer-events-none' : ''}`}
+          aria-label='다음 인사이트'
+        >
           <ChevronColorLeftIcon />
-        </div>
+        </button>
       </div>
     </div>
   );
