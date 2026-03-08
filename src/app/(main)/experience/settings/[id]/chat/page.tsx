@@ -196,6 +196,10 @@ export default function ExperienceSettingsChatPage() {
                 ) {
                   setShowTooltipForStep(newStage);
                 }
+                if (newStage === 4 && prevStageRef.current !== 4) {
+                  prevStageRef.current = 4;
+                  setIsCompletionModalOpen(true);
+                }
                 setCurrentStage(newStage);
               }
               return next;
@@ -236,6 +240,9 @@ export default function ExperienceSettingsChatPage() {
           );
           prevStageRef.current = restoredStage;
           setCurrentStage(restoredStage);
+          if (restoredStage === 4) {
+            setIsCompletionModalOpen(true);
+          }
           setShowTooltipForStep(null);
           setSessionStreamError(null);
           setIsStreaming(false);
@@ -341,6 +348,10 @@ export default function ExperienceSettingsChatPage() {
                 newStage !== prevStageRef.current
               ) {
                 setShowTooltipForStep(newStage);
+              }
+              if (newStage === 4 && prevStageRef.current !== 4) {
+                prevStageRef.current = 4;
+                setIsCompletionModalOpen(true);
               }
               setCurrentStage(newStage);
             }
@@ -459,12 +470,15 @@ export default function ExperienceSettingsChatPage() {
               typeof event.message.current_stage === 'number' ||
               event.message.all_complete
             ) {
-              setCurrentStage(
-                toGridStep(
-                  event.message.current_stage ?? 1,
-                  event.message.all_complete,
-                ),
+              const newStage = toGridStep(
+                event.message.current_stage ?? 1,
+                event.message.all_complete,
               );
+              if (newStage === 4 && prevStageRef.current !== 4) {
+                prevStageRef.current = 4;
+                setIsCompletionModalOpen(true);
+              }
+              setCurrentStage(newStage);
               /* 3턴 이어가기에서는 툴팁 표시 안 함 */
             }
             return next;
@@ -540,6 +554,10 @@ export default function ExperienceSettingsChatPage() {
                 newStage !== prevStageRef.current
               ) {
                 setShowTooltipForStep(newStage);
+              }
+              if (newStage === 4 && prevStageRef.current !== 4) {
+                prevStageRef.current = 4;
+                setIsCompletionModalOpen(true);
               }
               setCurrentStage(newStage);
             }
