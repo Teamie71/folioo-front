@@ -3,10 +3,18 @@ import type { LogCardData } from '@/store/useLogStore';
 
 type InsightLogItem = InsightLogResDTO & { id?: number };
 
-/* API 로그 응답(InsightLogResDTO) → 로그 카드 데이터 */
+function toLocalDateString(createdAt: string | undefined): string {
+  if (createdAt == null || createdAt === '') {
+    const d = new Date();
+    return d.toLocaleDateString('en-CA');
+  }
+  const d = new Date(createdAt);
+  return d.toLocaleDateString('en-CA');
+}
+
+/* API 로그 응답(InsightLogResDTO) → 로그 카드 데이터. createdAt을 로컬 날짜로 표시 */
 export function toLogCardData(result: InsightLogItem): LogCardData {
-  const date =
-    result.createdAt?.split('T')[0] ?? new Date().toISOString().split('T')[0];
+  const date = toLocalDateString(result.createdAt);
   return {
     id: result.id != null ? String(result.id) : `${date}-${result.title}`,
     title: result.title,
