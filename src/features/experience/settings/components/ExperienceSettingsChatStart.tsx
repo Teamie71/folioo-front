@@ -9,21 +9,8 @@ import { useExperienceStore } from '@/store/useExperienceStore';
 import { ChatStartIcon } from '@/components/icons/ChatStartIcon';
 import { useExperienceControllerCreateExperience } from '@/api/endpoints/experience/experience';
 import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
-import {
-  CreateExperienceReqDTOHopeJob,
-  type CreateExperienceReqDTOHopeJob as HopeJobType,
-} from '@/api/models';
-
-/* 폼 희망 직군 라벨 → API hopeJob enum 매핑 */
-const DESIRED_JOB_TO_HOPE_JOB: Record<string, HopeJobType> = {
-  미정: CreateExperienceReqDTOHopeJob.NONE,
-  기획: CreateExperienceReqDTOHopeJob.PLANNING,
-  '광고/마케팅': CreateExperienceReqDTOHopeJob.MARKETING,
-  디자인: CreateExperienceReqDTOHopeJob.DESIGN,
-  'IT 개발': CreateExperienceReqDTOHopeJob.DEV,
-  '영상/미디어': CreateExperienceReqDTOHopeJob.MEDIA,
-  데이터: CreateExperienceReqDTOHopeJob.DATA,
-};
+import type { CreateExperienceReqDTOHopeJob } from '@/api/models';
+import { LABEL_TO_HOPE_JOB } from '@/constants/hopeJob';
 
 interface ExperienceSettingsChatStartProps {
   onValidationError: (
@@ -52,8 +39,7 @@ export function ExperienceSettingsChatStart({
     if (isCreating) return;
 
     const hopeJob =
-      DESIRED_JOB_TO_HOPE_JOB[formData.desiredJob] ??
-      CreateExperienceReqDTOHopeJob.NONE;
+      (LABEL_TO_HOPE_JOB[formData.desiredJob] ?? 'NONE') as CreateExperienceReqDTOHopeJob;
 
     try {
       const response = await createExperience({

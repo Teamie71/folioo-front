@@ -9,25 +9,14 @@ import {
   type ExperienceReturnPath,
 } from '@/features/experience/utils/experienceReturnPath';
 import { useExperienceControllerGetExperiences } from '@/api/endpoints/experience/experience';
-import { ExperienceResDTOHopeJob } from '@/api/models';
 import type { ExperienceResDTO } from '@/api/models';
-
-/* API hopeJob enum → 카드 태그 라벨 */
-const HOPE_JOB_TO_LABEL: Record<string, string> = {
-  [ExperienceResDTOHopeJob.NONE]: '미정',
-  [ExperienceResDTOHopeJob.PLANNING]: '기획',
-  [ExperienceResDTOHopeJob.MARKETING]: '광고/마케팅',
-  [ExperienceResDTOHopeJob.DESIGN]: '디자인',
-  [ExperienceResDTOHopeJob.DEV]: 'IT 개발',
-  [ExperienceResDTOHopeJob.MEDIA]: '영상/미디어',
-  [ExperienceResDTOHopeJob.DATA]: '데이터',
-};
+import { getHopeJobLabel } from '@/constants/hopeJob';
 
 function toCard(item: ExperienceResDTO) {
   return {
     id: String(item.id),
     title: item.name,
-    tag: HOPE_JOB_TO_LABEL[item.hopeJob] ?? '미정',
+    tag: getHopeJobLabel(item.hopeJob),
     date: item.createdAt.slice(0, 10),
   };
 }

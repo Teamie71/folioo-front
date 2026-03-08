@@ -3,16 +3,7 @@
 import { SingleButtonGroup } from '@/components/SingleButtonGroup';
 import InputArea from '@/components/InputArea';
 import { useExperienceStore } from '@/store/useExperienceStore';
-
-const JOB_OPTIONS = [
-  { label: '미정' },
-  { label: '기획' },
-  { label: '광고/마케팅' },
-  { label: '디자인' },
-  { label: 'IT 개발' },
-  { label: '영상/미디어' },
-  { label: '데이터' },
-];
+import { HOPE_JOB_OPTIONS } from '@/constants/hopeJob';
 
 interface ExperienceSettingsFormProps {
   errors: Partial<Record<'experienceName' | 'desiredJob', string>>;
@@ -63,7 +54,7 @@ export function ExperienceSettingsForm({
         </div>
         {/* 직무 목록 */}
         <SingleButtonGroup
-          options={JOB_OPTIONS}
+          options={HOPE_JOB_OPTIONS}
           value={formData.desiredJob}
           onValueChange={(value) => setFormField('desiredJob', value)}
         />
