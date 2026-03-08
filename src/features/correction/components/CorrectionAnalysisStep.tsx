@@ -5,7 +5,7 @@ import TextField from '@/components/TextField';
 import { CorrectionIcon } from '@/components/icons/CorrectionIcon';
 import {
   usePortfolioCorrectionControllerGetCompanyInsight,
-  portfolioCorrectionControllerReCreateCompanyInsight,
+  portfolioCorrectionControllerCreateCompanyInsight,
 } from '@/api/endpoints/portfolio-correction/portfolio-correction';
 import { useEffect, useState } from 'react';
 import {
@@ -81,7 +81,7 @@ export function CorrectionAnalysisStep({
     if (!enabled || isLoading || isRegenerating) return;
     setIsRegenerating(true);
     try {
-      await portfolioCorrectionControllerReCreateCompanyInsight(numId);
+      await portfolioCorrectionControllerCreateCompanyInsight(numId);
       await refetch();
     } catch {
       // 실패 시 그대로 유지, 다시 시도하기 버튼으로 재시도 가능

@@ -20,7 +20,7 @@ import type {
   ExternalPortfolioControllerGetExternalPortfolios200,
   ExternalPortfolioControllerCreateExternalPortfolioBlock200,
 } from '@/api/models';
-import { useExperienceControllerGetExperiences } from '@/api/endpoints/experience/experience';
+import { usePortfolioControllerGetPortfolios } from '@/api/endpoints/portfolio/portfolio';
 import { mapToPdfActivityBlock, toPatchBody } from '@/services/correction';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -134,24 +134,20 @@ export function useCorrectionState(correctionId: string | undefined) {
     useState<FileDeleteConfirmTarget>(null);
 
   const accessToken = useAuthStore((s) => s.accessToken);
-  const { data: experiencesData } = useExperienceControllerGetExperiences(
-    undefined,
-    {
-      query: {
-        // 토큰이 있을 때만 호출 (세션 복원 전 요청 시 401 방지)
-        enabled:
-          !!accessToken &&
-          step === 'portfolio' &&
-          selectedPortfolioType === 'text',
-      },
+  const { data: portfoliosData } = usePortfolioControllerGetPortfolios({
+    query: {
+      enabled:
+        !!accessToken &&
+        step === 'portfolio' &&
+        selectedPortfolioType === 'text',
     },
-  );
-  const experiencesList = experiencesData?.result ?? [];
-  const textPortfolios = experiencesList.map((e) => ({
-    id: String(e.id),
-    title: e.name,
-    tag: e.hopeJob,
-    date: e.createdAt.slice(0, 10),
+  });
+  const portfoliosList = portfoliosData?.result ?? [];
+  const textPortfolios = portfoliosList.map((p) => ({
+    id: String(p.id),
+    title: p.name,
+    tag: p.hopeJob != null ? String(p.hopeJob) : '',
+    date: p.createdAt.slice(0, 10),
   }));
 
   // portfolio + PDF 선택 시 창 어디로든 파일 드래그 들어오면 전체 페이지 드롭 오버레이 활성화
