@@ -147,8 +147,11 @@ export function ChatMessageSection({
                       <button
                         type='button'
                         style={{ width: '10rem', height: '2.5rem' }}
-                        className='shrink-0 cursor-pointer rounded-[6.25rem] border-[0.09375rem] border-[#5060C5] bg-[#F6F5FF] px-4 py-2 text-[1rem] font-semibold text-[#5060C5] hover:bg-[#EEEDF7] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5060C5]'
-                        onClick={() => onRetryAIMessage?.(index)}
+                        className='relative z-[999] shrink-0 cursor-pointer rounded-[6.25rem] border-[0.09375rem] border-[#5060C5] bg-[#F6F5FF] px-4 py-2 text-[1rem] font-semibold text-[#5060C5] hover:bg-[#EEEDF7] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5060C5]'
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRetryAIMessage?.(index);
+                        }}
                       >
                         다시 시도하기
                       </button>
