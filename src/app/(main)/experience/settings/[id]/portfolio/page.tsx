@@ -22,17 +22,7 @@ import {
   useExperienceControllerUpdateExperience,
 } from '@/api/endpoints/experience/experience';
 import { usePortfolioControllerGetPortfolio } from '@/api/endpoints/portfolio/portfolio';
-import { PortfolioDetailResDTOHopeJob } from '@/api/models';
-
-const HOPE_JOB_LABEL: Record<string, string> = {
-  [PortfolioDetailResDTOHopeJob.NONE]: '직무',
-  [PortfolioDetailResDTOHopeJob.PLANNING]: '기획',
-  [PortfolioDetailResDTOHopeJob.MARKETING]: '마케팅',
-  [PortfolioDetailResDTOHopeJob.DESIGN]: '디자인',
-  [PortfolioDetailResDTOHopeJob.DEV]: 'IT 개발',
-  [PortfolioDetailResDTOHopeJob.MEDIA]: '미디어',
-  [PortfolioDetailResDTOHopeJob.DATA]: '데이터',
-};
+import { getHopeJobLabel } from '@/constants/hopeJob';
 
 export default function ExperienceSettingsPortfolioPage() {
   const params = useParams();
@@ -101,9 +91,7 @@ export default function ExperienceSettingsPortfolioPage() {
     setRoleContent(portfolio.responsibilities ?? '');
     setProblemContent(portfolio.problemSolving ?? '');
     setLearnContent(portfolio.learnings ?? '');
-    setHopeJobTag(
-      (portfolio.hopeJob && HOPE_JOB_LABEL[portfolio.hopeJob]) ?? 'IT 개발',
-    );
+    setHopeJobTag(getHopeJobLabel(portfolio.hopeJob));
   }, [portfolio]);
 
   useEffect(() => {

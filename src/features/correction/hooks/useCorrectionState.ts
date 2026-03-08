@@ -30,6 +30,7 @@ import {
   INITIAL_PDF_ACTIVITIES,
   PDF_CATEGORY_CHAR_LIMIT,
 } from '@/features/correction/constants';
+import { getHopeJobLabel } from '@/constants/hopeJob';
 import type {
   FileDeleteConfirmTarget,
   PdfActivityBlock,
@@ -225,17 +226,18 @@ export function useCorrectionState(correctionId: string | undefined) {
     if (!pdfUploadedFile) return;
     const id = effectiveId ? Number(effectiveId) : null;
     if (id == null || Number.isNaN(id)) return;
+    const correctionId = id;
     setIsPdfExtractConfirmModalOpen(false);
     setIsPdfTextExtracting(true);
     try {
       await externalPortfolioControllerExtractPortfolios({
-        correctionId: id,
+        correctionId,
         file: pdfUploadedFile.file,
       });
       setIsPdfTextExtracted(true);
       const listRes =
         await externalPortfolioControllerGetSelectedPortfolios({
-          correctionId: id,
+          correctionId,
         });
       const listResult = (listRes as ExternalPortfolioControllerGetSelectedPortfolios200)
         .result;

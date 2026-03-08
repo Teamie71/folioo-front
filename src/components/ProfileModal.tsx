@@ -195,12 +195,12 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
             <div className='flex flex-col gap-[2rem]'>
               <div className='flex items-center justify-between'>
                 <p className='text-[1.125rem] leading-[150%] text-[#1A1A1A]'>
-                  서비스 이용 약관
+                  서비스 이용약관
                 </p>
                 <Link
                   href='/tos'
                   className='scale-x-[-1] cursor-pointer'
-                  aria-label='서비스 이용 약관'
+                  aria-label='서비스 이용약관'
                 >
                   <ChevronLeftIcon />
                 </Link>
