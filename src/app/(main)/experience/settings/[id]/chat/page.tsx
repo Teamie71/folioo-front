@@ -73,6 +73,8 @@ export default function ExperienceSettingsChatPage() {
   const [sessionStreamError, setSessionStreamError] = useState<string | null>(
     null,
   );
+  /* 새로고침 후 세션 스트림 실패 시 재시도: 증가시키면 세션 스트림 effect가 다시 실행됨 */
+  const [sessionStreamKey, setSessionStreamKey] = useState(0);
   /* 인터뷰 단계 */
   const [currentStage, setCurrentStage] = useState(0);
   /* 2·3·4단계(grid 1,2,3) 진입 시에만 해당 단계 툴팁 표시. 진입한 단계 번호 또는 null */
@@ -137,7 +139,7 @@ export default function ExperienceSettingsChatPage() {
     return () => clearTimeout(t);
   }, [isStreaming]);
 
-  // 진입 시: 세션 있으면 기존 대화 로드, 없으면 세션 스트림 시작
+  // 진입 시: 세션 있으면 기존 대화 로드, 없으면 세션 스트림 시작. sessionStreamKey 변경 시 재시도.
   useEffect(() => {
     if (!id || Number.isNaN(experienceId)) return;
 
@@ -194,7 +196,6 @@ export default function ExperienceSettingsChatPage() {
                 ) {
                   setShowTooltipForStep(newStage);
                 }
-                prevStageRef.current = newStage;
                 setCurrentStage(newStage);
               }
               return next;
@@ -214,6 +215,10 @@ export default function ExperienceSettingsChatPage() {
     };
 
     (async () => {
+      if (sessionStreamKey > 0) {
+        startSessionStream();
+        return;
+      }
       try {
         const res = await interviewControllerGetSessionState(experienceId);
         if (cancelled) return;
@@ -246,7 +251,7 @@ export default function ExperienceSettingsChatPage() {
       cancelled = true;
       sessionAbortRef.current?.abort();
     };
-  }, [id, experienceId]);
+  }, [id, experienceId, sessionStreamKey]);
 
   // 브라우저 스크롤 차단
   useEffect(() => {
@@ -256,6 +261,12 @@ export default function ExperienceSettingsChatPage() {
       document.body.style.overflow = prev;
     };
   }, []);
+
+  /** 새로고침 후 답변 로드 실패 시 세션 스트림 재시도 */
+  const handleRetrySession = () => {
+    setSessionStreamError(null);
+    setSessionStreamKey((k) => k + 1);
+  };
 
   const handleSend = (payload: {
     content: string;
@@ -331,7 +342,6 @@ export default function ExperienceSettingsChatPage() {
               ) {
                 setShowTooltipForStep(newStage);
               }
-              prevStageRef.current = newStage;
               setCurrentStage(newStage);
             }
             return next;
@@ -531,7 +541,6 @@ export default function ExperienceSettingsChatPage() {
               ) {
                 setShowTooltipForStep(newStage);
               }
-              prevStageRef.current = newStage;
               setCurrentStage(newStage);
             }
             return next;
@@ -607,14 +616,13 @@ export default function ExperienceSettingsChatPage() {
             messages={messages}
             isStreaming={isStreaming}
             onRetryAIMessage={handleRetryAIMessage}
+            sessionLoadFailed={!!sessionStreamError}
+            onRetrySession={handleRetrySession}
             searchKeyword={
               [...messages].reverse().find((m) => m.role === 'user')?.content ??
               ''
             }
           />
-          {sessionStreamError && (
-            <p className='mt-2 text-sm text-red-600'>{sessionStreamError}</p>
-          )}
         </div>
       </div>
 

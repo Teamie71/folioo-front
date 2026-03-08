@@ -6,6 +6,7 @@ import { ChevronColorLeftIcon } from '@/components/icons/ChevronColorLeftIcon';
 import { ChatLoadingMessage } from '@/features/experience/chat/components/ChatLoadingMessage';
 import { useInsightControllerGetLogs } from '@/api/endpoints/insight/insight';
 import type { InsightLogResDTO } from '@/api/models';
+import { ChatErrorReloadMessage } from '@/features/experience/chat/components/ChatErrorReloadMessage';
 
 interface ChatAnalogsProps {
   /* 대화/질문 키워드로 유사 인사이트 검색 */
@@ -21,7 +22,7 @@ function formatDate(createdAt: string): string {
 }
 
 export const ChatAnalogs = ({ searchKeyword }: ChatAnalogsProps) => {
-  const { data, isLoading, isError } = useInsightControllerGetLogs(
+  const { data, isLoading, isError, refetch } = useInsightControllerGetLogs(
     searchKeyword?.trim() ? { keyword: searchKeyword.trim() } : undefined,
     { query: { enabled: !!searchKeyword?.trim() } },
   );
@@ -49,11 +50,7 @@ export const ChatAnalogs = ({ searchKeyword }: ChatAnalogsProps) => {
   }
 
   if (isError) {
-    return (
-      <div className='flex flex-col'>
-        <ChatLoadingMessage />
-      </div>
-    );
+    return <ChatErrorReloadMessage onRetry={() => refetch()} />;
   }
 
   if (insights.length === 0) {

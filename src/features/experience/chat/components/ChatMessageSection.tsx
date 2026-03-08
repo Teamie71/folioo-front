@@ -5,6 +5,7 @@ import { animate } from 'framer-motion';
 import Image from 'next/image';
 import type { ContentPart } from './ChatInput';
 import { ChatAnalogs } from './ChatAnalogs';
+import { ChatErrorReloadMessage } from './ChatErrorReloadMessage';
 import { ChatLoadingMessage } from './ChatLoadingMessage';
 import { PdfIcon } from '@/components/icons/PdfIcon';
 
@@ -59,6 +60,10 @@ interface ChatMessageSectionProps {
   isStreaming?: boolean;
   /** 유사 인사이트 검색용 키워드 (마지막 사용자 메시지 등) */
   searchKeyword?: string;
+  /** 새로고침 후 세션 스트림 실패 시 true → ChatErrorReloadMessage 표시 */
+  sessionLoadFailed?: boolean;
+  /** 세션 스트림 재시도 (새로고침 후 답변 없을 때) */
+  onRetrySession?: () => void;
 }
 
 export function ChatMessageSection({
@@ -68,6 +73,8 @@ export function ChatMessageSection({
   onRetryAIMessage,
   isStreaming = false,
   searchKeyword,
+  sessionLoadFailed = false,
+  onRetrySession,
 }: ChatMessageSectionProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -156,6 +163,11 @@ export function ChatMessageSection({
                         다시 시도하기
                       </button>
                     </div>
+                  ) : sessionLoadFailed &&
+                    index === messages.length - 1 &&
+                    !msg.content &&
+                    !isStreaming ? (
+                    <ChatErrorReloadMessage onRetry={onRetrySession} />
                   ) : msg.content ? (
                     msg.content
                   ) : isStreaming && index === messages.length - 1 ? (
