@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
@@ -352,9 +351,7 @@ export default function LogPage() {
                 placeholder='검색어를 입력하세요.'
                 maxLength={100}
                 value={searchInput}
-                onChange={(e) =>
-                  setSearchInput(e.target.value.slice(0, 100))
-                }
+                onChange={(e) => setSearchInput(e.target.value.slice(0, 100))}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
@@ -421,12 +418,15 @@ export default function LogPage() {
                   duration: 2,
                   ease: 'easeOut',
                 }}
+                aria-hidden
               >
-                <Image
+                <img
                   src='/LoadingSpinnerIcon.svg'
-                  alt='loading'
+                  alt=''
                   width={64}
                   height={64}
+                  loading='eager'
+                  decoding='async'
                 />
               </motion.div>
             </div>
