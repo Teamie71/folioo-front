@@ -142,13 +142,6 @@ export function useCorrectionState(correctionId: string | undefined) {
         step === 'portfolio' &&
         selectedPortfolioType === 'text',
     },
-  );
-  const experiencesList = experiencesData?.result ?? [];
-  const textPortfolios = experiencesList.map((e) => ({
-    id: String(e.id),
-    title: e.name,
-    tag: getHopeJobLabel(e.hopeJob),
-    date: e.createdAt.slice(0, 10),
   });
   const portfoliosList = portfoliosData?.result ?? [];
   const textPortfolios = portfoliosList.map((p) => ({
