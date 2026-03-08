@@ -22,7 +22,11 @@ import type {
 import { ChatCompleteModal } from '@/features/experience/chat/components/ChatCompleteModal';
 import { PortfolioCreateModal } from '@/features/experience/chat/components/PortfolioCreateModal';
 import { fetchSSEStream } from '@/lib/sseStream';
-import { useExperienceControllerUpdateExperience } from '@/api/endpoints/experience/experience';
+import {
+  getExperienceControllerGetExperienceQueryKey,
+  useExperienceControllerGetExperience,
+  useExperienceControllerUpdateExperience,
+} from '@/api/endpoints/experience/experience';
 import {
   interviewControllerGetSessionState,
   useInterviewControllerGeneratePortfolio,
@@ -61,11 +65,20 @@ export default function ExperienceSettingsChatPage() {
       '새로운 경험 정리',
   );
 
+  const { data: experienceData } = useExperienceControllerGetExperience(
+    experienceId,
+    { query: { enabled: Number.isFinite(experienceId) } },
+  );
+  const experienceName = experienceData?.result?.name;
+  const titleReady = experienceData?.result != null;
+  const displayTitle = titleReady
+    ? (experienceName ?? storeTitle ?? '새로운 경험 정리')
+    : '';
+
   const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
   const [isPortfolioCreateModalOpen, setIsPortfolioCreateModalOpen] =
     useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [experienceTitle, setExperienceTitle] = useState(storeTitle);
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -103,12 +116,8 @@ export default function ExperienceSettingsChatPage() {
   }, [currentStage]);
 
   useEffect(() => {
-    setExperienceTitle(storeTitle);
-  }, [id, storeTitle]);
-
-  useEffect(() => {
-    document.title = `${experienceTitle} - Folioo`;
-  }, [experienceTitle]);
+    if (titleReady) document.title = `${displayTitle} - Folioo`;
+  }, [titleReady, displayTitle]);
 
   useEffect(() => {
     if (id) setExperienceReturnPath(id, 'chat');
@@ -584,31 +593,36 @@ export default function ExperienceSettingsChatPage() {
         <div className='flex w-full shrink-0 items-center justify-between'>
           <div className='flex items-center gap-[0.5rem]'>
             <BackButton href='/experience' />
-            <InlineEdit
-              title={experienceTitle}
-              isEditing={isEditingTitle}
-              onEdit={() => setIsEditingTitle(true)}
-              onSave={(newTitle) => {
-                if (!Number.isFinite(experienceId)) {
-                  setExperienceTitle(newTitle);
-                  updateExperienceTitle(id, newTitle);
-                  setIsEditingTitle(false);
-                  return;
-                }
-                updateExperience({
-                  experienceId,
-                  data: { name: newTitle },
-                })
-                  .then(() => {
-                    setExperienceTitle(newTitle);
+            {titleReady && (
+              <InlineEdit
+                title={displayTitle}
+                isEditing={isEditingTitle}
+                onEdit={() => setIsEditingTitle(true)}
+                onSave={(newTitle) => {
+                  if (!Number.isFinite(experienceId)) {
                     updateExperienceTitle(id, newTitle);
                     setIsEditingTitle(false);
+                    return;
+                  }
+                  updateExperience({
+                    experienceId,
+                    data: { name: newTitle },
                   })
-                  .catch(() => {
-                    setIsEditingTitle(false);
-                  });
-              }}
-            />
+                    .then(() => {
+                      updateExperienceTitle(id, newTitle);
+                      queryClient.invalidateQueries({
+                        queryKey: getExperienceControllerGetExperienceQueryKey(
+                          experienceId,
+                        ),
+                      });
+                      setIsEditingTitle(false);
+                    })
+                    .catch(() => {
+                      setIsEditingTitle(false);
+                    });
+                }}
+              />
+            )}
           </div>
 
           <DeleteModalButton

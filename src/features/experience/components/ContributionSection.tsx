@@ -15,12 +15,14 @@ interface ContributionSectionProps {
   initialValue?: number;
   className?: string;
   duration?: number;
+  onSave?: (value: number) => void;
 }
 
 export function ContributionSection({
   initialValue = 0,
   className,
   duration = 1000,
+  onSave: onSaveProp,
 }: ContributionSectionProps) {
   const [value, setValue] = React.useState(initialValue); // 실제 저장된 값
   const [tempValue, setTempValue] = React.useState(initialValue); // 미리보기용 임시 값
@@ -34,6 +36,14 @@ export function ContributionSection({
     setTempValue, // 미리보기용 값만 변경
   );
 
+  const handleSave = React.useCallback(
+    (v: number) => {
+      setValue(v);
+      onSaveProp?.(v);
+    },
+    [onSaveProp],
+  );
+
   // 입력 편집 관련 로직: useContributionInput hook
   const {
     isEditing,
@@ -43,7 +53,7 @@ export function ContributionSection({
     handleInputSubmit,
     handleKeyDown,
     handleInputBlur,
-  } = useContributionInput(safeTempValue, setTempValue, setValue);
+  } = useContributionInput(safeTempValue, setTempValue, handleSave);
 
   // 편집 모드가 시작되면 tempValue를 value로 초기화
   React.useEffect(() => {
@@ -75,10 +85,7 @@ export function ContributionSection({
 
   return (
     <div
-      className={cn(
-        'group flex w-auto items-center gap-[1.5rem]',
-        className,
-      )}
+      className={cn('group flex w-auto items-center gap-[1.5rem]', className)}
     >
       <p className='text-[1.125rem] font-bold text-[#1A1A1A]'>기여도</p>
 

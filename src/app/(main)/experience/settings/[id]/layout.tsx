@@ -2,7 +2,10 @@
 
 import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useExperienceControllerGetExperiences } from '@/api/endpoints/experience/experience';
+import {
+  useExperienceControllerGetExperience,
+  useExperienceControllerGetExperiences,
+} from '@/api/endpoints/experience/experience';
 
 /* 타인의 경험 정리 URL로 직접 진입하는 것을 방지: 내 경험 목록에 해당 id가 없으면 /experience로 리다이렉트 */
 export default function ExperienceSettingsIdLayout({
@@ -17,6 +20,10 @@ export default function ExperienceSettingsIdLayout({
 
   const { data, isLoading, isFetched } =
     useExperienceControllerGetExperiences();
+
+  useExperienceControllerGetExperience(experienceId, {
+    query: { enabled: Number.isFinite(experienceId) },
+  });
 
   useEffect(() => {
     if (!isFetched || isLoading) return;

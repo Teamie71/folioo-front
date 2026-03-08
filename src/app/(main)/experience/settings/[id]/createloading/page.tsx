@@ -2,13 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { StepProgressBar } from '@/components/StepProgressBar';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
 import { InlineEdit } from '@/components/InlineEdit';
 import { useExperienceStore } from '@/store/useExperienceStore';
-import { useExperienceControllerUpdateExperience } from '@/api/endpoints/experience/experience';
+import {
+  getExperienceControllerGetExperienceQueryKey,
+  useExperienceControllerGetExperience,
+  useExperienceControllerUpdateExperience,
+} from '@/api/endpoints/experience/experience';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { CommonButton } from '@/components/CommonButton';
@@ -33,16 +38,22 @@ export default function ExperienceSettingsChatLoadingPage() {
       '새로운 경험 정리',
   );
 
+  const queryClient = useQueryClient();
+  const { data: experienceData } = useExperienceControllerGetExperience(
+    experienceId,
+    { query: { enabled: Number.isFinite(experienceId) } },
+  );
+  const experienceName = experienceData?.result?.name;
+  const titleReady = experienceData?.result != null;
+  const displayTitle = titleReady
+    ? (experienceName ?? storeTitle ?? '새로운 경험 정리')
+    : '';
+
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [experienceTitle, setExperienceTitle] = useState(storeTitle);
 
   useEffect(() => {
-    setExperienceTitle(storeTitle);
-  }, [id, storeTitle]);
-
-  useEffect(() => {
-    document.title = `${experienceTitle} - Folioo`;
-  }, [experienceTitle]);
+    if (titleReady) document.title = `${displayTitle} - Folioo`;
+  }, [titleReady, displayTitle]);
 
   useEffect(() => {
     if (id) setExperienceReturnPath(id, 'createloading');
@@ -60,31 +71,36 @@ export default function ExperienceSettingsChatLoadingPage() {
         <div className='flex w-full shrink-0 items-center justify-between'>
           <div className='flex items-center gap-[0.5rem]'>
             <BackButton href='/experience' />
-            <InlineEdit
-              title={experienceTitle}
-              isEditing={isEditingTitle}
-              onEdit={() => setIsEditingTitle(true)}
-              onSave={(newTitle) => {
-                if (!Number.isFinite(experienceId)) {
-                  setExperienceTitle(newTitle);
-                  updateExperienceTitle(id, newTitle);
-                  setIsEditingTitle(false);
-                  return;
-                }
-                updateExperience({
-                  experienceId,
-                  data: { name: newTitle },
-                })
-                  .then(() => {
-                    setExperienceTitle(newTitle);
+            {titleReady && (
+              <InlineEdit
+                title={displayTitle}
+                isEditing={isEditingTitle}
+                onEdit={() => setIsEditingTitle(true)}
+                onSave={(newTitle) => {
+                  if (!Number.isFinite(experienceId)) {
                     updateExperienceTitle(id, newTitle);
                     setIsEditingTitle(false);
+                    return;
+                  }
+                  updateExperience({
+                    experienceId,
+                    data: { name: newTitle },
                   })
-                  .catch(() => {
-                    setIsEditingTitle(false);
-                  });
-              }}
-            />
+                    .then(() => {
+                      updateExperienceTitle(id, newTitle);
+                      queryClient.invalidateQueries({
+                        queryKey: getExperienceControllerGetExperienceQueryKey(
+                          experienceId,
+                        ),
+                      });
+                      setIsEditingTitle(false);
+                    })
+                    .catch(() => {
+                      setIsEditingTitle(false);
+                    });
+                }}
+              />
+            )}
           </div>
 
           <DeleteModalButton
