@@ -226,31 +226,18 @@ export function useCorrectionState(correctionId: string | undefined) {
     if (!pdfUploadedFile) return;
     const id = effectiveId ? Number(effectiveId) : null;
     if (id == null || Number.isNaN(id)) return;
+    const correctionId = id;
     setIsPdfExtractConfirmModalOpen(false);
     setIsPdfTextExtracting(true);
     try {
       await externalPortfolioControllerExtractPortfolios({
-        correctionId: id,
+        correctionId,
         file: pdfUploadedFile.file,
       });
       setIsPdfTextExtracted(true);
-      const id = effectiveId ? Number(effectiveId) : null;
-      if (id != null && !Number.isNaN(id)) {
-        const listRes =
-          await externalPortfolioControllerGetSelectedPortfolios({
-            correctionId: id,
-          });
-        const listResult = (listRes as ExternalPortfolioControllerGetSelectedPortfolios200)
-          .result;
-        const activities = (listResult ?? []).map((dto, i) =>
-          mapToPdfActivityBlock(dto, i),
-        );
-        setPdfActivities(activities);
-        if (activities.length > 0) setSelectedActivityId(activities[0].id);
-      }
       const listRes =
         await externalPortfolioControllerGetSelectedPortfolios({
-          correctionId: id,
+          correctionId,
         });
       const listResult = (listRes as ExternalPortfolioControllerGetSelectedPortfolios200)
         .result;
