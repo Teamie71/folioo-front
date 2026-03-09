@@ -3,9 +3,9 @@
 import { CommonButton } from '@/components/CommonButton';
 import TextField from '@/components/TextField';
 import { CorrectionIcon } from '@/components/icons/CorrectionIcon';
+import { CorrectionLoadingSpinner } from '@/features/correction/components/CorrectionLoadingSpinner';
 import {
   usePortfolioCorrectionControllerGetCompanyInsight,
-  portfolioCorrectionControllerCreateCompanyInsight,
 } from '@/api/endpoints/portfolio-correction/portfolio-correction';
 import { useEffect, useState } from 'react';
 import {
@@ -45,8 +45,6 @@ export function CorrectionAnalysisStep({
       query: { enabled },
     });
 
-  const [isRegenerating, setIsRegenerating] = useState(false);
-
   const companyInsightRaw = data?.result?.companyInsight;
   const companyInsightText =
     companyInsightRaw == null
@@ -76,19 +74,6 @@ export function CorrectionAnalysisStep({
     onAnalysisInfoChange,
     limitAllowedInput,
   ]);
-
-  const handleRegenerate = async () => {
-    if (!enabled || isLoading || isRegenerating) return;
-    setIsRegenerating(true);
-    try {
-      await portfolioCorrectionControllerCreateCompanyInsight(numId);
-      await refetch();
-    } catch {
-      // 실패 시 그대로 유지, 다시 시도하기 버튼으로 재시도 가능
-    } finally {
-      setIsRegenerating(false);
-    }
-  };
 
   return (
     <>
@@ -120,12 +105,9 @@ export function CorrectionAnalysisStep({
                 )}
               </div>
             </div>
-            {enabled && (isLoading || isRegenerating) ? (
+            {enabled && isLoading ? (
               <div className='flex min-h-[17.125rem] items-center justify-center rounded-[1.25rem] border border-[#E9EAEC]'>
-                <div
-                  className='h-8 w-8 animate-spin rounded-full border-2 border-[#E9EAEC] border-t-[#5060C5]'
-                  aria-hidden
-                />
+                <CorrectionLoadingSpinner />
               </div>
             ) : enabled && isError ? (
               <div className='flex min-h-[17.125rem] items-center justify-center rounded-[1.25rem] border border-[#E9EAEC]'>
@@ -155,20 +137,6 @@ export function CorrectionAnalysisStep({
                     );
                   }}
                 />
-                {enabled && (
-                  <div className='pointer-events-none absolute inset-0 flex items-center justify-center'>
-                    <CommonButton
-                      variantType='Outline'
-                      px='1.5rem'
-                      py='0.5rem'
-                      disabled={isRegenerating}
-                      onClick={handleRegenerate}
-                      className='pointer-events-auto'
-                    >
-                      {isRegenerating ? '재생성 중...' : '재생성'}
-                    </CommonButton>
-                  </div>
-                )}
               </div>
             )}
           </div>
