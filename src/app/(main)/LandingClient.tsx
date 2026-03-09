@@ -9,6 +9,7 @@ import { ExperienceHIW } from '@/features/landing/components/ExperienceHIW';
 import { PortfolioComments } from '@/features/landing/components/PortfolioProblems';
 import { PortfoliloPoints } from '@/features/landing/components/PortfolioPoints';
 import { PortfolioHIW } from '@/features/landing/components/PortfolioHIW';
+import { LandingVideo } from '@/features/landing/components/LandingVideo';
 import { useAuthStore } from '@/store/useAuthStore';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -193,10 +194,10 @@ export default function LandingClient() {
               </div>
             </div>
 
-            {/* 영상 */}
+            {/* 영상 (mp4는 public/landing/ 에 두고 경로만 맞추면 됨) */}
             <div className='flex flex-col gap-[1.25rem]'>
               <div className='flex w-full justify-between'>
-                <div className='h-[18.75rem] w-[31.25rem] bg-[#D9D9D9]' />
+                <LandingVideo src='/landing/log1.mp4' />
 
                 <div className='flex h-[18.75rem] w-[31.25rem] flex-col justify-center gap-[1rem] pl-[5rem]'>
                   <p className='text-[1.125rem] leading-[150%] text-[#000000]'>
@@ -222,7 +223,7 @@ export default function LandingClient() {
                   </p>
                 </div>
 
-                <div className='h-[18.75rem] w-[31.25rem] bg-[#D9D9D9]' />
+                <LandingVideo src='/landing/log2.mp4' />
               </div>
             </div>
           </div>
