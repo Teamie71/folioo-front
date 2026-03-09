@@ -4,9 +4,9 @@ import { Suspense, useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import {
-  setExperienceReturnPath,
-  isChatNewExperience,
   clearChatNewExperienceId,
+  isChatNewExperience,
+  setExperienceReturnPath,
 } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { StepProgressBar } from '@/components/StepProgressBar';
@@ -61,7 +61,7 @@ function ExperienceSettingsChatContent() {
   const isNewExperience = searchParams.get('new') === '1';
   const experienceId = id ? Number(id) : NaN;
   const sessionAbortRef = useRef<AbortController | null>(null);
-  /** 새 경험 진입 시 스트림 시작·정리 지연용 (Strict Mode cleanup에서 clear) */
+
   const newExperienceScheduleRef = useRef<number | null>(null);
   const removeExperience = useExperienceStore(
     (state) => state.removeExperience,
@@ -250,7 +250,6 @@ function ExperienceSettingsChatContent() {
         isChatNewExperience(experienceId) || isNewExperience || isNewFromUrl;
 
       if (skipStatusApi) {
-        // 한 틱 지연: Strict Mode에서 1차 run은 cleanup으로 타이머가 취소되므로, 2차 run의 타이머에서만 스트림 시작·정리 실행
         if (typeof window !== 'undefined') {
           newExperienceScheduleRef.current = window.setTimeout(() => {
             newExperienceScheduleRef.current = null;
@@ -328,12 +327,18 @@ function ExperienceSettingsChatContent() {
     setSessionStreamKey((k) => k + 1);
   };
 
+  const showRetryButton =
+    !!sessionStreamError ||
+    (messages.length > 0 &&
+      messages[messages.length - 1]?.role === 'ai' &&
+      messages[messages.length - 1]?.isError === true);
+
   const handleSend = (payload: {
     content: string;
     contentParts?: ContentPart[];
     files: FileItem[];
   }) => {
-    if (isStreaming || !payload.content.trim()) return;
+    if (isStreaming || showRetryButton || !payload.content.trim()) return;
 
     const fileInfos = payload.files.map((f) => ({
       name: f.file.name,
@@ -730,7 +735,7 @@ function ExperienceSettingsChatContent() {
           inputValue={inputValue}
           onInputChange={setInputValue}
           onSend={handleSend}
-          disabled={isStreaming}
+          disabled={isStreaming || showRetryButton}
           currentStep={currentStage}
           showTooltipForStep={showTooltipForStep}
         />
