@@ -7,6 +7,7 @@ import { cn } from '@/utils/utils';
 import { useRouter } from 'next/navigation';
 import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { useUserControllerGetExpiringTickets } from '@/api/endpoints/user/user';
+import { useAuthStore } from '@/store/useAuthStore';
 
 /** API 만료일 값을 YYYY.MM.DD 문자열로 변환 */
 function formatExpireDate(
@@ -38,9 +39,11 @@ export function CreditExpireAlert({
   expiringDays = 365,
   ...props
 }: CreditExpireAlertProps) {
-  const { data: expiringData } = useUserControllerGetExpiringTickets({
-    days: expiringDays,
-  });
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const { data: expiringData } = useUserControllerGetExpiringTickets(
+    { days: expiringDays },
+    { query: { enabled: !!accessToken } }
+  );
 
   const result = expiringData?.result;
   const experienceCount = result?.experience?.count ?? 0;

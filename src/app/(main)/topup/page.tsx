@@ -39,7 +39,9 @@ type SelectedVoucher = { type: VoucherType; option: VoucherOption };
 
 function TopupPageContent() {
   const accessToken = useAuthStore((s) => s.accessToken);
-  const { data: ticketBalance } = useUserControllerGetTicketBalance();
+  const { data: ticketBalance } = useUserControllerGetTicketBalance({
+    query: { enabled: !!accessToken },
+  });
   const experienceCount = ticketBalance?.result?.experience?.count ?? 0;
   const portfolioCount = ticketBalance?.result?.portfolioCorrection?.count ?? 0;
 
