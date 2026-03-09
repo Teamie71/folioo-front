@@ -10,4 +10,6 @@ import type { CorrectionResultItemReqDTO } from './correctionResultItemReqDTO';
 export interface SaveCorrectionResultReqDTO {
   /** 포트폴리오별 첨삭 결과 */
   result: CorrectionResultItemReqDTO[];
+  /** 전체 포트폴리오 총평 */
+  overallReview: string;
 }

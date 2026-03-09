@@ -5,23 +5,17 @@
  * API document of Folioo Development
  * OpenAPI spec version: 1.0.0
  */
-import type { CorrectionResultItemReqDTODescription } from './correctionResultItemReqDTODescription';
-import type { CorrectionResultItemReqDTOLearnings } from './correctionResultItemReqDTOLearnings';
-import type { CorrectionResultItemReqDTOOverallReview } from './correctionResultItemReqDTOOverallReview';
-import type { CorrectionResultItemReqDTOProblemSolving } from './correctionResultItemReqDTOProblemSolving';
-import type { CorrectionResultItemReqDTOResponsibilities } from './correctionResultItemReqDTOResponsibilities';
+import type { CorrectionFieldReqDTO } from './correctionFieldReqDTO';
 
 export interface CorrectionResultItemReqDTO {
   /** 포트폴리오 ID */
   portfolioId: number;
   /** 상세정보 첨삭 결과 */
-  description: CorrectionResultItemReqDTODescription;
+  description: CorrectionFieldReqDTO;
   /** 담당업무 첨삭 결과 */
-  responsibilities: CorrectionResultItemReqDTOResponsibilities;
+  responsibilities: CorrectionFieldReqDTO;
   /** 문제해결/성과 첨삭 결과 */
-  problemSolving: CorrectionResultItemReqDTOProblemSolving;
+  problemSolving: CorrectionFieldReqDTO;
   /** 배운 점 첨삭 결과 */
-  learnings: CorrectionResultItemReqDTOLearnings;
-  /** 종합 리뷰 */
-  overallReview: CorrectionResultItemReqDTOOverallReview;
+  learnings: CorrectionFieldReqDTO;
 }
