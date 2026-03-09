@@ -49,7 +49,7 @@ const TextField = React.forwardRef<HTMLTextAreaElement, TextFieldProps>(
 
     React.useEffect(() => {
       adjustHeight();
-    }, [adjustHeight]);
+    }, [adjustHeight, props.value]);
 
     const handleChange = React.useCallback(
       (e: React.ChangeEvent<HTMLTextAreaElement>) => {
