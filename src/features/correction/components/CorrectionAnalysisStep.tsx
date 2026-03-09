@@ -106,11 +106,11 @@ export function CorrectionAnalysisStep({
               </div>
             </div>
             {enabled && isLoading ? (
-              <div className='flex min-h-[17.125rem] items-center justify-center rounded-[1.25rem] border border-[#E9EAEC]'>
+              <div className='flex min-h-[17.125rem] items-center justify-center rounded-[1.25rem] border border-[#74777D]'>
                 <CorrectionLoadingSpinner />
               </div>
             ) : enabled && isError ? (
-              <div className='flex min-h-[17.125rem] items-center justify-center rounded-[1.25rem] border border-[#E9EAEC]'>
+              <div className='flex min-h-[17.125rem] items-center justify-center rounded-[1.25rem] border border-[#74777D]'>
                 <CommonButton
                   variantType='Outline'
                   px='1.5rem'
