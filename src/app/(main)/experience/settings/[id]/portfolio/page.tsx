@@ -10,7 +10,8 @@ import { InlineEdit } from '@/components/InlineEdit';
 import { useExperienceStore } from '@/store/useExperienceStore';
 import { usePortfolioCreationStore } from '@/store/usePortfolioCreationStore';
 import { ContributionBar } from '@/features/experience/components/ContributionBar';
-import { ExperienceExport } from '@/features/experience/portfolio/components/ExperienceExport';
+// import { ExperienceExport } from '@/features/experience/portfolio/components/ExperienceExport';
+import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { PortfolioDeleteBlockModal } from '@/features/experience/portfolio/components/PortfolioDeleteBlockModal';
 import SpanArea from '@/components/SpanArea';
 import Link from 'next/link';
@@ -30,6 +31,7 @@ import {
   usePortfolioControllerUpdatePortfolio,
 } from '@/api/endpoints/portfolio/portfolio';
 import { getHopeJobLabel } from '@/constants/hopeJob';
+import { ExportIcon } from '@/components/icons/ExportIcon';
 
 export default function ExperienceSettingsPortfolioPage() {
   const params = useParams();
@@ -64,6 +66,7 @@ export default function ExperienceSettingsPortfolioPage() {
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [deleteBlockModalOpen, setDeleteBlockModalOpen] = useState(false);
+  const [exportObtModalOpen, setExportObtModalOpen] = useState(false);
   const [detailInfo, setDetailInfo] = useState('');
   const [roleContent, setRoleContent] = useState('');
   const [problemContent, setProblemContent] = useState('');
@@ -193,11 +196,23 @@ export default function ExperienceSettingsPortfolioPage() {
             </div>
 
             <div className='flex items-center gap-[1.5rem]'>
+              {/* OBT 기간: 내보내기 클릭 시 준비 중 모달 */}
+              <button
+                type='button'
+                onClick={() => setExportObtModalOpen(true)}
+                className='flex cursor-pointer items-center gap-[0.5rem] border-none bg-transparent'
+                aria-label='내보내기'
+              >
+                <ExportIcon />
+                <span className='text-[1rem] text-[#1A1A1A]'>내보내기</span>
+              </button>
+              {/* 추후 내보내기 복구 시 사용
               <ExperienceExport
                 contentRef={exportContentRef}
                 title={displayTitle}
                 className='flex cursor-pointer items-center gap-[0.5rem] border-none bg-transparent'
               />
+              */}
 
               {/* 구분선 */}
               <div className='h-[1.5rem] w-[0.125rem] border-none bg-[#9EA4A9]' />
@@ -299,6 +314,11 @@ export default function ExperienceSettingsPortfolioPage() {
       <PortfolioDeleteBlockModal
         open={deleteBlockModalOpen}
         onOpenChange={setDeleteBlockModalOpen}
+      />
+
+      <OBTRedirectModal
+        open={exportObtModalOpen}
+        onOpenChange={setExportObtModalOpen}
       />
     </>
   );
