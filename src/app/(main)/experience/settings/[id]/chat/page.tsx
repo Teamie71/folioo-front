@@ -453,7 +453,10 @@ function ExperienceSettingsChatContent() {
           timeoutId = setTimeout(() => {
             if (cancelled) return;
             setIsPortfolioCreateModalOpen(false);
-            router.push(`/experience/settings/${id}/createloading`);
+            const path = `/experience/settings/${id}/createloading`;
+            requestAnimationFrame(() => {
+              router.replace(path);
+            });
           }, 2000);
         } else {
           setIsPortfolioCreateModalOpen(false);
