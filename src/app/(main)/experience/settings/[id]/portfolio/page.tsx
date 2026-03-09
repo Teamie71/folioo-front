@@ -4,7 +4,10 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import { useQueryClient } from '@tanstack/react-query';
-import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
+import {
+  setExperienceReturnPath,
+  getExperienceReturnPath,
+} from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
 import { InlineEdit } from '@/components/InlineEdit';
@@ -78,6 +81,20 @@ export default function ExperienceSettingsPortfolioPage() {
     Number.isFinite(experience.portfolioId)
       ? experience.portfolioId
       : 0;
+
+  const isDone = !!portfolioId;
+  useEffect(() => {
+    if (!id || !Number.isFinite(experienceId)) return;
+    if (experienceData === undefined) return;
+    if (experience == null) {
+      router.replace('/experience');
+      return;
+    }
+    if (!isDone) {
+      const returnPath = getExperienceReturnPath(id) ?? 'chat';
+      router.replace(`/experience/settings/${id}/${returnPath}`);
+    }
+  }, [id, experienceId, experienceData, experience, isDone, router]);
 
   const { mutateAsync: updatePortfolio } =
     usePortfolioControllerUpdatePortfolio();
@@ -265,7 +282,7 @@ export default function ExperienceSettingsPortfolioPage() {
               {/* 상세정보 */}
               <div className='flex flex-col gap-[1rem]'>
                 <span className='text-[1.125rem] font-bold'>상세정보</span>
-                <div className='prose prose-sm max-w-none w-full rounded-[1rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] leading-[160%] text-[#1A1A1A]'>
+                <div className='prose prose-sm w-full max-w-none rounded-[1rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] leading-[160%] text-[#1A1A1A]'>
                   <ReactMarkdown>{detailInfo || '내용'}</ReactMarkdown>
                 </div>
               </div>
@@ -273,7 +290,7 @@ export default function ExperienceSettingsPortfolioPage() {
               {/* 담당업무 */}
               <div className='flex flex-col gap-[1rem]'>
                 <span className='text-[1.125rem] font-bold'>담당업무</span>
-                <div className='prose prose-sm max-w-none w-full rounded-[1rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] leading-[160%] text-[#1A1A1A]'>
+                <div className='prose prose-sm w-full max-w-none rounded-[1rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] leading-[160%] text-[#1A1A1A]'>
                   <ReactMarkdown>{roleContent || '내용'}</ReactMarkdown>
                 </div>
               </div>
@@ -281,7 +298,7 @@ export default function ExperienceSettingsPortfolioPage() {
               {/* 문제해결 */}
               <div className='flex flex-col gap-[1rem]'>
                 <span className='text-[1.125rem] font-bold'>문제해결</span>
-                <div className='prose prose-sm max-w-none w-full rounded-[1rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] leading-[160%] text-[#1A1A1A]'>
+                <div className='prose prose-sm w-full max-w-none rounded-[1rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] leading-[160%] text-[#1A1A1A]'>
                   <ReactMarkdown>{problemContent || '내용'}</ReactMarkdown>
                 </div>
               </div>
@@ -289,7 +306,7 @@ export default function ExperienceSettingsPortfolioPage() {
               {/* 배운 점 */}
               <div className='flex flex-col gap-[1rem]'>
                 <span className='text-[1.125rem] font-bold'>배운 점</span>
-                <div className='prose prose-sm max-w-none w-full rounded-[1rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] leading-[160%] text-[#1A1A1A]'>
+                <div className='prose prose-sm w-full max-w-none rounded-[1rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] leading-[160%] text-[#1A1A1A]'>
                   <ReactMarkdown>{learnContent || '내용'}</ReactMarkdown>
                 </div>
               </div>
