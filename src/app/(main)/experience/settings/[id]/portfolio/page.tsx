@@ -1,14 +1,13 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
 import { InlineEdit } from '@/components/InlineEdit';
 import { useExperienceStore } from '@/store/useExperienceStore';
-import { usePortfolioCreationStore } from '@/store/usePortfolioCreationStore';
 import { ContributionBar } from '@/features/experience/components/ContributionBar';
 // import { ExperienceExport } from '@/features/experience/portfolio/components/ExperienceExport';
 import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
@@ -36,18 +35,8 @@ import { ExportIcon } from '@/components/icons/ExportIcon';
 export default function ExperienceSettingsPortfolioPage() {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const id = typeof params.id === 'string' ? params.id : '';
   const experienceId = id ? Number(id) : NaN;
-  const portfolioIdParam = searchParams.get('portfolioId');
-  const getPortfolioIdFromStore = usePortfolioCreationStore(
-    (s) => s.getPortfolioId,
-  );
-  const portfolioIdNum =
-    (portfolioIdParam ? Number(portfolioIdParam) : NaN) ||
-    getPortfolioIdFromStore(id);
-  const portfolioId =
-    portfolioIdNum && !Number.isNaN(portfolioIdNum) ? portfolioIdNum : 0;
 
   const removeExperience = useExperienceStore(
     (state) => state.removeExperience,
@@ -82,6 +71,12 @@ export default function ExperienceSettingsPortfolioPage() {
       },
     },
   );
+
+  const experience = experienceData?.result;
+  const portfolioId =
+    typeof experience?.portfolioId === 'number' && Number.isFinite(experience.portfolioId)
+      ? experience.portfolioId
+      : 0;
 
   const { mutateAsync: updatePortfolio } =
     usePortfolioControllerUpdatePortfolio();

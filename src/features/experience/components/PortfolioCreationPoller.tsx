@@ -43,9 +43,7 @@ export function PortfolioCreationPoller() {
     didRedirectRef.current = true;
     setResolved(pending.experienceId, pending.portfolioId);
     clearPending();
-    router.replace(
-      `/experience/settings/${pending.experienceId}/portfolio?portfolioId=${pending.portfolioId}`,
-    );
+    router.replace(`/experience/settings/${pending.experienceId}/portfolio`);
   }, [pending, isSuccess, status, setResolved, clearPending, router]);
 
   useEffect(() => {
