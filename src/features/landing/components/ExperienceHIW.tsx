@@ -71,11 +71,17 @@ export const ExperienceHIW = ({
   }, []);
 
   // 컴포넌트 전체 영역에서 휠 이벤트를 오른쪽 영상 영역으로 전달
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    if (scrollContainerRef.current) {
-      e.preventDefault();
-      scrollContainerRef.current.scrollTop += e.deltaY;
-    }
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const handler = (e: WheelEvent) => {
+      if (scrollContainerRef.current) {
+        e.preventDefault();
+        scrollContainerRef.current.scrollTop += e.deltaY;
+      }
+    };
+    el.addEventListener('wheel', handler, { passive: false });
+    return () => el.removeEventListener('wheel', handler);
   }, []);
 
   // Intersection Observer로 스크롤 위치에 따라 탭 자동 변경
@@ -104,11 +110,7 @@ export const ExperienceHIW = ({
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className='flex justify-between'
-      onWheel={handleWheel}
-    >
+    <div ref={containerRef} className='flex justify-between'>
       <div className='flex flex-col gap-[1.5rem]'>
         {/* 아코디언 형태의 탭 목록 */}
         {tabs.map((tab) => (

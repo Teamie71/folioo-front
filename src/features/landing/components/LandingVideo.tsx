@@ -40,7 +40,7 @@ export function LandingVideo({
       style={style}
     >
       <video
-        className='h-full w-full object-cover'
+        className='h-full w-full object-cover outline-none [&::-webkit-media-controls]:!hidden [&::-webkit-media-controls-enclosure]:!hidden'
         src={src}
         poster={poster}
         playsInline={playsInline}
@@ -48,8 +48,11 @@ export function LandingVideo({
         loop={loop}
         autoPlay={autoPlay}
         preload='auto'
+        controls={false}
         disablePictureInPicture
-        controlsList='nodownload'
+        disableRemotePlayback
+        tabIndex={-1}
+        controlsList='nodownload nofullscreen noremoteplayback noplaybackrate'
       />
     </div>
   );
