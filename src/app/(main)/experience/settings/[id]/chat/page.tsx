@@ -444,7 +444,11 @@ function ExperienceSettingsChatContent() {
   useEffect(() => {
     if (!isPortfolioCreateModalOpen) return;
     let cancelled = false;
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    const timeoutId = setTimeout(() => {
+      if (cancelled) return;
+      setIsPortfolioCreateModalOpen(false);
+      router.replace(`/experience/settings/${id}/createloading`);
+    }, 2000);
     generatePortfolio({ experienceId })
       .then((res) => {
         if (cancelled) return;
@@ -455,26 +459,22 @@ function ExperienceSettingsChatContent() {
           queryClient.invalidateQueries({
             queryKey: getPortfolioControllerGetPortfolioQueryKey(portfolioId),
           });
-          timeoutId = setTimeout(() => {
-            if (cancelled) return;
-            setIsPortfolioCreateModalOpen(false);
-            const path = `/experience/settings/${id}/createloading`;
-            requestAnimationFrame(() => {
-              router.replace(path);
-            });
-          }, 2000);
-        } else {
-          setIsPortfolioCreateModalOpen(false);
         }
       })
-      .catch(() => {
-        if (!cancelled) setIsPortfolioCreateModalOpen(false);
-      });
+      .catch(() => {});
     return () => {
       cancelled = true;
-      if (timeoutId) clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
     };
-  }, [isPortfolioCreateModalOpen]);
+  }, [
+    isPortfolioCreateModalOpen,
+    id,
+    experienceId,
+    router,
+    setPendingPortfolio,
+    queryClient,
+    generatePortfolio,
+  ]);
 
   const { mutateAsync: deleteExperience } =
     useExperienceControllerDeleteExperience();
