@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { Suspense, useState, useEffect, useRef } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
@@ -49,10 +49,12 @@ function toGridStep(currentStage: number, allComplete?: boolean): number {
   return Math.min(Math.max(0, (currentStage ?? 1) - 1), 4);
 }
 
-export default function ExperienceSettingsChatPage() {
+function ExperienceSettingsChatContent() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const id = typeof params.id === 'string' ? params.id : '';
+  const isNewExperience = searchParams.get('new') === '1';
   const experienceId = id ? Number(id) : NaN;
   const sessionAbortRef = useRef<AbortController | null>(null);
   const removeExperience = useExperienceStore(
@@ -233,6 +235,17 @@ export default function ExperienceSettingsChatPage() {
         startSessionStream();
         return;
       }
+
+      if (isNewExperience) {
+        if (typeof window !== 'undefined') {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('new');
+          const clean = url.pathname + (url.search || '');
+          window.history.replaceState(null, '', clean);
+        }
+        startSessionStream();
+        return;
+      }
       try {
         const res = await interviewControllerGetSessionState(experienceId);
         if (cancelled) return;
@@ -268,7 +281,7 @@ export default function ExperienceSettingsChatPage() {
       cancelled = true;
       sessionAbortRef.current?.abort();
     };
-  }, [id, experienceId, sessionStreamKey]);
+  }, [id, experienceId, sessionStreamKey, isNewExperience]);
 
   // 브라우저 스크롤 차단
   useEffect(() => {
@@ -706,5 +719,19 @@ export default function ExperienceSettingsChatPage() {
         onOpenChange={setIsPortfolioCreateModalOpen}
       />
     </div>
+  );
+}
+
+const ChatPageFallback = () => (
+  <div className='flex min-h-[50vh] items-center justify-center'>
+    <div className='h-[2rem] w-[2rem] animate-spin rounded-full border-2 border-[#5060C5] border-t-transparent' />
+  </div>
+);
+
+export default function ExperienceSettingsChatPage() {
+  return (
+    <Suspense fallback={<ChatPageFallback />}>
+      <ExperienceSettingsChatContent />
+    </Suspense>
   );
 }
