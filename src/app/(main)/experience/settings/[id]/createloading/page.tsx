@@ -11,6 +11,8 @@ import { InlineEdit } from '@/components/InlineEdit';
 import { useExperienceStore } from '@/store/useExperienceStore';
 import {
   getExperienceControllerGetExperienceQueryKey,
+  getExperienceControllerGetExperiencesQueryKey,
+  useExperienceControllerDeleteExperience,
   useExperienceControllerGetExperience,
   useExperienceControllerUpdateExperience,
 } from '@/api/endpoints/experience/experience';
@@ -59,9 +61,28 @@ export default function ExperienceSettingsChatLoadingPage() {
     if (id) setExperienceReturnPath(id, 'createloading');
   }, [id]);
 
+  const { mutateAsync: deleteExperience } =
+    useExperienceControllerDeleteExperience();
+
   const handleDelete = () => {
-    removeExperience(id);
-    router.push('/experience');
+    if (!Number.isFinite(experienceId)) {
+      removeExperience(id);
+      router.push('/experience');
+      return;
+    }
+    deleteExperience({ experienceId })
+      .then(() => {
+        removeExperience(id);
+        return queryClient.refetchQueries({
+          queryKey: getExperienceControllerGetExperiencesQueryKey(),
+        });
+      })
+      .then(() => {
+        router.push('/experience');
+      })
+      .catch(() => {
+        alert('삭제에 실패했어요. 다시 시도해주세요.');
+      });
   };
 
   return (
@@ -89,9 +110,10 @@ export default function ExperienceSettingsChatLoadingPage() {
                     .then(() => {
                       updateExperienceTitle(id, newTitle);
                       queryClient.invalidateQueries({
-                        queryKey: getExperienceControllerGetExperienceQueryKey(
-                          experienceId,
-                        ),
+                        queryKey:
+                          getExperienceControllerGetExperienceQueryKey(
+                            experienceId,
+                          ),
                       });
                       setIsEditingTitle(false);
                     })

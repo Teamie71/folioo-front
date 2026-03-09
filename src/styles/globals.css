@@ -91,3 +91,13 @@ body[data-banner-dismissed='true'] .banner-beta {
   border-radius: 3.125rem;
   background-clip: padding-box;
 }
+
+/* 확장 프로그램이 비디오 위에 띄우는 재생속도 오버레이 숨김 */
+#vsc-controller,
+#controller,
+#controller.vsc-controller,
+[id^='vsc'],
+[id*='vsc-controller'],
+[class*='vsc-controller'] {
+  display: none !important;
+}

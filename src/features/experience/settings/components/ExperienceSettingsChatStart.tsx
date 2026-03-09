@@ -2,12 +2,17 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { CommonButton } from '@/components/CommonButton';
 import { CommonModal } from '@/components/CommonModal';
 import { OBTTicketModal } from '@/components/OBT/OBTTicketModal';
 import { useExperienceStore } from '@/store/useExperienceStore';
+import { setChatNewExperienceId } from '@/features/experience/utils/experienceReturnPath';
 import { ChatStartIcon } from '@/components/icons/ChatStartIcon';
-import { useExperienceControllerCreateExperience } from '@/api/endpoints/experience/experience';
+import {
+  getExperienceControllerGetExperiencesQueryKey,
+  useExperienceControllerCreateExperience,
+} from '@/api/endpoints/experience/experience';
 import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
 import type { CreateExperienceReqDTOHopeJob } from '@/api/models';
 import { LABEL_TO_HOPE_JOB } from '@/constants/hopeJob';
@@ -22,6 +27,7 @@ export function ExperienceSettingsChatStart({
   onValidationError,
 }: ExperienceSettingsChatStartProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isStartChatModalOpen, setIsStartChatModalOpen] = useState(false);
   const [isTicketExhaustedModalOpen, setIsTicketExhaustedModalOpen] =
     useState(false);
@@ -66,7 +72,11 @@ export function ExperienceSettingsChatStart({
       });
       resetForm();
       setIsStartChatModalOpen(false);
-      router.push(`/experience/settings/${result.id}/chat`);
+      await queryClient.invalidateQueries({
+        queryKey: getExperienceControllerGetExperiencesQueryKey(),
+      });
+      setChatNewExperienceId(result.id);
+      router.push(`/experience/settings/${result.id}/chat?new=1`);
     } catch {
       onValidationError({
         experienceName: '경험 정리 생성에 실패했어요. 다시 시도해주세요.',

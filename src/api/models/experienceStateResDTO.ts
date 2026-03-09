@@ -6,11 +6,14 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { ExperienceStateResDTOHopeJob } from './experienceStateResDTOHopeJob';
+import type { ExperienceStateResDTOPortfolioId } from './experienceStateResDTOPortfolioId';
 import type { ExperienceStateResDTOStatus } from './experienceStateResDTOStatus';
 
 export interface ExperienceStateResDTO {
   hopeJob: ExperienceStateResDTOHopeJob;
   status: ExperienceStateResDTOStatus;
+  /** @nullable */
+  portfolioId: ExperienceStateResDTOPortfolioId;
   id: number;
   name: string;
   createdAt: string;

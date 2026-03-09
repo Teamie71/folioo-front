@@ -60,6 +60,97 @@ export default function LayoutContent({
     if (!isCorrectionDetailPath(path)) setShowNavbarOnResult(false);
   }, [path]);
 
+  // 확장 프로그램이 주입하는 재생속도 오버레이 숨김
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    const hideInRoot = (root: Document | Element) => {
+      const selectors = [
+        '#vsc-controller',
+        '#controller',
+        '[id*="vsc-controller"]',
+        '[id^="vsc"]',
+        '[class*="vsc-controller"]',
+        '[class^="vsc-controller"]',
+      ];
+      selectors.forEach((sel) => {
+        try {
+          root.querySelectorAll(sel).forEach((el) => {
+            if (el instanceof HTMLElement)
+              el.style.setProperty('display', 'none', 'important');
+          });
+        } catch {
+          // ignore
+        }
+      });
+
+      const check = (el: HTMLElement) => {
+        const text = (el.textContent ?? '').trim();
+        if (!/^\d\.\d+x?$/.test(text) && text !== '1.00') return;
+        const style = window.getComputedStyle(el);
+        if (style.position !== 'fixed') return;
+        const w = el.offsetWidth;
+        const h = el.offsetHeight;
+        if (w > 0 && w < 200 && h > 0 && h < 80)
+          el.style.setProperty('display', 'none', 'important');
+      };
+      const children =
+        root === document ? document.body.children : (root as Element).children;
+      Array.from(children).forEach((node) => {
+        if (node instanceof HTMLElement) check(node);
+      });
+    };
+
+    const hide = () => hideInRoot(document);
+
+    const isSpeedOverlay = (el: HTMLElement) => {
+      const text = (el.textContent ?? '').trim();
+      if (!/^\d\.\d+x?$/.test(text) && text !== '1.00') return false;
+      const style = window.getComputedStyle(el);
+      if (style.position !== 'fixed') return false;
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+      return w < 200 && h < 80;
+    };
+
+    const hideAdded = (nodes: NodeList | Node[]) => {
+      Array.from(nodes).forEach((node) => {
+        if (node instanceof HTMLElement) {
+          if (isSpeedOverlay(node))
+            node.style.setProperty('display', 'none', 'important');
+          node.querySelectorAll('*').forEach((child) => {
+            if (
+              child instanceof HTMLElement &&
+              isSpeedOverlay(child)
+            )
+              child.style.setProperty('display', 'none', 'important');
+          });
+        }
+      });
+    };
+
+    hide();
+    const interval = window.setInterval(hide, 400);
+    const timeout = window.setTimeout(
+      () => window.clearInterval(interval),
+      5000,
+    );
+
+    const observer = new MutationObserver((mutations) => {
+      hide();
+      mutations.forEach((m) => {
+        if (m.addedNodes.length) hideAdded(m.addedNodes);
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      window.clearInterval(interval);
+      window.clearTimeout(timeout);
+      observer.disconnect();
+    };
+  }, []);
+
   // 루트(/)에서만 모달 오픈: 회원가입 직후(terms에서 약관 동의 후 가입) 한 번만
   useEffect(() => {
     if (path !== '/') return;

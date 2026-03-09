@@ -1,9 +1,13 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { Suspense, useState, useEffect, useRef } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
+import {
+  setExperienceReturnPath,
+  isChatNewExperience,
+  clearChatNewExperienceId,
+} from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { StepProgressBar } from '@/components/StepProgressBar';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
@@ -24,6 +28,8 @@ import { PortfolioCreateModal } from '@/features/experience/chat/components/Port
 import { fetchSSEStream } from '@/lib/sseStream';
 import {
   getExperienceControllerGetExperienceQueryKey,
+  getExperienceControllerGetExperiencesQueryKey,
+  useExperienceControllerDeleteExperience,
   useExperienceControllerGetExperience,
   useExperienceControllerUpdateExperience,
 } from '@/api/endpoints/experience/experience';
@@ -47,12 +53,16 @@ function toGridStep(currentStage: number, allComplete?: boolean): number {
   return Math.min(Math.max(0, (currentStage ?? 1) - 1), 4);
 }
 
-export default function ExperienceSettingsChatPage() {
+function ExperienceSettingsChatContent() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const id = typeof params.id === 'string' ? params.id : '';
+  const isNewExperience = searchParams.get('new') === '1';
   const experienceId = id ? Number(id) : NaN;
   const sessionAbortRef = useRef<AbortController | null>(null);
+  /** 새 경험 진입 시 스트림 시작·정리 지연용 (Strict Mode cleanup에서 clear) */
+  const newExperienceScheduleRef = useRef<number | null>(null);
   const removeExperience = useExperienceStore(
     (state) => state.removeExperience,
   );
@@ -231,6 +241,32 @@ export default function ExperienceSettingsChatPage() {
         startSessionStream();
         return;
       }
+
+      // 방금 생성한 경험: sessionStorage가 네비 직후에도 확실함. URL은 useSearchParams가 늦게 반영될 수 있음.
+      const isNewFromUrl =
+        typeof window !== 'undefined' &&
+        new URLSearchParams(window.location.search).get('new') === '1';
+      const skipStatusApi =
+        isChatNewExperience(experienceId) || isNewExperience || isNewFromUrl;
+
+      if (skipStatusApi) {
+        // 한 틱 지연: Strict Mode에서 1차 run은 cleanup으로 타이머가 취소되므로, 2차 run의 타이머에서만 스트림 시작·정리 실행
+        if (typeof window !== 'undefined') {
+          newExperienceScheduleRef.current = window.setTimeout(() => {
+            newExperienceScheduleRef.current = null;
+            if (cancelled) return;
+            startSessionStream();
+            clearChatNewExperienceId();
+            const url = new URL(window.location.href);
+            url.searchParams.delete('new');
+            window.history.replaceState(null, '', url.pathname + (url.search || ''));
+          }, 0);
+        } else {
+          startSessionStream();
+          clearChatNewExperienceId();
+        }
+        return;
+      }
       try {
         const res = await interviewControllerGetSessionState(experienceId);
         if (cancelled) return;
@@ -265,7 +301,12 @@ export default function ExperienceSettingsChatPage() {
     return () => {
       cancelled = true;
       sessionAbortRef.current?.abort();
+      if (newExperienceScheduleRef.current != null) {
+        window.clearTimeout(newExperienceScheduleRef.current);
+        newExperienceScheduleRef.current = null;
+      }
     };
+    // isNewExperience 제외: replaceState 시 effect 재실행 → cleanup에서 스트림 abort → status 호출로 400 발생 방지
   }, [id, experienceId, sessionStreamKey]);
 
   // 브라우저 스크롤 차단
@@ -422,9 +463,28 @@ export default function ExperienceSettingsChatPage() {
     };
   }, [isPortfolioCreateModalOpen]);
 
+  const { mutateAsync: deleteExperience } =
+    useExperienceControllerDeleteExperience();
+
   const handleDelete = () => {
-    removeExperience(id);
-    router.push('/experience');
+    if (!Number.isFinite(experienceId)) {
+      removeExperience(id);
+      router.push('/experience');
+      return;
+    }
+    deleteExperience({ experienceId })
+      .then(() => {
+        removeExperience(id);
+        return queryClient.refetchQueries({
+          queryKey: getExperienceControllerGetExperiencesQueryKey(),
+        });
+      })
+      .then(() => {
+        router.push('/experience');
+      })
+      .catch(() => {
+        alert('삭제에 실패했어요. 다시 시도해주세요.');
+      });
   };
 
   /** 3턴 대화 이어가기: 모달 닫고 연장 스트림으로 첫 AI 질문 수신, 3턴만 진행 후 CompleteModal */
@@ -611,9 +671,10 @@ export default function ExperienceSettingsChatPage() {
                     .then(() => {
                       updateExperienceTitle(id, newTitle);
                       queryClient.invalidateQueries({
-                        queryKey: getExperienceControllerGetExperienceQueryKey(
-                          experienceId,
-                        ),
+                        queryKey:
+                          getExperienceControllerGetExperienceQueryKey(
+                            experienceId,
+                          ),
                       });
                       setIsEditingTitle(false);
                     })
@@ -684,5 +745,19 @@ export default function ExperienceSettingsChatPage() {
         onOpenChange={setIsPortfolioCreateModalOpen}
       />
     </div>
+  );
+}
+
+const ChatPageFallback = () => (
+  <div className='flex min-h-[50vh] items-center justify-center'>
+    <div className='h-[2rem] w-[2rem] animate-spin rounded-full border-2 border-[#5060C5] border-t-transparent' />
+  </div>
+);
+
+export default function ExperienceSettingsChatPage() {
+  return (
+    <Suspense fallback={<ChatPageFallback />}>
+      <ExperienceSettingsChatContent />
+    </Suspense>
   );
 }

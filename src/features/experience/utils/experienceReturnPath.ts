@@ -1,5 +1,39 @@
 const STORAGE_KEY = 'experience_return_path';
 
+/* 생성한 경험 → 채팅 진입 시 GET /status 호출 생략 */
+export const CHAT_NEW_EXPERIENCE_STORAGE_KEY = 'folioo_experience_new_id';
+
+export function setChatNewExperienceId(experienceId: number): void {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.setItem(
+      CHAT_NEW_EXPERIENCE_STORAGE_KEY,
+      String(experienceId),
+    );
+  } catch {
+    // ignore
+  }
+}
+
+export function isChatNewExperience(experienceId: number): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return (
+      sessionStorage.getItem(CHAT_NEW_EXPERIENCE_STORAGE_KEY) ===
+      String(experienceId)
+    );
+  } catch {
+    return false;
+  }
+}
+
+export function clearChatNewExperienceId(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.removeItem(CHAT_NEW_EXPERIENCE_STORAGE_KEY);
+  } catch {}
+}
+
 export type ExperienceReturnPath = 'chat' | 'createloading' | 'portfolio';
 
 const VALID_PATHS: ExperienceReturnPath[] = [
