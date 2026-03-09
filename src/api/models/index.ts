@@ -126,6 +126,7 @@ export * from './experienceResDTO';
 export * from './experienceResDTOHopeJob';
 export * from './experienceStateResDTO';
 export * from './experienceStateResDTOHopeJob';
+export * from './experienceStateResDTOPortfolioId';
 export * from './experienceStateResDTOStatus';
 export * from './expiringTicketTypeResDTO';
 export * from './expiringTicketTypeResDTOEarliestExpiredAt';
