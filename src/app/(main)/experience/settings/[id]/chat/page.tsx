@@ -259,7 +259,11 @@ function ExperienceSettingsChatContent() {
             clearChatNewExperienceId();
             const url = new URL(window.location.href);
             url.searchParams.delete('new');
-            window.history.replaceState(null, '', url.pathname + (url.search || ''));
+            window.history.replaceState(
+              null,
+              '',
+              url.pathname + (url.search || ''),
+            );
           }, 0);
         } else {
           startSessionStream();
@@ -432,7 +436,6 @@ function ExperienceSettingsChatContent() {
     });
   };
 
-  /* PortfolioCreateModal 오픈 시: 포트폴리오 생성 API 호출 → createloading 이동 → 폴러가 완료 시 portfolio로 리다이렉트 */
   useEffect(() => {
     if (!isPortfolioCreateModalOpen) return;
     let cancelled = false;
@@ -447,16 +450,21 @@ function ExperienceSettingsChatContent() {
           queryClient.invalidateQueries({
             queryKey: getPortfolioControllerGetPortfolioQueryKey(portfolioId),
           });
+          timeoutId = setTimeout(() => {
+            if (cancelled) return;
+            setIsPortfolioCreateModalOpen(false);
+            const path = `/experience/settings/${id}/createloading`;
+            requestAnimationFrame(() => {
+              router.replace(path);
+            });
+          }, 2000);
+        } else {
+          setIsPortfolioCreateModalOpen(false);
         }
       })
       .catch(() => {
         if (!cancelled) setIsPortfolioCreateModalOpen(false);
       });
-    timeoutId = setTimeout(() => {
-      if (cancelled) return;
-      setIsPortfolioCreateModalOpen(false);
-      router.push(`/experience/settings/${id}/createloading`);
-    }, 2000);
     return () => {
       cancelled = true;
       if (timeoutId) clearTimeout(timeoutId);

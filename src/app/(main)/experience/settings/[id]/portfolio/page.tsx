@@ -1,19 +1,18 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
 import { useQueryClient } from '@tanstack/react-query';
 import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
 import { InlineEdit } from '@/components/InlineEdit';
 import { useExperienceStore } from '@/store/useExperienceStore';
-import { usePortfolioCreationStore } from '@/store/usePortfolioCreationStore';
 import { ContributionBar } from '@/features/experience/components/ContributionBar';
 // import { ExperienceExport } from '@/features/experience/portfolio/components/ExperienceExport';
 import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { PortfolioDeleteBlockModal } from '@/features/experience/portfolio/components/PortfolioDeleteBlockModal';
-import SpanArea from '@/components/SpanArea';
 import Link from 'next/link';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 import { ExperienceIconWhite } from '@/components/icons/ExperienceIconWhite';
@@ -36,18 +35,8 @@ import { ExportIcon } from '@/components/icons/ExportIcon';
 export default function ExperienceSettingsPortfolioPage() {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const id = typeof params.id === 'string' ? params.id : '';
   const experienceId = id ? Number(id) : NaN;
-  const portfolioIdParam = searchParams.get('portfolioId');
-  const getPortfolioIdFromStore = usePortfolioCreationStore(
-    (s) => s.getPortfolioId,
-  );
-  const portfolioIdNum =
-    (portfolioIdParam ? Number(portfolioIdParam) : NaN) ||
-    getPortfolioIdFromStore(id);
-  const portfolioId =
-    portfolioIdNum && !Number.isNaN(portfolioIdNum) ? portfolioIdNum : 0;
 
   const removeExperience = useExperienceStore(
     (state) => state.removeExperience,
@@ -82,6 +71,13 @@ export default function ExperienceSettingsPortfolioPage() {
       },
     },
   );
+
+  const experience = experienceData?.result;
+  const portfolioId =
+    typeof experience?.portfolioId === 'number' &&
+    Number.isFinite(experience.portfolioId)
+      ? experience.portfolioId
+      : 0;
 
   const { mutateAsync: updatePortfolio } =
     usePortfolioControllerUpdatePortfolio();
@@ -147,13 +143,21 @@ export default function ExperienceSettingsPortfolioPage() {
 
   const handleContributionSave = (value: number) => {
     if (!portfolioId || !Number.isFinite(portfolioId)) return;
-    updatePortfolio({ portfolioId, data: { contributionRate: value } }).then(
-      () => {
+    updatePortfolio({
+      portfolioId,
+      data: { contributionRate: Math.min(100, Math.max(0, value)) },
+    })
+      .then(() => {
         queryClient.invalidateQueries({
           queryKey: getPortfolioControllerGetPortfolioQueryKey(portfolioId),
         });
-      },
-    );
+        queryClient.invalidateQueries({
+          queryKey: getExperienceControllerGetExperienceQueryKey(experienceId),
+        });
+      })
+      .catch(() => {
+        // TODO: 토스트 등 에러 피드백
+      });
   };
 
   return (
@@ -261,25 +265,33 @@ export default function ExperienceSettingsPortfolioPage() {
               {/* 상세정보 */}
               <div className='flex flex-col gap-[1rem]'>
                 <span className='text-[1.125rem] font-bold'>상세정보</span>
-                <SpanArea>{detailInfo || '내용'}</SpanArea>
+                <div className='prose prose-sm max-w-none w-full rounded-[1rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] leading-[160%] text-[#1A1A1A]'>
+                  <ReactMarkdown>{detailInfo || '내용'}</ReactMarkdown>
+                </div>
               </div>
 
               {/* 담당업무 */}
               <div className='flex flex-col gap-[1rem]'>
                 <span className='text-[1.125rem] font-bold'>담당업무</span>
-                <SpanArea>{roleContent || '내용'}</SpanArea>
+                <div className='prose prose-sm max-w-none w-full rounded-[1rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] leading-[160%] text-[#1A1A1A]'>
+                  <ReactMarkdown>{roleContent || '내용'}</ReactMarkdown>
+                </div>
               </div>
 
               {/* 문제해결 */}
               <div className='flex flex-col gap-[1rem]'>
                 <span className='text-[1.125rem] font-bold'>문제해결</span>
-                <SpanArea>{problemContent || '내용'}</SpanArea>
+                <div className='prose prose-sm max-w-none w-full rounded-[1rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] leading-[160%] text-[#1A1A1A]'>
+                  <ReactMarkdown>{problemContent || '내용'}</ReactMarkdown>
+                </div>
               </div>
 
               {/* 배운 점 */}
               <div className='flex flex-col gap-[1rem]'>
                 <span className='text-[1.125rem] font-bold'>배운 점</span>
-                <SpanArea>{learnContent || '내용'}</SpanArea>
+                <div className='prose prose-sm max-w-none w-full rounded-[1rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] leading-[160%] text-[#1A1A1A]'>
+                  <ReactMarkdown>{learnContent || '내용'}</ReactMarkdown>
+                </div>
               </div>
             </>
           )}
