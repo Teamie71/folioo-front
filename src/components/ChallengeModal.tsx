@@ -9,7 +9,7 @@ import { Stamp } from '@/components/icons/StampIcon';
 import { BigStamp } from '@/components/icons/BigStampIcon';
 import { cn } from '@/utils/utils';
 import { ChevronDown } from '@/components/icons/ChevronDownIcon';
-import { EventModal } from '@/components/EventModal';
+import { OBTEventModal } from '@/components/OBT/OBTEventModal';
 
 const ChevronDownIcon = ({ className }: { className?: string }) => (
   <span className={className}>
@@ -175,7 +175,7 @@ export function ChallengeModal({
         </div>
       </div>
     </CommonModal>
-    <EventModal
+    <OBTEventModal
       open={eventModalOpen}
       onOpenChange={setEventModalOpen}
       eventTitle='인사이트 로그 작성 챌린지'
