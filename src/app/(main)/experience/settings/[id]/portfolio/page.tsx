@@ -142,13 +142,21 @@ export default function ExperienceSettingsPortfolioPage() {
 
   const handleContributionSave = (value: number) => {
     if (!portfolioId || !Number.isFinite(portfolioId)) return;
-    updatePortfolio({ portfolioId, data: { contributionRate: value } }).then(
-      () => {
+    updatePortfolio({
+      portfolioId,
+      data: { contributionRate: Math.min(100, Math.max(0, value)) },
+    })
+      .then(() => {
         queryClient.invalidateQueries({
           queryKey: getPortfolioControllerGetPortfolioQueryKey(portfolioId),
         });
-      },
-    );
+        queryClient.invalidateQueries({
+          queryKey: getExperienceControllerGetExperienceQueryKey(experienceId),
+        });
+      })
+      .catch(() => {
+        // TODO: 토스트 등 에러 피드백
+      });
   };
 
   return (
