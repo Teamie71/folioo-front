@@ -69,7 +69,7 @@ export default function CorrectionSettingsPage() {
       header={
         <CorrectionPageHeader
           step={s.step}
-          onBackClick={() => s.setIsQuitModalOpen(true)}
+          onBackClick={() => s.router.replace('/correction')}
           quitModal={{
             open: s.isQuitModalOpen,
             onOpenChange: s.setIsQuitModalOpen,
