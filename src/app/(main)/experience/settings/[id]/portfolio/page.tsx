@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
 import { useQueryClient } from '@tanstack/react-query';
 import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
@@ -12,7 +13,6 @@ import { ContributionBar } from '@/features/experience/components/ContributionBa
 // import { ExperienceExport } from '@/features/experience/portfolio/components/ExperienceExport';
 import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { PortfolioDeleteBlockModal } from '@/features/experience/portfolio/components/PortfolioDeleteBlockModal';
-import SpanArea from '@/components/SpanArea';
 import Link from 'next/link';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 import { ExperienceIconWhite } from '@/components/icons/ExperienceIconWhite';
@@ -74,7 +74,8 @@ export default function ExperienceSettingsPortfolioPage() {
 
   const experience = experienceData?.result;
   const portfolioId =
-    typeof experience?.portfolioId === 'number' && Number.isFinite(experience.portfolioId)
+    typeof experience?.portfolioId === 'number' &&
+    Number.isFinite(experience.portfolioId)
       ? experience.portfolioId
       : 0;
 
@@ -264,25 +265,33 @@ export default function ExperienceSettingsPortfolioPage() {
               {/* 상세정보 */}
               <div className='flex flex-col gap-[1rem]'>
                 <span className='text-[1.125rem] font-bold'>상세정보</span>
-                <SpanArea>{detailInfo || '내용'}</SpanArea>
+                <div className='prose prose-sm max-w-none w-full rounded-[1rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] leading-[160%] text-[#1A1A1A]'>
+                  <ReactMarkdown>{detailInfo || '내용'}</ReactMarkdown>
+                </div>
               </div>
 
               {/* 담당업무 */}
               <div className='flex flex-col gap-[1rem]'>
                 <span className='text-[1.125rem] font-bold'>담당업무</span>
-                <SpanArea>{roleContent || '내용'}</SpanArea>
+                <div className='prose prose-sm max-w-none w-full rounded-[1rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] leading-[160%] text-[#1A1A1A]'>
+                  <ReactMarkdown>{roleContent || '내용'}</ReactMarkdown>
+                </div>
               </div>
 
               {/* 문제해결 */}
               <div className='flex flex-col gap-[1rem]'>
                 <span className='text-[1.125rem] font-bold'>문제해결</span>
-                <SpanArea>{problemContent || '내용'}</SpanArea>
+                <div className='prose prose-sm max-w-none w-full rounded-[1rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] leading-[160%] text-[#1A1A1A]'>
+                  <ReactMarkdown>{problemContent || '내용'}</ReactMarkdown>
+                </div>
               </div>
 
               {/* 배운 점 */}
               <div className='flex flex-col gap-[1rem]'>
                 <span className='text-[1.125rem] font-bold'>배운 점</span>
-                <SpanArea>{learnContent || '내용'}</SpanArea>
+                <div className='prose prose-sm max-w-none w-full rounded-[1rem] border border-[#74777D] px-[1.5rem] py-[1.25rem] text-[1rem] leading-[160%] text-[#1A1A1A]'>
+                  <ReactMarkdown>{learnContent || '내용'}</ReactMarkdown>
+                </div>
               </div>
             </>
           )}
