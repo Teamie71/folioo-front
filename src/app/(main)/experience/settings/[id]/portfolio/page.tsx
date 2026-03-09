@@ -11,6 +11,7 @@ import { useExperienceStore } from '@/store/useExperienceStore';
 import { usePortfolioCreationStore } from '@/store/usePortfolioCreationStore';
 import { ContributionBar } from '@/features/experience/components/ContributionBar';
 import { ExperienceExport } from '@/features/experience/portfolio/components/ExperienceExport';
+import { PortfolioDeleteBlockModal } from '@/features/experience/portfolio/components/PortfolioDeleteBlockModal';
 import SpanArea from '@/components/SpanArea';
 import Link from 'next/link';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
@@ -62,6 +63,7 @@ export default function ExperienceSettingsPortfolioPage() {
   );
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [deleteBlockModalOpen, setDeleteBlockModalOpen] = useState(false);
   const [detailInfo, setDetailInfo] = useState('');
   const [roleContent, setRoleContent] = useState('');
   const [problemContent, setProblemContent] = useState('');
@@ -136,7 +138,7 @@ export default function ExperienceSettingsPortfolioPage() {
         router.push('/experience');
       })
       .catch(() => {
-        alert('삭제에 실패했어요. 다시 시도해주세요.');
+        setDeleteBlockModalOpen(true);
       });
   };
 
@@ -293,6 +295,11 @@ export default function ExperienceSettingsPortfolioPage() {
       </div>
 
       <FeedbackFloatingButton />
+
+      <PortfolioDeleteBlockModal
+        open={deleteBlockModalOpen}
+        onOpenChange={setDeleteBlockModalOpen}
+      />
     </>
   );
 }
