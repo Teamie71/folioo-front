@@ -7,6 +7,7 @@ import { CommonButton } from '@/components/CommonButton';
 import { CommonModal } from '@/components/CommonModal';
 import { OBTTicketModal } from '@/components/OBT/OBTTicketModal';
 import { useExperienceStore } from '@/store/useExperienceStore';
+import { setChatNewExperienceId } from '@/features/experience/utils/experienceReturnPath';
 import { ChatStartIcon } from '@/components/icons/ChatStartIcon';
 import {
   getExperienceControllerGetExperiencesQueryKey,
@@ -74,6 +75,7 @@ export function ExperienceSettingsChatStart({
       await queryClient.invalidateQueries({
         queryKey: getExperienceControllerGetExperiencesQueryKey(),
       });
+      setChatNewExperienceId(result.id);
       router.push(`/experience/settings/${result.id}/chat?new=1`);
     } catch {
       onValidationError({

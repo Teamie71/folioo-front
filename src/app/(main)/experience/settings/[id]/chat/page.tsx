@@ -3,7 +3,11 @@
 import { Suspense, useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { setExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
+import {
+  setExperienceReturnPath,
+  isChatNewExperience,
+  clearChatNewExperienceId,
+} from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { StepProgressBar } from '@/components/StepProgressBar';
 import { DeleteModalButton } from '@/components/DeleteModalButton';
@@ -57,6 +61,8 @@ function ExperienceSettingsChatContent() {
   const isNewExperience = searchParams.get('new') === '1';
   const experienceId = id ? Number(id) : NaN;
   const sessionAbortRef = useRef<AbortController | null>(null);
+  /** 새 경험 진입 시 스트림 시작·정리 지연용 (Strict Mode cleanup에서 clear) */
+  const newExperienceScheduleRef = useRef<number | null>(null);
   const removeExperience = useExperienceStore(
     (state) => state.removeExperience,
   );
@@ -236,14 +242,29 @@ function ExperienceSettingsChatContent() {
         return;
       }
 
-      if (isNewExperience) {
+      // 방금 생성한 경험: sessionStorage가 네비 직후에도 확실함. URL은 useSearchParams가 늦게 반영될 수 있음.
+      const isNewFromUrl =
+        typeof window !== 'undefined' &&
+        new URLSearchParams(window.location.search).get('new') === '1';
+      const skipStatusApi =
+        isChatNewExperience(experienceId) || isNewExperience || isNewFromUrl;
+
+      if (skipStatusApi) {
+        // 한 틱 지연: Strict Mode에서 1차 run은 cleanup으로 타이머가 취소되므로, 2차 run의 타이머에서만 스트림 시작·정리 실행
         if (typeof window !== 'undefined') {
-          const url = new URL(window.location.href);
-          url.searchParams.delete('new');
-          const clean = url.pathname + (url.search || '');
-          window.history.replaceState(null, '', clean);
+          newExperienceScheduleRef.current = window.setTimeout(() => {
+            newExperienceScheduleRef.current = null;
+            if (cancelled) return;
+            startSessionStream();
+            clearChatNewExperienceId();
+            const url = new URL(window.location.href);
+            url.searchParams.delete('new');
+            window.history.replaceState(null, '', url.pathname + (url.search || ''));
+          }, 0);
+        } else {
+          startSessionStream();
+          clearChatNewExperienceId();
         }
-        startSessionStream();
         return;
       }
       try {
@@ -280,8 +301,13 @@ function ExperienceSettingsChatContent() {
     return () => {
       cancelled = true;
       sessionAbortRef.current?.abort();
+      if (newExperienceScheduleRef.current != null) {
+        window.clearTimeout(newExperienceScheduleRef.current);
+        newExperienceScheduleRef.current = null;
+      }
     };
-  }, [id, experienceId, sessionStreamKey, isNewExperience]);
+    // isNewExperience 제외: replaceState 시 effect 재실행 → cleanup에서 스트림 abort → status 호출로 400 발생 방지
+  }, [id, experienceId, sessionStreamKey]);
 
   // 브라우저 스크롤 차단
   useEffect(() => {
