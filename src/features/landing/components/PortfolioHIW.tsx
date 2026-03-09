@@ -143,7 +143,7 @@ export const PortfolioHIW = ({
           initial='initial'
           animate='animate'
           exit='exit'
-          transition={{ duration: 0.3, ease: 'easeInOut' }}
+          transition={{ duration: 0.2, ease: 'easeInOut' }}
         >
           <p className='text-[1.125rem] leading-[150%] whitespace-pre-line text-[#000000]'>
             {steps[activeStep].description}
@@ -163,23 +163,26 @@ export const PortfolioHIW = ({
         ) : (
           <div className='w-[3rem]'></div>
         )}
-        <AnimatePresence mode='wait' custom={direction}>
-          <motion.div
-            key={activeStep}
-            custom={direction}
-            variants={slideVariants}
-            initial='initial'
-            animate='animate'
-            exit='exit'
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-          >
-            <LandingVideo
-              src={sources[activeStep]}
-              width='66rem'
-              height='37.125rem'
-            />
-          </motion.div>
-        </AnimatePresence>
+        <div
+          className='relative overflow-hidden'
+          style={{ width: '66rem', height: '37.125rem' }}
+        >
+          {sources.map((src, index) => (
+            <motion.div
+              key={index}
+              className='absolute inset-0'
+              initial={false}
+              animate={
+                activeStep === index
+                  ? { opacity: 1, x: 0 }
+                  : { opacity: 0, x: direction > 0 ? -100 : 100 }
+              }
+              transition={{ duration: 0.4, ease: 'easeInOut' }}
+            >
+              <LandingVideo src={src} width='66rem' height='37.125rem' />
+            </motion.div>
+          ))}
+        </div>
         {activeStep < steps.length - 1 ? (
           <button onClick={handleNext} className='cursor-pointer'>
             <ChevronCircleIcon />
