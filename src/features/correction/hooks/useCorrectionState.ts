@@ -147,7 +147,7 @@ export function useCorrectionState(correctionId: string | undefined) {
   const textPortfolios = portfoliosList.map((p) => ({
     id: String(p.id),
     title: p.name,
-    tag: p.hopeJob != null ? String(p.hopeJob) : '',
+    tag: getHopeJobLabel(p.hopeJob),
     date: p.createdAt.slice(0, 10),
   }));
 
