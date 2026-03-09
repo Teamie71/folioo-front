@@ -5,6 +5,7 @@ import { animate } from 'framer-motion';
 import Image from 'next/image';
 import type { ContentPart } from './ChatInput';
 import { ChatAnalogs } from './ChatAnalogs';
+import { ChatErrorReloadMessage } from './ChatErrorReloadMessage';
 import { ChatLoadingMessage } from './ChatLoadingMessage';
 import { PdfIcon } from '@/components/icons/PdfIcon';
 
@@ -59,6 +60,10 @@ interface ChatMessageSectionProps {
   isStreaming?: boolean;
   /** 유사 인사이트 검색용 키워드 (마지막 사용자 메시지 등) */
   searchKeyword?: string;
+  /** 새로고침 후 세션 스트림 실패 시 true → ChatErrorReloadMessage 표시 */
+  sessionLoadFailed?: boolean;
+  /** 세션 스트림 재시도 (새로고침 후 답변 없을 때) */
+  onRetrySession?: () => void;
 }
 
 export function ChatMessageSection({
@@ -68,6 +73,8 @@ export function ChatMessageSection({
   onRetryAIMessage,
   isStreaming = false,
   searchKeyword,
+  sessionLoadFailed = false,
+  onRetrySession,
 }: ChatMessageSectionProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -147,12 +154,20 @@ export function ChatMessageSection({
                       <button
                         type='button'
                         style={{ width: '10rem', height: '2.5rem' }}
-                        className='shrink-0 cursor-pointer rounded-[6.25rem] border-[0.09375rem] border-[#5060C5] bg-[#F6F5FF] px-4 py-2 text-[1rem] font-semibold text-[#5060C5] hover:bg-[#EEEDF7] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5060C5]'
-                        onClick={() => onRetryAIMessage?.(index)}
+                        className='relative z-[999] shrink-0 cursor-pointer rounded-[6.25rem] border-[0.09375rem] border-[#5060C5] bg-[#F6F5FF] px-4 py-2 text-[1rem] font-semibold text-[#5060C5] hover:bg-[#EEEDF7] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5060C5]'
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRetryAIMessage?.(index);
+                        }}
                       >
                         다시 시도하기
                       </button>
                     </div>
+                  ) : sessionLoadFailed &&
+                    index === messages.length - 1 &&
+                    !msg.content &&
+                    !isStreaming ? (
+                    <ChatErrorReloadMessage onRetry={onRetrySession} />
                   ) : msg.content ? (
                     msg.content
                   ) : isStreaming && index === messages.length - 1 ? (

@@ -231,8 +231,8 @@ export function usePortfolioControllerGetPortfolio<TData = Awaited<ReturnType<ty
 
 
 /**
- * 경험 정리가 완료된 포트폴리오의 내용을 수정합니다.
- * @summary 개별 포트폴리오 수정
+ * 경험 정리가 완료된 포트폴리오의 기여도를 수정합니다.
+ * @summary 개별 포트폴리오 수정 (기여도 수정)
  */
 export const portfolioControllerUpdatePortfolio = (
     portfolioId: number,
@@ -283,7 +283,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type PortfolioControllerUpdatePortfolioMutationError = CommonResponse
 
     /**
- * @summary 개별 포트폴리오 수정
+ * @summary 개별 포트폴리오 수정 (기여도 수정)
  */
 export const usePortfolioControllerUpdatePortfolio = <TError = CommonResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerUpdatePortfolio>>, TError,{portfolioId: number;data: UpdatePortfolioReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
@@ -294,68 +294,6 @@ export const usePortfolioControllerUpdatePortfolio = <TError = CommonResponse,
         TContext
       > => {
       return useMutation(getPortfolioControllerUpdatePortfolioMutationOptions(options), queryClient);
-    }
-    /**
- * 경험 정리가 완료된 포트폴리오의 내용을 삭제합니다.
- * @summary 개별 포트폴리오 삭제
- */
-export const portfolioControllerDeletePortfolio = (
-    portfolioId: number,
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
-) => {
-      
-      
-      return customInstance<unknown>(
-      {url: `/portfolios/${portfolioId}`, method: 'DELETE', signal
-    },
-      options);
-    }
-  
-
-
-export const getPortfolioControllerDeletePortfolioMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>, TError,{portfolioId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>, TError,{portfolioId: number}, TContext> => {
-
-const mutationKey = ['portfolioControllerDeletePortfolio'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>, {portfolioId: number}> = (props) => {
-          const {portfolioId} = props ?? {};
-
-          return  portfolioControllerDeletePortfolio(portfolioId,requestOptions)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PortfolioControllerDeletePortfolioMutationResult = NonNullable<Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>>
-    
-    export type PortfolioControllerDeletePortfolioMutationError = CommonResponse
-
-    /**
- * @summary 개별 포트폴리오 삭제
- */
-export const usePortfolioControllerDeletePortfolio = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>, TError,{portfolioId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof portfolioControllerDeletePortfolio>>,
-        TError,
-        {portfolioId: number},
-        TContext
-      > => {
-      return useMutation(getPortfolioControllerDeletePortfolioMutationOptions(options), queryClient);
     }
     /**
  * 업로드한 포트폴리오 파일에서 텍스트를 추출합니다.

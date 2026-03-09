@@ -21,7 +21,11 @@ import {
   useExperienceControllerGetExperience,
   useExperienceControllerUpdateExperience,
 } from '@/api/endpoints/experience/experience';
-import { usePortfolioControllerGetPortfolio } from '@/api/endpoints/portfolio/portfolio';
+import {
+  getPortfolioControllerGetPortfolioQueryKey,
+  usePortfolioControllerGetPortfolio,
+  usePortfolioControllerUpdatePortfolio,
+} from '@/api/endpoints/portfolio/portfolio';
 import { getHopeJobLabel } from '@/constants/hopeJob';
 
 export default function ExperienceSettingsPortfolioPage() {
@@ -56,7 +60,6 @@ export default function ExperienceSettingsPortfolioPage() {
   );
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [experienceTitle, setExperienceTitle] = useState(storeTitle);
   const [detailInfo, setDetailInfo] = useState('');
   const [roleContent, setRoleContent] = useState('');
   const [problemContent, setProblemContent] = useState('');
@@ -73,6 +76,9 @@ export default function ExperienceSettingsPortfolioPage() {
     },
   );
 
+  const { mutateAsync: updatePortfolio } =
+    usePortfolioControllerUpdatePortfolio();
+
   const { data: portfolioData, isLoading } = usePortfolioControllerGetPortfolio(
     portfolioId,
     {
@@ -84,6 +90,8 @@ export default function ExperienceSettingsPortfolioPage() {
 
   const portfolio = portfolioData?.result;
   const experienceName = experienceData?.result?.name;
+  const displayTitle =
+    experienceName ?? storeTitle ?? '새로운 경험 정리';
 
   useEffect(() => {
     if (!portfolio) return;
@@ -95,16 +103,14 @@ export default function ExperienceSettingsPortfolioPage() {
   }, [portfolio]);
 
   useEffect(() => {
-    const title = experienceName ?? storeTitle ?? '새로운 경험 정리';
-    setExperienceTitle(title);
     if (experienceName != null && id) {
       updateExperienceTitle(id, experienceName);
     }
-  }, [id, experienceName, storeTitle, updateExperienceTitle]);
+  }, [id, experienceName, updateExperienceTitle]);
 
   useEffect(() => {
-    document.title = `${experienceTitle} - Folioo`;
-  }, [experienceTitle]);
+    document.title = `${displayTitle} - Folioo`;
+  }, [displayTitle]);
 
   useEffect(() => {
     if (id) setExperienceReturnPath(id, 'portfolio');
@@ -113,6 +119,17 @@ export default function ExperienceSettingsPortfolioPage() {
   const handleDelete = () => {
     removeExperience(id);
     router.push('/experience');
+  };
+
+  const handleContributionSave = (value: number) => {
+    if (!portfolioId || !Number.isFinite(portfolioId)) return;
+    updatePortfolio({ portfolioId, data: { contributionRate: value } }).then(
+      () => {
+        queryClient.invalidateQueries({
+          queryKey: getPortfolioControllerGetPortfolioQueryKey(portfolioId),
+        });
+      },
+    );
   };
 
   return (
@@ -124,12 +141,11 @@ export default function ExperienceSettingsPortfolioPage() {
             <div className='flex items-center gap-[0.5rem]'>
               <BackButton href='/experience' />
               <InlineEdit
-                title={experienceTitle}
+                title={displayTitle}
                 isEditing={isEditingTitle}
                 onEdit={() => setIsEditingTitle(true)}
                 onSave={(newTitle) => {
                   if (!Number.isFinite(experienceId)) {
-                    setExperienceTitle(newTitle);
                     updateExperienceTitle(id, newTitle);
                     setIsEditingTitle(false);
                     return;
@@ -139,7 +155,6 @@ export default function ExperienceSettingsPortfolioPage() {
                     data: { name: newTitle },
                   })
                     .then(() => {
-                      setExperienceTitle(newTitle);
                       updateExperienceTitle(id, newTitle);
                       queryClient.invalidateQueries({
                         queryKey: getExperienceControllerGetExperienceQueryKey(
@@ -158,7 +173,7 @@ export default function ExperienceSettingsPortfolioPage() {
             <div className='flex items-center gap-[1.5rem]'>
               <ExperienceExport
                 contentRef={exportContentRef}
-                title={experienceTitle}
+                title={displayTitle}
                 className='flex cursor-pointer items-center gap-[0.5rem] border-none bg-transparent'
               />
 
@@ -180,11 +195,13 @@ export default function ExperienceSettingsPortfolioPage() {
         <div className='flex items-center justify-between'>
           {/* 기여도 */}
           <ContributionBar
-            duration={
+            initialValue={
               portfolio?.contributionRate != null
-                ? Math.round((portfolio.contributionRate ?? 0) * 10)
-                : 300
+                ? Math.min(100, Math.max(0, portfolio.contributionRate))
+                : 0
             }
+            duration={300}
+            onSave={handleContributionSave}
           />
 
           {/* 직무 태그 */}

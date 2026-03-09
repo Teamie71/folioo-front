@@ -22,14 +22,17 @@ import type {
 import { ChatCompleteModal } from '@/features/experience/chat/components/ChatCompleteModal';
 import { PortfolioCreateModal } from '@/features/experience/chat/components/PortfolioCreateModal';
 import { fetchSSEStream } from '@/lib/sseStream';
-import { useExperienceControllerUpdateExperience } from '@/api/endpoints/experience/experience';
+import {
+  getExperienceControllerGetExperienceQueryKey,
+  useExperienceControllerGetExperience,
+  useExperienceControllerUpdateExperience,
+} from '@/api/endpoints/experience/experience';
 import {
   interviewControllerGetSessionState,
   useInterviewControllerGeneratePortfolio,
 } from '@/api/endpoints/interview/interview';
 import { getPortfolioControllerGetPortfolioQueryKey } from '@/api/endpoints/portfolio/portfolio';
 import type { GeneratePortfolioResDTO } from '@/api/models';
-import { GeneratePortfolioResDTOPortfolioStatus } from '@/api/models';
 
 const SESSION_STREAM_PATH = (experienceId: number) =>
   `/interview/experiences/${experienceId}/session/stream`;
@@ -62,21 +65,34 @@ export default function ExperienceSettingsChatPage() {
       '새로운 경험 정리',
   );
 
+  const { data: experienceData } = useExperienceControllerGetExperience(
+    experienceId,
+    { query: { enabled: Number.isFinite(experienceId) } },
+  );
+  const experienceName = experienceData?.result?.name;
+  const titleReady = experienceData?.result != null;
+  const displayTitle = titleReady
+    ? (experienceName ?? storeTitle ?? '새로운 경험 정리')
+    : '';
+
   const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
   const [isPortfolioCreateModalOpen, setIsPortfolioCreateModalOpen] =
     useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [experienceTitle, setExperienceTitle] = useState(storeTitle);
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [sessionStreamError, setSessionStreamError] = useState<string | null>(
     null,
   );
+  /* 새로고침 후 세션 스트림 실패 시 재시도: 증가시키면 세션 스트림 effect가 다시 실행됨 */
+  const [sessionStreamKey, setSessionStreamKey] = useState(0);
   /* 인터뷰 단계 */
   const [currentStage, setCurrentStage] = useState(0);
-  /* true면 해당 단계 툴팁 표시, 새로고침 시 false */
-  const [showStepTooltip, setShowStepTooltip] = useState(false);
+  /* 2·3·4단계(grid 1,2,3) 진입 시에만 해당 단계 툴팁 표시. 진입한 단계 번호 또는 null */
+  const [showTooltipForStep, setShowTooltipForStep] = useState<number | null>(
+    null,
+  );
 
   const prevStageRef = useRef(0);
   /* 3턴 이어가기 모드: true면 연장 세션 중 */
@@ -100,22 +116,18 @@ export default function ExperienceSettingsChatPage() {
   }, [currentStage]);
 
   useEffect(() => {
-    setExperienceTitle(storeTitle);
-  }, [id, storeTitle]);
-
-  useEffect(() => {
-    document.title = `${experienceTitle} - Folioo`;
-  }, [experienceTitle]);
+    if (titleReady) document.title = `${displayTitle} - Folioo`;
+  }, [titleReady, displayTitle]);
 
   useEffect(() => {
     if (id) setExperienceReturnPath(id, 'chat');
   }, [id]);
 
   useEffect(() => {
-    if (!showStepTooltip) return;
-    const t = setTimeout(() => setShowStepTooltip(false), 2000);
+    if (showTooltipForStep == null) return;
+    const t = setTimeout(() => setShowTooltipForStep(null), 2000);
     return () => clearTimeout(t);
-  }, [showStepTooltip]);
+  }, [showTooltipForStep]);
 
   /* 스트리밍이 3분 넘게 유지되면 오류 메시지 표시 */
   const STREAM_TIMEOUT_MS = 3 * 60 * 1000;
@@ -135,7 +147,7 @@ export default function ExperienceSettingsChatPage() {
     return () => clearTimeout(t);
   }, [isStreaming]);
 
-  // 진입 시: 세션 있으면 기존 대화 로드, 없으면 세션 스트림 시작
+  // 진입 시: 세션 있으면 기존 대화 로드, 없으면 세션 스트림 시작. sessionStreamKey 변경 시 재시도.
   useEffect(() => {
     if (!id || Number.isNaN(experienceId)) return;
 
@@ -181,13 +193,22 @@ export default function ExperienceSettingsChatPage() {
                 typeof event.message.current_stage === 'number' ||
                 event.message.all_complete
               ) {
-                setCurrentStage(
-                  toGridStep(
-                    event.message.current_stage ?? 1,
-                    event.message.all_complete,
-                  ),
+                const newStage = toGridStep(
+                  event.message.current_stage ?? 1,
+                  event.message.all_complete,
                 );
-                setShowStepTooltip(true);
+                if (
+                  newStage >= 1 &&
+                  newStage <= 3 &&
+                  newStage !== prevStageRef.current
+                ) {
+                  setShowTooltipForStep(newStage);
+                }
+                if (newStage === 4 && prevStageRef.current !== 4) {
+                  prevStageRef.current = 4;
+                  setIsCompletionModalOpen(true);
+                }
+                setCurrentStage(newStage);
               }
               return next;
             }
@@ -206,6 +227,10 @@ export default function ExperienceSettingsChatPage() {
     };
 
     (async () => {
+      if (sessionStreamKey > 0) {
+        startSessionStream();
+        return;
+      }
       try {
         const res = await interviewControllerGetSessionState(experienceId);
         if (cancelled) return;
@@ -217,10 +242,16 @@ export default function ExperienceSettingsChatPage() {
               content: m.content ?? '',
             })),
           );
-          setCurrentStage(
-            toGridStep(res.result?.currentStage ?? 1, res.result?.allComplete),
+          const restoredStage = toGridStep(
+            res.result?.currentStage ?? 1,
+            res.result?.allComplete,
           );
-          setShowStepTooltip(false);
+          prevStageRef.current = restoredStage;
+          setCurrentStage(restoredStage);
+          if (restoredStage === 4) {
+            setIsCompletionModalOpen(true);
+          }
+          setShowTooltipForStep(null);
           setSessionStreamError(null);
           setIsStreaming(false);
           return;
@@ -235,7 +266,7 @@ export default function ExperienceSettingsChatPage() {
       cancelled = true;
       sessionAbortRef.current?.abort();
     };
-  }, [id, experienceId]);
+  }, [id, experienceId, sessionStreamKey]);
 
   // 브라우저 스크롤 차단
   useEffect(() => {
@@ -245,6 +276,12 @@ export default function ExperienceSettingsChatPage() {
       document.body.style.overflow = prev;
     };
   }, []);
+
+  /** 새로고침 후 답변 로드 실패 시 세션 스트림 재시도 */
+  const handleRetrySession = () => {
+    setSessionStreamError(null);
+    setSessionStreamKey((k) => k + 1);
+  };
 
   const handleSend = (payload: {
     content: string;
@@ -309,13 +346,22 @@ export default function ExperienceSettingsChatPage() {
               typeof event.message.current_stage === 'number' ||
               event.message.all_complete
             ) {
-              setCurrentStage(
-                toGridStep(
-                  event.message.current_stage ?? 1,
-                  event.message.all_complete,
-                ),
+              const newStage = toGridStep(
+                event.message.current_stage ?? 1,
+                event.message.all_complete,
               );
-              setShowStepTooltip(true);
+              if (
+                newStage >= 1 &&
+                newStage <= 3 &&
+                newStage !== prevStageRef.current
+              ) {
+                setShowTooltipForStep(newStage);
+              }
+              if (newStage === 4 && prevStageRef.current !== 4) {
+                prevStageRef.current = 4;
+                setIsCompletionModalOpen(true);
+              }
+              setCurrentStage(newStage);
             }
             return next;
           }
@@ -345,7 +391,7 @@ export default function ExperienceSettingsChatPage() {
     });
   };
 
-  /* PortfolioCreateModal 오픈 시: API 호출 후 완료면 portfolio로, 아니면 createloading으로 + 폴링으로 완료 시 portfolio 이동 */
+  /* PortfolioCreateModal 오픈 시: 포트폴리오 생성 API 호출 → createloading 이동 → 폴러가 완료 시 portfolio로 리다이렉트 */
   useEffect(() => {
     if (!isPortfolioCreateModalOpen) return;
     let cancelled = false;
@@ -355,17 +401,6 @@ export default function ExperienceSettingsChatPage() {
         if (cancelled) return;
         const result = res?.result as GeneratePortfolioResDTO | undefined;
         const portfolioId = result?.portfolioId;
-        const status = result?.portfolioStatus;
-        if (status === GeneratePortfolioResDTOPortfolioStatus.completed && portfolioId != null) {
-          if (timeoutId) clearTimeout(timeoutId);
-          setIsPortfolioCreateModalOpen(false);
-          setResolvedPortfolio(id, portfolioId);
-          queryClient.invalidateQueries({
-            queryKey: getPortfolioControllerGetPortfolioQueryKey(portfolioId),
-          });
-          router.push(`/experience/settings/${id}/portfolio?portfolioId=${portfolioId}`);
-          return;
-        }
         if (portfolioId != null) {
           setPendingPortfolio(id, portfolioId);
           queryClient.invalidateQueries({
@@ -432,12 +467,15 @@ export default function ExperienceSettingsChatPage() {
               typeof event.message.current_stage === 'number' ||
               event.message.all_complete
             ) {
-              setCurrentStage(
-                toGridStep(
-                  event.message.current_stage ?? 1,
-                  event.message.all_complete,
-                ),
+              const newStage = toGridStep(
+                event.message.current_stage ?? 1,
+                event.message.all_complete,
               );
+              if (newStage === 4 && prevStageRef.current !== 4) {
+                prevStageRef.current = 4;
+                setIsCompletionModalOpen(true);
+              }
+              setCurrentStage(newStage);
               /* 3턴 이어가기에서는 툴팁 표시 안 함 */
             }
             return next;
@@ -455,7 +493,16 @@ export default function ExperienceSettingsChatPage() {
           return next;
         });
       },
-      onDone: () => setIsStreaming(false),
+      onDone: () => {
+        setIsStreaming(false);
+        if (isExtendedSessionRef.current) {
+          extendedTurnCountRef.current += 1;
+          if (extendedTurnCountRef.current >= 3) {
+            isExtendedSessionRef.current = false;
+            setIsPortfolioCreateModalOpen(true);
+          }
+        }
+      },
     });
   };
 
@@ -503,13 +550,22 @@ export default function ExperienceSettingsChatPage() {
               typeof event.message.current_stage === 'number' ||
               event.message.all_complete
             ) {
-              setCurrentStage(
-                toGridStep(
-                  event.message.current_stage ?? 1,
-                  event.message.all_complete,
-                ),
+              const newStage = toGridStep(
+                event.message.current_stage ?? 1,
+                event.message.all_complete,
               );
-              setShowStepTooltip(true);
+              if (
+                newStage >= 1 &&
+                newStage <= 3 &&
+                newStage !== prevStageRef.current
+              ) {
+                setShowTooltipForStep(newStage);
+              }
+              if (newStage === 4 && prevStageRef.current !== 4) {
+                prevStageRef.current = 4;
+                setIsCompletionModalOpen(true);
+              }
+              setCurrentStage(newStage);
             }
             return next;
           }
@@ -537,31 +593,36 @@ export default function ExperienceSettingsChatPage() {
         <div className='flex w-full shrink-0 items-center justify-between'>
           <div className='flex items-center gap-[0.5rem]'>
             <BackButton href='/experience' />
-            <InlineEdit
-              title={experienceTitle}
-              isEditing={isEditingTitle}
-              onEdit={() => setIsEditingTitle(true)}
-              onSave={(newTitle) => {
-                if (!Number.isFinite(experienceId)) {
-                  setExperienceTitle(newTitle);
-                  updateExperienceTitle(id, newTitle);
-                  setIsEditingTitle(false);
-                  return;
-                }
-                updateExperience({
-                  experienceId,
-                  data: { name: newTitle },
-                })
-                  .then(() => {
-                    setExperienceTitle(newTitle);
+            {titleReady && (
+              <InlineEdit
+                title={displayTitle}
+                isEditing={isEditingTitle}
+                onEdit={() => setIsEditingTitle(true)}
+                onSave={(newTitle) => {
+                  if (!Number.isFinite(experienceId)) {
                     updateExperienceTitle(id, newTitle);
                     setIsEditingTitle(false);
+                    return;
+                  }
+                  updateExperience({
+                    experienceId,
+                    data: { name: newTitle },
                   })
-                  .catch(() => {
-                    setIsEditingTitle(false);
-                  });
-              }}
-            />
+                    .then(() => {
+                      updateExperienceTitle(id, newTitle);
+                      queryClient.invalidateQueries({
+                        queryKey: getExperienceControllerGetExperienceQueryKey(
+                          experienceId,
+                        ),
+                      });
+                      setIsEditingTitle(false);
+                    })
+                    .catch(() => {
+                      setIsEditingTitle(false);
+                    });
+                }}
+              />
+            )}
           </div>
 
           <DeleteModalButton
@@ -584,14 +645,13 @@ export default function ExperienceSettingsChatPage() {
             messages={messages}
             isStreaming={isStreaming}
             onRetryAIMessage={handleRetryAIMessage}
+            sessionLoadFailed={!!sessionStreamError}
+            onRetrySession={handleRetrySession}
             searchKeyword={
               [...messages].reverse().find((m) => m.role === 'user')?.content ??
               ''
             }
           />
-          {sessionStreamError && (
-            <p className='mt-2 text-sm text-red-600'>{sessionStreamError}</p>
-          )}
         </div>
       </div>
 
@@ -603,7 +663,7 @@ export default function ExperienceSettingsChatPage() {
           onSend={handleSend}
           disabled={isStreaming}
           currentStep={currentStage}
-          showStepTooltip={showStepTooltip}
+          showTooltipForStep={showTooltipForStep}
         />
       </div>
 
