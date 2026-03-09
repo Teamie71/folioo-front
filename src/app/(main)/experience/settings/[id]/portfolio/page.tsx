@@ -18,6 +18,8 @@ import { ExperienceIconWhite } from '@/components/icons/ExperienceIconWhite';
 import { CorrectionIconWhite } from '@/components/icons/CorrectionIconWhite';
 import {
   getExperienceControllerGetExperienceQueryKey,
+  getExperienceControllerGetExperiencesQueryKey,
+  useExperienceControllerDeleteExperience,
   useExperienceControllerGetExperience,
   useExperienceControllerUpdateExperience,
 } from '@/api/endpoints/experience/experience';
@@ -78,6 +80,8 @@ export default function ExperienceSettingsPortfolioPage() {
 
   const { mutateAsync: updatePortfolio } =
     usePortfolioControllerUpdatePortfolio();
+  const { mutateAsync: deleteExperience } =
+    useExperienceControllerDeleteExperience();
 
   const { data: portfolioData, isLoading } = usePortfolioControllerGetPortfolio(
     portfolioId,
@@ -90,8 +94,7 @@ export default function ExperienceSettingsPortfolioPage() {
 
   const portfolio = portfolioData?.result;
   const experienceName = experienceData?.result?.name;
-  const displayTitle =
-    experienceName ?? storeTitle ?? '새로운 경험 정리';
+  const displayTitle = experienceName ?? storeTitle ?? '새로운 경험 정리';
 
   useEffect(() => {
     if (!portfolio) return;
@@ -117,8 +120,24 @@ export default function ExperienceSettingsPortfolioPage() {
   }, [id]);
 
   const handleDelete = () => {
-    removeExperience(id);
-    router.push('/experience');
+    if (!Number.isFinite(experienceId)) {
+      removeExperience(id);
+      router.push('/experience');
+      return;
+    }
+    deleteExperience({ experienceId })
+      .then(() => {
+        removeExperience(id);
+        return queryClient.refetchQueries({
+          queryKey: getExperienceControllerGetExperiencesQueryKey(),
+        });
+      })
+      .then(() => {
+        router.push('/experience');
+      })
+      .catch(() => {
+        alert('삭제에 실패했어요. 다시 시도해주세요.');
+      });
   };
 
   const handleContributionSave = (value: number) => {
@@ -157,9 +176,10 @@ export default function ExperienceSettingsPortfolioPage() {
                     .then(() => {
                       updateExperienceTitle(id, newTitle);
                       queryClient.invalidateQueries({
-                        queryKey: getExperienceControllerGetExperienceQueryKey(
-                          experienceId,
-                        ),
+                        queryKey:
+                          getExperienceControllerGetExperienceQueryKey(
+                            experienceId,
+                          ),
                       });
                       setIsEditingTitle(false);
                     })

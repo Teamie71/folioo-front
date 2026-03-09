@@ -24,6 +24,8 @@ import { PortfolioCreateModal } from '@/features/experience/chat/components/Port
 import { fetchSSEStream } from '@/lib/sseStream';
 import {
   getExperienceControllerGetExperienceQueryKey,
+  getExperienceControllerGetExperiencesQueryKey,
+  useExperienceControllerDeleteExperience,
   useExperienceControllerGetExperience,
   useExperienceControllerUpdateExperience,
 } from '@/api/endpoints/experience/experience';
@@ -422,9 +424,28 @@ export default function ExperienceSettingsChatPage() {
     };
   }, [isPortfolioCreateModalOpen]);
 
+  const { mutateAsync: deleteExperience } =
+    useExperienceControllerDeleteExperience();
+
   const handleDelete = () => {
-    removeExperience(id);
-    router.push('/experience');
+    if (!Number.isFinite(experienceId)) {
+      removeExperience(id);
+      router.push('/experience');
+      return;
+    }
+    deleteExperience({ experienceId })
+      .then(() => {
+        removeExperience(id);
+        return queryClient.refetchQueries({
+          queryKey: getExperienceControllerGetExperiencesQueryKey(),
+        });
+      })
+      .then(() => {
+        router.push('/experience');
+      })
+      .catch(() => {
+        alert('삭제에 실패했어요. 다시 시도해주세요.');
+      });
   };
 
   /** 3턴 대화 이어가기: 모달 닫고 연장 스트림으로 첫 AI 질문 수신, 3턴만 진행 후 CompleteModal */
@@ -611,9 +632,10 @@ export default function ExperienceSettingsChatPage() {
                     .then(() => {
                       updateExperienceTitle(id, newTitle);
                       queryClient.invalidateQueries({
-                        queryKey: getExperienceControllerGetExperienceQueryKey(
-                          experienceId,
-                        ),
+                        queryKey:
+                          getExperienceControllerGetExperienceQueryKey(
+                            experienceId,
+                          ),
                       });
                       setIsEditingTitle(false);
                     })
