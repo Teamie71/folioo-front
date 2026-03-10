@@ -14,6 +14,7 @@ import {
   portfolioCorrectionControllerCreateCompanyInsight,
   portfolioCorrectionControllerUpdateCompanyInsight,
   portfolioCorrectionControllerUpdateCorrectionTitle,
+  portfolioCorrectionControllerGetCorrections,
 } from '@/api/endpoints/portfolio-correction/portfolio-correction';
 import type {
   CorrectionStatusResDTOStatus,
@@ -93,9 +94,7 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [selectedTextPortfolioIds, setSelectedTextPortfolioIds] = useState<string[]>([]);
   const [title, setTitle] = useState('새로운 포트폴리오 첨삭');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [resultTab, setResultTab] = useState<
-    '지원 정보' | '총평' | '활동 A' | '활동 B'
-  >('지원 정보');
+  const [resultTab, setResultTab] = useState<string>('지원 정보');
   const [detailInfoButton, setDetailInfoButton] = useState<
     '축소 또는 제외' | '구체화하여 강조'
   >('축소 또는 제외');
@@ -168,15 +167,32 @@ export function useCorrectionState(correctionId: string | undefined) {
   useEffect(() => {
     const id = effectiveId ? Number(effectiveId) : null;
     if (id == null || Number.isNaN(id)) return;
-    portfolioCorrectionControllerGetCorrectionStatus(id)
-      .then((res) => {
-        const apiStatus = (res as { result?: { status?: CorrectionStatusResDTOStatus } })?.result?.status;
-        const { step: nextStep, status: nextStatus } = mapStatusToStepAndStatus(apiStatus);
-        setStep(nextStep);
-        setStatus(nextStatus);
+
+    // 내 첨삭인지 확인
+    portfolioCorrectionControllerGetCorrections()
+      .then((listRes) => {
+        const corrections = (listRes as any)?.result ?? [];
+        const isMine = corrections.some((c: any) => c.id === id);
+        if (!isMine) {
+          router.replace('/correction');
+          return;
+        }
+
+        // 내 첨삭이면 status 조회 진행
+        portfolioCorrectionControllerGetCorrectionStatus(id)
+          .then((res) => {
+            const apiStatus = (res as { result?: { status?: CorrectionStatusResDTOStatus } })?.result?.status;
+            const { step: nextStep, status: nextStatus } = mapStatusToStepAndStatus(apiStatus);
+            setStep(nextStep);
+            setStatus(nextStatus);
+          })
+          .catch(() => {});
       })
-      .catch(() => {});
-  }, [effectiveId]);
+      .catch(() => {
+        // 에러 발생 시에도 일단 메인으로
+        router.replace('/correction');
+      });
+  }, [effectiveId, router]);
 
   useEffect(() => {
     setShowNavbarOnResult?.(step === 'result');
