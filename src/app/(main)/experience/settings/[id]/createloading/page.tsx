@@ -43,15 +43,29 @@ export default function ExperienceSettingsChatLoadingPage() {
   const queryClient = useQueryClient();
   const { data: experienceData } = useExperienceControllerGetExperience(
     experienceId,
-    { query: { enabled: Number.isFinite(experienceId) } },
+    {
+      query: {
+        enabled: Number.isFinite(experienceId),
+        refetchInterval: 2000,
+        refetchIntervalInBackground: true,
+      },
+    },
   );
   const experienceName = experienceData?.result?.name;
-  const titleReady = experienceData?.result != null;
+  const experience = experienceData?.result;
+  const titleReady = experience != null;
   const displayTitle = titleReady
     ? (experienceName ?? storeTitle ?? '새로운 경험 정리')
     : '';
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+
+  /* done 상태가 되면 portfolio 페이지로 리다이렉트 */
+  useEffect(() => {
+    if (!id || !experience) return;
+    if (String(experience.status ?? '').toUpperCase() !== 'DONE') return;
+    router.replace(`/experience/settings/${id}/portfolio`);
+  }, [id, experience, router]);
 
   useEffect(() => {
     if (titleReady) document.title = `${displayTitle} - Folioo`;
