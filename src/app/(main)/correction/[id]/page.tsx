@@ -151,7 +151,7 @@ export default function CorrectionSettingsPage() {
         />
       }
       progressOrDivider={
-        s.step === 'result' ? (
+        s.step === 'result' && s.status !== 'ANALYZING' ? (
           <div className='flex flex-col gap-[0.75rem] pb-[6.25rem]'>
             <div className='h-[1px] w-full bg-[#9EA4A9]' />
           </div>
