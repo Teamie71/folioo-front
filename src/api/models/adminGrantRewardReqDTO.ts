@@ -5,6 +5,7 @@
  * API document of Folioo Development
  * OpenAPI spec version: 1.0.0
  */
+import type { CustomRewardItemDTO } from './customRewardItemDTO';
 
 export interface AdminGrantRewardReqDTO {
   /**
@@ -23,36 +24,10 @@ export interface AdminGrantRewardReqDTO {
    */
   reviewedBy?: string;
   /**
-   * 보상 메모
+   * 검토 메모
    * @maxLength 500
    */
   reviewNote?: string;
-  /** 보상 안내 모달 생성 여부 */
-  createNotice?: boolean;
-  /**
-   * 사용자 노출 사유 문구
-   * @maxLength 100
-   */
-  displayReason?: string;
-  /**
-   * 보상 안내 제목
-   * @maxLength 100
-   */
-  noticeTitle?: string;
-  /**
-   * 보상 안내 본문
-   * @maxLength 1000
-   */
-  noticeBody?: string;
-  /**
-   * 보상 안내 CTA 문구
-   * @maxLength 50
-   */
-  noticeCtaText?: string;
-  /**
-   * 보상 안내 CTA 링크
-   * @maxLength 255
-   * @pattern NOTICE_CTA_LINK_REGEX
-   */
-  noticeCtaLink?: string;
+  /** 커스텀 보상 (allowMultipleRewards 이벤트 전용, 미지정 시 이벤트 rewardConfig 사용) */
+  customRewards?: CustomRewardItemDTO[];
 }
