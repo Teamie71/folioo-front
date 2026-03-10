@@ -171,7 +171,9 @@ export default function CorrectionSettingsPage() {
         />
       }
       progressOrDivider={
-        s.step === 'result' && s.status !== 'ANALYZING' ? (
+        s.step === 'result' &&
+        s.status !== 'ANALYZING' &&
+        s.status !== 'ANALYZING_FAILED' ? (
           <div className='flex flex-col gap-[0.75rem] pb-[3.75rem]'>
             <div className='h-[1px] w-full bg-[#9EA4A9]' />
           </div>
@@ -181,9 +183,11 @@ export default function CorrectionSettingsPage() {
       }
     >
       <div className='flex flex-col gap-[3.75rem]'>
-        {s.status === 'ANALYZING' ? (
+        {s.status === 'ANALYZING' || s.status === 'ANALYZING_FAILED' ? (
           <CorrectionAnalyzingView
             onLeaveClick={() => s.router.replace('/correction')}
+            isError={s.status === 'ANALYZING_FAILED'}
+            onRetry={s.handleRetryAnalyzing}
           />
         ) : s.step === 'portfolio' ? (
           <CorrectionPortfolioStep

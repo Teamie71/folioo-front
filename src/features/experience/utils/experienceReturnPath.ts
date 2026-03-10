@@ -91,3 +91,41 @@ export function getExperienceReturnPaths(): Record<
 > {
   return getStorage();
 }
+
+/* createloading 페이지 진입 여부 */
+const CREATELOADING_ENTERED_KEY = 'folioo_createloading_entered_ids';
+
+function getCreateloadingEnteredIds(): Set<string> {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const raw = sessionStorage.getItem(CREATELOADING_ENTERED_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw) as string[];
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function setCreateloadingEnteredIds(ids: Set<string>) {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.setItem(CREATELOADING_ENTERED_KEY, JSON.stringify([...ids]));
+  } catch {
+    // ignore
+  }
+}
+
+/* 해당 경험에 대해 createloading 페이지에 진입했음을 기록 */
+export function setCreateloadingEntered(id: string): void {
+  if (!id) return;
+  const set = getCreateloadingEnteredIds();
+  set.add(id);
+  setCreateloadingEnteredIds(set);
+}
+
+/* 해당 경험에 대해 createloading 진입 이력이 있으면 true */
+export function hasCreateloadingEntered(id: string): boolean {
+  if (!id) return false;
+  return getCreateloadingEnteredIds().has(id);
+}

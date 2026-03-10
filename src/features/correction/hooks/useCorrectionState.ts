@@ -63,6 +63,9 @@ function mapStatusToStepAndStatus(
     case 'DOING_RAG':
     case 'GENERATING':
       return { step: 'result', status: 'ANALYZING' };
+    case 'RAG_FAILED':
+    case 'FAILED':
+      return { step: 'result', status: 'ANALYZING_FAILED' };
     case 'DONE':
       return { step: 'result', status: 'DONE' };
     case 'NOT_STARTED':
@@ -79,8 +82,9 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [jdMode, setJdMode] = useState<'text' | 'image'>('text');
   const [selectedPortfolioType, setSelectedPortfolioType] =
     useState<PortfolioType | null>(null);
-  const [pdfActivities, setPdfActivities] =
-    useState<PdfActivityBlock[]>(INITIAL_PDF_ACTIVITIES);
+  const [pdfActivities, setPdfActivities] = useState<PdfActivityBlock[]>(
+    INITIAL_PDF_ACTIVITIES,
+  );
   const [selectedActivityId, setSelectedActivityId] = useState<string>(
     INITIAL_PDF_ACTIVITIES[0].id,
   );
@@ -91,7 +95,9 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [pdfActivityHoverId, setPdfActivityHoverId] = useState<string | null>(
     null,
   );
-  const [selectedTextPortfolioIds, setSelectedTextPortfolioIds] = useState<string[]>([]);
+  const [selectedTextPortfolioIds, setSelectedTextPortfolioIds] = useState<
+    string[]
+  >([]);
   const [title, setTitle] = useState('새로운 포트폴리오 첨삭');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [resultTab, setResultTab] = useState<string>('지원 정보');
@@ -181,8 +187,11 @@ export function useCorrectionState(correctionId: string | undefined) {
         // 내 첨삭이면 status 조회 진행
         portfolioCorrectionControllerGetCorrectionStatus(id)
           .then((res) => {
-            const apiStatus = (res as { result?: { status?: CorrectionStatusResDTOStatus } })?.result?.status;
-            const { step: nextStep, status: nextStatus } = mapStatusToStepAndStatus(apiStatus);
+            const apiStatus = (
+              res as { result?: { status?: CorrectionStatusResDTOStatus } }
+            )?.result?.status;
+            const { step: nextStep, status: nextStatus } =
+              mapStatusToStepAndStatus(apiStatus);
             setStep(nextStep);
             setStatus(nextStatus);
           })
@@ -251,12 +260,12 @@ export function useCorrectionState(correctionId: string | undefined) {
         file: pdfUploadedFile.file,
       });
       setIsPdfTextExtracted(true);
-      const listRes =
-        await externalPortfolioControllerGetSelectedPortfolios({
-          correctionId,
-        });
-      const listResult = (listRes as ExternalPortfolioControllerGetSelectedPortfolios200)
-        .result;
+      const listRes = await externalPortfolioControllerGetSelectedPortfolios({
+        correctionId,
+      });
+      const listResult = (
+        listRes as ExternalPortfolioControllerGetSelectedPortfolios200
+      ).result;
       const activities = (listResult ?? []).map((dto, i) =>
         mapToPdfActivityBlock(dto, i),
       );
@@ -285,7 +294,7 @@ export function useCorrectionState(correctionId: string | undefined) {
     setPdfActivities((prev) => {
       const next = prev.filter((a) => a.id !== targetId);
       setSelectedActivityId((id) =>
-        next.some((a) => a.id === id) ? id : next[0]?.id ?? id,
+        next.some((a) => a.id === id) ? id : (next[0]?.id ?? id),
       );
       return next;
     });
@@ -297,11 +306,14 @@ export function useCorrectionState(correctionId: string | undefined) {
     if (id == null || Number.isNaN(id)) return;
     if (pdfActivities.length >= 5) return;
     try {
-      const res = await externalPortfolioControllerCreateExternalPortfolioBlock({
-        correctionId: id,
-      });
-      const result = (res as ExternalPortfolioControllerCreateExternalPortfolioBlock200)
-        .result;
+      const res = await externalPortfolioControllerCreateExternalPortfolioBlock(
+        {
+          correctionId: id,
+        },
+      );
+      const result = (
+        res as ExternalPortfolioControllerCreateExternalPortfolioBlock200
+      ).result;
       if (!result) throw new Error();
       const newBlock = mapToPdfActivityBlock(result, pdfActivities.length);
       setPdfActivities((prev) => [...prev, newBlock]);
@@ -317,9 +329,10 @@ export function useCorrectionState(correctionId: string | undefined) {
     if (debouncedPatchRef.current) clearTimeout(debouncedPatchRef.current);
     debouncedPatchRef.current = setTimeout(() => {
       debouncedPatchRef.current = null;
-      externalPortfolioControllerUpdateExternalPortfolio(activity.portfolioId!, toPatchBody(activity)).catch(
-        () => {},
-      );
+      externalPortfolioControllerUpdateExternalPortfolio(
+        activity.portfolioId!,
+        toPatchBody(activity),
+      ).catch(() => {});
     }, 500);
   }, []);
 
@@ -405,6 +418,26 @@ export function useCorrectionState(correctionId: string | undefined) {
   const handleStartNewExperience = useCallback(() => {
     router.push('/experience/settings');
   }, [router]);
+
+  /* 첨삭 생성 실패 시 다시 생성 요청 */
+  const handleRetryAnalyzing = useCallback(async () => {
+    const id = effectiveId ? Number(effectiveId) : null;
+    if (id == null || Number.isNaN(id)) return;
+    try {
+      await portfolioCorrectionControllerCreateCorrectionByAI(id);
+      const statusRes =
+        await portfolioCorrectionControllerGetCorrectionStatus(id);
+      const apiStatus = (
+        statusRes as { result?: { status?: CorrectionStatusResDTOStatus } }
+      )?.result?.status;
+      const { step: nextStep, status: nextStatus } =
+        mapStatusToStepAndStatus(apiStatus);
+      setStep(nextStep);
+      setStatus(nextStatus);
+    } catch {
+      // 실패 시 상태 유지(ANALYZING_FAILED)
+    }
+  }, [effectiveId]);
 
   const handlePortfolioSelect = useCallback((type: PortfolioType) => {
     setSelectedPortfolioType(type);
@@ -514,6 +547,7 @@ export function useCorrectionState(correctionId: string | undefined) {
     limitAllowedInput,
     handleNextStep,
     handleStartNewExperience,
+    handleRetryAnalyzing,
     handlePortfolioSelect,
     handlePdfFile,
     handlePdfExtractConfirm,
