@@ -109,6 +109,8 @@ function ExperienceSettingsChatContent() {
   const isExtendedSessionRef = useRef(false);
   /* 연장 세션에서 완료된 턴 수 (AI 응답 1회 = 1턴, 3턴이면 CompleteModal 오픈) */
   const extendedTurnCountRef = useRef(0);
+  /* 연장 세션(3턴 블록)을 완료한 횟수 */
+  const extendedSessionRoundsRef = useRef(0);
   const queryClient = useQueryClient();
   const { mutateAsync: generatePortfolio } =
     useInterviewControllerGeneratePortfolio();
@@ -117,10 +119,11 @@ function ExperienceSettingsChatContent() {
   const setPendingPortfolio = usePortfolioCreationStore((s) => s.setPending);
   const setResolvedPortfolio = usePortfolioCreationStore((s) => s.setResolved);
 
-  const syncStageFromServer = async () => {
+  const syncStageFromServer = async (skipStageUpdate?: boolean) => {
     if (!Number.isFinite(experienceId)) return;
     try {
       const res = await interviewControllerGetSessionState(experienceId);
+      if (skipStageUpdate) return; /* 3턴 연장 중에는 단계 갱신하지 않음 */
       const restoredStage = toGridStep(
         res.result?.currentStage ?? 1,
         res.result?.allComplete,
@@ -131,6 +134,22 @@ function ExperienceSettingsChatContent() {
         setIsCompletionModalOpen(true);
       }
     } catch {}
+  };
+
+  const handleExtendedTurnDone = () => {
+    if (!isExtendedSessionRef.current) return;
+    extendedTurnCountRef.current += 1;
+    if (extendedTurnCountRef.current < 3) return;
+    isExtendedSessionRef.current = false;
+    extendedTurnCountRef.current = 0;
+    extendedSessionRoundsRef.current += 1;
+    if (extendedSessionRoundsRef.current >= 2) {
+      setIsPortfolioCreateModalOpen(true);
+    } else {
+      prevStageRef.current = 4;
+      setCurrentStage(4); /* 다음 3턴 연장도 4단계 상태에서 진행 */
+      setIsCompletionModalOpen(true);
+    }
   };
 
   /* 단계가 다 채워지면( currentStage === 4 ) 완료 모달 */
@@ -409,26 +428,29 @@ function ExperienceSettingsChatContent() {
               ...last,
               content: event.message.ai_response,
             };
-            if (
-              typeof event.message.current_stage === 'number' ||
-              event.message.all_complete
-            ) {
-              const newStage = toGridStep(
-                event.message.current_stage ?? 1,
-                event.message.all_complete,
-              );
+            /* 3턴 연장 중에는 단계를 4로 유지 */
+            if (!isExtendedSessionRef.current) {
               if (
-                newStage >= 1 &&
-                newStage <= 3 &&
-                newStage !== prevStageRef.current
+                typeof event.message.current_stage === 'number' ||
+                event.message.all_complete
               ) {
-                setShowTooltipForStep(newStage);
+                const newStage = toGridStep(
+                  event.message.current_stage ?? 1,
+                  event.message.all_complete,
+                );
+                if (
+                  newStage >= 1 &&
+                  newStage <= 3 &&
+                  newStage !== prevStageRef.current
+                ) {
+                  setShowTooltipForStep(newStage);
+                }
+                if (newStage === 4 && prevStageRef.current !== 4) {
+                  prevStageRef.current = 4;
+                  setIsCompletionModalOpen(true);
+                }
+                setCurrentStage(newStage);
               }
-              if (newStage === 4 && prevStageRef.current !== 4) {
-                prevStageRef.current = 4;
-                setIsCompletionModalOpen(true);
-              }
-              setCurrentStage(newStage);
             }
             return next;
           }
@@ -447,14 +469,8 @@ function ExperienceSettingsChatContent() {
       },
       onDone: async () => {
         setIsStreaming(false);
-        await syncStageFromServer();
-        if (isExtendedSessionRef.current) {
-          extendedTurnCountRef.current += 1;
-          if (extendedTurnCountRef.current >= 3) {
-            isExtendedSessionRef.current = false;
-            setIsPortfolioCreateModalOpen(true);
-          }
-        }
+        await syncStageFromServer(isExtendedSessionRef.current);
+        handleExtendedTurnDone();
       },
     });
   };
@@ -518,11 +534,13 @@ function ExperienceSettingsChatContent() {
       });
   };
 
-  /** 3턴 대화 이어가기: 모달 닫고 연장 스트림으로 첫 AI 질문 수신, 3턴만 진행 후 CompleteModal */
+  /** 3턴 대화 이어가기: 4단계 상태 유지한 채 연장 스트림으로 첫 AI 질문 수신, 3턴만 진행 후 CompleteModal */
   const handleContinueChat = () => {
     setIsCompletionModalOpen(false);
     isExtendedSessionRef.current = true;
     extendedTurnCountRef.current = 0;
+    prevStageRef.current = 4;
+    setCurrentStage(4); /* 4단계(대화 완료) 상태에서 3턴 연장 진행 */
     setMessages((prev) => [...prev, { role: 'ai', content: '' }]);
     setIsStreaming(true);
     const abort = new AbortController();
@@ -554,20 +572,22 @@ function ExperienceSettingsChatContent() {
               ...last,
               content: event.message.ai_response,
             };
-            if (
-              typeof event.message.current_stage === 'number' ||
-              event.message.all_complete
-            ) {
-              const newStage = toGridStep(
-                event.message.current_stage ?? 1,
-                event.message.all_complete,
-              );
-              if (newStage === 4 && prevStageRef.current !== 4) {
-                prevStageRef.current = 4;
-                setIsCompletionModalOpen(true);
+            /* 3턴 연장 중에는 단계를 4로 유지(스트림 이벤트로 단계 변경하지 않음) */
+            if (!isExtendedSessionRef.current) {
+              if (
+                typeof event.message.current_stage === 'number' ||
+                event.message.all_complete
+              ) {
+                const newStage = toGridStep(
+                  event.message.current_stage ?? 1,
+                  event.message.all_complete,
+                );
+                if (newStage === 4 && prevStageRef.current !== 4) {
+                  prevStageRef.current = 4;
+                  setIsCompletionModalOpen(true);
+                }
+                setCurrentStage(newStage);
               }
-              setCurrentStage(newStage);
-              /* 3턴 이어가기에서는 툴팁 표시 안 함 */
             }
             return next;
           }
@@ -586,14 +606,8 @@ function ExperienceSettingsChatContent() {
       },
       onDone: async () => {
         setIsStreaming(false);
-        await syncStageFromServer();
-        if (isExtendedSessionRef.current) {
-          extendedTurnCountRef.current += 1;
-          if (extendedTurnCountRef.current >= 3) {
-            isExtendedSessionRef.current = false;
-            setIsPortfolioCreateModalOpen(true);
-          }
-        }
+        await syncStageFromServer(isExtendedSessionRef.current);
+        handleExtendedTurnDone();
       },
     });
   };
@@ -676,7 +690,8 @@ function ExperienceSettingsChatContent() {
       },
       onDone: async () => {
         setIsStreaming(false);
-        await syncStageFromServer();
+        await syncStageFromServer(isExtendedSessionRef.current);
+        handleExtendedTurnDone();
       },
     });
   };
