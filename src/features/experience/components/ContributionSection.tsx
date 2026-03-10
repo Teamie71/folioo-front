@@ -62,6 +62,13 @@ export function ContributionSection({
     }
   }, [isEditing, value]);
 
+  React.useEffect(() => {
+    if (isEditing) return;
+    const next = Math.min(100, Math.max(0, initialValue ?? 0));
+    setValue(next);
+    setTempValue(next);
+  }, [initialValue, isEditing]);
+
   // 드래그 중일 때는 애니메이션 없이 즉시 반응: useAnimatedNumber hook
   const effectiveDuration = isDragging ? 0 : duration;
   const displayValue = isEditing ? safeTempValue : safeValue; // 편집 중에는 tempValue, 아니면 실제 값
