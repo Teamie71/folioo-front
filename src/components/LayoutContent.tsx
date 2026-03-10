@@ -162,40 +162,39 @@ export default function LayoutContent({
     };
   }, []);
 
-  // 루트(/)에서만 모달 오픈: 회원가입 직후(terms에서 약관 동의 후 가입) 한 번만
-  useEffect(() => {
-    if (path !== '/') return;
-    if (typeof window === 'undefined') return;
-    const fromSignup = sessionStorage.getItem(TERMS_FROM_SIGNUP_KEY);
-    if (fromSignup) {
-      sessionStorage.removeItem(TERMS_FROM_SIGNUP_KEY);
-      setWeeklyVoucherModalOpen(true);
-    }
-  }, [path]);
+  // [주석 처리] 회원가입 직후 첫 번째 모달: 루트(/)에서만 모달 오픈 (terms에서 약관 동의 후 가입 한 번만)
+  // useEffect(() => {
+  //   if (path !== '/') return;
+  //   if (typeof window === 'undefined') return;
+  //   const fromSignup = sessionStorage.getItem(TERMS_FROM_SIGNUP_KEY);
+  //   if (fromSignup) {
+  //     sessionStorage.removeItem(TERMS_FROM_SIGNUP_KEY);
+  //     setWeeklyVoucherModalOpen(true);
+  //   }
+  // }, [path]);
 
-  // 모달이 열릴 때 보상 수령 API 호출
-  useEffect(() => {
-    if (!weeklyVoucherModalOpen) {
-      claimAttemptedRef.current = false;
-      return;
-    }
-    if (claimAttemptedRef.current) return;
-    claimAttemptedRef.current = true;
-    claimEventReward({ eventCode: WEEKLY_VOUCHER_EVENT_CODE })
-      .then(() => {
-        markWeeklyVoucherGranted();
-        // 잔여 이용권·만료 예정 이용권 재조회로 화면 반영
-        queryClient.invalidateQueries({
-          queryKey: getUserControllerGetTicketBalanceQueryKey(),
-        });
-        queryClient.invalidateQueries({
-          queryKey: getUserControllerGetExpiringTicketsQueryKey(),
-        });
-      })
-      .catch(() => {
-        claimAttemptedRef.current = false;
-      });
-  }, [weeklyVoucherModalOpen, claimEventReward, queryClient]);
+  // [주석 처리] 회원가입 직후 첫 번째 모달이 열릴 때 보상 수령 API 호출
+  // useEffect(() => {
+  //   if (!weeklyVoucherModalOpen) {
+  //     claimAttemptedRef.current = false;
+  //     return;
+  //   }
+  //   if (claimAttemptedRef.current) return;
+  //   claimAttemptedRef.current = true;
+  //   claimEventReward({ eventCode: WEEKLY_VOUCHER_EVENT_CODE })
+  //     .then(() => {
+  //       markWeeklyVoucherGranted();
+  //       queryClient.invalidateQueries({
+  //         queryKey: getUserControllerGetTicketBalanceQueryKey(),
+  //       });
+  //       queryClient.invalidateQueries({
+  //         queryKey: getUserControllerGetExpiringTicketsQueryKey(),
+  //       });
+  //     })
+  //     .catch(() => {
+  //       claimAttemptedRef.current = false;
+  //     });
+  // }, [weeklyVoucherModalOpen, claimEventReward, queryClient]);
 
   // 새 보상 안내 모달 로직
   useEffect(() => {
@@ -236,8 +235,8 @@ export default function LayoutContent({
       {/* 포트폴리오 생성 완료 시 어디서든 portfolio 페이지로 리다이렉트 */}
       <PortfolioCreationPoller />
 
-      {/* 주간 이용권 지급 모달 */}
-      <OBTEventModal
+      {/* [주석 처리] 회원가입 직후 첫 번째 모달: 주간 이용권 지급 */}
+      {/* <OBTEventModal
         open={weeklyVoucherModalOpen}
         onOpenChange={setWeeklyVoucherModalOpen}
         eventTitle='이번 주의 무료 이용권'
@@ -248,7 +247,7 @@ export default function LayoutContent({
         validityMessage='지급된 이용권은 일요일까지 사용 가능해요.'
         buttonText='경험 정리하기'
         onButtonClick={() => router.push('/experience/settings')}
-      />
+      /> */}
 
       {/* 동적 지급 보상 안내 모달 */}
       <EventModal
