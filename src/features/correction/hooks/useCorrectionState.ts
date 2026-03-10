@@ -14,6 +14,7 @@ import {
   portfolioCorrectionControllerCreateCompanyInsight,
   portfolioCorrectionControllerUpdateCompanyInsight,
   portfolioCorrectionControllerUpdateCorrectionTitle,
+  portfolioCorrectionControllerGetCorrections,
 } from '@/api/endpoints/portfolio-correction/portfolio-correction';
 import type {
   CorrectionStatusResDTOStatus,
@@ -166,15 +167,32 @@ export function useCorrectionState(correctionId: string | undefined) {
   useEffect(() => {
     const id = effectiveId ? Number(effectiveId) : null;
     if (id == null || Number.isNaN(id)) return;
-    portfolioCorrectionControllerGetCorrectionStatus(id)
-      .then((res) => {
-        const apiStatus = (res as { result?: { status?: CorrectionStatusResDTOStatus } })?.result?.status;
-        const { step: nextStep, status: nextStatus } = mapStatusToStepAndStatus(apiStatus);
-        setStep(nextStep);
-        setStatus(nextStatus);
+
+    // 내 첨삭인지 확인
+    portfolioCorrectionControllerGetCorrections()
+      .then((listRes) => {
+        const corrections = (listRes as any)?.result ?? [];
+        const isMine = corrections.some((c: any) => c.id === id);
+        if (!isMine) {
+          router.replace('/correction');
+          return;
+        }
+
+        // 내 첨삭이면 status 조회 진행
+        portfolioCorrectionControllerGetCorrectionStatus(id)
+          .then((res) => {
+            const apiStatus = (res as { result?: { status?: CorrectionStatusResDTOStatus } })?.result?.status;
+            const { step: nextStep, status: nextStatus } = mapStatusToStepAndStatus(apiStatus);
+            setStep(nextStep);
+            setStatus(nextStatus);
+          })
+          .catch(() => {});
       })
-      .catch(() => {});
-  }, [effectiveId]);
+      .catch(() => {
+        // 에러 발생 시에도 일단 메인으로
+        router.replace('/correction');
+      });
+  }, [effectiveId, router]);
 
   useEffect(() => {
     setShowNavbarOnResult?.(step === 'result');
