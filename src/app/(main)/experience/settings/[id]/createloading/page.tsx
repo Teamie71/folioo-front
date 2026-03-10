@@ -197,7 +197,7 @@ export default function ExperienceSettingsChatLoadingPage() {
                   onClick={handleRetryGenerate}
                   disabled={isGeneratePending}
                 >
-                  {isGeneratePending ? '요청 중…' : '다시 시도하기'}
+                  {isGeneratePending ? '다시 시도하기' : '다시 시도하기'}
                 </CommonButton>
               </div>
             </>

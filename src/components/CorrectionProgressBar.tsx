@@ -4,7 +4,10 @@ import * as React from 'react';
 import { cn } from '@/utils/utils';
 
 type Step = 'information' | 'portfolio' | 'analysis' | 'result';
-type Status = 'DRAFT' | 'ANALYZING' | 'DONE';
+type Status = 'DRAFT' | 'ANALYZING' | 'ANALYZING_FAILED' | 'DONE';
+
+const isAnalyzingOrFailed = (s?: Status) =>
+  s === 'ANALYZING' || s === 'ANALYZING_FAILED';
 
 interface CorrectionProgressBarProps {
   step: Step;
@@ -23,27 +26,27 @@ const steps: StepItem[] = [
     number: 1,
     label: '지원 정보',
     isActive: (step, status) =>
-      status === 'ANALYZING' || step === 'information' || step === 'portfolio' || step === 'analysis',
+      isAnalyzingOrFailed(status) || step === 'information' || step === 'portfolio' || step === 'analysis',
   },
   {
     number: 2,
     label: '포트폴리오 선택',
-    isActive: (step, status) => status === 'ANALYZING' || step === 'portfolio' || step === 'analysis',
+    isActive: (step, status) => isAnalyzingOrFailed(status) || step === 'portfolio' || step === 'analysis',
   },
   {
     number: 3,
     label: '기업 분석',
-    isActive: (step, status) => status === 'ANALYZING' || step === 'analysis',
+    isActive: (step, status) => isAnalyzingOrFailed(status) || step === 'analysis',
   },
   {
     number: 4,
     label: '첨삭 결과',
-    isActive: (step, status) => status === 'ANALYZING',
+    isActive: (step, status) => isAnalyzingOrFailed(status),
   },
 ];
 
 const getProgressWidth = (step: Step, status?: Status): string => {
-  if (status === 'ANALYZING') {
+  if (isAnalyzingOrFailed(status)) {
     return '100%';
   }
   
@@ -80,7 +83,7 @@ export function CorrectionProgressBar({
       </div>
 
       {/* 단계 라벨들 */}
-      {(step !== 'result' || status === 'ANALYZING') && (
+      {(step !== 'result' || isAnalyzingOrFailed(status)) && (
         <div className='grid grid-cols-4 items-center'>
           {steps.map((stepItem) => {
             const isActive = stepItem.isActive(step, status);

@@ -2,7 +2,7 @@
 export type Step = 'information' | 'portfolio' | 'analysis' | 'result';
 
 /** 첨삭 상태 */
-export type Status = 'DRAFT' | 'ANALYZING' | 'DONE';
+export type Status = 'DRAFT' | 'ANALYZING' | 'ANALYZING_FAILED' | 'DONE';
 
 /** 포트폴리오 종류 (텍스트형 / PDF) */
 export type PortfolioType = 'text' | 'pdf';
