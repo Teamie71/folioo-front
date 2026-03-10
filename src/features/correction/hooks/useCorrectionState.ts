@@ -93,9 +93,7 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [selectedTextPortfolioIds, setSelectedTextPortfolioIds] = useState<string[]>([]);
   const [title, setTitle] = useState('새로운 포트폴리오 첨삭');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [resultTab, setResultTab] = useState<
-    '지원 정보' | '총평' | '활동 A' | '활동 B'
-  >('지원 정보');
+  const [resultTab, setResultTab] = useState<string>('지원 정보');
   const [detailInfoButton, setDetailInfoButton] = useState<
     '축소 또는 제외' | '구체화하여 강조'
   >('축소 또는 제외');

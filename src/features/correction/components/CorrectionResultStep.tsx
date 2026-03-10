@@ -4,16 +4,19 @@ import { CommonButton } from '@/components/CommonButton';
 import { ExperienceIcon } from '@/components/icons/ExperienceIcon';
 import type { Status } from '@/types/correction';
 import type { ResultButtonValue } from './CorrectionResultActivityDetail';
-import type { ResultTab } from './CorrectionResultTabs';
 import { CorrectionResultTabContent } from './CorrectionResultTabContent';
 import { CorrectionResultTabs } from './CorrectionResultTabs';
+import { usePortfolioCorrectionControllerGetCorrection } from '@/api/endpoints/portfolio-correction/portfolio-correction';
+import { useQueries } from '@tanstack/react-query';
+import { getPortfolioControllerGetPortfolioQueryOptions } from '@/api/endpoints/portfolio/portfolio';
+import type { CorrectionResultItemReqDTO } from '@/api/models';
 
-export type { ResultTab, ResultButtonValue };
+export type { ResultButtonValue };
 
 export interface CorrectionResultStepProps {
   status: Status;
-  resultTab: ResultTab;
-  onResultTabChange: (tab: ResultTab) => void;
+  resultTab: string;
+  onResultTabChange: (tab: string) => void;
   detailInfoButton: ResultButtonValue;
   setDetailInfoButton: (value: ResultButtonValue) => void;
   responsibilityButton: ResultButtonValue;
@@ -42,6 +45,30 @@ export function CorrectionResultStep({
   onStartNewExperience,
   correctionId,
 }: CorrectionResultStepProps) {
+  const numericId = correctionId ? Number(correctionId) : NaN;
+  const enabled = !!correctionId && !Number.isNaN(numericId) && status === 'DONE';
+
+  const { data: correctionData } = usePortfolioCorrectionControllerGetCorrection(
+    numericId || 0,
+    { query: { enabled } },
+  );
+
+  const items = (correctionData?.result?.items as unknown as CorrectionResultItemReqDTO[]) || [];
+  const portfolioIds = items.map((item) => item.portfolioId);
+
+  const portfolioQueries = useQueries({
+    queries: portfolioIds.map((id) => ({
+      ...getPortfolioControllerGetPortfolioQueryOptions(id),
+      enabled: !!id,
+    })),
+  });
+
+  const portfolios = portfolioQueries
+    .map((q) => q.data?.result)
+    .filter((p): p is NonNullable<typeof p> => p != null);
+
+  const tabs = ['지원 정보', '총평', ...portfolios.map((p) => p.name)];
+
   if (status !== 'DRAFT' && status !== 'DONE') {
     return (
       <div className='flex flex-col items-center justify-center gap-[2rem] py-[10rem]'>
@@ -100,12 +127,15 @@ export function CorrectionResultStep({
     <>
       <div className='flex flex-col'>
         <CorrectionResultTabs
+          tabs={tabs}
           resultTab={resultTab}
           onResultTabChange={onResultTabChange}
         />
         <CorrectionResultTabContent
           resultTab={resultTab}
           correctionId={correctionId}
+          correctionData={correctionData?.result}
+          portfolios={portfolios}
           detailInfoButton={detailInfoButton}
           setDetailInfoButton={setDetailInfoButton}
           responsibilityButton={responsibilityButton}

@@ -1,21 +1,19 @@
 'use client';
 
-export type ResultTab = '지원 정보' | '총평' | '활동 A' | '활동 B';
-
-const TABS: ResultTab[] = ['지원 정보', '총평', '활동 A', '활동 B'];
-
 export interface CorrectionResultTabsProps {
-  resultTab: ResultTab;
-  onResultTabChange: (tab: ResultTab) => void;
+  tabs: string[];
+  resultTab: string;
+  onResultTabChange: (tab: string) => void;
 }
 
 export function CorrectionResultTabs({
+  tabs,
   resultTab,
   onResultTabChange,
 }: CorrectionResultTabsProps) {
   return (
     <div className='flex'>
-      {TABS.map((tab) => (
+      {tabs.map((tab) => (
         <button
           key={tab}
           onClick={() => onResultTabChange(tab)}
