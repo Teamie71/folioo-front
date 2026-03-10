@@ -9,4 +9,10 @@
 export interface AdminManualRewardEventItemResDTO {
   code: string;
   title: string;
+  /** 이벤트 보상 설정 */
+  rewardConfig: unknown[];
+  /** 다중 보상 지급 허용 여부 */
+  allowMultipleRewards: boolean;
+  /** 해당 유저에게 이미 보상 지급 완료 여부 */
+  isGranted: boolean;
 }

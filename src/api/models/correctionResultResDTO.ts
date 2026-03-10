@@ -15,5 +15,7 @@ export interface CorrectionResultResDTO {
   companyInsight: string | null;
   /** @nullable */
   highlightPoint: string | null;
+  /** @nullable */
+  overallReview: string | null;
   items: CorrectionItemResDTO[];
 }

@@ -18,5 +18,6 @@ export const UpdateCorrectionStatusReqDTOStatus = {
   COMPANY_INSIGHT: 'COMPANY_INSIGHT',
   GENERATING: 'GENERATING',
   DONE: 'DONE',
+  RAG_FAILED: 'RAG_FAILED',
   FAILED: 'FAILED',
 } as const;
