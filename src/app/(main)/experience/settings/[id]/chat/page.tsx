@@ -7,6 +7,7 @@ import {
   clearChatNewExperienceId,
   isChatNewExperience,
   setExperienceReturnPath,
+  hasCreateloadingEntered,
 } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { StepProgressBar } from '@/components/StepProgressBar';
@@ -61,6 +62,14 @@ function ExperienceSettingsChatContent() {
   const isNewExperience = searchParams.get('new') === '1';
   const experienceId = id ? Number(id) : NaN;
   const sessionAbortRef = useRef<AbortController | null>(null);
+
+  // createloading까지 진입한 경험은 chat 페이지로 되돌아오지 않도록 createloading으로 리다이렉트
+  useEffect(() => {
+    if (!id) return;
+    if (hasCreateloadingEntered(id)) {
+      router.replace(`/experience/settings/${id}/createloading`);
+    }
+  }, [id, router]);
 
   const newExperienceScheduleRef = useRef<number | null>(null);
   const removeExperience = useExperienceStore(
