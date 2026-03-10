@@ -117,6 +117,22 @@ function ExperienceSettingsChatContent() {
   const setPendingPortfolio = usePortfolioCreationStore((s) => s.setPending);
   const setResolvedPortfolio = usePortfolioCreationStore((s) => s.setResolved);
 
+  const syncStageFromServer = async () => {
+    if (!Number.isFinite(experienceId)) return;
+    try {
+      const res = await interviewControllerGetSessionState(experienceId);
+      const restoredStage = toGridStep(
+        res.result?.currentStage ?? 1,
+        res.result?.allComplete,
+      );
+      prevStageRef.current = restoredStage;
+      setCurrentStage(restoredStage);
+      if (restoredStage === 4) {
+        setIsCompletionModalOpen(true);
+      }
+    } catch {}
+  };
+
   /* 단계가 다 채워지면( currentStage === 4 ) 완료 모달 */
   useEffect(() => {
     if (currentStage === 4 && prevStageRef.current !== 4) {
@@ -229,9 +245,10 @@ function ExperienceSettingsChatContent() {
           if (cancelled) return;
           setSessionStreamError(err.message);
         },
-        onDone: () => {
+        onDone: async () => {
           if (cancelled) return;
           setIsStreaming(false);
+          await syncStageFromServer();
         },
       });
     };
@@ -428,8 +445,9 @@ function ExperienceSettingsChatContent() {
           return next;
         });
       },
-      onDone: () => {
+      onDone: async () => {
         setIsStreaming(false);
+        await syncStageFromServer();
         if (isExtendedSessionRef.current) {
           extendedTurnCountRef.current += 1;
           if (extendedTurnCountRef.current >= 3) {
@@ -566,8 +584,9 @@ function ExperienceSettingsChatContent() {
           return next;
         });
       },
-      onDone: () => {
+      onDone: async () => {
         setIsStreaming(false);
+        await syncStageFromServer();
         if (isExtendedSessionRef.current) {
           extendedTurnCountRef.current += 1;
           if (extendedTurnCountRef.current >= 3) {
@@ -655,7 +674,10 @@ function ExperienceSettingsChatContent() {
           return next;
         });
       },
-      onDone: () => setIsStreaming(false),
+      onDone: async () => {
+        setIsStreaming(false);
+        await syncStageFromServer();
+      },
     });
   };
 
