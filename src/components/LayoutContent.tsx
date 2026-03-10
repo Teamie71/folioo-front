@@ -214,8 +214,8 @@ export default function LayoutContent({
         rewardMessage='{reward}이 지급되었어요.'
         subMessage='Folioo와 함께 경험을 강력한 서류로 만들어보세요.'
         validityMessage='지급된 이용권은 일요일까지 사용 가능해요.'
-        buttonText='첨삭 의뢰하기 '
-        onButtonClick={() => router.push('/correction/new')}
+        buttonText='경험 정리하기'
+        onButtonClick={() => router.push('/experience/settings')}
       />
     </CorrectionNavbarContext.Provider>
   );
