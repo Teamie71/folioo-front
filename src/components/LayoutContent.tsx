@@ -50,15 +50,19 @@ export default function LayoutContent({
   const [weeklyVoucherModalOpen, setWeeklyVoucherModalOpen] = useState(false);
   const [noticeModalOpen, setNoticeModalOpen] = useState(false);
   const claimAttemptedRef = useRef(false);
+  /* 회원가입 직후 이번 로드에서 OBTEventModal을 띄운 경우 → 백엔드 공지(EventModal)는 띄우지 않음 */
+  const signupModalShownRef = useRef(false);
 
   const { mutateAsync: claimEventReward } =
     useEventControllerClaimEventReward();
-  
+
   const { data: noticeData } = useUserControllerGetNextTicketGrantNotice();
   const notice = noticeData?.result;
 
-  const { mutateAsync: markShown } = useUserControllerMarkTicketGrantNoticeShown();
-  const { mutateAsync: markDismissed } = useUserControllerMarkTicketGrantNoticeDismissed();
+  const { mutateAsync: markShown } =
+    useUserControllerMarkTicketGrantNoticeShown();
+  const { mutateAsync: markDismissed } =
+    useUserControllerMarkTicketGrantNoticeDismissed();
 
   const path = pathname ?? '';
   const hideNavbar = isCorrectionNewPath(path)
@@ -130,10 +134,7 @@ export default function LayoutContent({
           if (isSpeedOverlay(node))
             node.style.setProperty('display', 'none', 'important');
           node.querySelectorAll('*').forEach((child) => {
-            if (
-              child instanceof HTMLElement &&
-              isSpeedOverlay(child)
-            )
+            if (child instanceof HTMLElement && isSpeedOverlay(child))
               child.style.setProperty('display', 'none', 'important');
           });
         }
@@ -162,46 +163,47 @@ export default function LayoutContent({
     };
   }, []);
 
-  // [주석 처리] 회원가입 직후 첫 번째 모달: 루트(/)에서만 모달 오픈 (terms에서 약관 동의 후 가입 한 번만)
-  // useEffect(() => {
-  //   if (path !== '/') return;
-  //   if (typeof window === 'undefined') return;
-  //   const fromSignup = sessionStorage.getItem(TERMS_FROM_SIGNUP_KEY);
-  //   if (fromSignup) {
-  //     sessionStorage.removeItem(TERMS_FROM_SIGNUP_KEY);
-  //     setWeeklyVoucherModalOpen(true);
-  //   }
-  // }, [path]);
-
-  // [주석 처리] 회원가입 직후 첫 번째 모달이 열릴 때 보상 수령 API 호출
-  // useEffect(() => {
-  //   if (!weeklyVoucherModalOpen) {
-  //     claimAttemptedRef.current = false;
-  //     return;
-  //   }
-  //   if (claimAttemptedRef.current) return;
-  //   claimAttemptedRef.current = true;
-  //   claimEventReward({ eventCode: WEEKLY_VOUCHER_EVENT_CODE })
-  //     .then(() => {
-  //       markWeeklyVoucherGranted();
-  //       queryClient.invalidateQueries({
-  //         queryKey: getUserControllerGetTicketBalanceQueryKey(),
-  //       });
-  //       queryClient.invalidateQueries({
-  //         queryKey: getUserControllerGetExpiringTicketsQueryKey(),
-  //       });
-  //     })
-  //     .catch(() => {
-  //       claimAttemptedRef.current = false;
-  //     });
-  // }, [weeklyVoucherModalOpen, claimEventReward, queryClient]);
-
-  // 새 보상 안내 모달 로직
+  // 회원가입 직후 첫 번째 모달: 루트(/)에서만 모달 오픈
   useEffect(() => {
-    if (notice && !noticeModalOpen) {
-      setNoticeModalOpen(true);
-      markShown({ noticeId: String(notice.id) }).catch(() => {});
+    if (path !== '/') return;
+    if (typeof window === 'undefined') return;
+    const fromSignup = sessionStorage.getItem(TERMS_FROM_SIGNUP_KEY);
+    if (fromSignup) {
+      sessionStorage.removeItem(TERMS_FROM_SIGNUP_KEY);
+      signupModalShownRef.current = true; // 이번 로드에서는 백엔드 공지 모달 띄우지 않음
+      setWeeklyVoucherModalOpen(true);
     }
+  }, [path]);
+
+  // 회원가입 직후 첫 번째 모달이 열릴 때 보상 수령 API 호출
+  useEffect(() => {
+    if (!weeklyVoucherModalOpen) {
+      claimAttemptedRef.current = false;
+      return;
+    }
+    if (claimAttemptedRef.current) return;
+    claimAttemptedRef.current = true;
+    claimEventReward({ eventCode: WEEKLY_VOUCHER_EVENT_CODE })
+      .then(() => {
+        markWeeklyVoucherGranted();
+        queryClient.invalidateQueries({
+          queryKey: getUserControllerGetTicketBalanceQueryKey(),
+        });
+        queryClient.invalidateQueries({
+          queryKey: getUserControllerGetExpiringTicketsQueryKey(),
+        });
+      })
+      .catch(() => {
+        claimAttemptedRef.current = false;
+      });
+  }, [weeklyVoucherModalOpen, claimEventReward, queryClient]);
+
+  // 새 보상 안내 모달 로직 (회원가입 직후에는 OBTEventModal만 띄우므로 백엔드 공지는 띄우지 않음)
+  useEffect(() => {
+    if (!notice || noticeModalOpen) return;
+    if (signupModalShownRef.current) return; // 회원가입 직후 이번 로드에서는 EventModal 미표시
+    setNoticeModalOpen(true);
+    markShown({ noticeId: String(notice.id) }).catch(() => {});
   }, [notice, noticeModalOpen, markShown]);
 
   const handleNoticeModalClose = (open: boolean) => {
@@ -235,8 +237,8 @@ export default function LayoutContent({
       {/* 포트폴리오 생성 완료 시 어디서든 portfolio 페이지로 리다이렉트 */}
       <PortfolioCreationPoller />
 
-      {/* [주석 처리] 회원가입 직후 첫 번째 모달: 주간 이용권 지급 */}
-      {/* <OBTEventModal
+      {/* 회원가입 직후 첫 번째 모달: 주간 이용권 지급 */}
+      <OBTEventModal
         open={weeklyVoucherModalOpen}
         onOpenChange={setWeeklyVoucherModalOpen}
         eventTitle='이번 주의 무료 이용권'
@@ -247,7 +249,7 @@ export default function LayoutContent({
         validityMessage='지급된 이용권은 일요일까지 사용 가능해요.'
         buttonText='경험 정리하기'
         onButtonClick={() => router.push('/experience/settings')}
-      /> */}
+      />
 
       {/* 동적 지급 보상 안내 모달 */}
       <EventModal
