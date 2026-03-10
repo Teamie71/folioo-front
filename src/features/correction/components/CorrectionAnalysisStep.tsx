@@ -2,6 +2,7 @@
 
 import { CommonButton } from '@/components/CommonButton';
 import TextField from '@/components/TextField';
+import { MarkdownEditor } from '@/components/MarkdownEditor';
 import { CorrectionIcon } from '@/components/icons/CorrectionIcon';
 import { CorrectionLoadingSpinner } from '@/features/correction/components/CorrectionLoadingSpinner';
 import {
@@ -122,16 +123,14 @@ export function CorrectionAnalysisStep({
               </div>
             ) : (
               <div className='relative'>
-                <TextField
-                  variant='wide'
-                  height='17.125rem'
+                <MarkdownEditor
                   className='rounded-[1.25rem]'
+                  minHeight='17.125rem'
                   value={analysisInfoValue}
-                  maxLength={ANALYSIS_INFO_MAX_LENGTH}
-                  onChange={(e) => {
+                  onChange={(val) => {
                     onAnalysisInfoChange(
                       limitAllowedInput(
-                        e.target.value,
+                        val,
                         ANALYSIS_INFO_MAX_LENGTH,
                       ),
                     );
