@@ -178,10 +178,14 @@ export function useCorrectionState(correctionId: string | undefined) {
     portfolioCorrectionControllerGetCorrections()
       .then((listRes) => {
         const corrections = (listRes as any)?.result ?? [];
-        const isMine = corrections.some((c: any) => c.id === id);
-        if (!isMine) {
+        const myCorrection = corrections.find((c: any) => c.id === id);
+        if (!myCorrection) {
           router.replace('/correction');
           return;
+        }
+
+        if (myCorrection.title) {
+          setTitle(myCorrection.title);
         }
 
         // 내 첨삭이면 status 조회 진행
