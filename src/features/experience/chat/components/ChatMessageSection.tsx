@@ -118,8 +118,21 @@ export function ChatMessageSection({
         className='scrollbar-hide relative z-[2] flex min-h-0 flex-1 flex-col gap-[3.75rem] overflow-y-auto pt-[1rem] pb-[3rem]'
       >
         <div className='flex flex-col gap-[3.75rem]'>
-          {messages.map((msg, index) =>
-            msg.role === 'ai' ? (
+          {messages.map((msg, index) => {
+            const isLast = index === messages.length - 1;
+
+            if (
+              msg.role === 'ai' &&
+              !msg.isError &&
+              !msg.content &&
+              !isStreaming &&
+              !sessionLoadFailed &&
+              !isLast
+            ) {
+              return null;
+            }
+
+            return msg.role === 'ai' ? (
               <div
                 key={`ai-${index}`}
                 role={onAIMessageClick ? 'button' : undefined}
@@ -164,14 +177,12 @@ export function ChatMessageSection({
                           다시 시도하기
                         </button>
                       </div>
-                    ) : sessionLoadFailed &&
-                      index === messages.length - 1 &&
-                      !msg.content &&
-                      !isStreaming ? (
+                    ) : !msg.content && !isStreaming && isLast ? (
+                      // 내용이 전혀 없는 마지막 AI 메시지는 세션 오류로 간주
                       <ChatErrorReloadMessage onRetry={onRetrySession} />
                     ) : msg.content ? (
                       msg.content
-                    ) : isStreaming && index === messages.length - 1 ? (
+                    ) : isStreaming && isLast ? (
                       <ChatLoadingMessage />
                     ) : null
                     /* 유사 인사이트(유사도 검색) 컴포넌트
@@ -253,8 +264,8 @@ export function ChatMessageSection({
                   </div>
                 </div>
               </button>
-            ),
-          )}
+            );
+          })}
         </div>
       </div>
       {/* 아래쪽 페이드: 스크롤 영역 위에 겹쳐서 그라디언트가 보이도록 z-[3] */}
