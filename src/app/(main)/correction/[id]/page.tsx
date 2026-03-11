@@ -61,6 +61,10 @@ export default function CorrectionSettingsPage() {
     redirect('/correction');
   }
 
+  if (s.isInitializing) {
+    return null; // 또는 로딩 스피너
+  }
+
   return (
     <CorrectionLayout
       layoutKey={s.layoutKey}
