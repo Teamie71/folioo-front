@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import {
   useExperienceControllerGetExperience,
   useExperienceControllerGetExperiences,
@@ -15,11 +15,15 @@ export default function ExperienceSettingsIdLayout({
 }) {
   const params = useParams();
   const router = useRouter();
+  const pathname = usePathname();
   const idParam = typeof params.id === 'string' ? params.id : '';
   const experienceId = idParam ? Number(idParam) : NaN;
 
-  const { data, isLoading: isListLoading, isFetched: isListFetched } =
-    useExperienceControllerGetExperiences();
+  const {
+    data,
+    isLoading: isListLoading,
+    isFetched: isListFetched,
+  } = useExperienceControllerGetExperiences();
 
   const {
     data: singleData,
@@ -32,6 +36,15 @@ export default function ExperienceSettingsIdLayout({
   const myIds = (data?.result ?? []).map((item) => item.id);
   const listIncludesId = myIds.includes(experienceId);
   const singleSucceeded = singleData?.result != null;
+  const status = singleData?.result?.status;
+  const isDone = status != null && String(status).toUpperCase() === 'DONE';
+  const isChatPath = pathname?.endsWith('/chat') ?? false;
+
+  /* DONE인 경험의 chat URL 진입 시 portfolio로 리다이렉트 */
+  useEffect(() => {
+    if (!idParam || !isChatPath || !singleSucceeded || !isDone) return;
+    router.replace(`/experience/settings/${idParam}/portfolio`);
+  }, [idParam, isChatPath, singleSucceeded, isDone, router]);
 
   useEffect(() => {
     if (!Number.isFinite(experienceId)) {
@@ -58,7 +71,8 @@ export default function ExperienceSettingsIdLayout({
   const isAllowed =
     !isInvalidId &&
     (listIncludesId || singleSucceeded) &&
-    (isListFetched && !isListLoading) &&
+    isListFetched &&
+    !isListLoading &&
     (listIncludesId || (isSingleFetched && !isSingleLoading));
 
   const showSpinner =
@@ -76,6 +90,13 @@ export default function ExperienceSettingsIdLayout({
 
   if (!isAllowed) {
     return null;
+  }
+
+  /* DONE인 경험의 chat 진입 시 리다이렉트 중에는 chat 미노출 */
+  if (isChatPath && isDone) {
+    return (
+      <div className='flex min-h-[50vh] items-center justify-center'></div>
+    );
   }
 
   return <>{children}</>;

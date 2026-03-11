@@ -71,6 +71,11 @@ function ExperienceSettingsChatContent() {
     }
   }, [id, router]);
 
+  const { data: experienceData } = useExperienceControllerGetExperience(
+    experienceId,
+    { query: { enabled: Number.isFinite(experienceId) } },
+  );
+
   const newExperienceScheduleRef = useRef<number | null>(null);
   const removeExperience = useExperienceStore(
     (state) => state.removeExperience,
@@ -84,10 +89,6 @@ function ExperienceSettingsChatContent() {
       '새로운 경험 정리',
   );
 
-  const { data: experienceData } = useExperienceControllerGetExperience(
-    experienceId,
-    { query: { enabled: Number.isFinite(experienceId) } },
-  );
   const experienceName = experienceData?.result?.name;
   const titleReady = experienceData?.result != null;
   const displayTitle = titleReady
