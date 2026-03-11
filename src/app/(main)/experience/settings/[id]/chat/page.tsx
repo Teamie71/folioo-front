@@ -129,6 +129,27 @@ function ExperienceSettingsChatContent() {
   const setPendingPortfolio = usePortfolioCreationStore((s) => s.setPending);
   const setResolvedPortfolio = usePortfolioCreationStore((s) => s.setResolved);
 
+  useEffect(() => {
+    if (!id || !Number.isFinite(experienceId)) return;
+    if (experienceData === undefined) return;
+    const experience = experienceData?.result;
+    if (!experience) {
+      router.replace('/experience');
+      return;
+    }
+    const status = String(experience.status ?? '').toUpperCase();
+    if (status === 'ON_CHAT') return; // 이 페이지에 진입 허용
+    if (status === 'GENERATE' || status === 'GENERATE_FAILED') {
+      router.replace(`/experience/settings/${id}/createloading`);
+      return;
+    }
+    if (status === 'DONE') {
+      router.replace(`/experience/settings/${id}/portfolio`);
+      return;
+    }
+    router.replace('/experience');
+  }, [id, experienceId, experienceData, router]);
+
   const syncStageFromServer = async (skipStageUpdate?: boolean) => {
     if (!Number.isFinite(experienceId)) return;
     try {
