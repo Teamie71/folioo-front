@@ -12,5 +12,6 @@ export type ExperienceStateResDTOStatus = typeof ExperienceStateResDTOStatus[key
 export const ExperienceStateResDTOStatus = {
   ON_CHAT: 'ON_CHAT',
   GENERATE: 'GENERATE',
+  GENERATE_FAILED: 'GENERATE_FAILED',
   DONE: 'DONE',
 } as const;
