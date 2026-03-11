@@ -777,7 +777,7 @@ function ExperienceSettingsChatContent() {
       </div>
 
       {/* 채팅 입력 창: 브라우저 바닥 기준 4.75rem 고정 */}
-      <div className='fixed bottom-[4.75rem] left-1/2 z-30 flex w-full max-w-[66rem] -translate-x-1/2 items-center px-[1rem]'>
+      <div className='pointer-events-none fixed bottom-[4.75rem] left-1/2 z-30 flex w-full max-w-[66rem] -translate-x-1/2 items-center px-[1rem]'>
         <ChatStepSection
           inputValue={inputValue}
           onInputChange={setInputValue}
