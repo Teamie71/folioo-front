@@ -768,6 +768,7 @@ function ExperienceSettingsChatContent() {
             onRetryAIMessage={handleRetryAIMessage}
             sessionLoadFailed={!!sessionStreamError}
             onRetrySession={handleRetrySession}
+            conversationCompleted={currentStage === 4}
             searchKeyword={
               [...messages].reverse().find((m) => m.role === 'user')?.content ??
               ''

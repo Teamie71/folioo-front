@@ -64,6 +64,8 @@ interface ChatMessageSectionProps {
   sessionLoadFailed?: boolean;
   /** 세션 스트림 재시도 (새로고침 후 답변 없을 때) */
   onRetrySession?: () => void;
+  /* 대화가 완료된 상태인지 여부 */
+  conversationCompleted?: boolean;
 }
 
 export function ChatMessageSection({
@@ -75,6 +77,7 @@ export function ChatMessageSection({
   searchKeyword,
   sessionLoadFailed = false,
   onRetrySession,
+  conversationCompleted = false,
 }: ChatMessageSectionProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -121,6 +124,8 @@ export function ChatMessageSection({
           {messages.map((msg, index) => {
             const isLast = index === messages.length - 1;
 
+            // 내용이 전혀 없고(빈 문자열) 스트리밍도 아니며 에러/세션 실패 플래그도 없는 AI 메시지는
+            // UI 상 의미가 없으므로 아예 렌더하지 않는다.
             if (
               msg.role === 'ai' &&
               !msg.isError &&
@@ -128,6 +133,17 @@ export function ChatMessageSection({
               !isStreaming &&
               !sessionLoadFailed &&
               !isLast
+            ) {
+              return null;
+            }
+
+            if (
+              msg.role === 'ai' &&
+              !msg.isError &&
+              !msg.content &&
+              !isStreaming &&
+              isLast &&
+              conversationCompleted
             ) {
               return null;
             }
