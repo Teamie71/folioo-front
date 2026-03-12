@@ -19,14 +19,66 @@
   --font-weight-bold: 700 !important;
   --font-weight-semibold: 600 !important;
   --font-weight-regular: 400 !important;
+
+  /* ==========================================================================
+   tokens.json — Color
+   ========================================================================== */
+
+  /* global.Main, Sub1, hover, unactive */
+  --color-main: #5060c5;
+  --color-main-hover: #404d9e;
+  --color-sub1: #f6f5ff;
+  --color-sub-hover: #eeedf7;
+  --color-unactive: #cdd0d5;
+
+  /* global.gary scale (wihte, Gray1–Gray9) */
+  --color-white: #ffffff;
+  --color-gray1: #fdfdfd;
+  --color-gray2: #f6f8fa;
+  --color-gray3: #e9eaec;
+  --color-gray4: #cdd0d5;
+  --color-gray5: #9ea4a9;
+  --color-gray6: #74777d;
+  --color-gray7: #464b53;
+  --color-gray8: #26282c;
+  --color-gray9: #1a1a1a;
+
+  /* global.state */
+  --color-error: #dc0000;
+  --color-error-sub: #fff2f2;
+  --color-success: #00a000;
+  --color-success-sub: #f1fef0;
+
+  /* global.boxShadow — modal, dropdown, chat&card (px→rem: 4px=0.25rem, 8px=0.5rem, 20px=1.25rem) */
+  --shadow-modal: 0 0.5rem 1.25rem 0 #00000033;
+  --shadow-dropdown: 0 0.375rem 1.25rem -0.125rem #00000026;
+  --shadow-chat-card: 0 0.25rem 0.5rem 0 #00000033;
 }
 
-/* 디자인 시스템 타이포 (tokens.json 기준) */
+/* ==========================================================================
+   tokens.json — Shadow (유틸 클래스)
+   ========================================================================== */
+.shadow-modal {
+  box-shadow: 0 0.5rem 1.25rem 0 #00000033;
+}
+.shadow-dropdown {
+  box-shadow: 0 0.375rem 1.25rem -0.125rem #00000026;
+}
+.shadow-chat-card {
+  box-shadow: 0 0.25rem 0.5rem 0 #00000033;
+}
+
+/* ==========================================================================
+   tokens.json — Typography (Display, Header, Body, caption, Nav, TextField)
+   ========================================================================== */
+/* Display — fontSize.8, lineHeights.0, Bold */
 .typo-display {
   font-size: 3rem;
   line-height: 130%;
   font-weight: 700;
 }
+
+/* Header H1–H5 — lineHeights.0, Bold */
 .typo-h1 {
   font-size: 2rem;
   line-height: 130%;
@@ -52,6 +104,8 @@
   line-height: 130%;
   font-weight: 700;
 }
+
+/* Body — Body1_SB, Body1_M, Body1, Body2_B, Body2_SB, Body2 */
 .typo-b1-sb {
   font-size: 1.125rem;
   line-height: 130%;
@@ -82,6 +136,8 @@
   line-height: 150%;
   font-weight: 400;
 }
+
+/* caption — caption1_B, caption1_SB, caption1, caption2 */
 .typo-c1-b {
   font-size: 0.875rem;
   line-height: 150%;
@@ -102,6 +158,8 @@
   line-height: 150%;
   font-weight: 400;
 }
+
+/* Nav — Nav_select, Nav_default */
 .typo-nav-select {
   font-size: 1rem;
   line-height: 150%;
@@ -112,10 +170,23 @@
   line-height: 150%;
   font-weight: 400;
 }
+
+/* TextField — lineHeights.1(160%), fontSize.2, Regular */
 .typo-text-field {
   font-size: 1rem;
   line-height: 160%;
   font-weight: 400;
+}
+
+/* ==========================================================================
+   tokens.json — Color (토큰 참조용 사용처, 예: Tiptap placeholder Gray6)
+   ========================================================================== */
+.tiptap p.is-editor-empty:first-child::before {
+  color: #74777d;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
 }
 
 /* OS 폰트 렌더링 최적화 */
