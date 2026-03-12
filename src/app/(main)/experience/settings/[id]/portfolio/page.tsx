@@ -158,6 +158,14 @@ export default function ExperienceSettingsPortfolioPage() {
       });
   };
 
+  useEffect(() => {
+    if (!deleteBlockModalOpen) return;
+    const timer = setTimeout(() => {
+      setDeleteBlockModalOpen(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [deleteBlockModalOpen]);
+
   const handleContributionSave = (value: number) => {
     if (!portfolioId || !Number.isFinite(portfolioId)) return;
     updatePortfolio({
