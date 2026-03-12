@@ -1,9 +1,9 @@
 @import 'tailwindcss';
-@plugin "@tailwindcss/typography";
+@plugin '@tailwindcss/typography';
 
 /* Tiptap Placeholder */
 .tiptap p.is-editor-empty:first-child::before {
-  color: #74777D;
+  color: #74777d;
   content: attr(data-placeholder);
   float: left;
   height: 0;
@@ -19,6 +19,103 @@
   --font-weight-bold: 700 !important;
   --font-weight-semibold: 600 !important;
   --font-weight-regular: 400 !important;
+}
+
+/* 디자인 시스템 타이포 (tokens.json 기준) */
+.typo-display {
+  font-size: 3rem;
+  line-height: 130%;
+  font-weight: 700;
+}
+.typo-h1 {
+  font-size: 2rem;
+  line-height: 130%;
+  font-weight: 700;
+}
+.typo-h2 {
+  font-size: 1.75rem;
+  line-height: 130%;
+  font-weight: 700;
+}
+.typo-h3 {
+  font-size: 1.5rem;
+  line-height: 130%;
+  font-weight: 700;
+}
+.typo-h4 {
+  font-size: 1.25rem;
+  line-height: 130%;
+  font-weight: 700;
+}
+.typo-h5 {
+  font-size: 1.125rem;
+  line-height: 130%;
+  font-weight: 700;
+}
+.typo-b1-sb {
+  font-size: 1.125rem;
+  line-height: 130%;
+  font-weight: 600;
+}
+.typo-b1-m {
+  font-size: 1.125rem;
+  line-height: 130%;
+  font-weight: 500;
+}
+.typo-b1 {
+  font-size: 1.125rem;
+  line-height: 150%;
+  font-weight: 400;
+}
+.typo-b2-b {
+  font-size: 1rem;
+  line-height: 150%;
+  font-weight: 700;
+}
+.typo-b2-sb {
+  font-size: 1rem;
+  line-height: 150%;
+  font-weight: 600;
+}
+.typo-b2 {
+  font-size: 1rem;
+  line-height: 150%;
+  font-weight: 400;
+}
+.typo-c1-b {
+  font-size: 0.875rem;
+  line-height: 150%;
+  font-weight: 700;
+}
+.typo-c1-sb {
+  font-size: 0.875rem;
+  line-height: 150%;
+  font-weight: 600;
+}
+.typo-c1 {
+  font-size: 0.875rem;
+  line-height: 150%;
+  font-weight: 400;
+}
+.typo-c2 {
+  font-size: 0.75rem;
+  line-height: 150%;
+  font-weight: 400;
+}
+.typo-nav-select {
+  font-size: 1rem;
+  line-height: 150%;
+  font-weight: 700;
+}
+.typo-nav-default {
+  font-size: 1rem;
+  line-height: 150%;
+  font-weight: 400;
+}
+.typo-text-field {
+  font-size: 1rem;
+  line-height: 160%;
+  font-weight: 400;
 }
 
 /* OS 폰트 렌더링 최적화 */
