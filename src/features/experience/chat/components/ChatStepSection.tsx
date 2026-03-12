@@ -42,9 +42,9 @@ export const ChatStepSection = ({
     'h-[1.125rem] w-[1.125rem] bg-gradient-to-br from-[#93B3F4] to-[#5060C5] border-transparent';
 
   return (
-    <div className='relative z-30 flex min-h-[14rem] w-full flex-col'>
+    <div className='pointer-events-none relative z-30 flex min-h-[14rem] w-full flex-col'>
       {/* 툴팁: 0단계는 호버 시에만, 1·2·3단계는 진입 시에만 표시 */}
-      <div className='relative min-h-[10rem] flex-1'>
+      <div className='pointer-events-none relative min-h-[10rem] flex-1'>
         {/* 0단계 툴팁: 1단계 진행 중일 때 호버 시에만 */}
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
@@ -65,8 +65,7 @@ export const ChatStepSection = ({
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity:
-              currentStep === 1 && showTooltipForStep === 1 ? 1 : 0,
+            opacity: currentStep === 1 && showTooltipForStep === 1 ? 1 : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
             pointerEvents:
               currentStep === 1 && showTooltipForStep === 1 ? 'auto' : 'none',
@@ -82,8 +81,7 @@ export const ChatStepSection = ({
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity:
-              currentStep === 2 && showTooltipForStep === 2 ? 1 : 0,
+            opacity: currentStep === 2 && showTooltipForStep === 2 ? 1 : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
             pointerEvents:
               currentStep === 2 && showTooltipForStep === 2 ? 'auto' : 'none',
@@ -99,8 +97,7 @@ export const ChatStepSection = ({
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity:
-              currentStep === 3 && showTooltipForStep === 3 ? 1 : 0,
+            opacity: currentStep === 3 && showTooltipForStep === 3 ? 1 : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
             pointerEvents:
               currentStep === 3 && showTooltipForStep === 3 ? 'auto' : 'none',
@@ -114,8 +111,8 @@ export const ChatStepSection = ({
         </div>
       </div>
 
-      {/* 그리드 + ChatInput: 그리드만 페이드, ChatInput은 항상 유지 */}
-      <div className='flex w-[66rem] items-center gap-[1.25rem]'>
+      {/* 그리드 + ChatInput */}
+      <div className='pointer-events-auto flex w-[66rem] items-center gap-[1.25rem]'>
         <div className='relative h-[2.5rem] w-[2.5rem] flex-shrink-0'>
           {/* 0단계 그리드: 호버 시 툴팁 표시 */}
           <div

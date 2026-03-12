@@ -82,19 +82,25 @@ export default function ExperienceSettingsPortfolioPage() {
       ? experience.portfolioId
       : 0;
 
-  const isDone = !!portfolioId;
   useEffect(() => {
     if (!id || !Number.isFinite(experienceId)) return;
     if (experienceData === undefined) return;
-    if (experience == null) {
+    if (!experience) {
       router.replace('/experience');
       return;
     }
-    if (!isDone) {
-      const returnPath = getExperienceReturnPath(id) ?? 'chat';
-      router.replace(`/experience/settings/${id}/${returnPath}`);
+    const status = String(experience.status ?? '').toUpperCase();
+    if (status === 'DONE') return; // 이 페이지에 진입 허용
+    if (status === 'ON_CHAT') {
+      router.replace(`/experience/settings/${id}/chat`);
+      return;
     }
-  }, [id, experienceId, experienceData, experience, isDone, router]);
+    if (status === 'GENERATE' || status === 'GENERATE_FAILED') {
+      router.replace(`/experience/settings/${id}/createloading`);
+      return;
+    }
+    router.replace('/experience');
+  }, [id, experienceId, experienceData, experience, router]);
 
   const { mutateAsync: updatePortfolio } =
     usePortfolioControllerUpdatePortfolio();

@@ -12,5 +12,6 @@ export type GeneratePortfolioResDTOExperienceStatus = typeof GeneratePortfolioRe
 export const GeneratePortfolioResDTOExperienceStatus = {
   ON_CHAT: 'ON_CHAT',
   GENERATE: 'GENERATE',
+  GENERATE_FAILED: 'GENERATE_FAILED',
   DONE: 'DONE',
 } as const;

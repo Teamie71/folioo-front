@@ -64,6 +64,8 @@ interface ChatMessageSectionProps {
   sessionLoadFailed?: boolean;
   /** 세션 스트림 재시도 (새로고침 후 답변 없을 때) */
   onRetrySession?: () => void;
+  /* 대화가 완료된 상태인지 여부 */
+  conversationCompleted?: boolean;
 }
 
 export function ChatMessageSection({
@@ -75,6 +77,7 @@ export function ChatMessageSection({
   searchKeyword,
   sessionLoadFailed = false,
   onRetrySession,
+  conversationCompleted = false,
 }: ChatMessageSectionProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -103,9 +106,9 @@ export function ChatMessageSection({
 
   return (
     <div className='relative flex min-h-0 flex-1 flex-col'>
-      {/* 위쪽 페이드 */}
+      {/* 위쪽 페이드: 스크롤 영역 위에 겹쳐서 그라디언트가 보이도록 z-[3] */}
       <div
-        className='pointer-events-none absolute top-0 right-0 left-0 z-[1] h-[2.5rem] shrink-0'
+        className='pointer-events-none absolute top-0 right-0 left-0 z-[3] h-[2.5rem] shrink-0'
         style={{
           background:
             'linear-gradient(to bottom, #ffffff 0%, rgba(255,255,255,0.4) 70%, transparent 100%)',
@@ -118,8 +121,34 @@ export function ChatMessageSection({
         className='scrollbar-hide relative z-[2] flex min-h-0 flex-1 flex-col gap-[3.75rem] overflow-y-auto pt-[1rem] pb-[3rem]'
       >
         <div className='flex flex-col gap-[3.75rem]'>
-          {messages.map((msg, index) =>
-            msg.role === 'ai' ? (
+          {messages.map((msg, index) => {
+            const isLast = index === messages.length - 1;
+
+            // 내용이 전혀 없고(빈 문자열) 스트리밍도 아니며 에러/세션 실패 플래그도 없는 AI 메시지는
+            // UI 상 의미가 없으므로 아예 렌더하지 않는다.
+            if (
+              msg.role === 'ai' &&
+              !msg.isError &&
+              !msg.content &&
+              !isStreaming &&
+              !sessionLoadFailed &&
+              !isLast
+            ) {
+              return null;
+            }
+
+            if (
+              msg.role === 'ai' &&
+              !msg.isError &&
+              !msg.content &&
+              !isStreaming &&
+              isLast &&
+              conversationCompleted
+            ) {
+              return null;
+            }
+
+            return msg.role === 'ai' ? (
               <div
                 key={`ai-${index}`}
                 role={onAIMessageClick ? 'button' : undefined}
@@ -164,14 +193,12 @@ export function ChatMessageSection({
                           다시 시도하기
                         </button>
                       </div>
-                    ) : sessionLoadFailed &&
-                      index === messages.length - 1 &&
-                      !msg.content &&
-                      !isStreaming ? (
+                    ) : !msg.content && !isStreaming && isLast ? (
+                      // 내용이 전혀 없는 마지막 AI 메시지는 세션 오류로 간주
                       <ChatErrorReloadMessage onRetry={onRetrySession} />
                     ) : msg.content ? (
                       msg.content
-                    ) : isStreaming && index === messages.length - 1 ? (
+                    ) : isStreaming && isLast ? (
                       <ChatLoadingMessage />
                     ) : null
                     /* 유사 인사이트(유사도 검색) 컴포넌트
@@ -253,13 +280,13 @@ export function ChatMessageSection({
                   </div>
                 </div>
               </button>
-            ),
-          )}
+            );
+          })}
         </div>
       </div>
-      {/* 아래쪽 페이드 */}
+      {/* 아래쪽 페이드: 스크롤 영역 위에 겹쳐서 그라디언트가 보이도록 z-[3] */}
       <div
-        className='pointer-events-none absolute right-0 bottom-0 left-0 z-[1] h-[1.5rem] shrink-0'
+        className='pointer-events-none absolute right-0 bottom-0 left-0 z-[3] h-[1.5rem] shrink-0'
         style={{
           background:
             'linear-gradient(to top, #ffffff 0%, rgba(255,255,255,0.4) 70%, transparent 100%)',

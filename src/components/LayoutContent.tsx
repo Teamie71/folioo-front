@@ -50,7 +50,6 @@ export default function LayoutContent({
   const [weeklyVoucherModalOpen, setWeeklyVoucherModalOpen] = useState(false);
   const [noticeModalOpen, setNoticeModalOpen] = useState(false);
   const claimAttemptedRef = useRef(false);
-  /* 회원가입 직후 이번 로드에서 OBTEventModal을 띄운 경우 → 백엔드 공지(EventModal)는 띄우지 않음 */
   const signupModalShownRef = useRef(false);
 
   const { mutateAsync: claimEventReward } =
@@ -163,15 +162,15 @@ export default function LayoutContent({
     };
   }, []);
 
-  // 회원가입 직후 첫 번째 모달: 루트(/)에서만 모달 오픈
   useEffect(() => {
-    if (path !== '/') return;
     if (typeof window === 'undefined') return;
     const fromSignup = sessionStorage.getItem(TERMS_FROM_SIGNUP_KEY);
     if (fromSignup) {
       sessionStorage.removeItem(TERMS_FROM_SIGNUP_KEY);
-      signupModalShownRef.current = true; // 이번 로드에서는 백엔드 공지 모달 띄우지 않음
-      setWeeklyVoucherModalOpen(true);
+      signupModalShownRef.current = true;
+      if (path === '/') {
+        setWeeklyVoucherModalOpen(true);
+      }
     }
   }, [path]);
 
@@ -198,7 +197,7 @@ export default function LayoutContent({
       });
   }, [weeklyVoucherModalOpen, claimEventReward, queryClient]);
 
-  // 새 보상 안내 모달 로직 (회원가입 직후에는 OBTEventModal만 띄우므로 백엔드 공지는 띄우지 않음)
+  // 새 보상 안내 모달 로직
   useEffect(() => {
     if (!notice || noticeModalOpen) return;
     if (signupModalShownRef.current) return; // 회원가입 직후 이번 로드에서는 EventModal 미표시
@@ -237,7 +236,7 @@ export default function LayoutContent({
       {/* 포트폴리오 생성 완료 시 어디서든 portfolio 페이지로 리다이렉트 */}
       <PortfolioCreationPoller />
 
-      {/* 회원가입 직후 첫 번째 모달: 주간 이용권 지급 */}
+      {/* 주간 이용권 지급 */}
       <OBTEventModal
         open={weeklyVoucherModalOpen}
         onOpenChange={setWeeklyVoucherModalOpen}

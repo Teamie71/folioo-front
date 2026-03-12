@@ -26,6 +26,7 @@ import { CommonButton } from '@/components/CommonButton';
 import Link from 'next/link';
 
 const EXPERIENCE_STATUS_ON_CHAT = 'ON_CHAT';
+const EXPERIENCE_STATUS_GENERATE_FAILED = 'GENERATE_FAILED';
 
 export default function ExperienceSettingsChatLoadingPage() {
   const params = useParams();
@@ -57,8 +58,8 @@ export default function ExperienceSettingsChatLoadingPage() {
       },
     },
   );
-  const experienceName = experienceData?.result?.name;
   const experience = experienceData?.result;
+  const experienceName = experience?.name;
   const titleReady = experience != null;
   const displayTitle = titleReady
     ? (experienceName ?? storeTitle ?? '새로운 경험 정리')
@@ -69,10 +70,11 @@ export default function ExperienceSettingsChatLoadingPage() {
   const { mutateAsync: generatePortfolio, isPending: isGeneratePending } =
     useInterviewControllerGeneratePortfolio();
 
-  const isOnChatError =
+  // 포트폴리오 생성 실패 상태(GENERATE_FAILED)일 때 에러 메시지 + 다시 시도 버튼 표시
+  const isGenerateFailed =
     titleReady &&
     String(experience?.status ?? '').toUpperCase() ===
-      EXPERIENCE_STATUS_ON_CHAT;
+      EXPERIENCE_STATUS_GENERATE_FAILED;
 
   const handleRetryGenerate = () => {
     if (!Number.isFinite(experienceId)) return;
@@ -85,12 +87,25 @@ export default function ExperienceSettingsChatLoadingPage() {
       .catch(() => {});
   };
 
-  /* done 상태가 되면 portfolio 페이지로 리다이렉트 */
   useEffect(() => {
-    if (!id || !experience) return;
-    if (String(experience.status ?? '').toUpperCase() !== 'DONE') return;
-    router.replace(`/experience/settings/${id}/portfolio`);
-  }, [id, experience, router]);
+    if (!id) return;
+    if (experienceData === undefined) return;
+    if (!experience) {
+      router.replace('/experience');
+      return;
+    }
+    const status = String(experience.status ?? '').toUpperCase();
+    if (status === 'GENERATE' || status === 'GENERATE_FAILED') return; // 이 페이지에 진입 허용
+    if (status === 'ON_CHAT') {
+      router.replace(`/experience/settings/${id}/chat`);
+      return;
+    }
+    if (status === 'DONE') {
+      router.replace(`/experience/settings/${id}/portfolio`);
+      return;
+    }
+    router.replace('/experience');
+  }, [id, experienceData, experience, router]);
 
   useEffect(() => {
     if (titleReady) document.title = `${displayTitle} - Folioo`;
@@ -181,7 +196,7 @@ export default function ExperienceSettingsChatLoadingPage() {
         </div>
 
         <div className='flex flex-col items-center gap-[2.75rem]'>
-          {isOnChatError ? (
+          {isGenerateFailed ? (
             <>
               <div className='mt-[8.75rem] flex flex-col items-center gap-[2.75rem]'>
                 <span className='mt-4 text-center text-[1.125rem] leading-[130%] font-bold'>
