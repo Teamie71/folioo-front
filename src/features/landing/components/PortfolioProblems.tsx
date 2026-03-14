@@ -4,18 +4,18 @@ export const PortfolioComments = () => {
   return (
     <div className='mx-auto flex w-full flex-col items-center gap-[7.75rem]'>
       <div className='flex flex-col items-center gap-[3.25rem]'>
-        {/* 상단 말풍선 + 데코 블러 버블들 (레이아웃에 영향 없이 absolute 배치) */}
-        <div className='relative mr-[19.75rem]'>
-          <div className='flex w-[38.5rem] flex-col rounded-[6.25rem] bg-[#FFFFFF] px-[5rem] py-[2rem] text-start shadow-[0px_4px_8px_0px_#00000033]'>
-            <p className='text-[1.125rem] leading-[150%] text-[#000000]'>
+        {/* 상단 말풍선 + 데코 블러 버블 (모바일: 문구만 오른쪽 정렬) */}
+        <div className='relative self-end md:mr-[19.75rem] md:self-auto'>
+          <div className='flex w-[38.5rem] translate-x-[10rem] translate-y-[7rem] flex-col rounded-[6.25rem] bg-[#FFFFFF] px-[3rem] py-[2rem] text-start shadow-[0px_4px_8px_0px_#00000033] md:translate-x-0 md:translate-y-0 md:px-[5rem]'>
+            <p className='text-[1rem] leading-[150%] text-[#000000] md:text-[1.125rem]'>
               특정 직무에 적합한 활동을 주로 했는데,
             </p>
 
-            <div className='flex gap-[0.25rem]'>
-              <p className='text-[1.125rem] leading-[150%] text-[#000000]'>
+            <div className='flex flex-col gap-[0.25rem] md:flex-row'>
+              <p className='ml-[4.8rem] text-[1rem] leading-[150%] text-[#000000] md:ml-0 md:text-[1.125rem]'>
                 막상 취업 시장에 나와보니
               </p>
-              <p className='text-[1.25rem] leading-[130%] font-bold text-[#000000]'>
+              <p className='ml-[2rem] text-[1rem] leading-[130%] font-bold text-[#000000] md:ml-0 md:text-[1.25rem]'>
                 다른 직무도 지원할 수밖에 없어요.
               </p>
             </div>
@@ -42,16 +42,22 @@ export const PortfolioComments = () => {
           />
         </div>
 
-        <div className='ml-[16rem] flex w-[40.5rem] flex-col rounded-[6.25rem] bg-[#FFFFFF] px-[5rem] py-[2rem] text-start shadow-[0px_4px_8px_0px_#00000033]'>
-          <p className='text-[1.125rem] leading-[150%] text-[#000000]'>
-            포트폴리오 하나로 여러 직무와 기업에 지원하니 경쟁력이 떨어지지만,
+        {/* 모바일: 문구 오른쪽 정렬 */}
+        <div className='flex w-[40.5rem] translate-x-[-12rem] translate-y-[7rem] flex-col self-start rounded-[6.25rem] bg-[#FFFFFF] px-[3.75rem] py-[2rem] text-right shadow-[0px_4px_8px_0px_#00000033] md:ml-[16rem] md:translate-x-0 md:translate-y-0 md:self-auto md:px-[5rem] md:text-start'>
+          <p className='text-[1rem] leading-[150%] text-[#000000] md:text-[1.125rem]'>
+            <span className='block md:inline'>
+              포트폴리오 하나로 여러 직무와 기업에
+            </span>
+            <span className='mr-[2.85rem] block md:ml-0 md:inline'>
+              지원하니 경쟁력이 떨어지지만,
+            </span>
           </p>
 
-          <div className='flex gap-[0.25rem]'>
-            <p className='text-[1.125rem] leading-[150%] text-[#000000]'>
+          <div className='flex flex-col gap-[0.25rem] md:flex-row md:gap-[0.25rem]'>
+            <p className='mr-[0.25rem] text-[1rem] leading-[150%] text-[#000000] md:ml-0 md:text-[1.125rem]'>
               공고마다 새로 포트폴리오를 쓰기에는
             </p>
-            <p className='text-[1.25rem] leading-[130%] font-bold text-[#000000]'>
+            <p className='mr-[5.25rem] text-[1rem] leading-[130%] font-bold text-[#000000] md:ml-0 md:text-[1.25rem]'>
               시간이 너무 오래 걸려요.
             </p>
           </div>

@@ -318,17 +318,18 @@ export default function LandingClientMobile() {
             }}
           />
           <div className='relative z-10 mx-auto flex max-w-[66rem] flex-col items-center px-4'>
-            <div className='flex w-full max-w-[66rem] flex-col items-center gap-4 text-center'>
-              <p className='text-[1rem] leading-[130%] font-bold text-[#000000]'>
-                포트폴리오 첨삭
-              </p>
-              <h2 className='text-[1.25rem] leading-[130%] font-bold text-[#000000]'>
+            <div className='flex w-[20.25rem] flex-col items-start gap-4'>
+              <p className='typo-b2-sb text-[#000000]'>포트폴리오 첨삭</p>
+              <h2 className='typo-h3 text-gray9'>
                 매번 새로 쓰는 부담 없이,
                 <br />
                 공고마다 빠르게, 맞춤 전략으로
               </h2>
-              <StartCorrectionButton>첨삭 의뢰하기 →</StartCorrectionButton>
+              <div className='mt-[1.5rem]'>
+                <StartCorrectionButton>첨삭 의뢰하기 →</StartCorrectionButton>
+              </div>
             </div>
+
             <div className='relative z-10 w-full max-w-[66rem] pt-8 pb-6'>
               <PortfolioComments />
             </div>
