@@ -382,7 +382,7 @@ export default function LandingClientMobile() {
           }}
         />
         <motion.div
-          className='relative z-10 flex flex-col items-center gap-8 px-4 pb-16 text-center'
+          className='relative z-10 flex flex-col items-center gap-8 px-4 py-[12.5rem] text-center'
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
