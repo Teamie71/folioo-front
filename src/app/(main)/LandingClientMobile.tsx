@@ -349,7 +349,7 @@ export default function LandingClientMobile() {
             </motion.div>
           </div>
           <motion.div
-            className='mx-auto flex max-w-[66rem] flex-col items-center gap-6 px-4 pt-10 text-center'
+            className='mx-auto mt-[5rem] flex max-w-[66rem] flex-col items-center gap-6 px-4 pt-10 text-center'
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
