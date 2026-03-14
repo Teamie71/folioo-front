@@ -74,7 +74,9 @@ export const ContentCard = ({
       return;
     }
     if (sectionId) {
-      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document
+        .getElementById(sectionId)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
@@ -90,9 +92,33 @@ export const ContentCard = ({
       return;
     }
     if (sectionId) {
-      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document
+        .getElementById(sectionId)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
+
+  const renderButton = () =>
+    customButton ? (
+      <div onClick={(e) => e.stopPropagation()} role='presentation'>
+        {customButton}
+      </div>
+    ) : buttonHref ? (
+      <button
+        type='button'
+        onClick={(e) => {
+          e.stopPropagation();
+          handleProtectedClick();
+        }}
+        className='inline-flex cursor-pointer items-center justify-center rounded-[6.25rem] border-[0.09375rem] border-[#5060C5] bg-[#F6F5FF] px-[2.25rem] py-[0.5rem] text-[1rem] font-semibold text-[#5060C5] hover:bg-[#EEEDF7]'
+      >
+        {buttonText}
+      </button>
+    ) : (
+      <CommonButton variantType='Outline' px='2.25rem' py='0.5rem'>
+        {buttonText}
+      </CommonButton>
+    );
 
   return (
     <motion.div
@@ -101,43 +127,41 @@ export const ContentCard = ({
       tabIndex={hasScrollAction ? 0 : undefined}
       onClick={hasScrollAction ? handleCardClick : undefined}
       onKeyDown={hasScrollAction ? handleKeyDown : undefined}
-      className={`flex h-[25.125rem] w-[21rem] flex-col items-center justify-center gap-[1.75rem] rounded-[1.75rem] bg-[#FCFCFF] shadow-[0px_4px_8px_0px_#00000033] ${hasScrollAction ? 'cursor-pointer' : ''}`}
+      className={`flex h-[12.25rem] w-[20.5rem] flex-col rounded-[1.75rem] bg-white shadow-[0px_4px_8px_0px_#00000033] md:h-[25.125rem] md:w-[21rem] ${hasScrollAction ? 'cursor-pointer' : ''}`}
       whileHover={{
         y: -8,
       }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
     >
-      <div className='flex flex-col items-center justify-center gap-[1.5rem]'>
-        <p className='text-[1.75rem] leading-[130%] font-bold text-[#000000]'>
-          {title}
-        </p>
-        <div className='flex h-[7.5rem] w-[7.5rem] shrink-0 items-center justify-center'>
-          {icon ?? <div className='h-full w-full bg-[#D9D9D9]' />}
+      {/* 모바일: 좌(제목+설명) 우(아이콘), 하단 버튼 */}
+      <div className='flex flex-1 flex-col gap-[1.5rem] px-[2rem] py-[1.75rem] md:hidden'>
+        <div className='flex items-start justify-between'>
+          <div className='flex flex-1 flex-col gap-[0.75rem]'>
+            <p className='text-gray9 typo-h5'>{title}</p>
+            <p className='text-gray9 typo-c1'>{description}</p>
+          </div>
+          <div className='flex h-[4.5rem] w-[4.5rem] shrink-0 overflow-hidden [&>img]:h-full [&>img]:w-full [&>img]:object-contain [&>svg]:h-full [&>svg]:w-full'>
+            {icon}
+          </div>
         </div>
-        <p className='text-center text-[1rem] leading-[150%] text-[#000000]'>
-          {description}
-        </p>
+        <div className='flex justify-center'>{renderButton()}</div>
       </div>
-      {customButton ? (
-        <div onClick={(e) => e.stopPropagation()} role='presentation'>
-          {customButton}
+
+      {/* 데스크톱: 기존 세로 중앙 배치 */}
+      <div className='flex hidden h-full flex-col items-center justify-center gap-[1.75rem] md:flex'>
+        <div className='flex flex-col items-center justify-center gap-[1.5rem]'>
+          <p className='text-[1.75rem] leading-[130%] font-bold text-[#000000]'>
+            {title}
+          </p>
+          <div className='flex h-[7.5rem] w-[7.5rem] shrink-0 items-center justify-center'>
+            {icon ?? <div className='h-full w-full bg-[#D9D9D9]' />}
+          </div>
+          <p className='text-center text-[1rem] leading-[150%] text-[#000000]'>
+            {description}
+          </p>
         </div>
-      ) : buttonHref ? (
-        <button
-          type='button'
-          onClick={(e) => {
-            e.stopPropagation();
-            handleProtectedClick();
-          }}
-          className='inline-flex cursor-pointer items-center justify-center rounded-[6.25rem] border-[0.09375rem] border-[#5060C5] bg-[#F6F5FF] px-[2.25rem] py-[0.5rem] text-[1rem] font-semibold text-[#5060C5] hover:bg-[#EEEDF7]'
-        >
-          {buttonText}
-        </button>
-      ) : (
-        <CommonButton variantType='Outline' px='2.25rem' py='0.5rem'>
-          {buttonText}
-        </CommonButton>
-      )}
+        {renderButton()}
+      </div>
     </motion.div>
   );
 };
