@@ -340,10 +340,11 @@ export default function LandingClientMobile() {
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.6, ease: 'easeOut' }}
             >
-              <p className='text-[1.125rem] leading-[130%] font-bold text-[#000000]'>
-                AI 컨설턴트가 제공하는 <br />
-                지원 상황에 최적화된 첨삭 보고서로 해결하세요.
-              </p>
+              <div className='flex flex-col gap-0 text-[1.25rem] leading-[130%] font-bold text-[#000000]'>
+                <p>AI 컨설턴트가 제공하는</p>
+                <p>지원 상황에 최적화된</p>
+                <p>첨삭 보고서로 해결하세요.</p>
+              </div>
               <PortfoliloPoints />
             </motion.div>
           </div>
