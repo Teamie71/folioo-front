@@ -114,7 +114,7 @@ export default function LandingClientMobile() {
             />
             <ContentCard
               title='경험 정리'
-              sectionId='section-experience'
+              sectionId='section-experience-mobile'
               icon={
                 <Image
                   src='/ExperienceIconLanding.svg'
@@ -136,7 +136,7 @@ export default function LandingClientMobile() {
             />
             <ContentCard
               title='포트폴리오 첨삭'
-              sectionId='section-portfolio-correction'
+              sectionId='section-portfolio-correction-mobile'
               icon={
                 <Image
                   src='/CorrectionIconLanding.svg'
@@ -233,7 +233,7 @@ export default function LandingClientMobile() {
       </div>
 
       {/* 경험 정리 섹션 */}
-      <section id='section-experience' className='w-full bg-[#E6E9FF]/30 py-12'>
+      <section id='section-experience-mobile' className='w-full bg-[#E6E9FF]/30 py-12'>
         <div className='mx-auto flex max-w-[66rem] flex-col items-center gap-12 px-4'>
           <motion.div
             className='flex w-full max-w-[66rem] flex-col items-center gap-[3.75rem] text-center'
@@ -304,7 +304,7 @@ export default function LandingClientMobile() {
 
       {/* 포트폴리오 첨삭 섹션 */}
       <section
-        id='section-portfolio-correction'
+        id='section-portfolio-correction-mobile'
         className='flex flex-col gap-12 py-12'
       >
         <div className='relative'>
