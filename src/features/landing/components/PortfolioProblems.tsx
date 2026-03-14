@@ -48,16 +48,16 @@ export const PortfolioComments = () => {
             <span className='block md:inline'>
               포트폴리오 하나로 여러 직무와 기업에
             </span>
-            <span className='mr-[2.85rem] block md:ml-0 md:inline'>
+            <span className='mr-[2.85rem] block md:mr-0 md:inline'>
               지원하니 경쟁력이 떨어지지만,
             </span>
           </p>
 
           <div className='flex flex-col gap-[0.25rem] md:flex-row md:gap-[0.25rem]'>
-            <p className='mr-[0.25rem] text-[1rem] leading-[150%] text-[#000000] md:ml-0 md:text-[1.125rem]'>
+            <p className='mr-[0.25rem] text-[1rem] leading-[150%] text-[#000000] md:mr-0 md:text-[1.125rem]'>
               공고마다 새로 포트폴리오를 쓰기에는
             </p>
-            <p className='mr-[5.25rem] text-[1rem] leading-[130%] font-bold text-[#000000] md:ml-0 md:text-[1.25rem]'>
+            <p className='mr-[5.25rem] text-[1rem] leading-[130%] font-bold text-[#000000] md:mr-0 md:text-[1.25rem]'>
               시간이 너무 오래 걸려요.
             </p>
           </div>
