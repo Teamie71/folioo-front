@@ -39,7 +39,11 @@ import {
   useInterviewControllerGeneratePortfolio,
 } from '@/api/endpoints/interview/interview';
 import { getPortfolioControllerGetPortfolioQueryKey } from '@/api/endpoints/portfolio/portfolio';
-import type { GeneratePortfolioResDTO } from '@/api/models';
+import type {
+  GeneratePortfolioResDTO,
+  InsightTurnHistoryItemResDTO,
+  InterviewSessionStateResDTO,
+} from '@/api/models';
 
 const SESSION_STREAM_PATH = (experienceId: number) =>
   `/interview/experiences/${experienceId}/session/stream`;
@@ -116,6 +120,14 @@ function ExperienceSettingsChatContent() {
   /* true면 0단계 진입 툴팁 미표시 (새로고침/복원 시). 새 대화 시작 시 false로 바꿔 툴팁 표시 */
   const [suppressStep0EntryTooltip, setSuppressStep0EntryTooltip] =
     useState(true);
+  /* 조회 시 복원: 턴별 인사이트 이력 */
+  const [insightTurnHistory, setInsightTurnHistory] = useState<
+    InsightTurnHistoryItemResDTO[]
+  >([]);
+  /* SSE retriever 이벤트로 받은 턴별 인사이트 */
+  const [insightsByTurn, setInsightsByTurn] = useState<
+    Record<number, InsightTurnHistoryItemResDTO['insights']>
+  >({});
 
   const prevStageRef = useRef(0);
   /* 3턴 이어가기 모드: true면 연장 세션 중 */
@@ -239,6 +251,8 @@ function ExperienceSettingsChatContent() {
       setMessages([{ role: 'ai', content: '' }]);
       setSessionStreamError(null);
       setIsStreaming(true);
+      setInsightTurnHistory([]);
+      setInsightsByTurn({});
       fetchSSEStream({
         path: SESSION_STREAM_PATH(experienceId),
         method: 'POST',
@@ -345,7 +359,8 @@ function ExperienceSettingsChatContent() {
       try {
         const res = await interviewControllerGetSessionState(experienceId);
         if (cancelled) return;
-        const list = res?.result?.messages;
+        const result = res?.result as InterviewSessionStateResDTO | undefined;
+        const list = result?.messages;
         if (list && list.length > 0) {
           setMessages(
             list.map((m) => ({
@@ -354,8 +369,8 @@ function ExperienceSettingsChatContent() {
             })),
           );
           const restoredStage = toGridStep(
-            res.result?.currentStage ?? 1,
-            res.result?.allComplete,
+            result?.currentStage ?? 1,
+            result?.allComplete,
           );
           prevStageRef.current = restoredStage;
           setCurrentStage(restoredStage);
@@ -365,6 +380,8 @@ function ExperienceSettingsChatContent() {
           setShowTooltipForStep(null);
           setSessionStreamError(null);
           setIsStreaming(false);
+          setInsightTurnHistory(result?.insightTurnHistory ?? []);
+          setInsightsByTurn({});
           return;
         }
       } catch {
@@ -410,6 +427,8 @@ function ExperienceSettingsChatContent() {
     content: string;
     contentParts?: ContentPart[];
     files: FileItem[];
+    /** 선택한 인사이트 ID (백엔드가 AI 서버에 mentioned_insight로 전달) */
+    mentioned_insight?: string | number;
   }) => {
     if (isStreaming || showRetryButton || !payload.content.trim()) return;
 
@@ -434,11 +453,17 @@ function ExperienceSettingsChatContent() {
     setIsStreaming(true);
 
     const abort = new AbortController();
+    const currentTurnIndex = (messages.length - 1) / 2;
 
     fetchSSEStream({
       path: MESSAGES_STREAM_PATH(experienceId),
       method: 'POST',
-      body: JSON.stringify({ message: payload.content.trim() }),
+      body: JSON.stringify({
+        message: payload.content.trim(),
+        ...(payload.mentioned_insight != null && {
+          mentioned_insight: payload.mentioned_insight,
+        }),
+      }),
       signal: abort.signal,
       onEvent: (event: {
         delta?: { text?: string };
@@ -447,7 +472,37 @@ function ExperienceSettingsChatContent() {
           current_stage?: number;
           all_complete?: boolean;
         };
+        type?: string;
+        insights?: Array<{
+          id: string;
+          title: string;
+          activity_name?: string;
+          category: string;
+          content: string;
+          similarity_score?: number | null;
+          source?: string;
+        }>;
       }) => {
+        if (
+          event &&
+          typeof event.type === 'string' &&
+          Array.isArray(event.insights)
+        ) {
+          const mapped = event.insights.map((i) => ({
+            id: i.id,
+            title: i.title,
+            activityName: i.activity_name ?? '',
+            category: i.category,
+            content: i.content,
+            similarityScore: i.similarity_score ?? null,
+            source: i.source ?? 'rag',
+          }));
+          setInsightsByTurn((prev) => ({
+            ...prev,
+            [currentTurnIndex]: mapped,
+          }));
+          return;
+        }
         setMessages((prev) => {
           const next = [...prev];
           const last = next[next.length - 1];
@@ -796,10 +851,8 @@ function ExperienceSettingsChatContent() {
             sessionLoadFailed={!!sessionStreamError}
             onRetrySession={handleRetrySession}
             conversationCompleted={currentStage === 4}
-            searchKeyword={
-              [...messages].reverse().find((m) => m.role === 'user')?.content ??
-              ''
-            }
+            insightTurnHistory={insightTurnHistory}
+            insightsByTurn={insightsByTurn}
           />
         </div>
       </div>
