@@ -79,20 +79,9 @@ export function CorrectionResultActivityDetail({
   setLessonsButton,
 }: CorrectionResultActivityDetailProps) {
   const renderMarkdown = (text: string, lines: CorrectionLineItemReqDTO[], activeFilter: 'reduce' | 'emphasize') => {
-    // 1. 각 줄의 시작 부분에 '- ' 추가
-    const formattedText = (text ?? '')
-      .split('\n')
-      .map(line => {
-        const trimmed = line.trim();
-        if (!trimmed) return line;
-        // 이미 하이픈으로 시작하는 경우 중복 추가 방지
-        if (trimmed.startsWith('-')) return line;
-        return `-${line}`;
-      })
-      .join('\n');
 
     // 2. 하이라이팅 처리 (원본 텍스트를 기준으로 찾아서 교체)
-    let highlightedText = formattedText;
+    let highlightedText = text ?? '';
     const sortedLines = [...lines].sort((a, b) => b.originalText.length - a.originalText.length);
     
     sortedLines.forEach((line) => {
