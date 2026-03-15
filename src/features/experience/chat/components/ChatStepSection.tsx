@@ -21,6 +21,8 @@ interface ChatStepSectionProps {
   currentStep?: number;
   /* 2·3·4단계(grid 1,2,3) 진입 시에만 해당 단계 툴팁 표시. 진입한 단계 번호 또는 null */
   showTooltipForStep?: number | null;
+  /* true면 0단계 진입 툴팁 표시 안 함 (새로고침/세션 복원 시). 호버 시 툴팁은 그대로 */
+  suppressStep0EntryTooltip?: boolean;
 }
 
 export const ChatStepSection = ({
@@ -30,6 +32,7 @@ export const ChatStepSection = ({
   disabled = false,
   currentStep = 0,
   showTooltipForStep = null,
+  suppressStep0EntryTooltip = true,
 }: ChatStepSectionProps) => {
   /* 그리드 호버 시 해당 단계 툴팁 표시 (0·1·2·3) */
   const [hoveringGridStep, setHoveringGridStep] = useState<number | null>(null);
@@ -55,10 +58,14 @@ export const ChatStepSection = ({
       setTooltipDismissed((prev) => ({ ...prev, 0: false }));
       return;
     }
+    if (suppressStep0EntryTooltip) {
+      setTooltipDismissed((prev) => ({ ...prev, 0: true }));
+      return;
+    }
     setTooltipDismissed((prev) => ({ ...prev, 0: false }));
     const t = setTimeout(() => setTooltipDismissed((prev) => ({ ...prev, 0: true })), TOOLTIP_DURATION_MS);
     return () => clearTimeout(t);
-  }, [currentStep]);
+  }, [currentStep, suppressStep0EntryTooltip]);
 
   useEffect(() => {
     if (!showStep1ByEntry) {
@@ -99,19 +106,21 @@ export const ChatStepSection = ({
     <div className='pointer-events-none relative z-30 flex min-h-[14rem] w-full flex-col'>
       {/* 툴팁: 매 단계 진입 시 2초만 표시, 그리드 호버 시에도 표시 */}
       <div className='pointer-events-none relative min-h-[10rem] flex-1'>
-        {/* 0단계 툴팁: 진입 시 2초 또는 그리드 호버 시 */}
+        {/* 0단계 툴팁: 진입 시 2초 또는 그리드 호버 시 (suppress 시 진입 툴팁만 숨김) */}
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
             opacity:
               currentStep === 0 &&
-              (!tooltipDismissed[0] || hoveringGridStep === 0)
+              ((!tooltipDismissed[0] && !suppressStep0EntryTooltip) ||
+                hoveringGridStep === 0)
                 ? 1
                 : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
             pointerEvents:
               currentStep === 0 &&
-              (!tooltipDismissed[0] || hoveringGridStep === 0)
+              ((!tooltipDismissed[0] && !suppressStep0EntryTooltip) ||
+                hoveringGridStep === 0)
                 ? 'auto'
                 : 'none',
           }}

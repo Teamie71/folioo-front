@@ -113,6 +113,9 @@ function ExperienceSettingsChatContent() {
   const [showTooltipForStep, setShowTooltipForStep] = useState<number | null>(
     null,
   );
+  /* true면 0단계 진입 툴팁 미표시 (새로고침/복원 시). 새 대화 시작 시 false로 바꿔 툴팁 표시 */
+  const [suppressStep0EntryTooltip, setSuppressStep0EntryTooltip] =
+    useState(true);
 
   const prevStageRef = useRef(0);
   /* 3턴 이어가기 모드: true면 연장 세션 중 */
@@ -321,6 +324,7 @@ function ExperienceSettingsChatContent() {
           newExperienceScheduleRef.current = window.setTimeout(() => {
             newExperienceScheduleRef.current = null;
             if (cancelled) return;
+            setSuppressStep0EntryTooltip(false);
             startSessionStream();
             clearChatNewExperienceId();
             const url = new URL(window.location.href);
@@ -332,6 +336,7 @@ function ExperienceSettingsChatContent() {
             );
           }, 0);
         } else {
+          setSuppressStep0EntryTooltip(false);
           startSessionStream();
           clearChatNewExperienceId();
         }
@@ -365,6 +370,7 @@ function ExperienceSettingsChatContent() {
       } catch {
         if (cancelled) return;
       }
+      setSuppressStep0EntryTooltip(false);
       startSessionStream();
     })();
 
@@ -807,6 +813,7 @@ function ExperienceSettingsChatContent() {
           disabled={isStreaming || showRetryButton}
           currentStep={currentStage}
           showTooltipForStep={showTooltipForStep}
+          suppressStep0EntryTooltip={suppressStep0EntryTooltip}
         />
       </div>
 
