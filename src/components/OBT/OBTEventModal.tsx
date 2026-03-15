@@ -47,7 +47,7 @@ export function OBTEventModal({
       onOpenChange={onOpenChange}
       primaryBtnText={buttonText}
       onPrimaryClick={handleClick}
-      className='max-w-[40rem] w-full items-center gap-[1.5rem] py-[3.75rem] text-center'
+      className='w-full max-w-[40rem] items-center gap-[1.5rem] py-[3.75rem] text-center'
       footer={
         <CommonButton
           variantType='Execute'
@@ -66,15 +66,26 @@ export function OBTEventModal({
         </div>
         <div className='flex flex-col items-center'>
           <p className='text-[1.5rem] font-bold text-[#1A1A1A]'>{eventTitle}</p>
-          <p className='text-[1.5rem] font-bold text-[#1A1A1A]'>{eventSubTitle}</p>
+          <p className='text-[1.5rem] font-bold text-[#1A1A1A]'>
+            {eventSubTitle}
+          </p>
         </div>
         <div className='flex flex-col gap-[0.25rem]'>
-          <div className='text-[1rem] text-[#1A1A1A] mt-[1rem]'>
+          <div className='mt-[1rem] text-[1rem] text-[#1A1A1A]'>
             <p>{replaceReward(rewardMessage ?? `${reward}이 지급되었어요.`)}</p>
-            <p>{replaceReward(subMessage ?? 'Folioo와 함께 경험을 강력한 서류로 만들어보세요.')}</p>
+            <p>
+              {replaceReward(
+                subMessage ??
+                  'Folioo와 함께 경험을 강력한 서류로 만들어보세요.',
+              )}
+            </p>
           </div>
           <div className='text-[0.75rem] text-[#74777D]'>
-            <p>{replaceReward(validityMessage ?? '지급된 이용권은 6개월 간 사용 가능해요.')}</p>
+            <p>
+              {replaceReward(
+                validityMessage ?? '지급된 이용권은 일요일까지 사용 가능해요.',
+              )}
+            </p>
           </div>
         </div>
       </div>
