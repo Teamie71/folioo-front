@@ -3,7 +3,7 @@
 /** 첨삭 진행 중 / 목록 로딩 등에서 쓰는 스피너 (CorrectionAnalyzingView와 동일) */
 export function CorrectionLoadingSpinner() {
   return (
-    <div className='flex flex-col items-center justify-center gap-[2rem] mt-[3.25rem]'>
+    <div className='flex flex-col items-center justify-center gap-[2rem]'>
       <svg
         xmlns='http://www.w3.org/2000/svg'
         width='56'

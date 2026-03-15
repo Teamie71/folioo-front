@@ -79,10 +79,32 @@ export function CorrectionResultActivityDetail({
   setLessonsButton,
 }: CorrectionResultActivityDetailProps) {
   const renderMarkdown = (text: string, lines: CorrectionLineItemReqDTO[], activeFilter: 'reduce' | 'emphasize') => {
+
+    // 2. 하이라이팅 처리 (원본 텍스트를 기준으로 찾아서 교체)
+    let highlightedText = text ?? '';
+    const sortedLines = [...lines].sort((a, b) => b.originalText.length - a.originalText.length);
+    
+    sortedLines.forEach((line) => {
+      if (!line.originalText) return;
+      const type = line.type.toLowerCase();
+      // 하이픈이 추가된 상태이므로, 원본 텍스트 앞에 '-'가 있는 경우 하이픈까지 포함해서 색칠하도록 정규식 사용
+      const escapedOriginalText = line.originalText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(?:-)?${escapedOriginalText}`, 'g');
+      
+      if (type === 'reduce' && activeFilter === 'reduce') {
+        highlightedText = highlightedText.replace(regex, (match) => `<span class="bg-[#FFF2F2]">${match}</span>`);
+      } else if (type === 'emphasize' && activeFilter === 'emphasize') {
+        highlightedText = highlightedText.replace(regex, (match) => `<span class="bg-[#F1FEF0]">${match}</span>`);
+      }
+    });
+
+    // 3. 마크다운 리스트(불릿)로 자동 변환되는 것을 막기 위해 줄 시작 부분의 '-', '+', '*'를 이스케이프 처리
+    const escapedText = highlightedText.replace(/^(\s*(?:<span[^>]*>)?\s*)([-+*])/gm, '$1\\$2');
+
     return (
       <div className="prose prose-sm max-w-none text-[1rem] font-normal text-[#1A1A1A] leading-[1.6] focus:outline-none h-full break-words [&>*:first-child]:!mt-0 [&_h1]:!text-[2rem] [&_h1]:!font-bold [&_h1]:!mt-[1.5em] [&_h1]:!mb-[0.5em] [&_h1]:!border-b [&_h1]:!border-gray-200 [&_h1]:!pb-2 [&_h1]:!leading-tight [&_h2]:!text-[1.5rem] [&_h2]:!font-bold [&_h2]:!mt-[1.5em] [&_h2]:!mb-[0.5em] [&_h2]:!border-b [&_h2]:!border-gray-200 [&_h2]:!pb-2 [&_h2]:!leading-tight [&_h3]:!text-[1.25rem] [&_h3]:!font-bold [&_h3]:!mt-[1.5em] [&_h3]:!mb-[0.5em] [&_h3]:!leading-snug [&_p]:!my-[1em] [&_a]:!text-blue-600 [&_a]:!underline [&_a]:!underline-offset-2 [&_strong]:!font-bold [&_strong]:!text-black [&_ul]:!list-disc [&_ul]:!pl-[1.5em] [&_ul]:!my-[1em] [&_ol]:!list-decimal [&_ol]:!pl-[1.5em] [&_ol]:!my-[1em] [&_li]:!my-[0.25em] [&_blockquote]:!border-l-4 [&_blockquote]:!border-gray-300 [&_blockquote]:!pl-4 [&_blockquote]:!italic [&_blockquote]:!text-gray-600 [&_blockquote]:!my-[1em] [&_hr]:!border-t [&_hr]:!border-gray-300 [&_hr]:!my-[2em] [&_table]:!w-full [&_table]:!border-collapse [&_table]:!my-[1em] [&_th]:!border [&_th]:!border-gray-300 [&_th]:!bg-gray-50 [&_th]:!px-4 [&_th]:!py-2 [&_th]:!font-bold [&_th]:!text-left [&_td]:!border [&_td]:!border-gray-300 [&_td]:!px-4 [&_td]:!py-2">
         <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} rehypePlugins={[rehypeRaw]}>
-          {highlightText(text ?? '', lines, activeFilter)}
+          {escapedText}
         </ReactMarkdown>
       </div>
     );

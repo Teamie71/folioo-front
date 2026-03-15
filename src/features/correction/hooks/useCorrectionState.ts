@@ -138,6 +138,7 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [emphasisPointsValue, setEmphasisPointsValue] = useState('');
   const [fileDeleteConfirmTarget, setFileDeleteConfirmTarget] =
     useState<FileDeleteConfirmTarget>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
 
   const accessToken = useAuthStore((s) => s.accessToken);
   const { data: portfoliosData } = usePortfolioControllerGetPortfolios({
@@ -172,16 +173,23 @@ export function useCorrectionState(correctionId: string | undefined) {
   // correctionId 있을 때 GET /status로 step·status 복원
   useEffect(() => {
     const id = effectiveId ? Number(effectiveId) : null;
-    if (id == null || Number.isNaN(id)) return;
+    if (id == null || Number.isNaN(id)) {
+      setIsInitializing(false);
+      return;
+    }
 
     // 내 첨삭인지 확인
     portfolioCorrectionControllerGetCorrections()
       .then((listRes) => {
         const corrections = (listRes as any)?.result ?? [];
-        const isMine = corrections.some((c: any) => c.id === id);
-        if (!isMine) {
+        const myCorrection = corrections.find((c: any) => c.id === id);
+        if (!myCorrection) {
           router.replace('/correction');
           return;
+        }
+
+        if (myCorrection.title) {
+          setTitle(myCorrection.title);
         }
 
         // 내 첨삭이면 status 조회 진행
@@ -195,7 +203,10 @@ export function useCorrectionState(correctionId: string | undefined) {
             setStep(nextStep);
             setStatus(nextStatus);
           })
-          .catch(() => {});
+          .catch(() => {})
+          .finally(() => {
+            setIsInitializing(false);
+          });
       })
       .catch(() => {
         // 에러 발생 시에도 일단 메인으로
@@ -557,6 +568,7 @@ export function useCorrectionState(correctionId: string | undefined) {
     layoutKey,
     layoutClassName,
     pdfCategoryOverLimit,
+    isInitializing,
   };
 }
 
