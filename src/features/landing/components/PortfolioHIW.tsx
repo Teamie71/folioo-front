@@ -187,8 +187,8 @@ export const PortfolioHIW = ({
             className='flex h-[2rem] w-[2rem] shrink-0 items-center justify-center overflow-hidden rounded-full border-0 bg-transparent p-0 [&_svg]:h-full [&_svg]:max-h-full [&_svg]:w-full [&_svg]:max-w-full'
             aria-label='이전'
           >
-            <span className='flex h-full w-full scale-y-[-1] rotate-180 items-center justify-center'>
-              <ChevronCircleIcon />
+            <span className='flex h-full w-full scale-x-[-1] items-center justify-center'>
+              <ChevronCircleIcon minimal />
             </span>
           </button>
         ) : (
@@ -204,7 +204,7 @@ export const PortfolioHIW = ({
             aria-label='다음'
           >
             <span className='flex h-full w-full items-center justify-center'>
-              <ChevronCircleIcon />
+              <ChevronCircleIcon minimal />
             </span>
           </button>
         ) : (
@@ -223,7 +223,7 @@ export const PortfolioHIW = ({
             className='hidden shrink-0 cursor-pointer md:block [&>svg]:h-12 [&>svg]:w-12'
             aria-label='이전'
           >
-            <span className='scale-y-[-1] rotate-180'>
+            <span className='inline-flex scale-x-[-1]'>
               <ChevronCircleIcon />
             </span>
           </button>
