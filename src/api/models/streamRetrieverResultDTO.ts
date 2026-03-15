@@ -5,9 +5,10 @@
  * API document of Folioo Development
  * OpenAPI spec version: 1.0.0
  */
+import type { StreamRetrieverInsightDTO } from './streamRetrieverInsightDTO';
 
 export interface StreamRetrieverResultDTO {
   type: string;
   /** 검색된 인사이트 배열 */
-  insights: string[];
+  insights: StreamRetrieverInsightDTO[];
 }

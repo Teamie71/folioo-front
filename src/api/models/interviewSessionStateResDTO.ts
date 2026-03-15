@@ -5,6 +5,7 @@
  * API document of Folioo Development
  * OpenAPI spec version: 1.0.0
  */
+import type { InsightTurnHistoryItemResDTO } from './insightTurnHistoryItemResDTO';
 import type { InterviewMessageResDTO } from './interviewMessageResDTO';
 
 export interface InterviewSessionStateResDTO {
@@ -16,4 +17,8 @@ export interface InterviewSessionStateResDTO {
   currentStage: number;
   /** 인터뷰 전 과정을 모두 완료했는지 여부 */
   allComplete: boolean;
+  /** 현재 턴 번호 */
+  turnNumber: number;
+  /** 인사이트 멘션 턴 이력 */
+  insightTurnHistory: InsightTurnHistoryItemResDTO[];
 }

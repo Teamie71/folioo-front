@@ -13,6 +13,7 @@ export const PortfolioCreateModal = ({
 }: PortfolioCreateModalProps) => {
   return (
     <CommonModal
+      className='w-[37.25rem]'
       open={open}
       onOpenChange={onOpenChange}
       title={
