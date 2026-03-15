@@ -5,6 +5,7 @@ import { ChatStepBubble } from './ChatStepBubble';
 import { ChatInput, type ContentPart, type FileItem } from './ChatInput';
 
 const FADE_DURATION_MS = 500;
+const TOOLTIP_DURATION_MS = 2000;
 
 interface ChatStepSectionProps {
   inputValue?: string;
@@ -30,11 +31,64 @@ export const ChatStepSection = ({
   currentStep = 0,
   showTooltipForStep = null,
 }: ChatStepSectionProps) => {
-  /* 1단계(0) 진행 중: 툴팁은 호버 시에만 표시 */
-  const [isHoveringStep0, setIsHoveringStep0] = useState(false);
+  /* 그리드 호버 시 해당 단계 툴팁 표시 (0·1·2·3) */
+  const [hoveringGridStep, setHoveringGridStep] = useState<number | null>(null);
   useEffect(() => {
-    if (currentStep !== 0) setIsHoveringStep0(false);
+    setHoveringGridStep((prev) => (prev === currentStep ? prev : null));
   }, [currentStep]);
+
+  /* 진입 시 툴팁 2초 후 자동 숨김 */
+  const [tooltipDismissed, setTooltipDismissed] = useState<Record<number, boolean>>({
+    0: false,
+    1: false,
+    2: false,
+    3: false,
+  });
+
+  const showStep0ByEntry = currentStep === 0;
+  const showStep1ByEntry = currentStep === 1 && showTooltipForStep === 1;
+  const showStep2ByEntry = currentStep === 2 && showTooltipForStep === 2;
+  const showStep3ByEntry = currentStep === 3 && showTooltipForStep === 3;
+
+  useEffect(() => {
+    if (currentStep !== 0) {
+      setTooltipDismissed((prev) => ({ ...prev, 0: false }));
+      return;
+    }
+    setTooltipDismissed((prev) => ({ ...prev, 0: false }));
+    const t = setTimeout(() => setTooltipDismissed((prev) => ({ ...prev, 0: true })), TOOLTIP_DURATION_MS);
+    return () => clearTimeout(t);
+  }, [currentStep]);
+
+  useEffect(() => {
+    if (!showStep1ByEntry) {
+      setTooltipDismissed((prev) => ({ ...prev, 1: false }));
+      return;
+    }
+    setTooltipDismissed((prev) => ({ ...prev, 1: false }));
+    const t = setTimeout(() => setTooltipDismissed((prev) => ({ ...prev, 1: true })), TOOLTIP_DURATION_MS);
+    return () => clearTimeout(t);
+  }, [showStep1ByEntry]);
+
+  useEffect(() => {
+    if (!showStep2ByEntry) {
+      setTooltipDismissed((prev) => ({ ...prev, 2: false }));
+      return;
+    }
+    setTooltipDismissed((prev) => ({ ...prev, 2: false }));
+    const t = setTimeout(() => setTooltipDismissed((prev) => ({ ...prev, 2: true })), TOOLTIP_DURATION_MS);
+    return () => clearTimeout(t);
+  }, [showStep2ByEntry]);
+
+  useEffect(() => {
+    if (!showStep3ByEntry) {
+      setTooltipDismissed((prev) => ({ ...prev, 3: false }));
+      return;
+    }
+    setTooltipDismissed((prev) => ({ ...prev, 3: false }));
+    const t = setTimeout(() => setTooltipDismissed((prev) => ({ ...prev, 3: true })), TOOLTIP_DURATION_MS);
+    return () => clearTimeout(t);
+  }, [showStep3ByEntry]);
 
   const gridCell =
     'h-[1.125rem] w-[1.125rem] border-[0.09375rem] border-[#74777D]';
@@ -43,16 +97,23 @@ export const ChatStepSection = ({
 
   return (
     <div className='pointer-events-none relative z-30 flex min-h-[14rem] w-full flex-col'>
-      {/* 툴팁: 0단계는 호버 시에만, 1·2·3단계는 진입 시에만 표시 */}
+      {/* 툴팁: 매 단계 진입 시 2초만 표시, 그리드 호버 시에도 표시 */}
       <div className='pointer-events-none relative min-h-[10rem] flex-1'>
-        {/* 0단계 툴팁: 1단계 진행 중일 때 호버 시에만 */}
+        {/* 0단계 툴팁: 진입 시 2초 또는 그리드 호버 시 */}
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity: currentStep === 0 && isHoveringStep0 ? 1 : 0,
+            opacity:
+              currentStep === 0 &&
+              (!tooltipDismissed[0] || hoveringGridStep === 0)
+                ? 1
+                : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
             pointerEvents:
-              currentStep === 0 && isHoveringStep0 ? 'auto' : 'none',
+              currentStep === 0 &&
+              (!tooltipDismissed[0] || hoveringGridStep === 0)
+                ? 'auto'
+                : 'none',
           }}
         >
           <ChatStepBubble>
@@ -61,14 +122,23 @@ export const ChatStepSection = ({
           </ChatStepBubble>
         </div>
 
-        {/* 1단계 툴팁: 2단계 진입 시에만 */}
+        {/* 1단계 툴팁: 진입 시 2초 또는 그리드 호버 시 */}
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity: currentStep === 1 && showTooltipForStep === 1 ? 1 : 0,
+            opacity:
+              currentStep === 1 &&
+              ((showTooltipForStep === 1 && !tooltipDismissed[1]) ||
+                hoveringGridStep === 1)
+                ? 1
+                : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
             pointerEvents:
-              currentStep === 1 && showTooltipForStep === 1 ? 'auto' : 'none',
+              currentStep === 1 &&
+              ((showTooltipForStep === 1 && !tooltipDismissed[1]) ||
+                hoveringGridStep === 1)
+                ? 'auto'
+                : 'none',
           }}
         >
           <ChatStepBubble>
@@ -77,14 +147,23 @@ export const ChatStepSection = ({
           </ChatStepBubble>
         </div>
 
-        {/* 2단계 툴팁: 3단계 진입 시에만 */}
+        {/* 2단계 툴팁: 진입 시 2초 또는 그리드 호버 시 */}
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity: currentStep === 2 && showTooltipForStep === 2 ? 1 : 0,
+            opacity:
+              currentStep === 2 &&
+              ((showTooltipForStep === 2 && !tooltipDismissed[2]) ||
+                hoveringGridStep === 2)
+                ? 1
+                : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
             pointerEvents:
-              currentStep === 2 && showTooltipForStep === 2 ? 'auto' : 'none',
+              currentStep === 2 &&
+              ((showTooltipForStep === 2 && !tooltipDismissed[2]) ||
+                hoveringGridStep === 2)
+                ? 'auto'
+                : 'none',
           }}
         >
           <ChatStepBubble>
@@ -93,14 +172,23 @@ export const ChatStepSection = ({
           </ChatStepBubble>
         </div>
 
-        {/* 3단계 툴팁: 4단계 진입 시에만 */}
+        {/* 3단계 툴팁: 진입 시 2초 또는 그리드 호버 시 */}
         <div
           className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
           style={{
-            opacity: currentStep === 3 && showTooltipForStep === 3 ? 1 : 0,
+            opacity:
+              currentStep === 3 &&
+              ((showTooltipForStep === 3 && !tooltipDismissed[3]) ||
+                hoveringGridStep === 3)
+                ? 1
+                : 0,
             transitionDuration: `${FADE_DURATION_MS}ms`,
             pointerEvents:
-              currentStep === 3 && showTooltipForStep === 3 ? 'auto' : 'none',
+              currentStep === 3 &&
+              ((showTooltipForStep === 3 && !tooltipDismissed[3]) ||
+                hoveringGridStep === 3)
+                ? 'auto'
+                : 'none',
           }}
         >
           <ChatStepBubble>
@@ -122,8 +210,8 @@ export const ChatStepSection = ({
               transitionDuration: `${FADE_DURATION_MS}ms`,
               pointerEvents: currentStep === 0 ? 'auto' : 'none',
             }}
-            onMouseEnter={() => setIsHoveringStep0(true)}
-            onMouseLeave={() => setIsHoveringStep0(false)}
+            onMouseEnter={() => setHoveringGridStep(0)}
+            onMouseLeave={() => setHoveringGridStep(null)}
           >
             <div className='flex gap-[0.25rem]'>
               <p
@@ -142,7 +230,7 @@ export const ChatStepSection = ({
               />
             </div>
           </div>
-          {/* 1단계 그리드 */}
+          {/* 1단계 그리드: 호버 시 툴팁 표시 */}
           <div
             className='absolute inset-0 flex flex-col gap-[0.25rem] transition-opacity'
             style={{
@@ -150,6 +238,8 @@ export const ChatStepSection = ({
               transitionDuration: `${FADE_DURATION_MS}ms`,
               pointerEvents: currentStep === 1 ? 'auto' : 'none',
             }}
+            onMouseEnter={() => setHoveringGridStep(1)}
+            onMouseLeave={() => setHoveringGridStep(null)}
           >
             <div className='flex gap-[0.25rem]'>
               <p
@@ -168,7 +258,7 @@ export const ChatStepSection = ({
               />
             </div>
           </div>
-          {/* 2단계 그리드 */}
+          {/* 2단계 그리드: 호버 시 툴팁 표시 */}
           <div
             className='absolute inset-0 flex flex-col gap-[0.25rem] transition-opacity'
             style={{
@@ -176,6 +266,8 @@ export const ChatStepSection = ({
               transitionDuration: `${FADE_DURATION_MS}ms`,
               pointerEvents: currentStep === 2 ? 'auto' : 'none',
             }}
+            onMouseEnter={() => setHoveringGridStep(2)}
+            onMouseLeave={() => setHoveringGridStep(null)}
           >
             <div className='flex gap-[0.25rem]'>
               <p
@@ -194,7 +286,7 @@ export const ChatStepSection = ({
               />
             </div>
           </div>
-          {/* 3단계 그리드 */}
+          {/* 3단계 그리드: 호버 시 툴팁 표시 */}
           <div
             className='absolute inset-0 flex flex-col gap-[0.25rem] transition-opacity'
             style={{
@@ -202,6 +294,8 @@ export const ChatStepSection = ({
               transitionDuration: `${FADE_DURATION_MS}ms`,
               pointerEvents: currentStep === 3 ? 'auto' : 'none',
             }}
+            onMouseEnter={() => setHoveringGridStep(3)}
+            onMouseLeave={() => setHoveringGridStep(null)}
           >
             <div className='flex gap-[0.25rem]'>
               <p
