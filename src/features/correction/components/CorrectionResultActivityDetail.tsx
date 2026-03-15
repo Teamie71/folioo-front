@@ -98,10 +98,14 @@ export function CorrectionResultActivityDetail({
     sortedLines.forEach((line) => {
       if (!line.originalText) return;
       const type = line.type.toLowerCase();
+      // 하이픈이 추가된 상태이므로, 원본 텍스트 앞에 '-'가 있는 경우 하이픈까지 포함해서 색칠하도록 정규식 사용
+      const escapedOriginalText = line.originalText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(?:-)?${escapedOriginalText}`, 'g');
+      
       if (type === 'reduce' && activeFilter === 'reduce') {
-        highlightedText = highlightedText.split(line.originalText).join(`<span class="bg-[#FFF2F2]">${line.originalText}</span>`);
+        highlightedText = highlightedText.replace(regex, (match) => `<span class="bg-[#FFF2F2]">${match}</span>`);
       } else if (type === 'emphasize' && activeFilter === 'emphasize') {
-        highlightedText = highlightedText.split(line.originalText).join(`<span class="bg-[#F1FEF0]">${line.originalText}</span>`);
+        highlightedText = highlightedText.replace(regex, (match) => `<span class="bg-[#F1FEF0]">${match}</span>`);
       }
     });
 
