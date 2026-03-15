@@ -210,13 +210,19 @@ export function ChatMessageSection({
                 </div>
               </div>
             ) : (
-              <button
+              <div
                 key={`user-${index}`}
-                type='button'
-                className='flex w-full justify-end text-left'
+                tabIndex={0}
+                className='flex w-full justify-end text-left select-text'
                 onClick={onUserMessageClick}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onUserMessageClick?.();
+                  }
+                }}
               >
-                <div className='font-regular mr-[0.5rem] max-w-[53.75rem] rounded-tl-[2rem] rounded-tr-[0.25rem] rounded-br-[2rem] rounded-bl-[2rem] border border-none bg-[#F6F5FF] px-[2.25rem] py-[1.75rem] text-[1rem] text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
+                <div className='font-regular mr-[0.5rem] max-w-[53.75rem] rounded-tl-[2rem] rounded-tr-[0.25rem] rounded-br-[2rem] rounded-bl-[2rem] border border-none bg-[#F6F5FF] px-[2.25rem] py-[1.75rem] text-[1rem] text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033] select-text'>
                   <div className='flex flex-col gap-[0.75rem]'>
                     {msg.files && msg.files.length > 0 && (
                       <div className='flex flex-wrap gap-[0.75rem]'>
@@ -279,7 +285,7 @@ export function ChatMessageSection({
                     ) : null}
                   </div>
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>
