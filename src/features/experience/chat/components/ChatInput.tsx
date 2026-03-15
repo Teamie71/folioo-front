@@ -378,7 +378,7 @@ export const ChatInput = ({
   return (
     <div
       ref={containerRef}
-      className='relative flex w-full flex-col gap-[0.75rem] rounded-[2rem] bg-[#FDFDFD] px-[1.5rem] py-[1rem] shadow-[0px_1px_4px_0px_#0000001A] shadow-[inset_0px_2px_4px_0px_#00000040]'
+      className='relative flex w-full flex-col gap-[0.75rem] rounded-[2rem] bg-[#FDFDFD] px-[1.5rem] py-[1rem] shadow-[0px_1px_4px_0px_#0000001A] shadow-[inset_0px_2px_4px_0px_#00000040] hover:cursor-text'
     >
       {/* @ 멘션 팝업 */}
       {mentionOpen && mentionPos && (
