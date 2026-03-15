@@ -23,7 +23,7 @@ const main = getValue(g.Main) as string;
 const sub1 = getValue(g.Sub1) as string;
 const sub2 = getValue(g.Sub2) as string;
 const unactive = getValue(g.unactive) as string;
-const grayScale = g['gary scale'] as Record<string, { $value: string }>;
+const grayScale = g['gray scale'] as Record<string, { $value: string }>;
 const state = g.state as Record<string, { $value: string }>;
 const hover = g.hover as Record<string, { $value: string }>;
 
@@ -32,10 +32,10 @@ const colors = {
   sub1,
   sub2,
   unactive,
-  white: grayScale?.wihte?.$value ?? '#ffffff',
+  white: grayScale?.white?.$value ?? '#ffffff',
   gray1: grayScale?.Gray1?.$value,
   gray2: grayScale?.Gray2?.$value,
-  gray3: grayScale?.Grya3?.$value,
+  gray3: grayScale?.Gray3?.$value,
   gray4: grayScale?.Gray4?.$value,
   gray5: grayScale?.Gray5?.$value,
   gray6: grayScale?.Gray6?.$value,

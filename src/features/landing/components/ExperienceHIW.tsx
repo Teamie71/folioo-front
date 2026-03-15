@@ -19,15 +19,24 @@ export const ExperienceHIW = ({
 } = {}) => {
   const sources = { ...DEFAULT_VIDEO_SOURCES, ...videoSources };
   const [selectedTab, setSelectedTab] = useState<TabType>('설정');
+  const [isDesktop, setIsDesktop] = useState(false);
   const videoRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const mql = window.matchMedia('(min-width: 768px)');
+    setIsDesktop(mql.matches);
+    const listener = () => setIsDesktop(mql.matches);
+    mql.addEventListener('change', listener);
+    return () => mql.removeEventListener('change', listener);
+  }, []);
 
   const tabContent = {
     설정: (
       <>
         간단한 정보만으로 경험 정리를 시작하세요. <br />
-        희망 직무를 선택해주시면, <br />
+        희망 직무와 관련 파일을 업로드하면 <br />
         AI 컨설턴트가 참고하여 대화를 준비해요.
       </>
     ),
@@ -70,120 +79,143 @@ export const ExperienceHIW = ({
     }
   }, []);
 
-  // 컴포넌트 전체 영역에서 휠 이벤트를 오른쪽 영상 영역으로 전달
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const handler = (e: WheelEvent) => {
-      if (scrollContainerRef.current) {
-        e.preventDefault();
-        scrollContainerRef.current.scrollTop += e.deltaY;
-      }
+      if (!window.matchMedia('(min-width: 768px)').matches) return;
+      if (!scrollContainerRef.current) return;
+      e.preventDefault();
+      scrollContainerRef.current.scrollTop += e.deltaY;
     };
     el.addEventListener('wheel', handler, { passive: false });
     return () => el.removeEventListener('wheel', handler);
   }, []);
 
-  // Intersection Observer로 스크롤 위치에 따라 탭 자동 변경
   useEffect(() => {
+    if (!isDesktop || !scrollContainerRef.current) return;
     const options = {
       root: scrollContainerRef.current,
-      threshold: 0.5, // 50% 이상 보이면 활성화
+      threshold: 0.5,
     };
-
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
           const tab = entry.target.getAttribute('data-tab') as TabType;
-          if (tab) {
-            setSelectedTab(tab);
-          }
+          if (tab) setSelectedTab(tab);
         }
       });
     }, options);
-
     Object.values(videoRefs.current).forEach((ref) => {
       if (ref) observer.observe(ref);
     });
-
     return () => observer.disconnect();
-  }, []);
+  }, [isDesktop]);
 
   return (
-    <div ref={containerRef} className='flex justify-between'>
-      <div className='flex flex-col gap-[1.5rem]'>
-        {/* 아코디언 형태의 탭 목록 */}
+    <>
+      {/* 모바일: 스크롤 없이 영상 → 파란 바 + 제목 + 본문 세로 배치 */}
+      <div className='flex flex-col gap-[3.75rem] md:hidden'>
         {tabs.map((tab) => (
-          <div key={tab}>
-            {selectedTab === tab ? (
-              /* 선택된 탭: 세로 바 + 제목 + 내용 표시 */
-              <div className='flex gap-[1.25rem]'>
-                {/* 왼쪽 세로 바 */}
-                <motion.div
-                  className='w-[0.5rem] bg-[#5060C5]'
-                  initial={{ opacity: 0, scaleY: 0 }}
-                  animate={{ opacity: 1, scaleY: 1 }}
-                  transition={{ duration: 0.3, ease: 'easeOut' }}
-                />
-
-                {/* 제목 + 내용 */}
-                <motion.div
-                  className='flex flex-col gap-[1.25rem]'
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, ease: 'easeOut' }}
-                >
-                  <h2 className='text-[1.75rem] leading-[130%] font-bold text-[#5060C5]'>
-                    {tab}
-                  </h2>
-                  <p className='pb-[0.25rem] text-[1.125rem] leading-[150%] text-[#000000]'>
-                    {tabContent[tab]}
-                  </p>
-                </motion.div>
+          <div key={tab} className='flex flex-col gap-[1.5rem]'>
+            <div className='h-[11.5rem] w-[20.5rem] overflow-hidden'>
+              <LandingVideo
+                src={sources[tab]}
+                width='100%'
+                height='100%'
+                className='h-full w-full'
+              />
+            </div>
+            <div className='flex gap-[1.25rem]'>
+              <div className='bg-main w-[0.5rem] shrink-0' />
+              <div className='flex min-w-0 flex-col items-start gap-[0.75rem]'>
+                <h2 className='typo-h4 text-main'>{tab}</h2>
+                <p className='typo-b2 text-gray9 pb-[0.25rem] text-left'>
+                  {tabContent[tab]}
+                </p>
               </div>
-            ) : (
-              // 선택되지 않은 탭: 회색 제목만 표시
-              <motion.button
-                onClick={() => handleTabClick(tab)}
-                className='ml-[1.75rem] cursor-pointer text-[1.75rem] leading-[130%] font-bold text-[#5060C5]/40 transition-colors'
-                whileHover={{ opacity: 0.7, x: 5 }}
-                transition={{ duration: 0.2 }}
-              >
-                {tab}
-              </motion.button>
-            )}
+            </div>
           </div>
         ))}
       </div>
 
-      {/* 영상 스크롤 영역 */}
-      <div
-        ref={scrollContainerRef}
-        className='h-[37.125rem] w-[66rem] overflow-y-scroll'
-        style={{
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-        }}
-      >
-        <style jsx>{`
-          div::-webkit-scrollbar {
-            display: none;
-          }
-        `}</style>
+      {/* 데스크톱만 DOM에 마운트 (모바일 스크롤 방해 제거) */}
+      {isDesktop && (
+        <div ref={containerRef} className='flex justify-between'>
+          <div className='flex flex-col gap-[1.5rem]'>
+            {tabs.map((tab) => (
+              <div key={tab}>
+                {selectedTab === tab ? (
+                  <div className='flex gap-[1.25rem]'>
+                    <motion.div
+                      className='w-[0.5rem] bg-[#5060C5]'
+                      initial={{ opacity: 0, scaleY: 0 }}
+                      animate={{ opacity: 1, scaleY: 1 }}
+                      transition={{ duration: 0.3, ease: 'easeOut' }}
+                    />
+                    <motion.div
+                      className='flex flex-col gap-[1.25rem]'
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, ease: 'easeOut' }}
+                    >
+                      <h2 className='text-[1.75rem] leading-[130%] font-bold text-[#5060C5]'>
+                        {tab}
+                      </h2>
+                      <p className='pb-[0.25rem] text-[1.125rem] leading-[150%] text-[#000000]'>
+                        {tabContent[tab]}
+                      </p>
+                    </motion.div>
+                  </div>
+                ) : (
+                  <motion.button
+                    onClick={() => handleTabClick(tab)}
+                    className='ml-[1.75rem] cursor-pointer text-[1.75rem] leading-[130%] font-bold text-[#5060C5]/40 transition-colors'
+                    whileHover={{ opacity: 0.7, x: 5 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {tab}
+                  </motion.button>
+                )}
+              </div>
+            ))}
+          </div>
 
-        {tabs.map((tab) => (
           <div
-            key={tab}
-            ref={(el) => {
-              videoRefs.current[tab] = el;
+            ref={scrollContainerRef}
+            className='h-[37.125rem] w-[66rem] overflow-y-scroll'
+            style={{
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
             }}
-            data-tab={tab}
-            className='mb-[6.25rem] last:mb-0'
           >
-            <LandingVideo src={sources[tab]} width='66rem' height='37.125rem' />
+            <style jsx>{`
+              div::-webkit-scrollbar {
+                display: none;
+              }
+            `}</style>
+            {tabs.map((tab) => (
+              <div
+                key={tab}
+                ref={(el) => {
+                  videoRefs.current[tab] = el;
+                }}
+                data-tab={tab}
+                className='mb-[6.25rem] last:mb-0'
+              >
+                <div className='h-[37.125rem] w-[66rem]'>
+                  <LandingVideo
+                    src={sources[tab]}
+                    width='100%'
+                    height='100%'
+                    className='h-full w-full'
+                  />
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-    </div>
+        </div>
+      )}
+    </>
   );
 };

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/constants/seo';
 import LandingClient from './LandingClient';
+import LandingClientMobile from './LandingClientMobile';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -24,5 +25,14 @@ export const metadata: Metadata = {
 };
 
 export default function LandingPage() {
-  return <LandingClient />;
+  return (
+    <>
+      <div className='hidden md:block'>
+        <LandingClient />
+      </div>
+      <div className='md:hidden'>
+        <LandingClientMobile />
+      </div>
+    </>
+  );
 }
