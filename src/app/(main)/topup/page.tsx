@@ -21,7 +21,10 @@ import type { TicketProductResDTOType } from '@/api/models';
 import { PaymentResDTOStatus } from '@/api/models/paymentResDTOStatus';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useQueryClient } from '@tanstack/react-query';
-import { getUserControllerGetTicketBalanceQueryKey } from '@/api/endpoints/user/user';
+import {
+  getUserControllerGetTicketBalanceQueryKey,
+  getUserControllerGetNextTicketGrantNoticeQueryKey,
+} from '@/api/endpoints/user/user';
 
 type VoucherType = 'experience' | 'portfolio';
 
@@ -85,11 +88,15 @@ function TopupPageContent() {
   });
   const paymentStatus = paymentData?.result?.status;
 
-  // 결제 완료 시 잔여 이용권 갱신 후 URL에서 paymentId 제거
+  // 결제 완료 콜백: 잔여 이용권·다음 보상 안내 갱신 후 URL에서 paymentId 제거
   useEffect(() => {
     if (!isValidPaymentId || paymentStatus !== PaymentResDTOStatus.PAID) return;
     queryClient.invalidateQueries({
       queryKey: getUserControllerGetTicketBalanceQueryKey(),
+    });
+    // 다음 보상 안내 갱신
+    queryClient.invalidateQueries({
+      queryKey: getUserControllerGetNextTicketGrantNoticeQueryKey(),
     });
     const url = new URL(window.location.href);
     url.searchParams.delete('paymentId');
