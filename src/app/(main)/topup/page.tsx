@@ -12,10 +12,16 @@ import { ChallengeModal } from '@/components/ChallengeModal';
 import { BigTicketIcon } from '@/components/icons/BigTicketIcon';
 import { BigCalendarIcon } from '@/components/icons/BigCalendarIcon';
 import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
-import { usePaymentControllerCreatePayment } from '@/api/endpoints/payment/payment';
+import {
+  usePaymentControllerCreatePayment,
+  usePaymentControllerGetPayment,
+} from '@/api/endpoints/payment/payment';
 import { useTicketControllerGetTicketProducts } from '@/api/endpoints/ticket/ticket';
 import type { TicketProductResDTOType } from '@/api/models';
+import { PaymentResDTOStatus } from '@/api/models/paymentResDTOStatus';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useQueryClient } from '@tanstack/react-query';
+import { getUserControllerGetTicketBalanceQueryKey } from '@/api/endpoints/user/user';
 
 type VoucherType = 'experience' | 'portfolio';
 
@@ -68,6 +74,27 @@ function TopupPageContent() {
   const [challengeModalOpen, setChallengeModalOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
+
+  // 결제 복귀 시 URL의 paymentId로 결제 상태 조회
+  const paymentIdParam = searchParams.get('paymentId');
+  const paymentId = paymentIdParam ? Number(paymentIdParam) : NaN;
+  const isValidPaymentId = Number.isInteger(paymentId) && paymentId > 0;
+  const { data: paymentData } = usePaymentControllerGetPayment(paymentId, {
+    query: { enabled: !!accessToken && isValidPaymentId },
+  });
+  const paymentStatus = paymentData?.result?.status;
+
+  // 결제 완료 시 잔여 이용권 갱신 후 URL에서 paymentId 제거
+  useEffect(() => {
+    if (!isValidPaymentId || paymentStatus !== PaymentResDTOStatus.PAID) return;
+    queryClient.invalidateQueries({
+      queryKey: getUserControllerGetTicketBalanceQueryKey(),
+    });
+    const url = new URL(window.location.href);
+    url.searchParams.delete('paymentId');
+    window.history.replaceState(null, '', url.pathname + url.search);
+  }, [isValidPaymentId, paymentStatus, queryClient]);
 
   // 이용권 상품 ID 조회
   const getTicketProductId = (
