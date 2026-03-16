@@ -75,10 +75,14 @@ const SAMPLE_DATA: InvoiceRow[] = [
   },
 ];
 
-function RefundStatusCell({ status }: { status: RefundStatus }) {
-  if (status === 'refund_request') {
-    return <RefundButton />;
-  }
+function RefundStatusCell({
+  category,
+  status,
+}: {
+  category: InvoiceCategory;
+  status: RefundStatus;
+}) {
+  if (category !== '구매') return null;
   if (status === 'refund_completed') {
     return (
       <span className='text-[1.125rem] leading-[150%] text-[#74777D]'>
@@ -86,10 +90,8 @@ function RefundStatusCell({ status }: { status: RefundStatus }) {
       </span>
     );
   }
-  if (status === 'gift') {
-    return null;
-  }
-  return null;
+  if (status === 'gift') return null;
+  return <RefundButton />;
 }
 
 interface InvoiceTableProps {
@@ -104,10 +106,17 @@ export function InvoiceTable({ data = SAMPLE_DATA }: InvoiceTableProps) {
       cell: ({ getValue }) => {
         const category = getValue() as InvoiceCategory;
         const isPurchase = category === '구매';
+        const isUsed = category === '사용';
+        const isExpired = category === '만료';
+        const colorClass = isPurchase
+          ? 'text-main'
+          : isUsed
+            ? 'text-gray9'
+            : isExpired
+              ? 'text-gray5'
+              : 'text-gray6';
         return (
-          <span
-            className={`font-semibold text-[leading-[150%] ${isPurchase ? 'text-[#5060C5]' : 'text-[#74777D]'}`}
-          >
+          <span className={`leading-[150%] font-semibold ${colorClass}`}>
             {category}
           </span>
         );
@@ -117,8 +126,8 @@ export function InvoiceTable({ data = SAMPLE_DATA }: InvoiceTableProps) {
       accessorKey: 'date',
       header: '일시',
       cell: ({ getValue }) => (
-        <span className='text-[#1A1A1A] text-[leading-[150%]'>
-          {getValue() as string}
+        <span className='text-gray9 leading-[150%]'>
+          {(getValue() as string) || '-'}
         </span>
       ),
     },
@@ -126,8 +135,8 @@ export function InvoiceTable({ data = SAMPLE_DATA }: InvoiceTableProps) {
       accessorKey: 'productName',
       header: '상품명',
       cell: ({ getValue }) => (
-        <span className='text-[#1A1A1A] text-[leading-[150%]'>
-          {getValue() as string}
+        <span className='text-gray9 leading-[150%]'>
+          {(getValue() as string) || '-'}
         </span>
       ),
     },
@@ -139,14 +148,14 @@ export function InvoiceTable({ data = SAMPLE_DATA }: InvoiceTableProps) {
         const isGift = row.original.refundStatus === 'gift';
         if (isGift) {
           return (
-            <span className='text-[1.125rem] leading-[150%] text-[#1A1A1A]'>
+            <span className='text-gray9 text-[1.125rem] leading-[150%]'>
               증정 - 휴대폰 인증
             </span>
           );
         }
         return (
-          <span className='text-[1.125rem] leading-[150%] text-[#1A1A1A]'>
-            {amount !== null ? `₩ ${amount.toLocaleString()}` : '-'}
+          <span className='text-gray9 text-[1.125rem] leading-[150%]'>
+            {amount != null ? `₩ ${Number(amount).toLocaleString()}` : '-'}
           </span>
         );
       },
@@ -154,8 +163,11 @@ export function InvoiceTable({ data = SAMPLE_DATA }: InvoiceTableProps) {
     {
       accessorKey: 'refundStatus',
       header: '환불 상태',
-      cell: ({ getValue }) => (
-        <RefundStatusCell status={getValue() as RefundStatus} />
+      cell: ({ getValue, row }) => (
+        <RefundStatusCell
+          category={row.original.category}
+          status={getValue() as RefundStatus}
+        />
       ),
     },
   ];
