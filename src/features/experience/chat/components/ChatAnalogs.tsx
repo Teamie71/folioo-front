@@ -5,12 +5,7 @@ import { LogCard } from '@/features/log/components/LogCard';
 import { ChevronColorLeftIcon } from '@/components/icons/ChevronColorLeftIcon';
 import { ChatLoadingMessage } from '@/features/experience/chat/components/ChatLoadingMessage';
 import { useInsightControllerGetLogs } from '@/api/endpoints/insight/insight';
-import type {
-  InsightLogResDTO,
-  InsightSummaryResDTO,
-} from '@/api/models';
-import { ChatErrorReloadMessage } from '@/features/experience/chat/components/ChatErrorReloadMessage';
-
+import type { InsightLogResDTO, InsightSummaryResDTO } from '@/api/models';
 const ANALOGS_LOAD_TIMEOUT_MS = 3 * 60 * 1000; // 3분
 
 export interface ChatAnalogsProps {
@@ -102,59 +97,17 @@ export const ChatAnalogs = ({
   }, [insights.length]);
 
   if (!keyword && !hasPreloaded) {
-    return (
-      <div className='flex flex-col gap-[1.75rem]'>
-        <p className='text-[1rem] leading-[160%] text-[#1A1A1A]'>
-          대화 내용을 바탕으로 유사도가 높은 인사이트 로그를 읽었어요.
-        </p>
-        <p className='text-[0.875rem] text-[#74777D]'>
-          AI가 응답하면 이곳에 유사 인사이트가 표시돼요.
-        </p>
-      </div>
-    );
+    return <></>;
   }
 
-  if (!hasPreloaded && loadTimeoutReached) {
-    return (
-      <ChatErrorReloadMessage
-        message={
-          <>
-            유사 인사이트 검색이 3분 이상 걸리고 있어요.
-            <br />
-            아래 버튼을 눌러 다시 시도해주세요.
-          </>
-        }
-        onRetry={() => {
-          setLoadTimeoutReached(false);
-          refetch();
-        }}
-      />
-    );
-  }
+  // 유사도 검색 실패시 하단 답변만 출력
+  if (!hasPreloaded && loadTimeoutReached) return null;
+  if (!hasPreloaded && isError) return null;
+  if (insights.length === 0) return null;
 
   // 로딩 중이거나 refetch 중에는 스피너 표시 (키워드 검색 시에만)
   if (!hasPreloaded && (isLoading || isFetching)) {
     return <ChatLoadingMessage />;
-  }
-
-  // 네트워크/서버 에러: 요청 실패 시에만 "오류" + 다시 시도하기
-  if (!hasPreloaded && isError) {
-    return (
-      <ChatErrorReloadMessage
-        message={
-          <>
-            유사 인사이트 검색 중 오류가 발생했어요.
-            <br />
-            아래 버튼을 눌러 다시 시도해주세요.
-          </>
-        }
-        onRetry={() => refetch()}
-      />
-    );
-  }
-
-  if (insights.length === 0) {
-    return <ChatErrorReloadMessage onRetry={() => refetch()} />;
   }
 
   const canGoPrev = currentIndex > 0;
@@ -171,13 +124,13 @@ export const ChatAnalogs = ({
           type='button'
           onClick={() => setCurrentIndex((i) => Math.max(0, i - 1))}
           disabled={!canGoPrev}
-          className={`shrink-0 self-center cursor-pointer rounded focus:outline-none ${!canGoPrev ? 'pointer-events-none invisible' : ''}`}
+          className={`shrink-0 cursor-pointer self-center rounded focus:outline-none ${!canGoPrev ? 'pointer-events-none invisible' : ''}`}
           aria-label='이전 인사이트'
         >
           <ChevronColorLeftIcon />
         </button>
         {/* 패딩으로 그림자 여유 확보, overflow-visible로 그림자 잘림 방지 */}
-        <div className='min-w-0 flex-1 overflow-visible py-1 px-[0.125rem]'>
+        <div className='min-w-0 flex-1 overflow-visible px-[0.125rem] py-1'>
           {insights.slice(0, 3).map((log, index) => (
             <div
               key={log.id}
@@ -204,7 +157,7 @@ export const ChatAnalogs = ({
             setCurrentIndex((i) => Math.min(insights.length - 1, i + 1))
           }
           disabled={!canGoNext}
-          className={`shrink-0 self-center cursor-pointer rotate-180 rounded focus:outline-none ${!canGoNext ? 'pointer-events-none invisible' : ''}`}
+          className={`shrink-0 rotate-180 cursor-pointer self-center rounded focus:outline-none ${!canGoNext ? 'pointer-events-none invisible' : ''}`}
           aria-label='다음 인사이트'
         >
           <ChevronColorLeftIcon />
