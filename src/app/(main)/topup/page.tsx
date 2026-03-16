@@ -5,10 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { openFeedbackForm } from '@/constants/feedback';
 import { CreditExpireAlert } from '@/components/CreditExpireAlert';
-import { PaymentModal } from '@/components/PaymentModal';
+// import { PaymentModal } from '@/components/PaymentModal';
 import Image from 'next/image';
 import { ChallengeModal } from '@/components/ChallengeModal';
-// import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
+import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { BigTicketIcon } from '@/components/icons/BigTicketIcon';
 import { BigCalendarIcon } from '@/components/icons/BigCalendarIcon';
 import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
@@ -383,6 +383,8 @@ function TopupPageContent() {
         </section>
       </div>
 
+      {/* 결제 모달(OBT 기간 동안 주석 처리) */}
+      {/* 
       <PaymentModal
         open={!!selectedVoucher}
         onOpenChange={(open) => !open && setSelectedVoucher(null)}
@@ -393,12 +395,11 @@ function TopupPageContent() {
         }
         onConfirm={handleConfirmPurchase}
       />
-
-      {/* 일시적 주석 처리 */}
-      {/* <OBTRedirectModal
+*/}
+      <OBTRedirectModal
         open={!!selectedVoucher}
         onOpenChange={(open) => !open && setSelectedVoucher(null)}
-      /> */}
+      />
 
       <ChallengeModal
         open={challengeModalOpen}
