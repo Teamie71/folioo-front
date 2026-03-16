@@ -8,10 +8,13 @@ import { CreditExpireAlert } from '@/components/CreditExpireAlert';
 import { PaymentModal } from '@/components/PaymentModal';
 import Image from 'next/image';
 import { ChallengeModal } from '@/components/ChallengeModal';
-import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
+// import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { BigTicketIcon } from '@/components/icons/BigTicketIcon';
 import { BigCalendarIcon } from '@/components/icons/BigCalendarIcon';
 import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
+import { usePaymentControllerCreatePayment } from '@/api/endpoints/payment/payment';
+import { useTicketControllerGetTicketProducts } from '@/api/endpoints/ticket/ticket';
+import type { TicketProductResDTOType } from '@/api/models';
 import { useAuthStore } from '@/store/useAuthStore';
 
 type VoucherType = 'experience' | 'portfolio';
@@ -37,19 +40,46 @@ const PORTFOLIO_VOUCHERS: VoucherOption[] = [
 
 type SelectedVoucher = { type: VoucherType; option: VoucherOption };
 
+// 이용권 타입 → API 타입 매핑
+const VOUCHER_TYPE_TO_API: Record<VoucherType, TicketProductResDTOType> = {
+  experience: 'EXPERIENCE',
+  portfolio: 'PORTFOLIO_CORRECTION',
+};
+
 function TopupPageContent() {
   const accessToken = useAuthStore((s) => s.accessToken);
   const { data: ticketBalance } = useUserControllerGetTicketBalance({
     query: { enabled: !!accessToken },
   });
+  // 이용권 상품 목록 조회
+  const { data: ticketProductsData } = useTicketControllerGetTicketProducts({
+    query: { enabled: !!accessToken },
+  });
+  const { mutateAsync: createPayment } = usePaymentControllerCreatePayment();
+
   const experienceCount = ticketBalance?.result?.experience?.count ?? 0;
   const portfolioCount = ticketBalance?.result?.portfolioCorrection?.count ?? 0;
+
+  // 이용권 상품 목록
+  const ticketProducts = ticketProductsData?.result ?? [];
 
   const [selectedVoucher, setSelectedVoucher] =
     useState<SelectedVoucher | null>(null);
   const [challengeModalOpen, setChallengeModalOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // 이용권 상품 ID 조회
+  const getTicketProductId = (
+    type: VoucherType,
+    times: number,
+  ): number | null => {
+    const apiType = VOUCHER_TYPE_TO_API[type];
+    const product = ticketProducts.find(
+      (p) => p.type === apiType && p.quantity === times,
+    );
+    return product?.id ?? null;
+  };
 
   // 피드백 모달에서 이동한 경우 브라우저 뒤로가기 차단
   useEffect(() => {
@@ -93,10 +123,29 @@ function TopupPageContent() {
     setSelectedVoucher({ type, option });
   };
 
-  const handleConfirmPurchase = () => {
+  const handleConfirmPurchase = async () => {
     if (!selectedVoucher) return;
-    // TODO: 결제 연동
-    setSelectedVoucher(null);
+    const ticketProductId = getTicketProductId(
+      selectedVoucher.type,
+      selectedVoucher.option.times,
+    );
+    if (ticketProductId == null) {
+      alert('해당 이용권 상품을 찾을 수 없어요. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+    try {
+      const res = await createPayment({ data: { ticketProductId } });
+      const payUrl = res?.result?.payUrl;
+      if (payUrl) {
+        window.location.href = payUrl;
+        return;
+      }
+      alert('결제창 URL을 받지 못했어요. 잠시 후 다시 시도해주세요.');
+      setSelectedVoucher(null);
+    } catch {
+      alert('결제 요청에 실패했어요. 잠시 후 다시 시도해주세요.');
+      setSelectedVoucher(null);
+    }
   };
 
   return (
@@ -262,8 +311,7 @@ function TopupPageContent() {
         </section>
       </div>
 
-      {/* OBT 기간 동안 주석 처리 */}
-      {/* <PaymentModal
+      <PaymentModal
         open={!!selectedVoucher}
         onOpenChange={(open) => !open && setSelectedVoucher(null)}
         productName={
@@ -272,12 +320,13 @@ function TopupPageContent() {
             : ''
         }
         onConfirm={handleConfirmPurchase}
-      /> */}
+      />
 
-      <OBTRedirectModal
+      {/* 일시적 주석 처리 */}
+      {/* <OBTRedirectModal
         open={!!selectedVoucher}
         onOpenChange={(open) => !open && setSelectedVoucher(null)}
-      />
+      /> */}
 
       <ChallengeModal
         open={challengeModalOpen}
