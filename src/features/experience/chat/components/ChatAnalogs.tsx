@@ -97,16 +97,7 @@ export const ChatAnalogs = ({
   }, [insights.length]);
 
   if (!keyword && !hasPreloaded) {
-    return (
-      <div className='flex flex-col gap-[1.75rem]'>
-        <p className='text-[1rem] leading-[160%] text-[#1A1A1A]'>
-          대화 내용을 바탕으로 유사도가 높은 인사이트 로그를 읽었어요.
-        </p>
-        <p className='text-[0.875rem] text-[#74777D]'>
-          AI가 응답하면 이곳에 유사 인사이트가 표시돼요.
-        </p>
-      </div>
-    );
+    return <></>;
   }
 
   // 유사도 검색 실패시 하단 답변만 출력
