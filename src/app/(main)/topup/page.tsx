@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { openFeedbackForm } from '@/constants/feedback';
@@ -15,6 +15,7 @@ import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
 import {
   usePaymentControllerCreatePayment,
   usePaymentControllerGetPayment,
+  usePaymentControllerCancelPayment,
 } from '@/api/endpoints/payment/payment';
 import { useTicketControllerGetTicketProducts } from '@/api/endpoints/ticket/ticket';
 import type { TicketProductResDTOType } from '@/api/models';
@@ -65,6 +66,7 @@ function TopupPageContent() {
     query: { enabled: !!accessToken },
   });
   const { mutateAsync: createPayment } = usePaymentControllerCreatePayment();
+  const { mutateAsync: cancelPayment } = usePaymentControllerCancelPayment();
 
   const experienceCount = ticketBalance?.result?.experience?.count ?? 0;
   const portfolioCount = ticketBalance?.result?.portfolioCorrection?.count ?? 0;
@@ -88,7 +90,7 @@ function TopupPageContent() {
   });
   const paymentStatus = paymentData?.result?.status;
 
-  // 결제 완료 콜백: 잔여 이용권·다음 보상 안내 갱신 후 URL에서 paymentId 제거
+  // 결제 완료 시: 잔여 이용권·다음 보상 안내 갱신 후 URL에서 paymentId 제거
   useEffect(() => {
     if (!isValidPaymentId || paymentStatus !== PaymentResDTOStatus.PAID) return;
     queryClient.invalidateQueries({
@@ -102,6 +104,42 @@ function TopupPageContent() {
     url.searchParams.delete('paymentId');
     window.history.replaceState(null, '', url.pathname + url.search);
   }, [isValidPaymentId, paymentStatus, queryClient]);
+
+  // 결제창에서 취소한 경우(REQUESTED/WAITING): 취소 API 호출 후 URL에서 paymentId 제거
+  const cancelRequestedRef = useRef(false);
+  useEffect(() => {
+    if (!isValidPaymentId || !paymentStatus) return;
+    if (
+      paymentStatus === PaymentResDTOStatus.PAID ||
+      paymentStatus === PaymentResDTOStatus.CANCELLED ||
+      paymentStatus === PaymentResDTOStatus.REFUNDED ||
+      paymentStatus === PaymentResDTOStatus.PARTIAL_REFUNDED
+    )
+      return;
+    if (cancelRequestedRef.current) return;
+    cancelRequestedRef.current = true;
+
+    let cancelled = false;
+    cancelPayment({ paymentId })
+      .then(() => {
+        if (cancelled) return;
+        const url = new URL(window.location.href);
+        url.searchParams.delete('paymentId');
+        window.history.replaceState(null, '', url.pathname + url.search);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        const url = new URL(window.location.href);
+        url.searchParams.delete('paymentId');
+        window.history.replaceState(null, '', url.pathname + url.search);
+      })
+      .finally(() => {
+        cancelRequestedRef.current = false;
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isValidPaymentId, paymentId, paymentStatus, cancelPayment]);
 
   // 이용권 상품 ID 조회
   const getTicketProductId = (
