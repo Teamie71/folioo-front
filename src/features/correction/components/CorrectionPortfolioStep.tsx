@@ -47,6 +47,7 @@ export interface CorrectionPortfolioStepProps {
   setPdfActivityHoverId: (id: string | null) => void;
   handleNextStep: () => void;
   pdfCategoryOverLimit: boolean;
+  isTextPortfoliosLoading: boolean;
 }
 
 export function CorrectionPortfolioStep({
@@ -79,6 +80,7 @@ export function CorrectionPortfolioStep({
   setPdfActivityHoverId,
   handleNextStep,
   pdfCategoryOverLimit,
+  isTextPortfoliosLoading,
 }: CorrectionPortfolioStepProps) {
   return (
     <>
@@ -101,6 +103,7 @@ export function CorrectionPortfolioStep({
             textPortfolios={textPortfolios}
             selectedTextPortfolioIds={selectedTextPortfolioIds}
             onTextPortfolioToggle={onTextPortfolioToggle}
+            isLoading={isTextPortfoliosLoading}
           />
         )}
 
