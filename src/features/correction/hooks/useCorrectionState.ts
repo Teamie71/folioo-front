@@ -79,7 +79,6 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [step, setStep] = useState<Step>('portfolio');
   const effectiveId = correctionId ?? EMPTY_CORRECTION_ID;
   const [status, setStatus] = useState<Status>('DRAFT');
-  const [jdMode, setJdMode] = useState<'text' | 'image'>('text');
   const [selectedPortfolioType, setSelectedPortfolioType] =
     useState<PortfolioType | null>(null);
   const [pdfActivities, setPdfActivities] = useState<PdfActivityBlock[]>(

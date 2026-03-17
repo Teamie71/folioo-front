@@ -1,8 +1,6 @@
 'use client';
 
-import { useState } from 'react';
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
-import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { OBTTicketModal } from '@/components/OBT/OBTTicketModal';
 import { CorrectionLimitModal } from '@/components/CorrectionLimitModal';
 import { CorrectionLayout } from '@/features/correction/components/CorrectionLayout';
@@ -15,26 +13,10 @@ import {
 
 export default function NewCorrectionPage() {
   const s: UseNewCorrectionFormReturn = useNewCorrectionForm();
-  /** OBT 기간 동안 막아둔 기능: JD 이미지 모드 */
-  const [isJdImageModalOpen, setIsJdImageModalOpen] = useState(false);
 
   return (
     <CorrectionLayout
-      layoutKey={s.layoutKey}
       layoutClassName={s.layoutClassName}
-      onDragEnter={
-        s.jdMode === 'image'
-          ? (e) => {
-              if (e.dataTransfer?.types.includes('Files'))
-                s.setIsJdDropOverlayActive(true);
-            }
-          : undefined
-      }
-      jdDropOverlay={{
-        active: s.jdMode === 'image' && s.isJdDropOverlayActive,
-        onDrop: s.handleJdImageFile,
-        onClose: () => s.setIsJdDropOverlayActive(false),
-      }}
       pdfDropOverlay={{ active: false, onDrop: () => {}, onClose: () => {} }}
       header={
         <CorrectionPageHeader
@@ -52,10 +34,6 @@ export default function NewCorrectionPage() {
             target: s.fileDeleteConfirmTarget,
             onOpenChange: (open) => !open && s.setFileDeleteConfirmTarget(null),
             onConfirm: () => {
-              if (s.fileDeleteConfirmTarget === null) return;
-              if (s.fileDeleteConfirmTarget.type === 'jd') {
-                s.removeJdFileAt(s.fileDeleteConfirmTarget.index);
-              }
               s.setFileDeleteConfirmTarget(null);
             },
           }}
@@ -87,13 +65,6 @@ export default function NewCorrectionPage() {
             onOpenChange: () => {},
             onConfirm: () => {},
           }}
-          jdViewer={{
-            previewUrl:
-              s.jdViewerFileIndex != null && s.jdUploadedFiles[s.jdViewerFileIndex]
-                ? s.jdUploadedFiles[s.jdViewerFileIndex].previewUrl
-                : null,
-            onClose: () => s.setJdViewerFileIndex(null),
-          }}
         />
       }
       progressOrDivider={
@@ -120,35 +91,12 @@ export default function NewCorrectionPage() {
             if (s.informationErrors.jobDescription)
               s.setInformationErrors((prev) => ({ ...prev, jobDescription: false }));
           }}
-          jdMode={s.jdMode}
-          onJdModeChange={(value) => {
-            if (value === 'image') {
-              setIsJdImageModalOpen(true);
-              return;
-            }
-            s.setJdMode(value);
-          }}
           informationErrors={s.informationErrors}
-          jdImageError={s.jdImageError}
-          jdShakeKey={s.jdShakeKey}
-          jdUploadedFiles={s.jdUploadedFiles}
           limitAllowedInput={s.limitAllowedInput}
           onStartCorrectionClick={s.handleStartCorrectionClick}
-          jdFileInputRef={s.jdFileInputRef}
-          onRequestFileDelete={(index) =>
-            s.setFileDeleteConfirmTarget({ type: 'jd', index })
-          }
-          onRequestJdViewer={s.setJdViewerFileIndex}
-          onJdImageFile={s.handleJdImageFile}
-          onPasteJdImage={s.handlePasteJdImageFromClipboard}
         />
       </div>
 
-      {/* OBT 기간 동안 막아둔 기능 */}
-      <OBTRedirectModal
-        open={isJdImageModalOpen}
-        onOpenChange={(open) => !open && setIsJdImageModalOpen(false)}
-      />
       {/* 포트폴리오 첨삭 이용권 소진 시 */}
       <OBTTicketModal
         open={s.isTicketExhaustedModalOpen}

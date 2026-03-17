@@ -77,11 +77,6 @@ export default function CorrectionSettingsPage() {
             }
           : undefined
       }
-      jdDropOverlay={{
-        active: false,
-        onDrop: () => {},
-        onClose: () => {},
-      }}
       pdfDropOverlay={{
         active:
           s.step === 'portfolio' &&
@@ -171,7 +166,6 @@ export default function CorrectionSettingsPage() {
             onOpenChange: s.setIsPdfExtractConfirmModalOpen,
             onConfirm: s.handlePdfExtractConfirm,
           }}
-          jdViewer={{ previewUrl: null, onClose: () => {} }}
         />
       }
       progressOrDivider={

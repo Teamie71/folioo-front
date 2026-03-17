@@ -29,16 +29,8 @@ export type PdfActivityBlock = {
   portfolioId?: number;
 };
 
-/** JD(직무) 이미지 업로드 메타 (프론트 전용) */
-export interface JdUploadedFile {
-  name: string;
-  size: number;
-  previewUrl: string;
-}
-
 /** 파일 삭제 확인 모달 타겟 (프론트 전용) */
 export type FileDeleteConfirmTarget =
-  | { type: 'jd'; index: number }
   | { type: 'pdf' }
   | null;
 
