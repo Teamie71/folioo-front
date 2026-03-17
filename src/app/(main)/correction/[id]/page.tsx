@@ -1,10 +1,8 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { redirect } from 'next/navigation';
-import { useAuthStore } from '@/store/useAuthStore';
-import { usePortfolioCorrectionControllerGetCorrections } from '@/api/endpoints/portfolio-correction/portfolio-correction';
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
 import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
@@ -32,22 +30,6 @@ export default function CorrectionSettingsPage() {
       : Array.isArray(params.id)
         ? params.id[0]
         : params.id;
-  const numericId = correctionId ? Number(correctionId) : NaN;
-
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const { data: correctionsData, isSuccess } = usePortfolioCorrectionControllerGetCorrections(
-    undefined,
-    { query: { enabled: !!accessToken && !Number.isNaN(numericId) } }
-  );
-
-  useEffect(() => {
-    if (isSuccess && correctionsData?.result) {
-      const isMyCorrection = correctionsData.result.some((c) => c.id === numericId);
-      if (!isMyCorrection) {
-        router.replace('/correction');
-      }
-    }
-  }, [isSuccess, correctionsData, numericId, router]);
 
   const s: UseCorrectionStateReturn = useCorrectionState(correctionId);
   /** OBT 기간 동안 막아둔 기능: PDF 포트폴리오 */
