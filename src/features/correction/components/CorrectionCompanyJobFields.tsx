@@ -28,12 +28,12 @@ export function CorrectionCompanyJobFields({
         <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
           <span>지원 기업명</span>
           <span className='text-[#DC0000]'>*</span>
+          {informationErrors.companyName && (
+            <span className='ml-[0.25rem] text-[0.875rem] font-normal text-[#DC0000]'>
+              지원 기업명을 입력해주세요.
+            </span>
+          )}
         </div>
-        {informationErrors.companyName && (
-          <p className='text-[0.875rem] text-[#DC0000]'>
-            지원 기업명을 입력해주세요.
-          </p>
-        )}
         <InputArea
           placeholder='기업명을 입력해주세요.'
           value={companyName}
@@ -48,12 +48,12 @@ export function CorrectionCompanyJobFields({
         <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
           <span>지원 직무명</span>
           <span className='text-[#DC0000]'>*</span>
+          {informationErrors.jobTitle && (
+            <span className='ml-[0.25rem] text-[0.875rem] font-normal text-[#DC0000]'>
+              지원 직무명을 입력해주세요.
+            </span>
+          )}
         </div>
-        {informationErrors.jobTitle && (
-          <p className='text-[0.875rem] text-[#DC0000]'>
-            지원 직무명을 입력해주세요.
-          </p>
-        )}
         <InputArea
           placeholder='직무명을 입력해주세요.'
           value={jobTitle}

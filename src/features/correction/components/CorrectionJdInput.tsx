@@ -33,7 +33,7 @@ export function CorrectionJdInput({
           </span>
         </div>
         {informationErrors.jobDescription && (
-          <p className='text-[0.875rem] text-[#DC0000]'>
+          <p className='text-[0.875rem] mt-[0.5rem] text-[#DC0000]'>
             Job Description을 입력해주세요.
           </p>
         )}
