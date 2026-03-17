@@ -7,6 +7,7 @@ import {
 import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import type {
   FileDeleteConfirmTarget,
   InformationErrors,
@@ -71,6 +72,8 @@ export function useNewCorrectionForm() {
     portfolioCount,
   ]);
 
+  const queryClient = useQueryClient();
+
   const handleStartCorrectionConfirm = useCallback(async () => {
     const body = {
       title: '새로운 포트폴리오 첨삭',
@@ -82,6 +85,12 @@ export function useNewCorrectionForm() {
     try {
       await portfolioCorrectionControllerCreateCorrection(body);
       const listRes = await portfolioCorrectionControllerGetCorrections();
+      
+      // 새 첨삭이 생성되었으므로 목록 쿼리 무효화 (새로고침 없이 목록 업데이트)
+      queryClient.invalidateQueries({
+        queryKey: ['/portfolio-corrections'],
+      });
+      
       const list = listRes?.result ?? [];
       const newId = list[0]?.id;
       setIsStartCorrectionModalOpen(false);
@@ -96,7 +105,7 @@ export function useNewCorrectionForm() {
         setIsCorrectionLimitModalOpen(true);
       }
     }
-  }, [companyName, jobTitle, jobDescription, router]);
+  }, [companyName, jobTitle, jobDescription, router, queryClient]);
 
   const layoutClassName = `mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem]`;
 

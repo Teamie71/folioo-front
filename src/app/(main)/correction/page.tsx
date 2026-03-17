@@ -26,7 +26,7 @@ export default function CorrectionPage() {
 
   const { data, isLoading } = usePortfolioCorrectionControllerGetCorrections(
     { keyword: debouncedKeyword.trim() || undefined },
-    { query: { enabled: true } },
+    { query: { enabled: true, refetchOnMount: true } },
   );
 
   const responseData = data as
