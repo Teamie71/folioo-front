@@ -24,7 +24,7 @@ export default function CorrectionPage() {
     return () => clearTimeout(t);
   }, [keyword]);
 
-  const { data, isLoading } = usePortfolioCorrectionControllerGetCorrections(
+  const { data, isLoading, isFetching } = usePortfolioCorrectionControllerGetCorrections(
     { keyword: debouncedKeyword.trim() || undefined },
     { query: { enabled: true, refetchOnMount: true } },
   );
@@ -45,7 +45,7 @@ export default function CorrectionPage() {
       <CorrectionListHeader />
       <div className='mx-auto flex w-[66rem] flex-col gap-[3rem]'>
         <CorrectionListSearch value={keyword} onChange={setKeyword} />
-        {isLoading ? (
+        {isLoading || (isFetching && items.length === 0) ? (
           <CorrectionLoadingSpinner />
         ) : items.length === 0 ? (
           <p className='whitespace-pre-line text-[1.125rem] text-center font-bold mt-[3.25rem] text-[#9EA4A9]'>
