@@ -140,7 +140,7 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [isInitializing, setIsInitializing] = useState(true);
 
   const accessToken = useAuthStore((s) => s.accessToken);
-  const { data: portfoliosData } = usePortfolioControllerGetPortfolios({
+  const { data: portfoliosData, isLoading: isTextPortfoliosLoading } = usePortfolioControllerGetPortfolios({
     query: {
       enabled:
         !!accessToken &&
@@ -568,6 +568,7 @@ export function useCorrectionState(correctionId: string | undefined) {
     layoutClassName,
     pdfCategoryOverLimit,
     isInitializing,
+    isTextPortfoliosLoading,
   };
 }
 

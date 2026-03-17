@@ -215,6 +215,7 @@ export default function CorrectionSettingsPage() {
             setPdfActivityHoverId={s.setPdfActivityHoverId}
             handleNextStep={s.handleNextStep}
             pdfCategoryOverLimit={s.pdfCategoryOverLimit}
+            isTextPortfoliosLoading={s.isTextPortfoliosLoading}
           />
         ) : s.step === 'analysis' ? (
           <CorrectionAnalysisStep
