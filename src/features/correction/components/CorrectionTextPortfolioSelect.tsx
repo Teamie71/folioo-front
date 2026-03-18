@@ -14,6 +14,7 @@ export interface CorrectionTextPortfolioSelectProps {
   textPortfolios: TextPortfolioItem[];
   selectedTextPortfolioIds: string[];
   onTextPortfolioToggle: (portfolioId: string) => void;
+  isLoading?: boolean;
 }
 
 export function CorrectionTextPortfolioSelect({
@@ -21,6 +22,7 @@ export function CorrectionTextPortfolioSelect({
   textPortfolios,
   selectedTextPortfolioIds,
   onTextPortfolioToggle,
+  isLoading,
 }: CorrectionTextPortfolioSelectProps) {
   return (
     <div className='mt-[4.75rem] flex flex-col'>
@@ -31,7 +33,7 @@ export function CorrectionTextPortfolioSelect({
         경험 정리를 통해 생성한 포트폴리오 중, 첨삭을 진행할 포트폴리오를
         최대 5개 클릭하여 선택해주세요.
       </span>
-      {textPortfolios.length === 0 ? (
+      {isLoading ? null : textPortfolios.length === 0 ? (
         <div className='mt-[2.5rem] flex items-center justify-center rounded-[1rem] bg-[#F6F8FA] py-[3rem] text-center'>
           <p className='text-[1.125rem] font-semibold text-[#464B53] leading-[1.3]'>
             아직 생성한 텍스트형 포트폴리오가 없어요.

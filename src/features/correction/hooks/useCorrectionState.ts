@@ -79,7 +79,6 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [step, setStep] = useState<Step>('portfolio');
   const effectiveId = correctionId ?? EMPTY_CORRECTION_ID;
   const [status, setStatus] = useState<Status>('DRAFT');
-  const [jdMode, setJdMode] = useState<'text' | 'image'>('text');
   const [selectedPortfolioType, setSelectedPortfolioType] =
     useState<PortfolioType | null>(null);
   const [pdfActivities, setPdfActivities] = useState<PdfActivityBlock[]>(
@@ -141,7 +140,7 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [isInitializing, setIsInitializing] = useState(true);
 
   const accessToken = useAuthStore((s) => s.accessToken);
-  const { data: portfoliosData } = usePortfolioControllerGetPortfolios({
+  const { data: portfoliosData, isLoading: isTextPortfoliosLoading } = usePortfolioControllerGetPortfolios({
     query: {
       enabled:
         !!accessToken &&
@@ -569,6 +568,7 @@ export function useCorrectionState(correctionId: string | undefined) {
     layoutClassName,
     pdfCategoryOverLimit,
     isInitializing,
+    isTextPortfoliosLoading,
   };
 }
 

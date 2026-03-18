@@ -7,7 +7,6 @@ import { InlineEdit } from '@/components/InlineEdit';
 import type { Step } from '@/types/correction';
 
 export type FileDeleteConfirmTarget =
-  | { type: 'jd'; index: number }
   | { type: 'pdf' }
   | null;
 
@@ -52,10 +51,6 @@ interface CorrectionPageHeaderProps {
     onOpenChange: (open: boolean) => void;
     onConfirm: () => void;
   };
-  jdViewer: {
-    previewUrl: string | null;
-    onClose: () => void;
-  };
 }
 
 export function CorrectionPageHeader({
@@ -69,7 +64,6 @@ export function CorrectionPageHeader({
   deleteModal,
   startCorrectionModal,
   pdfExtractModal,
-  jdViewer,
 }: CorrectionPageHeaderProps) {
   return (
     <div className='flex items-center justify-between'>
@@ -143,26 +137,6 @@ export function CorrectionPageHeader({
         primaryBtnText='추출'
         onPrimaryClick={pdfExtractModal.onConfirm}
       />
-      {jdViewer.previewUrl && (
-        <div
-          className='fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4'
-          role='dialog'
-          aria-modal='true'
-          aria-label='JD 이미지 전체보기'
-          onClick={jdViewer.onClose}
-        >
-          <div
-            className='flex max-h-full max-w-full items-center justify-center'
-            onClick={(e) => e.stopPropagation()}
-          >
-            <img
-              src={jdViewer.previewUrl}
-              alt='JD 미리보기 전체'
-              className='max-h-[90vh] max-w-full object-contain'
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
