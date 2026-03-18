@@ -129,3 +129,12 @@ export function hasCreateloadingEntered(id: string): boolean {
   if (!id) return false;
   return getCreateloadingEnteredIds().has(id);
 }
+
+/* 해당 경험에 대해 createloading 진입 이력을 제거 */
+export function clearCreateloadingEntered(id: string): void {
+  if (!id) return;
+  const set = getCreateloadingEnteredIds();
+  if (!set.has(id)) return;
+  set.delete(id);
+  setCreateloadingEnteredIds(set);
+}

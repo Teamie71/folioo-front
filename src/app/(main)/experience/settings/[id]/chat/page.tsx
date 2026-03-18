@@ -8,6 +8,7 @@ import {
   isChatNewExperience,
   setExperienceReturnPath,
   hasCreateloadingEntered,
+  clearCreateloadingEntered,
 } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { StepProgressBar } from '@/components/StepProgressBar';
@@ -66,14 +67,6 @@ function ExperienceSettingsChatContent() {
   const isNewExperience = searchParams.get('new') === '1';
   const experienceId = id ? Number(id) : NaN;
   const sessionAbortRef = useRef<AbortController | null>(null);
-
-  // createloading까지 진입한 경험은 chat 페이지로 되돌아오지 않도록 createloading으로 리다이렉트
-  useEffect(() => {
-    if (!id) return;
-    if (hasCreateloadingEntered(id)) {
-      router.replace(`/experience/settings/${id}/createloading`);
-    }
-  }, [id, router]);
 
   const { data: experienceData } = useExperienceControllerGetExperience(
     experienceId,
@@ -153,15 +146,21 @@ function ExperienceSettingsChatContent() {
       return;
     }
     const status = String(experience.status ?? '').toUpperCase();
-    if (status === 'ON_CHAT') return; // 이 페이지에 진입 허용
+    if (status === 'ON_CHAT') {
+      // 생성 로딩(createloading) 진입 플래그가 남아있어도, 실제 상태가 ON_CHAT이면 chat 진입이 맞음
+      clearCreateloadingEntered(id);
+      return; // 이 페이지에 진입 허용
+    }
     if (status === 'GENERATE' || status === 'GENERATE_FAILED') {
       router.replace(`/experience/settings/${id}/createloading`);
       return;
     }
     if (status === 'DONE') {
+      clearCreateloadingEntered(id);
       router.replace(`/experience/settings/${id}/portfolio`);
       return;
     }
+    clearCreateloadingEntered(id);
     router.replace('/experience');
   }, [id, experienceId, experienceData, router]);
 
