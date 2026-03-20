@@ -1,15 +1,21 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
 import LayoutContent from '@/components/LayoutContent';
+import { isTopupMobileUserAgent } from '@/utils/device';
 
 export const metadata: Metadata = {
   title: '마케팅정보수신 - Folioo',
 };
 
-export default function MarketingPage() {
+export default async function MarketingPage() {
+  const headersList = await headers();
+  const userAgent = headersList.get('user-agent') || '';
+  const isMobileDevice = isTopupMobileUserAgent(userAgent);
+
   return (
-    <LayoutContent>
+    <LayoutContent isMobileDevice={isMobileDevice}>
       <div className='flex min-h-screen flex-col'>
         <div className='mx-auto flex w-full max-w-[66rem] flex-col gap-[3.75rem] px-[1rem] pb-[6.25rem] md:min-w-[66rem] md:px-0 md:pt-[3.75rem]'>
           {/* 로고 */}
