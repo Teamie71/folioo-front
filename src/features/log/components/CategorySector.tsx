@@ -301,7 +301,7 @@ export function InsightTemplateSelector({
             />
             <span>템플릿 사용</span>
           </div>
-          <span className='text-[0.875rem] text-[#74777D]'>
+          <span className='hidden text-[0.875rem] text-[#74777D] md:block'>
             카테고리 맞춤 템플릿을 사용하여 인사이트를 체계적으로 기록하세요.
           </span>
         </div>
@@ -309,6 +309,7 @@ export function InsightTemplateSelector({
         <div className='flex flex-col gap-[0.5rem]'>
           {/* 템플릿 선택 버튼 */}
           <SingleButtonGroup
+            className='flex flex-wrap gap-[0.75rem] md:flex-nowrap md:gap-[1.25rem]'
             options={templateOptions}
             value={selectedTemplate === 'none' ? '' : selectedTemplate}
             onValueChange={handleTemplateChange}
