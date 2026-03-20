@@ -1,28 +1,15 @@
-'use client';
-
-import { useWindowSize } from '@/hooks/useWindowSize';
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { isTopupMobileUserAgent } from '@/utils/device';
 import ProfileClientMobile from './ProfileClientMobile';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
 
-export default function ProfilePage() {
-  const { width } = useWindowSize();
-  const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-    if (width >= 768) {
-      router.push('/');
-    }
-  }, [width, router]);
-
-  if (!isMounted) return null;
-
-  const isMobile = width < 768;
+export default async function ProfilePage() {
+  const headersList = await headers();
+  const userAgent = headersList.get('user-agent') || '';
+  const isMobile = isTopupMobileUserAgent(userAgent);
 
   if (!isMobile) {
-    return null;
+    redirect('/');
   }
 
   return <ProfileClientMobile />;
