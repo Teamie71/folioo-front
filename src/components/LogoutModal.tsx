@@ -6,12 +6,14 @@ interface LogoutModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
+  variant?: 'desktop' | 'mobile';
 }
 
 export function LogoutModal({
   open,
   onOpenChange,
   onConfirm,
+  variant = 'desktop',
 }: LogoutModalProps) {
   const handleConfirm = () => {
     onConfirm();
@@ -32,6 +34,11 @@ export function LogoutModal({
       onCancelClick={() => onOpenChange(false)}
       onSecondaryClick={handleConfirm}
       closeButtonOnly={false}
+      className={
+        variant === 'mobile'
+          ? 'px-[1.625rem] py-[2rem] [&>button]:hidden'
+          : undefined
+      }
     />
   );
 }
