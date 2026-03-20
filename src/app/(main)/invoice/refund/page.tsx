@@ -162,7 +162,9 @@ export default function InvoiceRefundPage() {
           disabled={!canSubmit}
           onClick={() => setIsCompleteModalOpen(true)}
           className={`h-[3.75rem] rounded-[0.75rem] px-[12.875rem] py-[1.125rem] text-[1.125rem] font-bold text-[#ffffff] ${
-            canSubmit ? 'cursor-pointer bg-[#5060C5]' : 'cursor-default bg-[#CDD0D5]'
+            canSubmit
+              ? 'cursor-pointer bg-[#5060C5]'
+              : 'cursor-default bg-[#CDD0D5]'
           }`}
         >
           환불 신청 하기

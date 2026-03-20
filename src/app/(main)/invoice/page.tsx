@@ -3,16 +3,11 @@
 import { useMemo } from 'react';
 import { BackButton } from '@/components/BackButton';
 import { PeriodDropdown } from '@/features/invoice/components/PeriodDropdown';
-import {
-  InvoiceTable,
-  type InvoiceRow,
-} from '@/features/invoice/components/InvoiceTable';
+import { InvoiceTable, type InvoiceRow } from '@/features/invoice/components/InvoiceTable';
 import { useUserControllerGetTicketHistory } from '@/api/endpoints/user/user';
 import type { TicketHistoryItemResDTO } from '@/api/models';
-import {
-  TicketHistoryItemResDTOStatus,
-  TicketHistoryItemResDTOType,
-} from '@/api/models';
+import { TicketHistoryItemResDTOStatus, TicketHistoryItemResDTOType } from '@/api/models';
+import InvoiceClientMobile from './InvoiceClientMobile';
 
 function formatDate(iso: string | undefined): string {
   if (!iso) return '-';
@@ -65,24 +60,30 @@ export default function InvoicePage() {
   );
 
   return (
-    <div className='mx-auto flex w-[66rem] min-w-[66rem] flex-col gap-[3.75rem] pt-[3.75rem]'>
-      {/* 헤더 */}
-      <div className='flex items-center gap-[1.25rem]'>
-        <BackButton />
-
-        <span className='text-[1.5rem] font-bold'>이용권 거래 내역</span>
+    <>
+      <div className='md:hidden'>
+        <InvoiceClientMobile data={tableData} />
       </div>
 
-      {/* 드롭다운 + 표 */}
-      <div className='flex flex-col gap-[1.75rem]'>
-        {/* 드롭다운 */}
-        <div className='flex'>
-          <PeriodDropdown />
+      <div className='mx-auto hidden w-[66rem] min-w-[66rem] flex-col gap-[3.75rem] pt-[3.75rem] md:flex'>
+        {/* 헤더 */}
+        <div className='flex items-center gap-[1.25rem]'>
+          <BackButton />
+
+          <span className='text-[1.5rem] font-bold'>이용권 거래 내역</span>
         </div>
 
-        {/* 표 */}
-        <InvoiceTable data={tableData} />
+        {/* 드롭다운 + 표 */}
+        <div className='flex flex-col gap-[1.75rem]'>
+          {/* 드롭다운 */}
+          <div className='flex'>
+            <PeriodDropdown />
+          </div>
+
+          {/* 표 */}
+          <InvoiceTable data={tableData} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }

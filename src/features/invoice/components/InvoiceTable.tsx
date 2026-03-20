@@ -75,7 +75,7 @@ const SAMPLE_DATA: InvoiceRow[] = [
   },
 ];
 
-function RefundStatusCell({
+export function RefundStatusCell({
   category,
   status,
 }: {
