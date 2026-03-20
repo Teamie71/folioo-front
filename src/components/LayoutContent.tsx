@@ -44,8 +44,10 @@ function isExperienceSettingsPathWithoutNavbar(pathname: string) {
 
 export default function LayoutContent({
   children,
+  isMobileDevice,
 }: {
   children: React.ReactNode;
+  isMobileDevice: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -53,7 +55,6 @@ export default function LayoutContent({
   const [showNavbarOnResult, setShowNavbarOnResult] = useState(false);
   const [weeklyVoucherModalOpen, setWeeklyVoucherModalOpen] = useState(false);
   const [noticeModalOpen, setNoticeModalOpen] = useState(false);
-  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const claimAttemptedRef = useRef(false);
   const signupModalShownRef = useRef(false);
 
@@ -79,14 +80,6 @@ export default function LayoutContent({
     if (!isCorrectionDetailPath(path)) setShowNavbarOnResult(false);
   }, [path]);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mediaQuery = window.matchMedia('(max-width: 767px)');
-    const update = () => setIsMobileViewport(mediaQuery.matches);
-    update();
-    mediaQuery.addEventListener('change', update);
-    return () => mediaQuery.removeEventListener('change', update);
-  }, []);
 
   // 확장 프로그램이 주입하는 재생속도 오버레이 숨김
   useEffect(() => {
@@ -243,13 +236,14 @@ export default function LayoutContent({
     >
       {!hideNavbar && (
         <>
-          <div className='hidden md:block'>
-            <Navbar />
-            <BannerBeta />
-          </div>
-          <div className='md:hidden'>
+          {isMobileDevice ? (
             <MobileNavbar />
-          </div>
+          ) : (
+            <>
+              <Navbar />
+              <BannerBeta />
+            </>
+          )}
         </>
       )}
       <div
@@ -265,7 +259,7 @@ export default function LayoutContent({
       <PortfolioCreationPoller />
 
       {/* 주간 이용권 지급 */}
-      {isMobileViewport ? (
+      {isMobileDevice ? (
         <OBTEventModalMobile
           open={weeklyVoucherModalOpen}
           onOpenChange={setWeeklyVoucherModalOpen}
@@ -294,7 +288,7 @@ export default function LayoutContent({
       )}
 
       {/* 동적 지급 보상 안내 모달 */}
-      {isMobileViewport ? (
+      {isMobileDevice ? (
         <EventModalMobile
           open={noticeModalOpen}
           onOpenChange={handleNoticeModalClose}
