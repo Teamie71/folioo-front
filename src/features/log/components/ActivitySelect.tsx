@@ -122,7 +122,7 @@ export function ActivitySelect({
   return (
     <>
       <div className='flex flex-col gap-[0.5rem]'>
-        <div className='flex items-center gap-[0.5rem] text-[1.125rem] font-bold'>
+        <div className='flex items-center gap-[0.5rem] text-[1rem] md:text-[1.125rem] md:font-bold'>
           <span>활동명</span>
           {activityCountError && (
             <p className='font-regular text-[0.875rem] text-[#DC0000]'>
@@ -139,7 +139,11 @@ export function ActivitySelect({
           rightElement={
             <DropdownButton
               items={activitiesWithHandlers}
-              menuWidth={menuWidth ?? width ?? '28.5rem'}
+              menuWidth={
+                width === '100%'
+                  ? 'calc(100vw - 2rem)'
+                  : (menuWidth ?? width ?? '28.5rem')
+              }
               value={selectedActivityId}
               onChange={handleActivitySelect}
             />
