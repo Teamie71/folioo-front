@@ -4,7 +4,7 @@ import { FEEDBACK_FORM_URL } from '@/constants/feedback';
 
 export default function Footer() {
   return (
-    <div className='mx-auto flex w-full bg-[#F6F8FA] pt-[1.25rem] pb-[2.5rem]'>
+    <div className='mx-auto hidden w-full bg-[#F6F8FA] pt-[1.25rem] pb-[2.5rem] md:flex'>
       <div className='mx-auto flex min-w-[66rem] flex-col items-start justify-center gap-[2.5rem]'>
         <div className='flex w-full flex-col gap-[1.25rem]'>
           <div className='flex items-center justify-between'>
