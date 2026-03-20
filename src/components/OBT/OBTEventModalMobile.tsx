@@ -2,6 +2,7 @@
 
 import { CommonButton } from '@/components/CommonButton';
 import { EventModalIcon } from '@/components/icons/EventModalIcon';
+import { MobileBottomSheet } from '@/components/MobileBottomSheet';
 
 export function OBTEventModalMobile({
   open,
@@ -33,34 +34,16 @@ export function OBTEventModalMobile({
 
   const replaceReward = (text: string) => text.replace(/\{reward\}/g, reward);
 
-  if (!open) return null;
-
   return (
-    <>
-      <div
-        className="fixed inset-0 bg-black/50 z-[60] animate-in fade-in duration-200"
-        onClick={() => onOpenChange(false)}
-      />
-      <div className="fixed bottom-0 left-0 right-0 z-[60] flex flex-col animate-in slide-in-from-bottom duration-300 bg-white rounded-t-[1.25rem]">
-        {/* 드래그 핸들 */}
-        <div className="flex justify-center pt-[1rem] pb-[1.5rem] shrink-0">
-          <div className="w-[3.75rem] h-[0.25rem] bg-[#CDD0D5] rounded-[0.5rem]" />
-        </div>
-
-        {/* 닫기 버튼 */}
-        <button
-          type="button"
-          className="absolute top-[1rem] right-[1rem] p-[0.25rem]"
-          onClick={() => onOpenChange(false)}
-          aria-label="닫기"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M18 6L6 18M6 6L18 18" stroke="#1A1A1A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
-
-        {/* 컨텐츠 */}
-        <div className="flex flex-col items-center px-[1.5rem] pb-[1rem]">
+    <MobileBottomSheet
+      open={open}
+      onOpenChange={onOpenChange}
+      zIndexClassName='z-[60]'
+      heightClassName='h-auto'
+      showCloseButton
+      contentClassName='overflow-visible'
+    >
+      <div className='flex flex-col items-center'>
           <div className="flex justify-center mb-[1.5rem] w-[2.5rem] h-[2.5rem]">
             <EventModalIcon />
           </div>
@@ -93,8 +76,7 @@ export function OBTEventModalMobile({
           >
             {buttonText}
           </CommonButton>
-        </div>
       </div>
-    </>
+    </MobileBottomSheet>
   );
 }
