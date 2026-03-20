@@ -37,12 +37,15 @@ const TextField = React.forwardRef<HTMLTextAreaElement, TextFieldProps>(
           ? internalRef.current
           : textareaRef.current;
       if (textarea) {
-        textarea.style.height = '0';
+        textarea.style.height = 'auto';
         const sh = textarea.scrollHeight;
+
         if (!textarea.value.trim()) {
+          const linesCount = (textarea.placeholder || '').split('\n').length;
+
           textarea.style.height = `${sh}px`;
         } else {
-          textarea.style.height = `${Math.max(1, sh - 1)}px`;
+          textarea.style.height = `${sh}px`;
         }
       }
     }, [textareaRef]);
@@ -93,6 +96,7 @@ const TextField = React.forwardRef<HTMLTextAreaElement, TextFieldProps>(
                 }
               }
         }
+        rows={props.placeholder?.split('\n').length || 1}
         onChange={handleChange}
         {...props}
       />
