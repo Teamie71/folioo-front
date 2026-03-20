@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
+import MobileNavbar from '@/components/MobileNavbar';
 import { BannerBeta } from '@/components/OBT/OBTBanner';
 import { OBTEventModal } from '@/components/OBT/OBTEventModal';
 import { OBTEventModalMobile } from '@/components/OBT/OBTEventModalMobile';
@@ -20,6 +21,7 @@ import {
   useUserControllerMarkTicketGrantNoticeShown,
   useUserControllerMarkTicketGrantNoticeDismissed,
 } from '@/api/endpoints/user/user';
+import { cn } from '@/utils/utils';
 
 /** 회원가입 직후 / 주간 이용권 지급 이벤트 코드 (백엔드와 동일해야 함) */
 const WEEKLY_VOUCHER_EVENT_CODE = 'weekly-voucher';
@@ -239,9 +241,23 @@ export default function LayoutContent({
         ),
       }}
     >
-      {!hideNavbar && <Navbar />}
-      {!hideNavbar && <BannerBeta />}
-      <div className={hideNavbar ? '' : 'layout-content-below-header'}>
+      {!hideNavbar && (
+        <>
+          <div className='hidden md:block'>
+            <Navbar />
+            <BannerBeta />
+          </div>
+          <div className='md:hidden'>
+            <MobileNavbar />
+          </div>
+        </>
+      )}
+      <div
+        className={cn(
+          hideNavbar ? '' : 'layout-content-below-header',
+          !hideNavbar && 'pt-[52px] md:pt-[140px]',
+        )}
+      >
         {children}
       </div>
 
