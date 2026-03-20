@@ -1,15 +1,21 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
+import { isTopupMobileUserAgent } from '@/utils/device';
+import LayoutContent from '@/components/LayoutContent';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
-import LayoutContent from '@/components/LayoutContent';
 
 export const metadata: Metadata = {
   title: '개인정보처리방침 - Folioo',
 };
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const headersList = await headers();
+  const userAgent = headersList.get('user-agent') || '';
+  const isMobile = isTopupMobileUserAgent(userAgent);
+
   return (
-    <LayoutContent>
+    <LayoutContent isMobileDevice={isMobile}>
       <div className='flex min-h-screen flex-col'>
         <div className='mx-auto flex w-full max-w-[66rem] flex-col gap-[3.75rem] px-[1rem] pb-[6.25rem] md:min-w-[66rem] md:px-0 md:pt-[3.75rem]'>
           {/* 로고 */}
