@@ -13,7 +13,6 @@ import { LandingVideo } from '@/features/landing/components/LandingVideo';
 import { useAuthStore } from '@/store/useAuthStore';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import Footer from '@/components/Footer';
 
 function LoginEntryButton() {
   const router = useRouter();
@@ -398,8 +397,6 @@ export default function LandingClientMobile() {
           <LoginEntryButton />
         </motion.div>
       </section>
-
-      <Footer />
     </div>
   );
 }
