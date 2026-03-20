@@ -37,8 +37,8 @@ export function RefundReasonDropdown({
   }, []);
 
   return (
-    <div ref={dropdownRef} className='relative'>
-      <div className='h-[3.75rem] w-[32.25rem] rounded-[0.75rem] border border-[#74777D] py-[1rem] pr-[1.125rem] pl-[1.25rem]'>
+    <div ref={dropdownRef} className='relative w-full md:w-auto'>
+      <div className='h-[3.75rem] w-full rounded-[0.75rem] border border-[#74777D] py-[1rem] pr-[1.125rem] pl-[1.25rem] md:w-[32.25rem]'>
         <button
           type='button'
           onClick={() => setIsDropdownOpen((prev) => !prev)}
