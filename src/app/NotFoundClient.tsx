@@ -1,11 +1,15 @@
 'use client';
 
-import LayoutContent from '@/components/LayoutContent';
 import { CommonErrorLayout } from '@/components/error/CommonErrorLayout';
+import LayoutContent from '@/components/LayoutContent';
 
-export default function NotFoundClient() {
+export default function NotFoundClient({
+  isMobileDevice,
+}: {
+  isMobileDevice: boolean;
+}) {
   return (
-    <LayoutContent>
+    <LayoutContent isMobileDevice={isMobileDevice}>
       <CommonErrorLayout />
     </LayoutContent>
   );
