@@ -6,6 +6,30 @@ import { X } from 'lucide-react';
 
 import { cn } from '@/utils/utils';
 
+let bodyScrollLockCount = 0;
+
+function lockBodyScroll() {
+  if (typeof document === 'undefined') return;
+  if (bodyScrollLockCount === 0) {
+    document.body.dataset.prevOverflow = document.body.style.overflow || '';
+    document.body.dataset.prevTouchAction = document.body.style.touchAction || '';
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+  }
+  bodyScrollLockCount += 1;
+}
+
+function unlockBodyScroll() {
+  if (typeof document === 'undefined') return;
+  bodyScrollLockCount = Math.max(0, bodyScrollLockCount - 1);
+  if (bodyScrollLockCount === 0) {
+    document.body.style.overflow = document.body.dataset.prevOverflow || '';
+    document.body.style.touchAction = document.body.dataset.prevTouchAction || '';
+    delete document.body.dataset.prevOverflow;
+    delete document.body.dataset.prevTouchAction;
+  }
+}
+
 const Dialog = DialogPrimitive.Root;
 
 const DialogTrigger = DialogPrimitive.Trigger;
@@ -34,26 +58,33 @@ const DialogContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
     overlayClassName?: string;
   }
->(({ className, children, overlayClassName, ...props }, ref) => (
-  <DialogPortal>
-    <DialogOverlay className={overlayClassName} />
-    <DialogPrimitive.Content
-      ref={ref}
-      className={cn(
-        'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] fixed top-1/2 left-1/2 z-100 flex w-auto -translate-x-1/2 -translate-y-1/2 flex-col rounded-[1.25rem] bg-[#FDFDFD] shadow-[0px_8px_20px_0px_#00000033] duration-200 sm:rounded-[1.25rem]',
-        className,
-      )}
-      {...props}
-    >
-      <DialogPrimitive.Title className='sr-only'>Dialog</DialogPrimitive.Title>
-      {children}
-      <DialogPrimitive.Close className='ring-offset-background data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 cursor-pointer rounded-[0.25rem] opacity-70 transition-colors hover:opacity-100 hover:bg-[#E9EAEC] disabled:pointer-events-none'>
-        <X className='h-[1.5rem] w-[1.5rem]' />
-        <span className='sr-only'>Close</span>
-      </DialogPrimitive.Close>
-    </DialogPrimitive.Content>
-  </DialogPortal>
-));
+>(({ className, children, overlayClassName, ...props }, ref) => {
+  React.useEffect(() => {
+    lockBodyScroll();
+    return () => unlockBodyScroll();
+  }, []);
+
+  return (
+    <DialogPortal>
+      <DialogOverlay className={overlayClassName} />
+      <DialogPrimitive.Content
+        ref={ref}
+        className={cn(
+          'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] fixed top-1/2 left-1/2 z-100 flex w-auto -translate-x-1/2 -translate-y-1/2 flex-col rounded-[1.25rem] bg-[#FDFDFD] shadow-[0px_8px_20px_0px_#00000033] duration-200 sm:rounded-[1.25rem]',
+          className,
+        )}
+        {...props}
+      >
+        <DialogPrimitive.Title className='sr-only'>Dialog</DialogPrimitive.Title>
+        {children}
+        <DialogPrimitive.Close className='ring-offset-background data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 cursor-pointer rounded-[0.25rem] opacity-70 transition-colors hover:opacity-100 hover:bg-[#E9EAEC] disabled:pointer-events-none'>
+          <X className='h-[1.5rem] w-[1.5rem]' />
+          <span className='sr-only'>Close</span>
+        </DialogPrimitive.Close>
+      </DialogPrimitive.Content>
+    </DialogPortal>
+  );
+});
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
 const DialogHeader = ({

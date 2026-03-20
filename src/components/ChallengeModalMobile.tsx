@@ -9,6 +9,7 @@ import { BigStamp } from '@/components/icons/BigStampIcon';
 import { cn } from '@/utils/utils';
 import { ChevronDown } from '@/components/icons/ChevronDownIcon';
 import { OBTEventModalMobile } from '@/components/OBT/OBTEventModalMobile';
+import { MobileBottomSheet } from '@/components/MobileBottomSheet';
 
 const ChevronDownIcon = ({ className }: { className?: string }) => (
   <span className={className}>
@@ -47,6 +48,7 @@ export function ChallengeModalMobile({
   };
 
   const handleRewardClick = () => {
+    onOpenChange(false);
     setEventModalOpen(true);
   };
 
@@ -75,35 +77,35 @@ export function ChallengeModalMobile({
       ? `${10 - currentCount}개의 로그를 더 작성하고, 경험 정리 1회권을 받으세요.`
       : '4월 한 달간, 인사이트 로그 10개를 꾸준히 작성하시면\n경험 정리 1회권을 드려요!';
 
-  if (!open) return null;
-
   return (
     <>
-      {/* 바텀시트 오버레이 */}
-      <div 
-        className="fixed inset-0 bg-black/50 z-50 animate-in fade-in duration-200"
-        onClick={() => onOpenChange(false)}
-      />
-      
-      {/* 바텀시트 컨테이너 */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 flex flex-col animate-in slide-in-from-bottom duration-300 h-[80vh]">
-        <div className="bg-white rounded-t-[1.25rem] flex flex-col relative flex-1 min-h-0">
-          {/* 드래그 핸들 (고정) */}
-          <div className="flex justify-center pt-[1rem] pb-[0.5rem] h-[3.5rem] shrink-0">
-            <div className="w-[3.75rem] h-[0.25rem] bg-[#CDD0D5] rounded-[0.5rem]" />
-          </div>
-
-          {/* 스크롤 가능한 컨텐츠 영역 */}
-          <div className="flex-1 min-h-0 overflow-y-auto px-[1.5rem] pb-[5rem]">
-            {/* 헤더 */}
-            <div className='flex flex-col gap-[0.75rem] mb-[2rem] mt-[0.5rem]'>
-              <h2 className='text-[1.125rem] font-bold text-[#1A1A1A] text-left'>
-                {titleText}
-              </h2>
-              <p className='text-[0.875rem] font-medium text-[#464B53] whitespace-pre-line leading-[1.4]'>
-                {descriptionText}
-              </p>
-            </div>
+      {open && (
+        <MobileBottomSheet
+          open={open}
+          onOpenChange={onOpenChange}
+          zIndexClassName='z-50'
+          heightClassName='h-[80vh]'
+          contentBottomPaddingClassName='pb-[5rem]'
+          footer={
+            <CommonButton
+              variantType='Execute'
+              style={{ width: '20.5rem' }}
+              className='rounded-[0.75rem] px-[6.125rem] py-[0.75rem] text-[1rem] font-bold hover:bg-[#4352B3]'
+              onClick={handlePrimaryClick}
+            >
+              {buttonText}
+            </CommonButton>
+          }
+        >
+              {/* 헤더 */}
+              <div className='flex flex-col gap-[0.75rem] mb-[2rem] mt-[0.5rem]'>
+                <h2 className='text-[1.125rem] font-bold text-[#1A1A1A] text-left'>
+                  {titleText}
+                </h2>
+                <p className='text-[0.875rem] font-medium text-[#464B53] whitespace-pre-line leading-[1.4]'>
+                  {descriptionText}
+                </p>
+              </div>
 
             {/* 스탬프 보드 */}
             <div className='w-full flex flex-col mb-[2rem]'>
@@ -184,21 +186,8 @@ export function ChallengeModalMobile({
                 </div>
               )}
             </div>
-          </div>
-
-          {/* 플로팅 하단 버튼 - z-index로 스크롤 영역 위에 겹침 */}
-          <div className='absolute bottom-0 left-0 right-0 z-10 bg-white border-t border-[#E9EAEC] px-[1rem] py-[1.5rem] pb-[calc(1rem+env(safe-area-inset-bottom))]'>
-          <CommonButton
-            variantType='Execute'
-            style={{ width: '20.5rem' }}
-            className='rounded-[0.75rem] px-[6.125rem] py-[0.75rem] text-[1rem] font-bold hover:bg-[#4352B3]'
-            onClick={handlePrimaryClick}
-          >
-              {buttonText}
-            </CommonButton>
-          </div>
-        </div>
-      </div>
+        </MobileBottomSheet>
+      )}
 
       <OBTEventModalMobile
         open={eventModalOpen}

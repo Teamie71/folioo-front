@@ -6,7 +6,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import { BannerBeta } from '@/components/OBT/OBTBanner';
 import { OBTEventModal } from '@/components/OBT/OBTEventModal';
+import { OBTEventModalMobile } from '@/components/OBT/OBTEventModalMobile';
 import { EventModal } from '@/components/EventModal';
+import { EventModalMobile } from '@/components/EventModalMobile';
 import { markWeeklyVoucherGranted } from '@/utils/weeklyVoucher';
 import { CorrectionNavbarContext } from '@/contexts/CorrectionNavbarContext';
 import { PortfolioCreationPoller } from '@/features/experience/components/PortfolioCreationPoller';
@@ -49,6 +51,7 @@ export default function LayoutContent({
   const [showNavbarOnResult, setShowNavbarOnResult] = useState(false);
   const [weeklyVoucherModalOpen, setWeeklyVoucherModalOpen] = useState(false);
   const [noticeModalOpen, setNoticeModalOpen] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const claimAttemptedRef = useRef(false);
   const signupModalShownRef = useRef(false);
 
@@ -73,6 +76,15 @@ export default function LayoutContent({
   useEffect(() => {
     if (!isCorrectionDetailPath(path)) setShowNavbarOnResult(false);
   }, [path]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const update = () => setIsMobileViewport(mediaQuery.matches);
+    update();
+    mediaQuery.addEventListener('change', update);
+    return () => mediaQuery.removeEventListener('change', update);
+  }, []);
 
   // 확장 프로그램이 주입하는 재생속도 오버레이 숨김
   useEffect(() => {
@@ -237,30 +249,58 @@ export default function LayoutContent({
       <PortfolioCreationPoller />
 
       {/* 주간 이용권 지급 */}
-      <OBTEventModal
-        open={weeklyVoucherModalOpen}
-        onOpenChange={setWeeklyVoucherModalOpen}
-        eventTitle='이번 주의 무료 이용권'
-        eventSubTitle='보상 지급 완료'
-        reward='경험 정리 2회권 + 포트폴리오 첨삭 6회권'
-        rewardMessage='{reward}이 지급되었어요.'
-        subMessage='Folioo와 함께 경험을 강력한 서류로 만들어보세요.'
-        validityMessage='지급된 이용권은 일요일까지 사용 가능해요.'
-        buttonText='경험 정리하기'
-        onButtonClick={() => router.push('/experience/settings')}
-      />
+      {isMobileViewport ? (
+        <OBTEventModalMobile
+          open={weeklyVoucherModalOpen}
+          onOpenChange={setWeeklyVoucherModalOpen}
+          eventTitle='이번 주의 무료 이용권'
+          eventSubTitle='보상 지급 완료'
+          reward='경험 정리 2회권 + 포트폴리오 첨삭 6회권'
+          rewardMessage='{reward}이 지급되었어요.'
+          subMessage='Folioo와 함께 경험을 강력한 서류로 만들어보세요.'
+          validityMessage='지급된 이용권은 일요일까지 사용 가능해요.'
+          buttonText='경험 정리하기'
+          onButtonClick={() => router.push('/experience/settings')}
+        />
+      ) : (
+        <OBTEventModal
+          open={weeklyVoucherModalOpen}
+          onOpenChange={setWeeklyVoucherModalOpen}
+          eventTitle='이번 주의 무료 이용권'
+          eventSubTitle='보상 지급 완료'
+          reward='경험 정리 2회권 + 포트폴리오 첨삭 6회권'
+          rewardMessage='{reward}이 지급되었어요.'
+          subMessage='Folioo와 함께 경험을 강력한 서류로 만들어보세요.'
+          validityMessage='지급된 이용권은 일요일까지 사용 가능해요.'
+          buttonText='경험 정리하기'
+          onButtonClick={() => router.push('/experience/settings')}
+        />
+      )}
 
       {/* 동적 지급 보상 안내 모달 */}
-      <EventModal
-        open={noticeModalOpen}
-        onOpenChange={handleNoticeModalClose}
-        notice={notice ?? null}
-        onButtonClick={() => {
-          if (typeof notice?.ctaLink === 'string') {
-            router.push(notice.ctaLink);
-          }
-        }}
-      />
+      {isMobileViewport ? (
+        <EventModalMobile
+          open={noticeModalOpen}
+          onOpenChange={handleNoticeModalClose}
+          notice={notice ?? null}
+          onButtonClick={() => {
+            if (typeof notice?.ctaLink === 'string') {
+              router.push(notice.ctaLink);
+            }
+          }}
+        />
+      ) : (
+        <EventModal
+          open={noticeModalOpen}
+          onOpenChange={handleNoticeModalClose}
+          notice={notice ?? null}
+          onButtonClick={() => {
+            if (typeof notice?.ctaLink === 'string') {
+              router.push(notice.ctaLink);
+            }
+          }}
+        />
+      )}
     </CorrectionNavbarContext.Provider>
   );
 }
