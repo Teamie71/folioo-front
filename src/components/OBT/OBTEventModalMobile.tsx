@@ -40,6 +40,8 @@ export function OBTEventModalMobile({
       onOpenChange={onOpenChange}
       zIndexClassName='z-[60]'
       heightClassName='h-auto'
+      draggable={false}
+      initialHeightVh={55}
       showCloseButton
       contentClassName='overflow-visible'
     >
