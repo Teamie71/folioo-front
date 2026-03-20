@@ -28,6 +28,8 @@ export function LogDeleteModal({
       secondaryBtnText='삭제'
       onSecondaryClick={isDeleting ? () => {} : onConfirm}
       onCancelClick={() => onOpenChange(false)}
+      className='gap-[2rem] px-[2.5rem] py-[3rem] min-w-[20rem] sm:px-[5rem] sm:py-[3.75rem] sm:min-w-0'
+      overlayClassName='bg-black/60'
     >
       {errorMessage && (
         <p className='mt-2 text-sm text-[#DC0000]'>{errorMessage}</p>
