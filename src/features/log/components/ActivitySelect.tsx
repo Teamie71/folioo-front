@@ -144,6 +144,7 @@ export function ActivitySelect({
                   ? 'calc(100vw - 2rem)'
                   : (menuWidth ?? width ?? '28.5rem')
               }
+              menuClassName='right-[-1.25rem] top-[2.5rem]'
               value={selectedActivityId}
               onChange={handleActivitySelect}
             />
