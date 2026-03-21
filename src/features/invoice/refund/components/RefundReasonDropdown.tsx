@@ -6,7 +6,7 @@ import { DropdownIcon } from '@/components/icons/DropdownIcon';
 const REFUND_REASONS = [
   '단순 변심',
   '구매 실수',
-  '서비스 이용 장애 / 불기',
+  '서비스 이용 장애 / 불가',
   '중복 결제',
   '기타',
 ] as const;
