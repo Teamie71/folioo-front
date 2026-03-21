@@ -21,6 +21,10 @@ interface ActivitySelectProps {
   dropdownItems?: { id: string; label: string }[];
   /** 활동 개수 초과 시 표시할 메시지 (예: 10개 초과 시) */
   activityCountError?: string | null;
+  /** 입력 영역 너비 */
+  width?: string;
+  /** 드롭다운 메뉴 너비 */
+  menuWidth?: string;
 }
 
 export function ActivitySelect({
@@ -28,6 +32,8 @@ export function ActivitySelect({
   onChange,
   dropdownItems,
   activityCountError,
+  width,
+  menuWidth,
 }: ActivitySelectProps = {}) {
   const { activities: storeActivities, removeActivity } = useLogStore();
   const queryClient = useQueryClient();
@@ -116,7 +122,7 @@ export function ActivitySelect({
   return (
     <>
       <div className='flex flex-col gap-[0.5rem]'>
-        <div className='flex items-center gap-[0.5rem] text-[1.125rem] font-bold'>
+        <div className='flex items-center gap-[0.5rem] text-[1rem] md:text-[1.125rem] md:font-bold'>
           <span>활동명</span>
           {activityCountError && (
             <p className='font-regular text-[0.875rem] text-[#DC0000]'>
@@ -126,14 +132,18 @@ export function ActivitySelect({
         </div>
         <InputArea
           placeholder='활동명 입력 또는 선택'
-          width='28.5rem'
+          width={width ?? '28.5rem'}
           value={value}
           onChange={handleInputChange}
           maxLength={20}
           rightElement={
             <DropdownButton
               items={activitiesWithHandlers}
-              menuWidth='28.5rem'
+              menuWidth={
+                width === '100%'
+                  ? 'calc(100vw - 2rem)'
+                  : (menuWidth ?? width ?? '28.5rem')
+              }
               value={selectedActivityId}
               onChange={handleActivitySelect}
             />

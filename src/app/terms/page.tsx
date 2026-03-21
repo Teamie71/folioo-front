@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,13 +16,18 @@ import { ButtonSpinnerIcon } from '@/components/icons/ButtonSpinnerIcon';
 import { DropdownIcon } from '@/components/icons/DropdownIcon';
 import { useAuthStore } from '@/store/useAuthStore';
 import { cn } from '@/utils/utils';
+import { isTopupMobileUserAgent } from '@/utils/device';
+import TermsClient from './TermsClient';
+import TermsClientMobile, {
+  TermsMobileBottomSubmitButton,
+} from './TermsClientMobile';
 
 const ACCESS_TOKEN_PARAM = 'access_token';
 const REFRESH_TOKEN_PARAM = 'refresh_token';
 /* 회원가입 직후에만 terms 진입 */
 const TERMS_FROM_SIGNUP_KEY = 'terms_from_signup';
 
-function TermsPageContent() {
+function TermsPageContent({ variant }: { variant: 'desktop' | 'mobile' }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
@@ -108,7 +113,13 @@ function TermsPageContent() {
 
   return (
     <div className='flex min-h-screen flex-col'>
-      <div className='mx-auto flex w-[66rem] min-w-[66rem] flex-col gap-[3.75rem] pt-[3.75rem] pb-[12.5rem]'>
+      <div
+        className={cn(
+          variant === 'mobile'
+            ? 'mx-auto flex w-full min-w-0 flex-col gap-[1.75rem] px-[1rem] pt-[2.5rem] pb-[6rem]'
+            : 'mx-auto flex w-[66rem] min-w-[66rem] flex-col gap-[3.75rem] pt-[3.75rem] pb-[12.5rem]',
+        )}
+      >
         {/* 로고 */}
         <Image src='/MainLogo.svg' alt='MainLogo' width={128} height={32} />
 
@@ -119,31 +130,35 @@ function TermsPageContent() {
             <div className='flex items-center justify-between'>
               <span className='text-[1.5rem] font-bold'>약관 동의</span>
 
-              <CommonButton
-                variantType='Primary'
-                px='2.25rem'
-                py='0.75rem'
-                disabled={!isRequiredAgreed || isSubmitting}
-                onClick={handleSignUp}
-                className={cn(
-                  !isRequiredAgreed
-                    ? '!bg-[#CDD0D5] hover:!bg-[#CDD0D5]'
-                    : isSubmitting
-                      ? '!h-[3rem] !w-[8rem] !min-w-0 !bg-[#5060C5] hover:!bg-[#5060C5] disabled:!bg-[#5060C5] disabled:hover:!bg-[#5060C5]'
-                      : undefined,
-                )}
-              >
-                {isSubmitting ? (
-                  <span className='flex items-center justify-center'>
-                    <ButtonSpinnerIcon size={32} />
-                  </span>
-                ) : (
-                  '가입하기'
-                )}
-              </CommonButton>
+              {variant === 'desktop' && (
+                <CommonButton
+                  variantType='Primary'
+                  px='2.25rem'
+                  py='0.75rem'
+                  disabled={!isRequiredAgreed || isSubmitting}
+                  onClick={handleSignUp}
+                  className={cn(
+                    !isRequiredAgreed
+                      ? '!bg-[#CDD0D5] hover:!bg-[#CDD0D5]'
+                      : isSubmitting
+                        ? '!h-[3rem] !w-[8rem] !min-w-0 !bg-[#5060C5] hover:!bg-[#5060C5] disabled:!bg-[#5060C5] disabled:hover:!bg-[#5060C5]'
+                        : undefined,
+                  )}
+                >
+                  {isSubmitting ? (
+                    <span className='flex items-center justify-center'>
+                      <ButtonSpinnerIcon size={32} />
+                    </span>
+                  ) : (
+                    '가입하기'
+                  )}
+                </CommonButton>
+              )}
             </div>
 
-            <p className='w-full border border-[#CDD0D5]' />
+            {variant === 'desktop' && (
+              <p className='w-full border border-[#CDD0D5]' />
+            )}
           </div>
 
           <CheckboxPrimitive.Root
@@ -155,9 +170,9 @@ function TermsPageContent() {
               setAgreedPrivacy(v);
               setAgreedMarketing(v);
             }}
-            className='flex h-[4.25rem] w-full cursor-pointer items-center gap-[0.75rem] rounded-[0.75rem] border-none bg-[#F6F5FF] px-[1.25rem] py-[1.25rem] outline-none focus-visible:ring-2 focus-visible:ring-[#5060C5] focus-visible:ring-offset-2'
+            className='pointer-events-none flex h-[4.25rem] w-full items-center gap-[0.75rem] rounded-[0.75rem] border-none bg-[#F6F5FF] px-[1.25rem] py-[1.25rem] outline-none focus-visible:ring-2 focus-visible:ring-[#5060C5] focus-visible:ring-offset-2'
           >
-            <span className='flex h-[1.25rem] w-[1.25rem] shrink-0 items-center justify-center'>
+            <span className='pointer-events-auto flex h-[1.25rem] w-[1.25rem] shrink-0 cursor-pointer items-center justify-center'>
               <svg
                 xmlns='http://www.w3.org/2000/svg'
                 width='20'
@@ -191,14 +206,14 @@ function TermsPageContent() {
             </span>
             <label
               htmlFor='terms-all-agree'
-              className='cursor-pointer text-[1.25rem] font-bold text-[#464B5]'
+              className='pointer-events-auto cursor-pointer text-[1.25rem] font-bold text-[#464B5]'
             >
               전체 동의하기
             </label>
           </CheckboxPrimitive.Root>
 
           <div className='flex flex-col gap-[0.75rem]'>
-            <div className='flex w-full items-center gap-[0.5rem]'>
+            <div className='flex w-[20rem] items-center gap-[0.5rem]'>
               <CheckboxPrimitive.Root
                 id='terms-service'
                 checked={agreedService}
@@ -482,7 +497,7 @@ function TermsPageContent() {
             </div>
 
             {/* 개인정보 처리방침 (필수) */}
-            <div className='flex w-full items-center gap-[0.5rem]'>
+            <div className='flex w-[20rem] items-center gap-[0.5rem]'>
               <CheckboxPrimitive.Root
                 id='terms-privacy'
                 checked={agreedPrivacy}
@@ -752,7 +767,7 @@ function TermsPageContent() {
             </div>
 
             {/* 마케팅 정보 수신 (선택) */}
-            <div className='flex w-full items-center gap-[0.5rem]'>
+            <div className='flex w-[20rem] items-center gap-[0.5rem]'>
               <CheckboxPrimitive.Root
                 id='terms-marketing'
                 checked={agreedMarketing}
@@ -950,21 +965,42 @@ function TermsPageContent() {
         </div>
       </div>
 
+      {variant === 'mobile' && (
+        <TermsMobileBottomSubmitButton
+          disabled={!isRequiredAgreed || isSubmitting}
+          isSubmitting={isSubmitting}
+          onClick={handleSignUp}
+        />
+      )}
+
       <Footer />
     </div>
   );
 }
 
 export default function TermsPage() {
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+    setIsMobile(isTopupMobileUserAgent(ua));
+  }, []);
+
+  if (isMobile == null) {
+    return <></>;
+  }
+
+  if (isMobile) {
+    return (
+      <TermsClientMobile>
+        <TermsPageContent variant='mobile' />
+      </TermsClientMobile>
+    );
+  }
+
   return (
-    <Suspense
-      fallback={
-        <div className='flex min-h-screen items-center justify-center'>
-          <span className='text-[1rem] text-[#666]'>로딩 중...</span>
-        </div>
-      }
-    >
-      <TermsPageContent />
-    </Suspense>
+    <TermsClient>
+      <TermsPageContent variant='desktop' />
+    </TermsClient>
   );
 }

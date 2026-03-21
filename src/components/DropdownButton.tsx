@@ -19,6 +19,7 @@ interface DropdownButtonProps {
   className?: string;
   menuClassName?: string;
   menuWidth?: string | number;
+  children?: React.ReactNode;
 }
 
 export const DropdownButton = ({
@@ -28,6 +29,7 @@ export const DropdownButton = ({
   className,
   menuClassName,
   menuWidth,
+  children,
 }: DropdownButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
@@ -73,20 +75,30 @@ export const DropdownButton = ({
           `,
         }}
       />
-      <button
+      <div
         onClick={() => setIsOpen(!isOpen)}
-        className='flex cursor-pointer items-center border-none bg-transparent text-[#1A1A1A]'
+        className={cn(
+          'flex w-full cursor-pointer items-center justify-between',
+          className?.includes('h-full') && 'h-full',
+        )}
       >
-        <DropdownIcon
-          className={cn('transition-transform', isOpen && 'rotate-180')}
-        />
-      </button>
+        {children ? (
+          children
+        ) : (
+          <button className='flex cursor-pointer border-none bg-transparent'>
+            <DropdownIcon
+              className={cn('transition-transform', isOpen && 'rotate-180')}
+            />
+          </button>
+        )}
+      </div>
 
       {/* Dropdown Menu */}
       {isOpen && (
         <div
           className={cn(
-            'absolute top-full right-0 z-50 mt-[2rem] min-w-[10rem] translate-x-[1.25rem] overflow-hidden rounded-[0.5rem] border border-[#CDD0D5] bg-[#FFFFFF] shadow-[0_0.25rem_0.5rem_0_#00000033]',
+            'absolute top-full z-50 mt-[0.5rem] min-w-[10rem] overflow-hidden rounded-[0.5rem] border border-[#CDD0D5] bg-[#FFFFFF] shadow-[0_0.25rem_0.5rem_0_#00000033]',
+            menuWidth === '100%' ? 'left-0' : 'right-0',
             menuClassName,
           )}
           style={

@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
+import MobileNavbar from '@/components/MobileNavbar';
 import { BannerBeta } from '@/components/OBT/OBTBanner';
 import { OBTEventModal } from '@/components/OBT/OBTEventModal';
 import { OBTEventModalMobile } from '@/components/OBT/OBTEventModalMobile';
@@ -20,6 +21,7 @@ import {
   useUserControllerMarkTicketGrantNoticeShown,
   useUserControllerMarkTicketGrantNoticeDismissed,
 } from '@/api/endpoints/user/user';
+import { cn } from '@/utils/utils';
 
 /** 회원가입 직후 / 주간 이용권 지급 이벤트 코드 (백엔드와 동일해야 함) */
 const WEEKLY_VOUCHER_EVENT_CODE = 'weekly-voucher';
@@ -42,8 +44,10 @@ function isExperienceSettingsPathWithoutNavbar(pathname: string) {
 
 export default function LayoutContent({
   children,
+  isMobileDevice,
 }: {
   children: React.ReactNode;
+  isMobileDevice: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -51,7 +55,6 @@ export default function LayoutContent({
   const [showNavbarOnResult, setShowNavbarOnResult] = useState(false);
   const [weeklyVoucherModalOpen, setWeeklyVoucherModalOpen] = useState(false);
   const [noticeModalOpen, setNoticeModalOpen] = useState(false);
-  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const claimAttemptedRef = useRef(false);
   const signupModalShownRef = useRef(false);
 
@@ -77,14 +80,6 @@ export default function LayoutContent({
     if (!isCorrectionDetailPath(path)) setShowNavbarOnResult(false);
   }, [path]);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mediaQuery = window.matchMedia('(max-width: 767px)');
-    const update = () => setIsMobileViewport(mediaQuery.matches);
-    update();
-    mediaQuery.addEventListener('change', update);
-    return () => mediaQuery.removeEventListener('change', update);
-  }, []);
 
   // 확장 프로그램이 주입하는 재생속도 오버레이 숨김
   useEffect(() => {
@@ -239,9 +234,24 @@ export default function LayoutContent({
         ),
       }}
     >
-      {!hideNavbar && <Navbar />}
-      {!hideNavbar && <BannerBeta />}
-      <div className={hideNavbar ? '' : 'layout-content-below-header'}>
+      {!hideNavbar && (
+        <>
+          {isMobileDevice ? (
+            <MobileNavbar />
+          ) : (
+            <>
+              <Navbar />
+              <BannerBeta />
+            </>
+          )}
+        </>
+      )}
+      <div
+        className={cn(
+          hideNavbar ? '' : 'layout-content-below-header',
+          !hideNavbar && 'pt-[52px] md:pt-[140px]',
+        )}
+      >
         {children}
       </div>
 
@@ -249,7 +259,7 @@ export default function LayoutContent({
       <PortfolioCreationPoller />
 
       {/* 주간 이용권 지급 */}
-      {isMobileViewport ? (
+      {isMobileDevice ? (
         <OBTEventModalMobile
           open={weeklyVoucherModalOpen}
           onOpenChange={setWeeklyVoucherModalOpen}
@@ -278,7 +288,7 @@ export default function LayoutContent({
       )}
 
       {/* 동적 지급 보상 안내 모달 */}
-      {isMobileViewport ? (
+      {isMobileDevice ? (
         <EventModalMobile
           open={noticeModalOpen}
           onOpenChange={handleNoticeModalClose}

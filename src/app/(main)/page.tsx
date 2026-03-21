@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/constants/seo';
+import { headers } from 'next/headers';
+import { isTopupMobileUserAgent } from '@/utils/device';
 import LandingClient from './LandingClient';
 import LandingClientMobile from './LandingClientMobile';
 
@@ -24,15 +26,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function LandingPage() {
-  return (
-    <>
-      <div className='hidden md:block'>
-        <LandingClient />
-      </div>
-      <div className='md:hidden'>
-        <LandingClientMobile />
-      </div>
-    </>
-  );
+export default async function LandingPage() {
+  const headersList = await headers();
+  const userAgent = headersList.get('user-agent') || '';
+  const isMobile = isTopupMobileUserAgent(userAgent);
+
+  if (isMobile) {
+    return <LandingClientMobile />;
+  }
+
+  return <LandingClient />;
 }

@@ -13,7 +13,6 @@ import { LandingVideo } from '@/features/landing/components/LandingVideo';
 import { useAuthStore } from '@/store/useAuthStore';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import Footer from '@/components/Footer';
 
 function LoginEntryButton() {
   const router = useRouter();
@@ -64,7 +63,7 @@ export default function LandingClientMobile() {
         />
 
         {/* 메인 히어로 */}
-        <section className='relative z-10 mx-auto flex w-full max-w-[66rem] flex-col gap-[2.5rem] px-4 pt-[4rem] pb-[3rem]'>
+        <section className='relative z-10 mx-auto flex w-full max-w-[66rem] flex-col gap-[2.5rem] px-4 pb-[3rem]'>
           <motion.div
             className='flex flex-col items-center gap-[1.25rem]'
             initial={{ opacity: 0 }}
@@ -233,7 +232,10 @@ export default function LandingClientMobile() {
       </div>
 
       {/* 경험 정리 섹션 */}
-      <section id='section-experience-mobile' className='w-full bg-[#E6E9FF]/30 py-12'>
+      <section
+        id='section-experience-mobile'
+        className='w-full bg-[#E6E9FF]/30 py-12'
+      >
         <div className='mx-auto flex max-w-[66rem] flex-col items-center gap-12 px-4'>
           <motion.div
             className='flex w-full max-w-[66rem] flex-col items-center gap-[3.75rem] text-center'
@@ -395,8 +397,6 @@ export default function LandingClientMobile() {
           <LoginEntryButton />
         </motion.div>
       </section>
-
-      <Footer />
     </div>
   );
 }

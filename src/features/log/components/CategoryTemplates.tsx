@@ -74,16 +74,15 @@ export function NoTemplateForm({
 }: NoTemplateFormProps) {
   return (
     <div className='flex flex-col gap-[0.5rem]'>
-      <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+      <div className='flex items-center gap-[0.25rem] text-[1rem] md:text-[1.125rem] md:font-bold'>
         <span>내용</span>
         <span className='text-[#DC0000]'>*</span>
+        {contentError && (
+          <span className='ml-[0.5rem] font-normal text-[0.875rem] text-[#DC0000]'>
+            {contentError}
+          </span>
+        )}
       </div>
-
-      {contentError && (
-        <p className='font-regular text-[0.875rem] text-[#DC0000]'>
-          {contentError}
-        </p>
-      )}
 
       <div className='flex flex-col'>
         <TextField
@@ -144,81 +143,88 @@ export function InterpersonTemplateForm({
 
   return (
     <div className='flex flex-col gap-[1.25rem]'>
-      <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+      <div className='flex items-center gap-[0.25rem] text-[1rem] md:text-[1.125rem] md:font-bold'>
         <span>내용</span>
         <span className='text-[#DC0000]'>*</span>
+        {contentError && (
+          <span className='ml-[0.5rem] font-normal text-[0.875rem] text-[#DC0000]'>
+            {contentError}
+          </span>
+        )}
       </div>
 
-      {contentError && (
-        <p className='font-regular text-[0.875rem] text-[#DC0000]'>
-          {contentError}
-        </p>
-      )}
-
-      <div className='flex flex-col gap-[0.5rem]'>
-        <div className='flex flex-col gap-[1.25rem]'>
+      <div className='flex flex-col gap-[0.5rem] md:gap-[1rem]'>
+        <div className='flex flex-col gap-[0.75rem] md:gap-[1.25rem]'>
           {/* 상황/대상 */}
-          <div className='flex items-center justify-between'>
-            <span className='text-[1rem] text-[#1A1A1A]'>상황/ 대상</span>
-            <input
-              className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-              placeholder='누구와, 어떤 상황이 발생했나요?'
-              value={data.situation}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  situation: e.target.value.slice(0, maxSituation),
-                })
-              }
-            />
+          <div className='flex flex-col gap-[0.5rem] md:flex-row md:items-center md:justify-between md:gap-0'>
+            <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>
+              상황/ 대상
+            </span>
+            <div className='w-full md:w-[51.25rem]'>
+              <TextField
+                placeholder='누구와, 어떤 상황이 발생했나요?'
+                value={data.situation}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    situation: e.target.value.slice(0, maxSituation),
+                  })
+                }
+              />
+            </div>
           </div>
 
           {/* 대응 */}
-          <div className='flex items-center justify-between'>
-            <span className='text-[1rem] text-[#1A1A1A]'>대응</span>
-            <input
-              className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-              placeholder='나는 어떻게 대응했나요?'
-              value={data.response}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  response: e.target.value.slice(0, maxResponse),
-                })
-              }
-            />
+          <div className='flex flex-col gap-[0.5rem] md:flex-row md:items-center md:justify-between md:gap-0'>
+            <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>
+              대응
+            </span>
+            <div className='w-full md:w-[51.25rem]'>
+              <TextField
+                placeholder='나는 어떻게 대응했나요?'
+                value={data.response}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    response: e.target.value.slice(0, maxResponse),
+                  })
+                }
+              />
+            </div>
           </div>
 
           {/* 결과 */}
-          <div className='flex items-center justify-between'>
-            <span className='text-[1rem] text-[#1A1A1A]'>결과</span>
-            <input
-              className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-              placeholder='어떤 결과가 나타났나요?'
-              value={data.result}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  result: e.target.value.slice(0, maxResult),
-                })
-              }
-            />
+          <div className='flex flex-col gap-[0.5rem] md:flex-row md:items-center md:justify-between md:gap-0'>
+            <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>결과</span>
+            <div className='w-full md:w-[51.25rem]'>
+              <TextField
+                placeholder='어떤 결과가 나타났나요?'
+                value={data.result}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    result: e.target.value.slice(0, maxResult),
+                  })
+                }
+              />
+            </div>
           </div>
 
           {/* 배운 점/계획 */}
-          <div className='flex items-center justify-between'>
-            <span className='text-[1rem] text-[#1A1A1A]'>배운 점/ 계획</span>
-            <input
-              className='line-height-[150%] w-[51.25rem] rounded-[0.5rem] border border-[#74777D] px-[1.25rem] py-[0.75rem]'
-              placeholder='무엇을 배웠고, 앞으로는 비슷한 상황에서 어떻게 대응할건가요?'
-              value={data.lesson}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  lesson: e.target.value.slice(0, maxLesson),
-                })
-              }
-            />
+          <div className='flex flex-col gap-[0.5rem] md:flex-row md:items-center md:justify-between md:gap-0'>
+            <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>배운 점/ 계획</span>
+            <div className='w-full md:w-[51.25rem]'>
+              <TextField
+                placeholder={`무엇을 배웠고, 앞으로는 비슷한 상황에서\n어떻게 대응할건가요?`}
+                value={data.lesson}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    lesson: e.target.value.slice(0, maxLesson),
+                  })
+                }
+              />
+            </div>
           </div>
         </div>
 
@@ -270,81 +276,88 @@ export function ProblemSolveTemplateForm({
 
   return (
     <div className='flex flex-col gap-[1.25rem]'>
-      <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+      <div className='flex items-center gap-[0.25rem] text-[1rem] md:text-[1.125rem] md:font-bold'>
         <span>내용</span>
         <span className='text-[#DC0000]'>*</span>
+        {contentError && (
+          <span className='ml-[0.5rem] font-normal text-[0.875rem] text-[#DC0000]'>
+            {contentError}
+          </span>
+        )}
       </div>
 
-      {contentError && (
-        <p className='font-regular text-[0.875rem] text-[#DC0000]'>
-          {contentError}
-        </p>
-      )}
-
-      <div className='flex flex-col gap-[0.5rem]'>
-        <div className='flex flex-col gap-[1.25rem]'>
+      <div className='flex flex-col gap-[0.5rem] md:gap-[1rem]'>
+        <div className='flex flex-col gap-[0.75rem] md:gap-[1.25rem]'>
           {/* 문제 상황 */}
-          <div className='flex items-center justify-between'>
-            <span className='text-[1rem] text-[#1A1A1A]'>문제 상황</span>
-            <InputArea
-              width='51.25rem'
-              placeholder='어떤 상황에서, 어떤 문제가 발생했나요?'
-              value={data.problem}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  problem: e.target.value.slice(0, maxProblem),
-                })
-              }
-            />
+          <div className='flex flex-col gap-[0.5rem] md:flex-row md:items-center md:justify-between md:gap-0'>
+            <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>
+              문제 상황
+            </span>
+            <div className='w-full md:w-[51.25rem]'>
+              <TextField
+                placeholder='어떤 상황에서, 어떤 문제가 발생했나요?'
+                value={data.problem}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    problem: e.target.value.slice(0, maxProblem),
+                  })
+                }
+              />
+            </div>
           </div>
 
           {/* 해결 시도 */}
-          <div className='flex items-center justify-between'>
-            <span className='text-[1rem] text-[#1A1A1A]'>해결 시도</span>
-            <InputArea
-              width='51.25rem'
-              placeholder='문제를 해결하기 위해 어떤 시도를 해보았나요?'
-              value={data.attempt}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  attempt: e.target.value.slice(0, maxAttempt),
-                })
-              }
-            />
+          <div className='flex flex-col gap-[0.5rem] md:flex-row md:items-center md:justify-between md:gap-0'>
+            <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>
+              해결 시도
+            </span>
+            <div className='w-full md:w-[51.25rem]'>
+              <TextField
+                placeholder='문제를 해결하기 위해 어떤 시도를 해보았나요?'
+                value={data.attempt}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    attempt: e.target.value.slice(0, maxAttempt),
+                  })
+                }
+              />
+            </div>
           </div>
 
           {/* 결과 */}
-          <div className='flex items-center justify-between'>
-            <span className='text-[1rem] text-[#1A1A1A]'>결과</span>
-            <InputArea
-              width='51.25rem'
-              placeholder='어떤 결과가 나타났나요?'
-              value={data.result}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  result: e.target.value.slice(0, maxResultPs),
-                })
-              }
-            />
+          <div className='flex flex-col gap-[0.5rem] md:flex-row md:items-center md:justify-between md:gap-0'>
+            <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>결과</span>
+            <div className='w-full md:w-[51.25rem]'>
+              <TextField
+                placeholder='어떤 결과가 나타났나요?'
+                value={data.result}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    result: e.target.value.slice(0, maxResultPs),
+                  })
+                }
+              />
+            </div>
           </div>
 
           {/* 배운 점/계획 */}
-          <div className='flex items-center justify-between'>
-            <span className='text-[1rem] text-[#1A1A1A]'>배운 점/ 계획</span>
-            <InputArea
-              width='51.25rem'
-              placeholder='무엇을 배웠고, 앞으로는 비슷한 상황에서 어떻게 대응할건가요?'
-              value={data.lesson}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  lesson: e.target.value.slice(0, maxLessonPs),
-                })
-              }
-            />
+          <div className='flex flex-col gap-[0.5rem] md:flex-row md:items-center md:justify-between md:gap-0'>
+            <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>배운 점/ 계획</span>
+            <div className='w-full md:w-[51.25rem]'>
+              <TextField
+                placeholder={`무엇을 배웠고, 앞으로는 비슷한 상황에서\n어떻게 대응할건가요?`}
+                value={data.lesson}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    lesson: e.target.value.slice(0, maxLessonPs),
+                  })
+                }
+              />
+            </div>
           </div>
         </div>
 
@@ -385,65 +398,69 @@ export function LearningTemplateForm({
 
   return (
     <div className='flex flex-col gap-[1.25rem]'>
-      <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+      <div className='flex items-center gap-[0.25rem] text-[1rem] md:text-[1.125rem] md:font-bold'>
         <span>내용</span>
         <span className='text-[#DC0000]'>*</span>
+        {contentError && (
+          <span className='ml-[0.5rem] font-normal text-[0.875rem] text-[#DC0000]'>
+            {contentError}
+          </span>
+        )}
       </div>
 
-      {contentError && (
-        <p className='font-regular text-[0.875rem] text-[#DC0000]'>
-          {contentError}
-        </p>
-      )}
-
-      <div className='flex flex-col gap-[0.5rem]'>
-        <div className='flex flex-col gap-[1.25rem]'>
+      <div className='flex flex-col gap-[0.5rem] md:gap-[1rem]'>
+        <div className='flex flex-col gap-[0.75rem] md:gap-[1.25rem]'>
           {/* 학습 경로 */}
-          <div className='flex items-center justify-between'>
-            <span className='text-[1rem] text-[#1A1A1A]'>학습 경로</span>
-            <InputArea
-              width='51.25rem'
-              placeholder='어떤 매체를 통해, 무엇을 계기로 학습을 진행했나요?'
-              value={data.path}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  path: e.target.value.slice(0, maxPath),
-                })
-              }
-            />
+          <div className='flex flex-col gap-[0.5rem] md:flex-row md:items-center md:justify-between md:gap-0'>
+            <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>
+              학습 경로
+            </span>
+            <div className='w-full md:w-[51.25rem]'>
+              <TextField
+                placeholder='어떤 상황에서, 어떤 문제가 발생했나요?'
+                value={data.path}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    path: e.target.value.slice(0, maxPath),
+                  })
+                }
+              />
+            </div>
           </div>
 
           {/* 배운 내용 */}
-          <div className='flex items-center justify-between'>
-            <span className='text-[1rem] text-[#1A1A1A]'>배운 내용</span>
-            <InputArea
-              width='51.25rem'
-              placeholder='어떤 지식 또는 스킬을 배웠나요?'
-              value={data.learned}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  learned: e.target.value.slice(0, maxLearned),
-                })
-              }
-            />
+          <div className='flex flex-col gap-[0.5rem] md:flex-row md:items-center md:justify-between md:gap-0'>
+            <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>배운 내용</span>
+            <div className='w-full md:w-[51.25rem]'>
+              <TextField
+                placeholder='문제를 해결하기 위해 어떤 시도를 해보았나요?'
+                value={data.learned}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    learned: e.target.value.slice(0, maxLearned),
+                  })
+                }
+              />
+            </div>
           </div>
 
           {/* 적용 계획 */}
-          <div className='flex items-center justify-between'>
-            <span className='text-[1rem] text-[#1A1A1A]'>적용 계획</span>
-            <InputArea
-              width='51.25rem'
-              placeholder='앞으로 어디에, 어떻게 적용해 볼 건가요?'
-              value={data.plan}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  plan: e.target.value.slice(0, maxPlan),
-                })
-              }
-            />
+          <div className='flex flex-col gap-[0.5rem] md:flex-row md:items-center md:justify-between md:gap-0'>
+            <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>적용 계획</span>
+            <div className='w-full md:w-[51.25rem]'>
+              <TextField
+                placeholder='어떤 결과가 나타났나요?'
+                value={data.plan}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    plan: e.target.value.slice(0, maxPlan),
+                  })
+                }
+              />
+            </div>
           </div>
         </div>
 
@@ -494,81 +511,84 @@ export function ReferenceTemplateForm({
 
   return (
     <div className='flex flex-col gap-[1.25rem]'>
-      <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold'>
+      <div className='flex items-center gap-[0.25rem] text-[1rem] md:text-[1.125rem] md:font-bold'>
         <span>내용</span>
         <span className='text-[#DC0000]'>*</span>
+        {contentError && (
+          <span className='ml-[0.5rem] font-normal text-[0.875rem] text-[#DC0000]'>
+            {contentError}
+          </span>
+        )}
       </div>
 
-      {contentError && (
-        <p className='font-regular text-[0.875rem] text-[#DC0000]'>
-          {contentError}
-        </p>
-      )}
-
-      <div className='flex flex-col gap-[0.5rem]'>
-        <div className='flex flex-col gap-[1.25rem]'>
+      <div className='flex flex-col gap-[0.5rem] md:gap-[1rem]'>
+        <div className='flex flex-col gap-[0.75rem] md:gap-[1.25rem]'>
           {/* 출처 */}
-          <div className='flex items-center justify-between'>
-            <span className='text-[1rem] text-[#1A1A1A]'>출처</span>
-            <InputArea
-              width='51.25rem'
-              placeholder='어디서 얻은 레퍼런스인가요?'
-              value={data.source}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  source: e.target.value.slice(0, maxSource),
-                })
-              }
-            />
+          <div className='flex flex-col gap-[0.5rem] md:flex-row md:items-center md:justify-between md:gap-0'>
+            <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>출처</span>
+            <div className='w-full md:w-[51.25rem]'>
+              <TextField
+                placeholder='어디서 얻은 레퍼런스인가요?'
+                value={data.source}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    source: e.target.value.slice(0, maxSource),
+                  })
+                }
+              />
+            </div>
           </div>
 
           {/* 내용 */}
-          <div className='flex items-center justify-between'>
-            <span className='text-[1rem] text-[#1A1A1A]'>내용</span>
-            <InputArea
-              width='51.25rem'
-              placeholder='어떤 점이 인상 깊었나요?'
-              value={data.content}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  content: e.target.value.slice(0, maxContentRef),
-                })
-              }
-            />
+          <div className='flex flex-col gap-[0.5rem] md:flex-row md:items-center md:justify-between md:gap-0'>
+            <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>내용</span>
+            <div className='w-full md:w-[51.25rem]'>
+              <TextField
+                placeholder='어떤 점이 인상 깊었나요?'
+                value={data.content}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    content: e.target.value.slice(0, maxContentRef),
+                  })
+                }
+              />
+            </div>
           </div>
 
           {/* 나의 생각 */}
-          <div className='flex items-center justify-between'>
-            <span className='text-[1rem] text-[#1A1A1A]'>나의 생각</span>
-            <InputArea
-              width='51.25rem'
-              placeholder='이 레퍼런스를 보고 어떤 생각이 들었나요?'
-              value={data.thought}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  thought: e.target.value.slice(0, maxThought),
-                })
-              }
-            />
+          <div className='flex flex-col gap-[0.5rem] md:flex-row md:items-center md:justify-between md:gap-0'>
+            <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>나의 생각</span>
+            <div className='w-full md:w-[51.25rem]'>
+              <TextField
+                placeholder='이 레퍼런스를 보고 어떤 생각이 들었나요?'
+                value={data.thought}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    thought: e.target.value.slice(0, maxThought),
+                  })
+                }
+              />
+            </div>
           </div>
 
           {/* 적용 계획 */}
-          <div className='flex items-center justify-between'>
-            <span className='text-[1rem] text-[#1A1A1A]'>적용 계획</span>
-            <InputArea
-              width='51.25rem'
-              placeholder='앞으로 어디에, 어떻게 적용해 볼 건가요?'
-              value={data.plan}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  plan: e.target.value.slice(0, maxPlanRef),
-                })
-              }
-            />
+          <div className='flex flex-col gap-[0.5rem] md:flex-row md:items-center md:justify-between md:gap-0'>
+            <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>적용 계획</span>
+            <div className='w-full md:w-[51.25rem]'>
+              <TextField
+                placeholder='앞으로 어디에, 어떻게 적용해 볼 건가요?'
+                value={data.plan}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    plan: e.target.value.slice(0, maxPlanRef),
+                  })
+                }
+              />
+            </div>
           </div>
         </div>
 

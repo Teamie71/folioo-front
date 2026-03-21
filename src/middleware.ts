@@ -1,24 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-
-// 스마트폰만 차단 (태블릿 제외)
-const MOBILE_PHONE_UA_PATTERN =
-  /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini|CriOS|FxiOS/i;
-
-function isTablet(userAgent: string | null): boolean {
-  if (!userAgent) return false;
-  // iPad는 항상 태블릿
-  if (/iPad/.test(userAgent)) return true;
-  // Android 중 'Mobile'이 없으면 태블릿으로 간주 (폰은 보통 Mobile 포함)
-  if (/Android/.test(userAgent) && !/Mobile/.test(userAgent)) return true;
-  return false;
-}
-
-function isMobilePhone(userAgent: string | null): boolean {
-  if (!userAgent) return false;
-  if (isTablet(userAgent)) return false;
-  return MOBILE_PHONE_UA_PATTERN.test(userAgent);
-}
+import { isMobilePhone, isTablet } from '@/utils/device';
 
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -35,6 +17,16 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // experience 하위 페이지 모바일 접근 시 차단 (모바일 전용은 목록만)
+  if (pathname.startsWith('/experience/') && isMobilePhone(userAgent)) {
+    return NextResponse.redirect(new URL('/mobile-blocked', request.url));
+  }
+
+  // 데스크톱에서 모바일 전용 페이지(/profile) 접근 시 홈으로 리다이렉트
+  if (pathname === '/profile' && !isMobilePhone(userAgent)) {
+    return NextResponse.redirect(new URL('/', request.url));
+  }
+
   // 정적 파일, API, _next 제외
   if (
     pathname.startsWith('/_next') ||
@@ -44,8 +36,30 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 스마트폰만 차단 (태블릿은 허용)
-  if (isMobilePhone(userAgent)) {
+  // 모바일이 구현된 페이지들
+  const exactAllowedMobilePaths = [
+    '/',
+    '/log',
+    '/experience',
+    '/correction',
+    '/topup',
+    '/profile',
+    '/invoice',
+    '/invoice/refund',
+    '/terms',
+    '/tos',
+    '/privacy',
+    '/marketing',
+    '/login',
+    '/login/callback',
+    '/verify',
+    '/withdraw',
+    '/error',
+  ];
+
+  const isExactAllowed = exactAllowedMobilePaths.includes(pathname);
+
+  if (isMobilePhone(userAgent) && !isExactAllowed) {
     return NextResponse.redirect(new URL('/mobile-blocked', request.url));
   }
 

@@ -24,11 +24,13 @@ function toCard(item: ExperienceResDTO) {
 interface ExperienceCardSectionProps {
   searchQuery?: string;
   isSearching?: boolean;
+  isClickable?: boolean;
 }
 
 export function ExperienceCardSection({
   searchQuery = '',
   isSearching = false,
+  isClickable = true,
 }: ExperienceCardSectionProps) {
   const [returnPaths, setReturnPaths] = useState<
     Record<string, ExperienceReturnPath>
@@ -51,9 +53,9 @@ export function ExperienceCardSection({
   const showLoading = isLoading || (isSearching && isFetching);
 
   return (
-    <div className='grid grid-cols-2 gap-[1.5rem]'>
+    <div className='grid grid-cols-1 gap-[1.5rem] md:grid-cols-2'>
       {showLoading ? (
-        <div className='col-span-2 mt-[5rem] flex items-center justify-center'>
+        <div className='col-span-1 mt-[5rem] flex items-center justify-center md:col-span-2'>
           <motion.div
             animate={{ rotate: 720 }}
             transition={{
@@ -71,12 +73,13 @@ export function ExperienceCardSection({
           </motion.div>
         </div>
       ) : hasNoCards ? (
-        <div className='col-span-2 mt-[5rem] flex items-center justify-center text-center text-[1.125rem] leading-[130%] font-bold text-[#9EA4A9]'>
+        <div className='col-span-1 mt-[5rem] flex items-center justify-center text-center text-[1rem] leading-[150%] font-bold text-[#9EA4A9] md:col-span-2 md:text-[1.125rem]'>
           아직 정리한 경험이 없어요. <br />
-          경험을 정리하고, 텍스트형 포트폴리오를 받아보세요!
+          경험을 정리하고, <br className='md:hidden' />
+          텍스트형 포트폴리오를 받아보세요!
         </div>
       ) : hasNoResults ? (
-        <div className='col-span-2 mt-[5rem] flex items-center justify-center text-center text-[1.125rem] leading-[130%] font-bold text-[#9EA4A9]'>
+        <div className='col-span-1 mt-[5rem] flex items-center justify-center text-center text-[1rem] leading-[150%] font-bold text-[#9EA4A9] md:col-span-2 md:text-[1.125rem]'>
           앗, 일치하는 결과가 없어요.
         </div>
       ) : (
@@ -88,7 +91,11 @@ export function ExperienceCardSection({
               title={card.title}
               tag={card.tag}
               date={card.date}
-              href={`/experience/settings/${card.id}/${subPath}`}
+              href={
+                isClickable
+                  ? `/experience/settings/${card.id}/${subPath}`
+                  : undefined
+              }
             />
           );
         })

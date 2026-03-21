@@ -166,6 +166,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
                 <ProfileEditButton
                   value={profile?.name ?? ''}
                   onSave={handleNameSave}
+                  textClassName='!text-[1.125rem] !leading-[130%]'
                 />
               </div>
 

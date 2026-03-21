@@ -20,12 +20,13 @@ export default function InvoiceLayout({
 
   return (
     <>
-      <OBTRedirectModal
+      {children}
+      {/* <OBTRedirectModal
         open={true}
         onOpenChange={(open) => {
           if (!open) router.back();
         }}
-      />
+      /> */}
     </>
   );
 }

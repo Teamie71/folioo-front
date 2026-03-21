@@ -23,7 +23,7 @@ const InputArea = React.forwardRef<HTMLInputElement, InputAreaProps>(
           readOnly={readOnly}
           className={cn(
             // 기본 스타일
-            "flex w-full bg-transparent text-[1rem] font-normal text-[#1A1A1A] transition-colors",
+            "flex w-full bg-transparent text-[#1A1A1A] transition-colors typo-text-field md:text-[1rem] md:font-normal",
             "px-[1.25rem] py-[0.75rem]",
             "border border-[#74777D]",
             "placeholder:text-[#74777D]",

@@ -10,12 +10,16 @@ interface ProfileEditButtonProps {
   value: string;
   onSave?: (newValue: string) => void;
   className?: string;
+  textClassName?: string;
+  inputClassName?: string;
 }
 
 export function ProfileEditButton({
   value,
   onSave,
   className,
+  textClassName,
+  inputClassName,
 }: ProfileEditButtonProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value);
@@ -67,7 +71,8 @@ export function ProfileEditButton({
             onKeyDown={handleKeyDown}
             className={cn(
               'min-w-0 flex-1 rounded-[0.375rem] border border-[#74777D] px-[0.75rem] py-[0.5rem]',
-              'h-auto !text-[1.125rem] !leading-[130%] !font-bold text-[#1A1A1A]',
+              'h-auto font-bold text-[#1A1A1A]',
+              inputClassName,
             )}
           />
           <button
@@ -82,7 +87,10 @@ export function ProfileEditButton({
       ) : (
         <>
           <p
-            className='min-w-0 flex-1 cursor-pointer text-[1.125rem] leading-[130%] font-bold text-[#1A1A1A]'
+            className={cn(
+              'min-w-0 flex-1 cursor-pointer font-bold text-[#1A1A1A]',
+              textClassName || 'typo-h3',
+            )}
             onClick={() => setIsEditing(true)}
           >
             {value || '-'}
