@@ -142,17 +142,6 @@ export default function LogClientMobile() {
 
   return (
     <div className='flex min-h-screen w-full flex-col overflow-x-hidden bg-white pb-[5rem]'>
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-          @media (max-width: 767px) {
-            nav { display: none !important; }
-            .banner-beta { display: none !important; }
-            .layout-content-below-header { padding-top: 0 !important; }
-          }
-        `,
-        }}
-      />
 
       {/* 배너 */}
       <div className='bg-sub1 flex flex-col px-[1rem] py-[1.25rem]'>
