@@ -28,7 +28,7 @@ export default function InvoiceRefundClientMobile({
     setIsCompleteModalOpen(true);
   };
   return (
-    <div className='flex flex-col gap-[1.5rem] px-[1rem]'>
+    <div className='mt-[1.5rem] flex flex-col gap-[1.5rem] px-[1rem]'>
       {/* 결제 요약 카드 */}
       <div className='flex flex-col gap-[0.75rem] rounded-[1.25rem] bg-[#FDFDFD] p-[1rem]'>
         <div className='flex flex-col gap-[0.5rem]'>

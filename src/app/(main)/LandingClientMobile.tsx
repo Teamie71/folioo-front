@@ -63,7 +63,7 @@ export default function LandingClientMobile() {
         />
 
         {/* 메인 히어로 */}
-        <section className='relative z-10 mx-auto flex w-full max-w-[66rem] flex-col gap-[2.5rem] px-4 pb-[3rem]'>
+        <section className='relative z-10 mx-auto mt-[5rem] flex w-full max-w-[66rem] flex-col gap-[2.5rem] px-4 pb-[3rem]'>
           <motion.div
             className='flex flex-col items-center gap-[1.25rem]'
             initial={{ opacity: 0 }}

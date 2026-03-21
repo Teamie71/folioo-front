@@ -30,7 +30,7 @@ export default function InvoiceClientMobile({
   }, [data]);
 
   return (
-    <div className='flex flex-col px-[1rem]'>
+    <div className='mt-[1.5rem] flex flex-col px-[1rem]'>
       <div className='flex justify-end'>
         <PeriodDropdown />
       </div>
