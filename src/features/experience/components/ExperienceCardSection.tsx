@@ -72,15 +72,15 @@ export function ExperienceCardSection({
             />
           </motion.div>
         </div>
+      ) : hasNoResults ? (
+        <div className='col-span-1 mt-[5rem] flex items-center justify-center text-center text-[1rem] font-bold leading-[150%] text-[#9EA4A9] md:col-span-2 md:text-[1.125rem]'>
+          앗, 일치하는 결과가 없어요.
+        </div>
       ) : hasNoCards ? (
-        <div className='col-span-1 mt-[5rem] flex items-center justify-center text-center text-[1rem] leading-[150%] font-bold text-[#9EA4A9] md:col-span-2 md:text-[1.125rem]'>
+        <div className='col-span-1 mt-[5rem] flex items-center justify-center text-center text-[1rem] font-bold leading-[150%] text-[#9EA4A9] md:col-span-2 md:text-[1.125rem]'>
           아직 정리한 경험이 없어요. <br />
           경험을 정리하고, <br className='md:hidden' />
           텍스트형 포트폴리오를 받아보세요!
-        </div>
-      ) : hasNoResults ? (
-        <div className='col-span-1 mt-[5rem] flex items-center justify-center text-center text-[1rem] leading-[150%] font-bold text-[#9EA4A9] md:col-span-2 md:text-[1.125rem]'>
-          앗, 일치하는 결과가 없어요.
         </div>
       ) : (
         cards.map((card) => {
