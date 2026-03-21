@@ -9,6 +9,9 @@ import {
   setExperienceReturnPath,
   hasCreateloadingEntered,
   clearCreateloadingEntered,
+  setChatHistory,
+  getChatHistory,
+  clearChatHistory,
 } from '@/features/experience/utils/experienceReturnPath';
 import { BackButton } from '@/components/BackButton';
 import { StepProgressBar } from '@/components/StepProgressBar';
@@ -40,11 +43,13 @@ import {
   useInterviewControllerGeneratePortfolio,
 } from '@/api/endpoints/interview/interview';
 import { getPortfolioControllerGetPortfolioQueryKey } from '@/api/endpoints/portfolio/portfolio';
-import type {
+import {
   GeneratePortfolioResDTO,
   InsightTurnHistoryItemResDTO,
   InterviewSessionStateResDTO,
 } from '@/api/models';
+import { ExperienceStateResDTOStatus } from '@/api/models/experienceStateResDTOStatus';
+import { getExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
 
 const SESSION_STREAM_PATH = (experienceId: number) =>
   `/interview/experiences/${experienceId}/session/stream`;
@@ -129,6 +134,7 @@ function ExperienceSettingsChatContent() {
   const extendedTurnCountRef = useRef(0);
   /* 연장 세션(3턴 블록)을 완료한 횟수 */
   const extendedSessionRoundsRef = useRef(0);
+  const pollSessionStatusRef = useRef<NodeJS.Timeout | null>(null);
   const queryClient = useQueryClient();
   const { mutateAsync: generatePortfolio } =
     useInterviewControllerGeneratePortfolio();
@@ -136,6 +142,40 @@ function ExperienceSettingsChatContent() {
     useExperienceControllerUpdateExperience();
   const setPendingPortfolio = usePortfolioCreationStore((s) => s.setPending);
   const setResolvedPortfolio = usePortfolioCreationStore((s) => s.setResolved);
+
+  const startPolling = (expId: number) => {
+    if (pollSessionStatusRef.current || !Number.isFinite(expId)) return;
+
+    const poll = async () => {
+      try {
+        const res = await interviewControllerGetSessionState(expId);
+        const list = res.result?.messages;
+        if (list && list.length > 0) {
+          const lastMsg = list[list.length - 1];
+          // AI 답변이 도착했고 내용이 있는 경우에만 완료로 간주
+          if (lastMsg.type === 'ai' && lastMsg.content) {
+            const restoredMessages: ChatMessage[] = list.map((m) => ({
+              role: (m.type === 'ai' ? 'ai' : 'user') as 'ai' | 'user',
+              content: m.content ?? '',
+            }));
+            setMessages(restoredMessages);
+            setChatHistory(expId, restoredMessages);
+            setIsStreaming(false);
+            pollSessionStatusRef.current = null;
+            await syncStageFromServer();
+            return;
+          }
+        }
+        // 아직 생성 중이거나 도착하지 않음
+        pollSessionStatusRef.current = setTimeout(poll, 2000);
+      } catch {
+        // 재시도
+        pollSessionStatusRef.current = setTimeout(poll, 3000);
+      }
+    };
+
+    poll();
+  };
 
   useEffect(() => {
     if (!id || !Number.isFinite(experienceId)) return;
@@ -145,17 +185,20 @@ function ExperienceSettingsChatContent() {
       router.replace('/experience');
       return;
     }
-    const status = String(experience.status ?? '').toUpperCase();
-    if (status === 'ON_CHAT') {
+    const status = experience.status;
+    if (status === ExperienceStateResDTOStatus.ON_CHAT) {
       // 생성 로딩(createloading) 진입 플래그가 남아있어도, 실제 상태가 ON_CHAT이면 chat 진입이 맞음
       clearCreateloadingEntered(id);
       return; // 이 페이지에 진입 허용
     }
-    if (status === 'GENERATE' || status === 'GENERATE_FAILED') {
+    if (
+      status === ExperienceStateResDTOStatus.GENERATE ||
+      status === ExperienceStateResDTOStatus.GENERATE_FAILED
+    ) {
       router.replace(`/experience/settings/${id}/createloading`);
       return;
     }
-    if (status === 'DONE') {
+    if (status === ExperienceStateResDTOStatus.DONE) {
       clearCreateloadingEntered(id);
       router.replace(`/experience/settings/${id}/portfolio`);
       return;
@@ -247,7 +290,9 @@ function ExperienceSettingsChatContent() {
 
     const startSessionStream = () => {
       if (cancelled) return;
-      setMessages([{ role: 'ai', content: '' }]);
+      const initialMessage: ChatMessage = { role: 'ai', content: '' };
+      setMessages([initialMessage]);
+      setChatHistory(experienceId, [initialMessage]);
       setSessionStreamError(null);
       setIsStreaming(true);
       setInsightTurnHistory([]);
@@ -274,6 +319,7 @@ function ExperienceSettingsChatContent() {
                 ...last,
                 content: last.content + (event.delta.text ?? ''),
               };
+              setChatHistory(experienceId, next);
               return next;
             }
             if ('message' in event && event.message?.ai_response != null) {
@@ -281,6 +327,7 @@ function ExperienceSettingsChatContent() {
                 ...last,
                 content: event.message.ai_response,
               };
+              setChatHistory(experienceId, next);
               if (
                 typeof event.message.current_stage === 'number' ||
                 event.message.all_complete
@@ -325,7 +372,95 @@ function ExperienceSettingsChatContent() {
         return;
       }
 
-      // 방금 생성한 경험: sessionStorage가 네비 직후에도 확실함. URL은 useSearchParams가 늦게 반영될 수 있음.
+      // 백엔드 히스토리 체크
+      try {
+        const res = await interviewControllerGetSessionState(experienceId);
+        if (cancelled) return;
+        const result = res?.result as InterviewSessionStateResDTO | undefined;
+        const list = result?.messages;
+        if (list && list.length > 0) {
+          const restoredMessages: ChatMessage[] = list.map((m) => ({
+            role: (m.type === 'ai' ? 'ai' : 'user') as 'ai' | 'user',
+            content: m.content ?? '',
+          }));
+
+          const lastMsg = restoredMessages[restoredMessages.length - 1];
+          // AI 답변이 와야 하는데 아직 없거나(user가 마지막), 비어있는 AI 메시지가 마지막인 경우 폴링 시작
+          const isAIPending =
+            (lastMsg.role === 'ai' && !lastMsg.content && !lastMsg.isError) ||
+            (lastMsg.role === 'user' && !result?.allComplete);
+
+          if (isAIPending) {
+            setIsStreaming(true);
+            if (lastMsg.role === 'user') {
+              // 로딩 말풍선을 보여주기 위해 빈 AI 메시지 추가
+              const aiLoadingMsg: ChatMessage = {
+                role: 'ai' as const,
+                content: '',
+              };
+              const newMessages = [...restoredMessages, aiLoadingMsg];
+              setMessages(newMessages);
+              setChatHistory(experienceId, newMessages);
+            } else {
+              setMessages(restoredMessages);
+              setChatHistory(experienceId, restoredMessages);
+            }
+            startPolling(experienceId);
+          } else {
+            setMessages(restoredMessages);
+            setChatHistory(experienceId, restoredMessages);
+            setIsStreaming(false);
+          }
+
+          const restoredStage = toGridStep(
+            result?.currentStage ?? 1,
+            result?.allComplete,
+          );
+          prevStageRef.current = restoredStage;
+          setCurrentStage(restoredStage);
+          if (restoredStage === 4) {
+            setIsCompletionModalOpen(true);
+          }
+          setShowTooltipForStep(null);
+          setSessionStreamError(null);
+          setInsightTurnHistory(result?.insightTurnHistory ?? []);
+          setInsightsByTurn({});
+          return;
+        }
+      } catch {
+        if (cancelled) return;
+      }
+
+      // sessionHistory 체크 (백엔드 조회 실패 시 대비)
+      const cachedMessages = getChatHistory<ChatMessage>(experienceId);
+      if (cachedMessages && cachedMessages.length > 0) {
+        const lastMsg = cachedMessages[cachedMessages.length - 1];
+        const isAIPending =
+          (lastMsg.role === 'ai' && !lastMsg.content && !lastMsg.isError) ||
+          lastMsg.role === 'user';
+
+        if (isAIPending) {
+          setIsStreaming(true);
+          if (lastMsg.role === 'user') {
+            const aiLoadingMsg: ChatMessage = {
+              role: 'ai' as const,
+              content: '',
+            };
+            const newMessages = [...cachedMessages, aiLoadingMsg];
+            setMessages(newMessages);
+            setChatHistory(experienceId, newMessages);
+          } else {
+            setMessages(cachedMessages);
+          }
+          startPolling(experienceId);
+        } else {
+          setMessages(cachedMessages);
+        }
+
+        await syncStageFromServer();
+        return;
+      }
+
       const isNewFromUrl =
         typeof window !== 'undefined' &&
         new URLSearchParams(window.location.search).get('new') === '1';
@@ -355,37 +490,7 @@ function ExperienceSettingsChatContent() {
         }
         return;
       }
-      try {
-        const res = await interviewControllerGetSessionState(experienceId);
-        if (cancelled) return;
-        const result = res?.result as InterviewSessionStateResDTO | undefined;
-        const list = result?.messages;
-        if (list && list.length > 0) {
-          setMessages(
-            list.map((m) => ({
-              role: (m.type === 'ai' ? 'ai' : 'user') as 'ai' | 'user',
-              content: m.content ?? '',
-            })),
-          );
-          const restoredStage = toGridStep(
-            result?.currentStage ?? 1,
-            result?.allComplete,
-          );
-          prevStageRef.current = restoredStage;
-          setCurrentStage(restoredStage);
-          if (restoredStage === 4) {
-            setIsCompletionModalOpen(true);
-          }
-          setShowTooltipForStep(null);
-          setSessionStreamError(null);
-          setIsStreaming(false);
-          setInsightTurnHistory(result?.insightTurnHistory ?? []);
-          setInsightsByTurn({});
-          return;
-        }
-      } catch {
-        if (cancelled) return;
-      }
+
       setSuppressStep0EntryTooltip(false);
       startSessionStream();
     })();
@@ -401,12 +506,15 @@ function ExperienceSettingsChatContent() {
     // isNewExperience 제외: replaceState 시 effect 재실행 → cleanup에서 스트림 abort → status 호출로 400 발생 방지
   }, [id, experienceId, sessionStreamKey]);
 
-  // 브라우저 스크롤 차단
+  // 브라우저 스크롤 차단 및 폴링 정리
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = prev;
+      if (pollSessionStatusRef.current) {
+        clearTimeout(pollSessionStatusRef.current);
+      }
     };
   }, []);
 
@@ -438,16 +546,20 @@ function ExperienceSettingsChatContent() {
       preview: f.preview,
     }));
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        role: 'user',
-        content: payload.content,
-        contentParts: payload.contentParts,
-        files: fileInfos,
-      },
-      { role: 'ai', content: '' },
-    ]);
+    setMessages((prev) => {
+      const next: ChatMessage[] = [
+        ...prev,
+        {
+          role: 'user' as const,
+          content: payload.content,
+          contentParts: payload.contentParts,
+          files: fileInfos,
+        },
+        { role: 'ai' as const, content: '' },
+      ];
+      setChatHistory(experienceId, next);
+      return next;
+    });
     setInputValue('');
     setIsStreaming(true);
 
@@ -512,6 +624,7 @@ function ExperienceSettingsChatContent() {
               ...last,
               content: last.content + (event.delta.text ?? ''),
             };
+            setChatHistory(experienceId, next);
             return next;
           }
           if ('message' in event && event.message?.ai_response != null) {
@@ -519,6 +632,7 @@ function ExperienceSettingsChatContent() {
               ...last,
               content: event.message.ai_response,
             };
+            setChatHistory(experienceId, next);
             /* 3턴 연장 중에는 단계를 4로 유지 */
             if (!isExtendedSessionRef.current) {
               if (
@@ -555,6 +669,7 @@ function ExperienceSettingsChatContent() {
           if (last?.role === 'ai' && last.content === '') {
             next[next.length - 1] = { ...last, content: '', isError: true };
           }
+          setChatHistory(experienceId, next);
           return next;
         });
       },
@@ -613,6 +728,7 @@ function ExperienceSettingsChatContent() {
     deleteExperience({ experienceId })
       .then(() => {
         removeExperience(id);
+        clearChatHistory(experienceId);
         return queryClient.refetchQueries({
           queryKey: getExperienceControllerGetExperiencesQueryKey(),
         });
@@ -632,7 +748,14 @@ function ExperienceSettingsChatContent() {
     extendedTurnCountRef.current = 0;
     prevStageRef.current = 4;
     setCurrentStage(4); /* 4단계(대화 완료) 상태에서 3턴 연장 진행 */
-    setMessages((prev) => [...prev, { role: 'ai', content: '' }]);
+    setMessages((prev) => {
+      const next: ChatMessage[] = [
+        ...prev,
+        { role: 'ai' as const, content: '' },
+      ];
+      setChatHistory(experienceId, next);
+      return next;
+    });
     setIsStreaming(true);
     const abort = new AbortController();
     fetchSSEStream({
@@ -656,6 +779,7 @@ function ExperienceSettingsChatContent() {
               ...last,
               content: last.content + (event.delta.text ?? ''),
             };
+            setChatHistory(experienceId, next);
             return next;
           }
           if ('message' in event && event.message?.ai_response != null) {
@@ -663,6 +787,7 @@ function ExperienceSettingsChatContent() {
               ...last,
               content: event.message.ai_response,
             };
+            setChatHistory(experienceId, next);
             /* 3턴 연장 중에는 단계를 4로 유지(스트림 이벤트로 단계 변경하지 않음) */
             if (!isExtendedSessionRef.current) {
               if (
@@ -692,6 +817,7 @@ function ExperienceSettingsChatContent() {
           if (last?.role === 'ai' && last.content === '') {
             next[next.length - 1] = { ...last, content: '', isError: true };
           }
+          setChatHistory(experienceId, next);
           return next;
         });
       },
@@ -708,10 +834,14 @@ function ExperienceSettingsChatContent() {
     const userMsg = messages[aiMessageIndex - 1];
     if (!userMsg || userMsg.role !== 'user' || !userMsg.content.trim()) return;
     const content = userMsg.content.trim();
-    setMessages((prev) => [
-      ...prev.slice(0, aiMessageIndex),
-      { role: 'ai' as const, content: '' },
-    ]);
+    setMessages((prev) => {
+      const next = [
+        ...prev.slice(0, aiMessageIndex),
+        { role: 'ai' as const, content: '' },
+      ];
+      setChatHistory(experienceId, next);
+      return next;
+    });
     setIsStreaming(true);
     const abort = new AbortController();
     fetchSSEStream({
@@ -736,6 +866,7 @@ function ExperienceSettingsChatContent() {
               ...last,
               content: last.content + (event.delta.text ?? ''),
             };
+            setChatHistory(experienceId, next);
             return next;
           }
           if ('message' in event && event.message?.ai_response != null) {
@@ -743,6 +874,7 @@ function ExperienceSettingsChatContent() {
               ...last,
               content: event.message.ai_response,
             };
+            setChatHistory(experienceId, next);
             if (
               typeof event.message.current_stage === 'number' ||
               event.message.all_complete
@@ -776,6 +908,7 @@ function ExperienceSettingsChatContent() {
           if (last?.role === 'ai' && last.content === '') {
             next[next.length - 1] = { ...last, content: '', isError: true };
           }
+          setChatHistory(experienceId, next);
           return next;
         });
       },
