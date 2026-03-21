@@ -144,7 +144,7 @@ function ExperienceSettingsChatContent() {
   const setResolvedPortfolio = usePortfolioCreationStore((s) => s.setResolved);
 
   const startPolling = (expId: number) => {
-    if (pollSessionStatusRef.current) return;
+    if (pollSessionStatusRef.current || !Number.isFinite(expId)) return;
 
     const poll = async () => {
       try {
@@ -152,6 +152,7 @@ function ExperienceSettingsChatContent() {
         const list = res.result?.messages;
         if (list && list.length > 0) {
           const lastMsg = list[list.length - 1];
+          // AI 답변이 도착했고 내용이 있는 경우에만 완료로 간주
           if (lastMsg.type === 'ai' && lastMsg.content) {
             const restoredMessages: ChatMessage[] = list.map((m) => ({
               role: (m.type === 'ai' ? 'ai' : 'user') as 'ai' | 'user',
@@ -165,11 +166,14 @@ function ExperienceSettingsChatContent() {
             return;
           }
         }
+        // 아직 생성 중이거나 도착하지 않음
         pollSessionStatusRef.current = setTimeout(poll, 2000);
       } catch {
+        // 재시도
         pollSessionStatusRef.current = setTimeout(poll, 3000);
       }
     };
+
     poll();
   };
 
@@ -368,7 +372,7 @@ function ExperienceSettingsChatContent() {
         return;
       }
 
-      // 1. Backend history check
+      // 백엔드 히스토리 체크
       try {
         const res = await interviewControllerGetSessionState(experienceId);
         if (cancelled) return;
@@ -379,17 +383,35 @@ function ExperienceSettingsChatContent() {
             role: (m.type === 'ai' ? 'ai' : 'user') as 'ai' | 'user',
             content: m.content ?? '',
           }));
-          setMessages(restoredMessages);
-          setChatHistory(experienceId, restoredMessages);
 
           const lastMsg = restoredMessages[restoredMessages.length - 1];
-          if (lastMsg.role === 'ai' && !lastMsg.content && !lastMsg.isError) {
+          // AI 답변이 와야 하는데 아직 없거나(user가 마지막), 비어있는 AI 메시지가 마지막인 경우 폴링 시작
+          const isAIPending =
+            (lastMsg.role === 'ai' && !lastMsg.content && !lastMsg.isError) ||
+            (lastMsg.role === 'user' && !result?.allComplete);
+
+          if (isAIPending) {
             setIsStreaming(true);
+            if (lastMsg.role === 'user') {
+              // 로딩 말풍선을 보여주기 위해 빈 AI 메시지 추가
+              const aiLoadingMsg: ChatMessage = {
+                role: 'ai' as const,
+                content: '',
+              };
+              const newMessages = [...restoredMessages, aiLoadingMsg];
+              setMessages(newMessages);
+              setChatHistory(experienceId, newMessages);
+            } else {
+              setMessages(restoredMessages);
+              setChatHistory(experienceId, restoredMessages);
+            }
             startPolling(experienceId);
           } else {
+            setMessages(restoredMessages);
+            setChatHistory(experienceId, restoredMessages);
             setIsStreaming(false);
           }
-          
+
           const restoredStage = toGridStep(
             result?.currentStage ?? 1,
             result?.allComplete,
@@ -401,7 +423,6 @@ function ExperienceSettingsChatContent() {
           }
           setShowTooltipForStep(null);
           setSessionStreamError(null);
-          setIsStreaming(false);
           setInsightTurnHistory(result?.insightTurnHistory ?? []);
           setInsightsByTurn({});
           return;
@@ -410,22 +431,36 @@ function ExperienceSettingsChatContent() {
         if (cancelled) return;
       }
 
-      // 2. SessionStorage history check (Linked session support for refresh/navigation)
+      // sessionHistory 체크 (백엔드 조회 실패 시 대비)
       const cachedMessages = getChatHistory<ChatMessage>(experienceId);
       if (cachedMessages && cachedMessages.length > 0) {
-        setMessages(cachedMessages);
-
         const lastMsg = cachedMessages[cachedMessages.length - 1];
-        if (lastMsg.role === 'ai' && !lastMsg.content && !lastMsg.isError) {
+        const isAIPending =
+          (lastMsg.role === 'ai' && !lastMsg.content && !lastMsg.isError) ||
+          lastMsg.role === 'user';
+
+        if (isAIPending) {
           setIsStreaming(true);
+          if (lastMsg.role === 'user') {
+            const aiLoadingMsg: ChatMessage = {
+              role: 'ai' as const,
+              content: '',
+            };
+            const newMessages = [...cachedMessages, aiLoadingMsg];
+            setMessages(newMessages);
+            setChatHistory(experienceId, newMessages);
+          } else {
+            setMessages(cachedMessages);
+          }
           startPolling(experienceId);
+        } else {
+          setMessages(cachedMessages);
         }
 
-        await syncStageFromServer(); // Sync stage from backend even if using cached messages
+        await syncStageFromServer();
         return;
       }
 
-      // 3. New Experience or start fresh
       const isNewFromUrl =
         typeof window !== 'undefined' &&
         new URLSearchParams(window.location.search).get('new') === '1';
@@ -714,7 +749,10 @@ function ExperienceSettingsChatContent() {
     prevStageRef.current = 4;
     setCurrentStage(4); /* 4단계(대화 완료) 상태에서 3턴 연장 진행 */
     setMessages((prev) => {
-      const next: ChatMessage[] = [...prev, { role: 'ai' as const, content: '' }];
+      const next: ChatMessage[] = [
+        ...prev,
+        { role: 'ai' as const, content: '' },
+      ];
       setChatHistory(experienceId, next);
       return next;
     });
