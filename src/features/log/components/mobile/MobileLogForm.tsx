@@ -12,7 +12,7 @@ import { ActivitySelect } from '@/features/log/components/ActivitySelect';
 import { InsightTemplateSelector } from '@/features/log/components/CategorySector';
 import { CommonButton } from '@/components/CommonButton';
 import { ButtonSpinnerIcon } from '@/components/icons/ButtonSpinnerIcon';
-import { LogCompleteModal } from '@/features/log/components/LogCompleteModal';
+import { LogCompleteModalMobile } from '@/features/log/components/mobile/LogCompleteModalMobile';
 import { LoginRequiredModal } from '@/components/LoginRequiredModal';
 import { px } from 'framer-motion';
 
@@ -143,7 +143,7 @@ export function MobileLogForm({ onLogCreated }: { onLogCreated: () => void }) {
         </CommonButton>
       </div>
 
-      <LogCompleteModal
+      <LogCompleteModalMobile
         open={isCompleteModalOpen}
         onOpenChange={(open) => {
           setIsCompleteModalOpen(open);
