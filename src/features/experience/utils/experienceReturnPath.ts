@@ -138,3 +138,36 @@ export function clearCreateloadingEntered(id: string): void {
   set.delete(id);
   setCreateloadingEnteredIds(set);
 }
+
+/* 경험별 채팅 메시지 이력 저장/복원 */
+const CHAT_HISTORY_PREFIX = 'folioo_chat_history_';
+
+export function setChatHistory<T>(experienceId: number, messages: T[]): void {
+  if (typeof window === 'undefined' || !Number.isFinite(experienceId)) return;
+  try {
+    sessionStorage.setItem(
+      `${CHAT_HISTORY_PREFIX}${experienceId}`,
+      JSON.stringify(messages),
+    );
+  } catch {}
+}
+
+export function getChatHistory<T>(experienceId: number): T[] | null {
+  if (typeof window === 'undefined' || !Number.isFinite(experienceId))
+    return null;
+  try {
+    const raw = sessionStorage.getItem(`${CHAT_HISTORY_PREFIX}${experienceId}`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as T[]) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function clearChatHistory(experienceId: number): void {
+  if (typeof window === 'undefined' || !Number.isFinite(experienceId)) return;
+  try {
+    sessionStorage.removeItem(`${CHAT_HISTORY_PREFIX}${experienceId}`);
+  } catch {}
+}
