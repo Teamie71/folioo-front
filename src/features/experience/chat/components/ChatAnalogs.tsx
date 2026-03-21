@@ -137,7 +137,7 @@ export const ChatAnalogs = ({
               className={index === currentIndex ? 'block w-full' : 'hidden'}
             >
               <LogCard
-                className='w-full min-w-0'
+                className='w-[45.25rem] min-w-0'
                 title={log.title}
                 date={
                   hasPreloaded
