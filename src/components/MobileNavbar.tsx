@@ -74,8 +74,8 @@ export default function MobileNavbar() {
     if (path.startsWith('/correction')) return '포트폴리오 첨삭';
     if (path.startsWith('/topup')) return '이용권 구매';
     if (path.startsWith('/profile')) return '프로필';
-    if (path.startsWith('/invoice')) return '이용권 거래 내역';
     if (path.startsWith('/invoice/refund')) return '환불 신청';
+    if (path.startsWith('/invoice')) return '이용권 거래 내역';
     if (path === '/tos') return '';
     if (path === '/privacy') return '';
     if (path === '/marketing') return '';
