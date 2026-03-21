@@ -176,7 +176,7 @@ function TopupClientMobileContent() {
   };
 
   return (
-    <div className='flex min-h-screen w-full flex-col bg-[#FFFFFF]'>
+    <div className='flex w-full flex-col overflow-x-hidden bg-[#FFFFFF] pb-[5rem]'>
       <div className='flex flex-col bg-white'>
         {/* 잔여 이용권 섹션 */}
         <div className='flex flex-col px-[1rem] py-[1.25rem] bg-[#F6F5FF]'>
