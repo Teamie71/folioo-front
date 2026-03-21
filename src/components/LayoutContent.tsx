@@ -249,7 +249,7 @@ export default function LayoutContent({
       <div
         className={cn(
           hideNavbar ? '' : 'layout-content-below-header',
-          !hideNavbar && 'pt-[52px] md:pt-[140px]',
+          !hideNavbar && (isMobileDevice ? 'pt-[52px]' : 'pt-[140px]'),
         )}
       >
         {children}
