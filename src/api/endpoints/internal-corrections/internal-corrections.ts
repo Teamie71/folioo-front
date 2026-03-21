@@ -30,6 +30,7 @@ import type {
   InternalCorrectionControllerGetCorrection200,
   InternalCorrectionResultControllerGetRagData200,
   SaveCorrectionResultReqDTO,
+  SavePdfExtractionResultReqDTO,
   UpdateCompanyInsightInternalReqDTO,
   UpdateCorrectionStatusReqDTO
 } from '../../models';
@@ -483,3 +484,69 @@ export function useInternalCorrectionResultControllerGetRagData<TData = Awaited<
 
 
 
+/**
+ * 성공 시 EXTERNAL portfolio 블록을 생성/연결하고, 실패 시 에러 메시지와 상태를 저장합니다.
+ * @summary PDF 추출 구조화 결과 콜백 저장 (Internal)
+ */
+export const internalPdfExtractionResultControllerSavePdfExtractionResult = (
+    correctionId: number,
+    savePdfExtractionResultReqDTO: SavePdfExtractionResultReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/internal/corrections/${correctionId}/pdf-extraction-result`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: savePdfExtractionResultReqDTO, signal
+    },
+      options);
+    }
+  
+
+
+export const getInternalPdfExtractionResultControllerSavePdfExtractionResultMutationOptions = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof internalPdfExtractionResultControllerSavePdfExtractionResult>>, TError,{correctionId: number;data: SavePdfExtractionResultReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof internalPdfExtractionResultControllerSavePdfExtractionResult>>, TError,{correctionId: number;data: SavePdfExtractionResultReqDTO}, TContext> => {
+
+const mutationKey = ['internalPdfExtractionResultControllerSavePdfExtractionResult'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof internalPdfExtractionResultControllerSavePdfExtractionResult>>, {correctionId: number;data: SavePdfExtractionResultReqDTO}> = (props) => {
+          const {correctionId,data} = props ?? {};
+
+          return  internalPdfExtractionResultControllerSavePdfExtractionResult(correctionId,data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type InternalPdfExtractionResultControllerSavePdfExtractionResultMutationResult = NonNullable<Awaited<ReturnType<typeof internalPdfExtractionResultControllerSavePdfExtractionResult>>>
+    export type InternalPdfExtractionResultControllerSavePdfExtractionResultMutationBody = SavePdfExtractionResultReqDTO
+    export type InternalPdfExtractionResultControllerSavePdfExtractionResultMutationError = CommonResponse
+
+    /**
+ * @summary PDF 추출 구조화 결과 콜백 저장 (Internal)
+ */
+export const useInternalPdfExtractionResultControllerSavePdfExtractionResult = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof internalPdfExtractionResultControllerSavePdfExtractionResult>>, TError,{correctionId: number;data: SavePdfExtractionResultReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof internalPdfExtractionResultControllerSavePdfExtractionResult>>,
+        TError,
+        {correctionId: number;data: SavePdfExtractionResultReqDTO},
+        TContext
+      > => {
+      return useMutation(getInternalPdfExtractionResultControllerSavePdfExtractionResultMutationOptions(options), queryClient);
+    }
+    
