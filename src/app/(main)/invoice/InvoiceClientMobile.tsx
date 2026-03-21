@@ -65,7 +65,7 @@ function TransactionCard({ item }: { item: InvoiceRow }) {
       : 'text-[#CDD0D5]';
 
   return (
-    <div className='flex flex-col gap-[1rem] rounded-[1rem] border border-[#CDD0D5] bg-white p-[1.25rem] shadow-[0px_4px_12px_rgba(0,0,0,0.04)]'>
+    <div className='flex flex-col gap-[1rem] rounded-[1rem] border border-[#CDD0D5] bg-white px-[1.25rem] py-[1rem] shadow-[0px_4px_12px_rgba(0,0,0,0.04)]'>
       <div className='flex items-start justify-between gap-[0.5rem]'>
         <span
           className={cn(
@@ -94,7 +94,7 @@ function TransactionCard({ item }: { item: InvoiceRow }) {
       </div>
 
       <div className='flex justify-end'>
-        <div className='h-[1.75rem] text-[1.125rem]'>
+        <div className='text-[1.125rem]'>
           <RefundStatusCell
             category={item.category}
             status={item.refundStatus}
