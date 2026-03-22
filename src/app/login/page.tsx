@@ -77,21 +77,21 @@ function LoginContent() {
       <div className='flex items-center'>
         <Link
           href='/tos'
-          className='group w-[8.75rem] cursor-pointer text-center text-[0.875rem] text-[#74777D] hover:underline'
+          className='group w-[8rem] cursor-pointer text-center text-[0.875rem] text-[#74777D] hover:underline md:w-[8.75rem]'
         >
           서비스 이용약관
         </Link>
         <div className='h-[1rem] w-[0.0625rem] bg-[#74777D]' />
         <Link
           href='/privacy'
-          className='group w-[8.75rem] cursor-pointer text-center text-[0.875rem] font-bold text-[#74777D] hover:underline'
+          className='group w-[8rem] cursor-pointer text-center text-[0.875rem] font-bold text-[#74777D] hover:underline md:w-[8.75rem]'
         >
           개인정보 처리방침
         </Link>
         <div className='h-[1rem] w-[0.0625rem] bg-[#74777D]' />
         <Link
           href='/marketing'
-          className='group w-[8.75rem] cursor-pointer text-center text-[0.875rem] text-[#74777D] hover:underline'
+          className='group w-[8rem] cursor-pointer text-center text-[0.875rem] text-[#74777D] hover:underline md:w-[8.75rem]'
         >
           마케팅 정보 수신
         </Link>
