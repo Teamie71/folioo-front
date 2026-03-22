@@ -6,30 +6,6 @@ import { X } from 'lucide-react';
 
 import { cn } from '@/utils/utils';
 
-let bodyScrollLockCount = 0;
-
-function lockBodyScroll() {
-  if (typeof document === 'undefined') return;
-  if (bodyScrollLockCount === 0) {
-    document.body.dataset.prevOverflow = document.body.style.overflow || '';
-    document.body.dataset.prevTouchAction = document.body.style.touchAction || '';
-    document.body.style.overflow = 'hidden';
-    document.body.style.touchAction = 'none';
-  }
-  bodyScrollLockCount += 1;
-}
-
-function unlockBodyScroll() {
-  if (typeof document === 'undefined') return;
-  bodyScrollLockCount = Math.max(0, bodyScrollLockCount - 1);
-  if (bodyScrollLockCount === 0) {
-    document.body.style.overflow = document.body.dataset.prevOverflow || '';
-    document.body.style.touchAction = document.body.dataset.prevTouchAction || '';
-    delete document.body.dataset.prevOverflow;
-    delete document.body.dataset.prevTouchAction;
-  }
-}
-
 const Dialog = DialogPrimitive.Root;
 
 const DialogTrigger = DialogPrimitive.Trigger;
@@ -59,11 +35,6 @@ const DialogContent = React.forwardRef<
     overlayClassName?: string;
   }
 >(({ className, children, overlayClassName, ...props }, ref) => {
-  React.useEffect(() => {
-    lockBodyScroll();
-    return () => unlockBodyScroll();
-  }, []);
-
   return (
     <DialogPortal>
       <DialogOverlay className={overlayClassName} />
