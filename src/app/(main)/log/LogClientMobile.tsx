@@ -142,18 +142,6 @@ export default function LogClientMobile() {
 
   return (
     <div className='flex min-h-screen w-full flex-col overflow-x-hidden bg-white pb-[5rem]'>
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-          @media (max-width: 767px) {
-            nav { display: none !important; }
-            .banner-beta { display: none !important; }
-            .layout-content-below-header { padding-top: 0 !important; }
-          }
-        `,
-        }}
-      />
-
       {/* 배너 */}
       <div className='bg-sub1 flex flex-col px-[1rem] py-[1.25rem]'>
         <p className='typo-c1 text-gray7'>
@@ -174,7 +162,7 @@ export default function LogClientMobile() {
       ) : (
         <div className='flex flex-col px-4 pt-8'>
           {/* Search Input */}
-          <div className='relative mb-4 flex items-center shadow-[0px_4px_8px_0px_rgba(0,0,0,0.05)] rounded-[0.5rem]'>
+          <div className='relative mb-4 flex items-center rounded-[0.5rem] shadow-[0px_4px_8px_0px_rgba(0,0,0,0.05)]'>
             <input
               className='w-full rounded-[0.5rem] border border-[#74777D] bg-white px-[1.25rem] py-[0.75rem] text-[1rem] outline-none focus:border-[#5060C5]'
               placeholder='검색어를 입력하세요.'
@@ -184,7 +172,10 @@ export default function LogClientMobile() {
                 if (e.key === 'Enter') applySearch();
               }}
             />
-            <div className='absolute right-[1.25rem] cursor-pointer' onClick={applySearch}>
+            <div
+              className='absolute right-[1.25rem] cursor-pointer'
+              onClick={applySearch}
+            >
               <SearchButton />
             </div>
           </div>
@@ -206,7 +197,7 @@ export default function LogClientMobile() {
                   {categories.find((cat) => cat.id === selectedCategoryId)
                     ?.label || '카테고리 선택'}
                 </span>
-                <DropdownIcon className='text-[#1A1A1A] ml-2 shrink-0' />
+                <DropdownIcon className='shrink-0 text-[#1A1A1A]' />
               </div>
             </DropdownButton>
 
@@ -226,7 +217,7 @@ export default function LogClientMobile() {
                     (act) => act.id === selectedActivityId,
                   )?.label || '활동 분류 선택'}
                 </span>
-                <DropdownIcon className='text-[#1A1A1A] ml-2 shrink-0' />
+                <DropdownIcon className='shrink-0 text-[#1A1A1A]' />
               </div>
             </DropdownButton>
           </div>
@@ -272,8 +263,7 @@ export default function LogClientMobile() {
             )}
           </div>
         </div>
-      )
-}
+      )}
 
       {/* 로그 상세 (모바일용 페이지 형태) */}
       {selectedLog && (

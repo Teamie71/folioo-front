@@ -5,6 +5,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import MobileNavbar from '@/components/MobileNavbar';
+import { OBTBannerMobile } from '@/components/OBT/OBTBannerMobile';
 import { BannerBeta } from '@/components/OBT/OBTBanner';
 import { OBTEventModal } from '@/components/OBT/OBTEventModal';
 import { OBTEventModalMobile } from '@/components/OBT/OBTEventModalMobile';
@@ -79,7 +80,6 @@ export default function LayoutContent({
   useEffect(() => {
     if (!isCorrectionDetailPath(path)) setShowNavbarOnResult(false);
   }, [path]);
-
 
   // 확장 프로그램이 주입하는 재생속도 오버레이 숨김
   useEffect(() => {
@@ -169,8 +169,14 @@ export default function LayoutContent({
     };
   }, []);
 
+  const [isOBTBannerVisible, setIsOBTBannerVisible] = useState(false);
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
+
+    const isDismissed = sessionStorage.getItem('obt_banner_mobile_dismissed');
+    if (!isDismissed) setIsOBTBannerVisible(true);
+
     const fromSignup = sessionStorage.getItem(TERMS_FROM_SIGNUP_KEY);
     if (fromSignup) {
       sessionStorage.removeItem(TERMS_FROM_SIGNUP_KEY);
@@ -180,6 +186,13 @@ export default function LayoutContent({
       }
     }
   }, [path]);
+
+  const handleDismissBanner = () => {
+    setIsOBTBannerVisible(false);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('obt_banner_mobile_dismissed', 'true');
+    }
+  };
 
   // 회원가입 직후 첫 번째 모달이 열릴 때 보상 수령 API 호출
   useEffect(() => {
@@ -237,7 +250,12 @@ export default function LayoutContent({
       {!hideNavbar && (
         <>
           {isMobileDevice ? (
-            <MobileNavbar />
+            <>
+              <MobileNavbar />
+              {isOBTBannerVisible && (
+                <OBTBannerMobile onDismiss={handleDismissBanner} />
+              )}
+            </>
           ) : (
             <>
               <Navbar />
@@ -249,7 +267,12 @@ export default function LayoutContent({
       <div
         className={cn(
           hideNavbar ? '' : 'layout-content-below-header',
-          !hideNavbar && 'pt-[52px] md:pt-[140px]',
+          !hideNavbar &&
+            (isMobileDevice
+              ? isOBTBannerVisible
+                ? 'pt-[102px]'
+                : 'pt-[52px]'
+              : 'pt-[140px]'),
         )}
       >
         {children}

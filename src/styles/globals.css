@@ -208,12 +208,21 @@ html {
   overflow-y: scroll;
 }
 
-/* Navbar + OBT 배너 하단 고정 시 콘텐츠 상단 여백 */
+/* Navbar + OBT 배너 하단 고정 시 콘텐츠 상단 여백 (애니메이션 등 레이아웃 식별용) */
 .layout-content-below-header {
-  padding-top: 140px; /* 80px + 3.75rem */
 }
+@media (min-width: 768px) {
+  .layout-content-below-header {
+  }
+}
+
 body[data-banner-dismissed='true'] .layout-content-below-header {
-  padding-top: 80px;
+  padding-top: 52px;
+}
+@media (min-width: 768px) {
+  body[data-banner-dismissed='true'] .layout-content-below-header {
+    padding-top: 80px;
+  }
 }
 
 /* 배너 닫힘 시 레이아웃에서 제거 - 스크립트 먼저 실행 */

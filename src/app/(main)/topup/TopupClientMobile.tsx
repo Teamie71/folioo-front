@@ -176,30 +176,7 @@ function TopupClientMobileContent() {
   };
 
   return (
-    <div className='flex min-h-screen w-full flex-col bg-[#FFFFFF]'>
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          nav { display: none !important; }
-          .banner-beta { display: none !important; }
-          .layout-content-below-header { padding-top: 0 !important; }
-        `
-      }} />
-
-      {/* Mobile Header */}
-      <header className='sticky top-0 z-50 flex h-[3.5rem] items-center justify-between bg-white px-[1rem]'>
-        <button onClick={() => router.back()} className='p-[0.5rem] -ml-[0.5rem]'>
-          <svg width="1.5rem" height="1.5rem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15 18L9 12L15 6" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
-        <h1 className='text-[1.125rem] font-bold'>이용권 구매</h1>
-        <button className='p-[0.5rem] -mr-[0.5rem]'>
-          <svg width="1.5rem" height="1.5rem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 12H21M3 6H21M3 18H21" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
-      </header>
-
+    <div className='flex w-full flex-col overflow-x-hidden bg-[#FFFFFF] pb-[5rem]'>
       <div className='flex flex-col bg-white'>
         {/* 잔여 이용권 섹션 */}
         <div className='flex flex-col px-[1rem] py-[1.25rem] bg-[#F6F5FF]'>
