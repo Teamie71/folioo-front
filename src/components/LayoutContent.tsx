@@ -174,6 +174,9 @@ export default function LayoutContent({
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    setWeeklyVoucherModalOpen(false);
+    setNoticeModalOpen(false);
+
     const isDismissed = sessionStorage.getItem('obt_banner_mobile_dismissed');
     if (!isDismissed) setIsOBTBannerVisible(true);
 

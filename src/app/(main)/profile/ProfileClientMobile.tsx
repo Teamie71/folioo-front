@@ -60,7 +60,7 @@ export default function ProfileClientMobile() {
   ];
 
   return (
-    <div className='min-h-screen min-w-[20.5rem] bg-white px-[1rem]'>
+    <div className='mt-[2.75rem] min-h-screen min-w-[20.5rem] bg-white px-[1rem]'>
       {/* Profile Card */}
       <div className='mb-6 rounded-[1.25rem] bg-white px-[1rem]'>
         <div className='mb-3 flex items-center justify-between'>
