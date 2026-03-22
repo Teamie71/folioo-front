@@ -58,7 +58,7 @@ export default function ExperienceClientMobile() {
           <ExperienceCardSection
             searchQuery={searchQuery}
             isSearching={isSearching}
-            isClickable={false}
+            isClickable={true}
           />
         </div>
       </div>
