@@ -1,60 +1,60 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
+import ReactMarkdown from 'react-markdown';
 import { CommonModal } from '@/components/CommonModal';
 
-const A4_WIDTH_MM = 1000;
+const A4_WIDTH_MM = 210; // 표준 A4 너비
 
 export interface ExperienceExportProps {
-  /** 상세정보~배운 점 영역을 감싼 DOM 요소 ref */
-  contentRef: React.RefObject<HTMLDivElement | null>;
-  /** PDF 파일명에 사용할 제목 */
   title: string;
+  data: {
+    description: string;
+    responsibilities: string;
+    problemSolving: string;
+    learnings: string;
+  };
   className?: string;
 }
 
-async function exportPortfolioToPdf({
-  contentRef,
-  title,
-}: ExperienceExportProps): Promise<void> {
-  const element = contentRef.current;
-  if (!element) return;
-
-  const canvas = await html2canvas(element, {
-    scale: 3,
-    useCORS: true,
-    logging: false,
-    backgroundColor: '#ffffff',
-  });
-
-  const imgData = canvas.toDataURL('image/png');
-  const imgWidth = A4_WIDTH_MM;
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-  const doc = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: [A4_WIDTH_MM, imgHeight],
-  });
-  doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-
-  const safeTitle =
-    title.replace(/[/\\?%*:|"<>]/g, '_').slice(0, 50) || 'portfolio';
-  doc.save(`${safeTitle}.pdf`);
-}
-
 export function ExperienceExport({
-  contentRef,
   title,
+  data,
   className,
 }: ExperienceExportProps) {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const hiddenContentRef = useRef<HTMLDivElement>(null);
 
   const handleConfirmExport = async () => {
-    await exportPortfolioToPdf({ contentRef, title });
+    const element = hiddenContentRef.current;
+    if (!element) return;
+
     setIsExportModalOpen(false);
+
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const imgWidth = A4_WIDTH_MM;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+    });
+
+    doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+
+    const safeTitle =
+      title.replace(/[/\\?%*:|"<>]/g, '_').slice(0, 50) || 'portfolio';
+    doc.save(`${safeTitle}.pdf`);
   };
 
   return (
@@ -82,6 +82,97 @@ export function ExperienceExport({
         </svg>
         <span className='text-[1rem] text-[#1A1A1A]'>내보내기</span>
       </button>
+
+      {/* PDF 생성을 위한 숨겨진 템플릿 (화면 밖 렌더링) */}
+      <div style={{ position: 'absolute', left: '-9999px', top: '0' }}>
+        <div
+          ref={hiddenContentRef}
+          style={{
+            width: '210mm',
+            padding: '20mm',
+            backgroundColor: '#ffffff',
+            color: '#1A1A1A',
+            fontFamily: 'Pretendard, sans-serif',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {/* 제목: 글꼴 크기 11, Bold */}
+          <h1
+            style={{
+              fontSize: '11pt',
+              fontWeight: 'bold',
+              margin: '0 0 24pt 0',
+            }}
+          >
+            {title}
+          </h1>
+
+          {/* 상세정보 섹션 */}
+          <div style={{ marginBottom: '24pt' }}>
+            <h2
+              style={{
+                fontSize: '11pt',
+                fontWeight: 'normal',
+                margin: '0 0 8pt 0',
+              }}
+            >
+              상세정보
+            </h2>
+            <div style={{ fontSize: '10pt', lineHeight: '1.8' }}>
+              <ReactMarkdown>{data.description}</ReactMarkdown>
+            </div>
+          </div>
+
+          {/* 담당업무 섹션 */}
+          <div style={{ marginBottom: '24pt' }}>
+            <h2
+              style={{
+                fontSize: '11pt',
+                fontWeight: 'normal',
+                margin: '0 0 8pt 0',
+              }}
+            >
+              담당업무
+            </h2>
+            <div style={{ fontSize: '10pt', lineHeight: '1.8' }}>
+              <ReactMarkdown>{data.responsibilities}</ReactMarkdown>
+            </div>
+          </div>
+
+          {/* 문제해결 섹션 */}
+          <div style={{ marginBottom: '24pt' }}>
+            <h2
+              style={{
+                fontSize: '11pt',
+                fontWeight: 'normal',
+                margin: '0 0 8pt 0',
+              }}
+            >
+              문제해결
+            </h2>
+            <div style={{ fontSize: '10pt', lineHeight: '1.8' }}>
+              <ReactMarkdown>{data.problemSolving}</ReactMarkdown>
+            </div>
+          </div>
+
+          {/* 배운 점 섹션 */}
+          <div style={{ marginBottom: '24pt' }}>
+            <h2
+              style={{
+                fontSize: '11pt',
+                fontWeight: 'normal',
+                margin: '0 0 8pt 0',
+              }}
+            >
+              배운 점
+            </h2>
+            <div style={{ fontSize: '10pt', lineHeight: '1.8' }}>
+              <ReactMarkdown>{data.learnings}</ReactMarkdown>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <CommonModal
         open={isExportModalOpen}
