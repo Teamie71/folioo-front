@@ -198,14 +198,16 @@ html {
 /* 모달 열릴 때 스크롤바 제거로 인한 화면 확장 방지 */
 html,
 body {
-  overflow-x: hidden;
   width: 100%;
   max-width: 100vw;
+
+  overflow-y: visible;
+  height: auto;
 }
 
-/* 모든 페이지에서 브라우저 세로 스크롤바 표시 */
-html {
-  overflow-y: scroll;
+body {
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Navbar + OBT 배너 하단 고정 시 콘텐츠 상단 여백 (애니메이션 등 레이아웃 식별용) */
