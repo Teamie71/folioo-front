@@ -15,7 +15,7 @@ export function OBTBannerMobile({ onDismiss }: OBTBannerMobileProps) {
         onClick={openFeedbackForm}
       >
         <div className='typo-c1-b text-main flex h-[1.375rem] w-[3.625rem] items-center justify-center rounded-[3.75rem] bg-white px-[0.875rem] py-[0.125rem]'>
-          BETA
+          Beta
         </div>
 
         <p className='typo-c1 text-gray8'>
