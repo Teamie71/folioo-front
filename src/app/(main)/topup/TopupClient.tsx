@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { openFeedbackForm } from '@/constants/feedback';
 import { CreditExpireAlert } from '@/components/CreditExpireAlert';
-// import { PaymentModal } from '@/components/PaymentModal';
+import { PaymentModal } from '@/components/PaymentModal';
 import Image from 'next/image';
 import { ChallengeModal } from '@/components/ChallengeModal';
 import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
@@ -205,16 +205,33 @@ function TopupPageContent() {
       alert('해당 이용권 상품을 찾을 수 없어요. 잠시 후 다시 시도해주세요.');
       return;
     }
+    const newWindow = window.open('about:blank', '_blank');
+
+    const pollTimer = setInterval(() => {
+      try {
+        if (newWindow?.closed) {
+          clearInterval(pollTimer);
+          window.location.reload();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }, 1000);
+
     try {
       const res = await createPayment({ data: { ticketProductId } });
       const payUrl = res?.result?.payUrl;
-      if (payUrl) {
-        window.location.href = payUrl;
+      if (payUrl && newWindow) {
+        newWindow.location.href = payUrl;
         return;
       }
+      newWindow?.close();
+      clearInterval(pollTimer);
       alert('결제창 URL을 받지 못했어요. 잠시 후 다시 시도해주세요.');
       setSelectedVoucher(null);
     } catch {
+      newWindow?.close();
+      clearInterval(pollTimer);
       alert('결제 요청에 실패했어요. 잠시 후 다시 시도해주세요.');
       setSelectedVoucher(null);
     }
@@ -383,8 +400,7 @@ function TopupPageContent() {
         </section>
       </div>
 
-      {/* 결제 모달(OBT 기간 동안 주석 처리) */}
-      {/* 
+      {/* 결제 모달: Dev에서만 가능하게 */}
       <PaymentModal
         open={!!selectedVoucher}
         onOpenChange={(open) => !open && setSelectedVoucher(null)}
@@ -395,11 +411,13 @@ function TopupPageContent() {
         }
         onConfirm={handleConfirmPurchase}
       />
-*/}
+
+      {/* 결제가 가능할 때 주석 처리
       <OBTRedirectModal
         open={!!selectedVoucher}
         onOpenChange={(open) => !open && setSelectedVoucher(null)}
       />
+      */}
 
       <ChallengeModal
         open={challengeModalOpen}

@@ -296,8 +296,8 @@ export const usePortfolioControllerUpdatePortfolio = <TError = CommonResponse,
       return useMutation(getPortfolioControllerUpdatePortfolioMutationOptions(options), queryClient);
     }
     /**
- * 업로드한 포트폴리오 파일에서 텍스트를 추출합니다.
- * @summary PDF 포트폴리오 텍스트 추출
+ * PDF를 AI 서버에 전달해 추출·구조화 작업을 비동기로 접수합니다. 결과는 서버 간 콜백 후 조회 API로 확인합니다.
+ * @summary PDF 포트폴리오 추출 요청 위임
  */
 export const externalPortfolioControllerExtractPortfolios = (
     externalPortfolioControllerExtractPortfoliosBody: ExternalPortfolioControllerExtractPortfoliosBody,
@@ -349,7 +349,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type ExternalPortfolioControllerExtractPortfoliosMutationError = CommonResponse
 
     /**
- * @summary PDF 포트폴리오 텍스트 추출
+ * @summary PDF 포트폴리오 추출 요청 위임
  */
 export const useExternalPortfolioControllerExtractPortfolios = <TError = CommonResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof externalPortfolioControllerExtractPortfolios>>, TError,{data: ExternalPortfolioControllerExtractPortfoliosBody}, TContext>, request?: SecondParameter<typeof customInstance>}
