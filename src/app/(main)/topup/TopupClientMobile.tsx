@@ -6,7 +6,7 @@ import { CommonButton } from '@/components/CommonButton';
 import { openFeedbackForm } from '@/constants/feedback';
 import { CreditExpireAlert } from '@/components/CreditExpireAlert';
 import { ChallengeModal } from '@/components/ChallengeModal';
-import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
+import { PaymentModal } from '@/components/PaymentModal';
 import { BigTicketIcon } from '@/components/icons/BigTicketIcon';
 import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
 import {
@@ -308,9 +308,15 @@ function TopupClientMobileContent() {
         )}
       </div>
 
-      <OBTRedirectModal
+      <PaymentModal
         open={!!selectedVoucher}
         onOpenChange={(open) => !open && setSelectedVoucher(null)}
+        productName={
+          selectedVoucher
+            ? `${selectedVoucher.type === 'experience' ? '경험 정리' : '포트폴리오 첨삭'} ${selectedVoucher.option.times}회권`
+            : ''
+        }
+        onConfirm={handleConfirmPurchase}
       />
 
       <ChallengeModal
