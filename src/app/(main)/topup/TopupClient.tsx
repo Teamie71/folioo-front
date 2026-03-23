@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { openFeedbackForm } from '@/constants/feedback';
 import { CreditExpireAlert } from '@/components/CreditExpireAlert';
-// import { PaymentModal } from '@/components/PaymentModal';
+import { PaymentModal } from '@/components/PaymentModal';
 import Image from 'next/image';
 import { ChallengeModal } from '@/components/ChallengeModal';
 import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
@@ -383,8 +383,7 @@ function TopupPageContent() {
         </section>
       </div>
 
-      {/* 결제 모달(OBT 기간 동안 주석 처리) */}
-      {/* 
+      {/* 결제 모달: Dev에서만 가능하게 */}
       <PaymentModal
         open={!!selectedVoucher}
         onOpenChange={(open) => !open && setSelectedVoucher(null)}
@@ -395,11 +394,13 @@ function TopupPageContent() {
         }
         onConfirm={handleConfirmPurchase}
       />
-*/}
+
+      {/* 결제가 가능할 때 주석 처리
       <OBTRedirectModal
         open={!!selectedVoucher}
         onOpenChange={(open) => !open && setSelectedVoucher(null)}
       />
+      */}
 
       <ChallengeModal
         open={challengeModalOpen}
