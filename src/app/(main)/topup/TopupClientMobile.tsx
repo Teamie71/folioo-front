@@ -69,10 +69,11 @@ function TopupClientMobileContent() {
 
   const ticketProducts = ticketProductsData?.result ?? [];
 
-  const [selectedVoucher, setSelectedVoucher] = useState<SelectedVoucher | null>(null);
+  const [selectedVoucher, setSelectedVoucher] =
+    useState<SelectedVoucher | null>(null);
   const [challengeModalOpen, setChallengeModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<VoucherType>('experience');
-  
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
@@ -133,9 +134,14 @@ function TopupClientMobileContent() {
     };
   }, [isValidPaymentId, paymentId, paymentStatus, cancelPayment]);
 
-  const getTicketProductId = (type: VoucherType, times: number): number | null => {
+  const getTicketProductId = (
+    type: VoucherType,
+    times: number,
+  ): number | null => {
     const apiType = VOUCHER_TYPE_TO_API[type];
-    const product = ticketProducts.find((p) => p.type === apiType && p.quantity === times);
+    const product = ticketProducts.find(
+      (p) => p.type === apiType && p.quantity === times,
+    );
     return product?.id ?? null;
   };
 
@@ -155,21 +161,41 @@ function TopupClientMobileContent() {
 
   const handleConfirmPurchase = async () => {
     if (!selectedVoucher) return;
-    const ticketProductId = getTicketProductId(selectedVoucher.type, selectedVoucher.option.times);
+    const ticketProductId = getTicketProductId(
+      selectedVoucher.type,
+      selectedVoucher.option.times,
+    );
     if (ticketProductId == null) {
       alert('해당 이용권 상품을 찾을 수 없어요. 잠시 후 다시 시도해주세요.');
       return;
     }
+    const newWindow = window.open('about:blank', '_blank');
+
+    const pollTimer = setInterval(() => {
+      try {
+        if (newWindow?.closed) {
+          clearInterval(pollTimer);
+          window.location.reload();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }, 1000);
+
     try {
       const res = await createPayment({ data: { ticketProductId } });
       const payUrl = res?.result?.payUrl;
-      if (payUrl) {
-        window.location.href = payUrl;
+      if (payUrl && newWindow) {
+        newWindow.location.href = payUrl;
         return;
       }
+      newWindow?.close();
+      clearInterval(pollTimer);
       alert('결제창 URL을 받지 못했어요. 잠시 후 다시 시도해주세요.');
       setSelectedVoucher(null);
     } catch {
+      newWindow?.close();
+      clearInterval(pollTimer);
       alert('결제 요청에 실패했어요. 잠시 후 다시 시도해주세요.');
       setSelectedVoucher(null);
     }
@@ -179,30 +205,38 @@ function TopupClientMobileContent() {
     <div className='flex w-full flex-col overflow-x-hidden bg-[#FFFFFF] pb-[5rem]'>
       <div className='flex flex-col bg-white'>
         {/* 잔여 이용권 섹션 */}
-        <div className='flex flex-col px-[1rem] py-[1.25rem] bg-[#F6F5FF]'>
+        <div className='flex flex-col bg-[#F6F5FF] px-[1rem] py-[1.25rem]'>
           <div className='flex flex-col gap-[1rem]'>
-            <span className='text-[1rem] font-semibold text-[#1A1A1A]'>나의 잔여 이용권</span>
+            <span className='text-[1rem] font-semibold text-[#1A1A1A]'>
+              나의 잔여 이용권
+            </span>
             <div className='flex flex-col items-end gap-[0.5rem]'>
               <div className='flex items-center gap-[1.25rem]'>
                 <span className='text-[1rem] text-[#464B53]'>경험 정리</span>
-                <div className='flex items-center gap-[0.25rem] justify-end'>
-                  <span className='text-[1.125rem] font-bold text-[#1A1A1A]'>{experienceCount}</span>
+                <div className='flex items-center justify-end gap-[0.25rem]'>
+                  <span className='text-[1.125rem] font-bold text-[#1A1A1A]'>
+                    {experienceCount}
+                  </span>
                   <span className='text-[1.125rem] text-[#1A1A1A]'>회</span>
                 </div>
               </div>
               <div className='flex items-center gap-[1.25rem]'>
-                <span className='text-[1rem] text-[#464B53]'>포트폴리오 첨삭</span>
-                <div className='flex items-center gap-[0.25rem] justify-end'>
-                  <span className='text-[1.125rem] font-bold text-[#1A1A1A]'>{portfolioCount}</span>
+                <span className='text-[1rem] text-[#464B53]'>
+                  포트폴리오 첨삭
+                </span>
+                <div className='flex items-center justify-end gap-[0.25rem]'>
+                  <span className='text-[1.125rem] font-bold text-[#1A1A1A]'>
+                    {portfolioCount}
+                  </span>
                   <span className='text-[1.125rem] text-[#1A1A1A]'>회</span>
                 </div>
               </div>
             </div>
           </div>
-          
-          <CreditExpireAlert 
-            message='이용권 만료 예정 안내' 
-            hideWhenEmpty 
+
+          <CreditExpireAlert
+            message='이용권 만료 예정 안내'
+            hideWhenEmpty
             wrapperClassName='mt-[1rem] w-full'
             className='!w-full !justify-center'
           />
@@ -215,7 +249,7 @@ function TopupClientMobileContent() {
               'flex-1 py-[1rem] text-center text-[1rem] transition-colors',
               activeTab === 'experience'
                 ? 'border-b-[0.125rem] border-[#5060C5] font-bold text-[#5060C5]'
-                : 'text-[#9EA4A9]'
+                : 'text-[#9EA4A9]',
             )}
             onClick={() => setActiveTab('experience')}
           >
@@ -226,7 +260,7 @@ function TopupClientMobileContent() {
               'flex-1 py-[1rem] text-center text-[1rem] transition-colors',
               activeTab === 'portfolio'
                 ? 'border-b-[0.125rem] border-[#5060C5] font-bold text-[#5060C5]'
-                : 'text-[#9EA4A9]'
+                : 'text-[#9EA4A9]',
             )}
             onClick={() => setActiveTab('portfolio')}
           >
@@ -240,21 +274,25 @@ function TopupClientMobileContent() {
         {activeTab === 'experience' && (
           <div className='flex flex-col gap-[2rem]'>
             {/* 이벤트 카드 */}
-            <div className='flex flex-col items-center gap-[1rem] rounded-[1rem] bg-white p-[1.5rem] shadow-[0px_4px_8px_0px_#0000001A] border border-[#E9EAEC]'>
-              <div className='flex items-center justify-center gap-[0.75rem] w-full'>
+            <div className='flex flex-col items-center gap-[1rem] rounded-[1rem] border border-[#E9EAEC] bg-white p-[1.5rem] shadow-[0px_4px_8px_0px_#0000001A]'>
+              <div className='flex w-full items-center justify-center gap-[0.75rem]'>
                 <div className='flex h-[3rem] w-[3rem] shrink-0 items-center justify-center'>
                   <BigTicketIcon />
                 </div>
-                <p className='text-[1rem] font-semibold leading-[1.4] text-[#1A1A1A]'>
-                  Folioo 사용 후기를 남기면,<br />무료 이용권 2종 추가 지급!
+                <p className='text-[1rem] leading-[1.4] font-semibold text-[#1A1A1A]'>
+                  Folioo 사용 후기를 남기면,
+                  <br />
+                  무료 이용권 2종 추가 지급!
                 </p>
               </div>
-              <p className='text-[0.75rem] text-[#74777D] text-center w-full leading-[1.4]'>
-                이번 주의 첫 피드백을 남겨주시면,<br />감사의 마음을 담아 무료 이용권을 드려요.
+              <p className='w-full text-center text-[0.75rem] leading-[1.4] text-[#74777D]'>
+                이번 주의 첫 피드백을 남겨주시면,
+                <br />
+                감사의 마음을 담아 무료 이용권을 드려요.
               </p>
               <CommonButton
                 variantType='Outline'
-                className='rounded-[3.75rem] py-[0.5rem] px-[2.25rem] text-[1rem] font-bold mt-[0.5rem]'
+                className='mt-[0.5rem] rounded-[3.75rem] px-[2.25rem] py-[0.5rem] text-[1rem] font-bold'
                 onClick={() => openFeedbackForm()}
               >
                 피드백 남기기
@@ -264,9 +302,12 @@ function TopupClientMobileContent() {
             {/* 상품 목록 */}
             <div className='flex flex-col gap-[1.25rem]'>
               <div className='flex flex-col gap-[0.5rem]'>
-                <h2 className='text-[1.125rem] font-bold text-[#1A1A1A]'>경험 정리 이용권</h2>
+                <h2 className='text-[1.125rem] font-bold text-[#1A1A1A]'>
+                  경험 정리 이용권
+                </h2>
                 <p className='text-[0.875rem] leading-[1.4] text-[#464B53]'>
-                  모든 서류에 사용 가능한 취업 준비의 필수 재료,<br />
+                  모든 서류에 사용 가능한 취업 준비의 필수 재료,
+                  <br />
                   AI 컨설턴트와의 대화를 통해 체계적으로 완성하세요.
                 </p>
               </div>
@@ -288,9 +329,12 @@ function TopupClientMobileContent() {
             {/* 상품 목록 */}
             <div className='flex flex-col gap-[1rem]'>
               <div className='flex flex-col gap-[0.5rem]'>
-                <h2 className='text-[1.125rem] font-bold text-[#1A1A1A]'>포트폴리오 첨삭 이용권</h2>
+                <h2 className='text-[1.125rem] font-bold text-[#1A1A1A]'>
+                  포트폴리오 첨삭 이용권
+                </h2>
                 <p className='text-[0.875rem] leading-[1.4] text-[#464B53]'>
-                  공고 맞춤형 포트폴리오를 빠르게 제작할 수 있도록,<br />
+                  공고 맞춤형 포트폴리오를 빠르게 제작할 수 있도록,
+                  <br />
                   AI 컨설턴트에게 첨삭을 의뢰하세요.
                 </p>
               </div>
@@ -348,7 +392,7 @@ function MobileVoucherCard({
   onPurchase: () => void;
 }) {
   return (
-    <div className='relative flex flex-col justify-between rounded-[1rem] bg-white px-[2rem] py-[2rem] shadow-[1px_1px_4px_0px_#00000040_inset] border border-[#E9EAEC]'>
+    <div className='relative flex flex-col justify-between rounded-[1rem] border border-[#E9EAEC] bg-white px-[2rem] py-[2rem] shadow-[1px_1px_4px_0px_#00000040_inset]'>
       {/* 할인 뱃지: 배경은 연한 핑크, 글자는 빨간색 */}
       {option.discountPercent != null && (
         <div className='absolute top-[2rem] right-[2rem] rounded-[0.5rem] bg-[#FFF2F2] px-[0.75rem] py-[0.4rem] text-[0.8125rem] font-bold text-[#DC0000]'>
