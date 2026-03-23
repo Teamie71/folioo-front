@@ -27,7 +27,6 @@ import type {
 import type {
   CommonResponse,
   CreatePaymentReqDTO,
-  PayAppWebhookReqDTO,
   PaymentControllerCancelPayment200,
   PaymentControllerCreatePayment200,
   PaymentControllerGetPayment200
@@ -200,15 +199,13 @@ export function usePaymentControllerGetPayment<TData = Awaited<ReturnType<typeof
  * @summary PayApp 결제 콜백(feedbackurl) 수신
  */
 export const paymentControllerHandleWebhook = (
-    payAppWebhookReqDTO: PayAppWebhookReqDTO,
+    
  options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
       return customInstance<unknown>(
-      {url: `/payments/webhook`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: payAppWebhookReqDTO, signal
+      {url: `/payments/webhook`, method: 'POST', signal
     },
       options);
     }
@@ -216,8 +213,8 @@ export const paymentControllerHandleWebhook = (
 
 
 export const getPaymentControllerHandleWebhookMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentControllerHandleWebhook>>, TError,{data: PayAppWebhookReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof paymentControllerHandleWebhook>>, TError,{data: PayAppWebhookReqDTO}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentControllerHandleWebhook>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof paymentControllerHandleWebhook>>, TError,void, TContext> => {
 
 const mutationKey = ['paymentControllerHandleWebhook'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -229,10 +226,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof paymentControllerHandleWebhook>>, {data: PayAppWebhookReqDTO}> = (props) => {
-          const {data} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof paymentControllerHandleWebhook>>, void> = () => {
+          
 
-          return  paymentControllerHandleWebhook(data,requestOptions)
+          return  paymentControllerHandleWebhook(requestOptions)
         }
 
 
@@ -243,18 +240,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type PaymentControllerHandleWebhookMutationResult = NonNullable<Awaited<ReturnType<typeof paymentControllerHandleWebhook>>>
-    export type PaymentControllerHandleWebhookMutationBody = PayAppWebhookReqDTO
+    
     export type PaymentControllerHandleWebhookMutationError = CommonResponse
 
     /**
  * @summary PayApp 결제 콜백(feedbackurl) 수신
  */
 export const usePaymentControllerHandleWebhook = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentControllerHandleWebhook>>, TError,{data: PayAppWebhookReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentControllerHandleWebhook>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof paymentControllerHandleWebhook>>,
         TError,
-        {data: PayAppWebhookReqDTO},
+        void,
         TContext
       > => {
       return useMutation(getPaymentControllerHandleWebhookMutationOptions(options), queryClient);

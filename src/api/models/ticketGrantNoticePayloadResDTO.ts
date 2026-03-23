@@ -10,5 +10,7 @@ import type { TicketGrantRewardItemResDTO } from './ticketGrantRewardItemResDTO'
 export interface TicketGrantNoticePayloadResDTO {
   /** @nullable */
   displayReason?: string | null;
+  /** @nullable */
+  displayPeriod?: string | null;
   rewards?: TicketGrantRewardItemResDTO[];
 }
