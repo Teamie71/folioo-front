@@ -17,6 +17,10 @@ axiosInstance.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  /** FormData는 boundary가 포함된 multipart/form-data로 보내야 함 — 기본 application/json 제거 */
+  if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
   return config;
 });
 

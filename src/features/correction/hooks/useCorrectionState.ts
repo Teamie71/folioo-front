@@ -4,8 +4,8 @@ import {
   externalPortfolioControllerCreateExternalPortfolioBlock,
   externalPortfolioControllerDeleteExternalPortfolio,
   externalPortfolioControllerExtractPortfolios,
-  externalPortfolioControllerGetSelectedPortfolios,
   externalPortfolioControllerUpdateExternalPortfolio,
+  getExternalPortfolioControllerGetSelectedPortfoliosQueryKey,
 } from '@/api/endpoints/portfolio/portfolio';
 import {
   portfolioCorrectionControllerMapCorrectionWithPortfolios,
@@ -18,16 +18,17 @@ import {
 } from '@/api/endpoints/portfolio-correction/portfolio-correction';
 import type {
   CorrectionStatusResDTOStatus,
-  ExternalPortfolioControllerGetSelectedPortfolios200,
   ExternalPortfolioControllerCreateExternalPortfolioBlock200,
 } from '@/api/models';
 import { usePortfolioControllerGetPortfolios } from '@/api/endpoints/portfolio/portfolio';
 import { mapToPdfActivityBlock, toPatchBody } from '@/services/correction';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCorrectionNavbar } from '@/contexts/CorrectionNavbarContext';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
+  getPdfActivityPlaceholderLabel,
   INITIAL_PDF_ACTIVITIES,
   PDF_CATEGORY_CHAR_LIMIT,
 } from '@/features/correction/constants';
@@ -75,6 +76,7 @@ function mapStatusToStepAndStatus(
 }
 
 export function useCorrectionState(correctionId: string | undefined) {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const [step, setStep] = useState<Step>('portfolio');
   const effectiveId = correctionId ?? EMPTY_CORRECTION_ID;
@@ -116,6 +118,8 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
   const [isPdfTextExtracted, setIsPdfTextExtracted] = useState(false);
   const [isPdfTextExtracting, setIsPdfTextExtracting] = useState(false);
+  /** 추출 요청마다 증가 — 조회 API로 동기화할 때마다 한 번만 상태 반영 */
+  const [pdfExtractNonce, setPdfExtractNonce] = useState(0);
   const [isPdfExtractConfirmModalOpen, setIsPdfExtractConfirmModalOpen] =
     useState(false);
   const [pdfUploadedFile, setPdfUploadedFile] = useState<{
@@ -128,6 +132,8 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [pdfShakeKey, setPdfShakeKey] = useState(0);
   const [isPdfDropOverlayActive, setIsPdfDropOverlayActive] = useState(false);
   const pdfFileInputRef = useRef<HTMLInputElement>(null);
+  /** + 로 추가한 블록만 순서대로 활동 A, B… (리스트 인덱스와 무관) */
+  const pdfManualAddLabelSeqRef = useRef(0);
   const bulletTextareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
   const lastBulletEnterAt = useRef<number>(0);
   const [showTextPortfolioWarning, setShowTextPortfolioWarning] =
@@ -257,6 +263,15 @@ export function useCorrectionState(correctionId: string | undefined) {
     };
   }, [effectiveId, step, status]);
 
+  const handlePdfPortfoliosHydratedFromQuery = useCallback(
+    (activities: PdfActivityBlock[]) => {
+      pdfManualAddLabelSeqRef.current = 0;
+      setIsPdfTextExtracting(false);
+      if (activities[0]) setSelectedActivityId(activities[0].id);
+    },
+    [],
+  );
+
   const handlePdfExtractConfirm = useCallback(async () => {
     if (!pdfUploadedFile) return;
     const id = effectiveId ? Number(effectiveId) : null;
@@ -264,29 +279,25 @@ export function useCorrectionState(correctionId: string | undefined) {
     const correctionId = id;
     setIsPdfExtractConfirmModalOpen(false);
     setIsPdfTextExtracting(true);
+    /* POST 전에 영역을 띄워야 스피너·조회 폴링 UI가 보임 (실패 시 아래 catch에서 되돌림) */
+    setIsPdfTextExtracted(true);
     try {
       await externalPortfolioControllerExtractPortfolios({
         correctionId,
         file: pdfUploadedFile.file,
       });
-      setIsPdfTextExtracted(true);
-      const listRes = await externalPortfolioControllerGetSelectedPortfolios({
-        correctionId,
+      await queryClient.invalidateQueries({
+        queryKey: getExternalPortfolioControllerGetSelectedPortfoliosQueryKey({
+          correctionId,
+        }),
       });
-      const listResult = (
-        listRes as ExternalPortfolioControllerGetSelectedPortfolios200
-      ).result;
-      const activities = (listResult ?? []).map((dto, i) =>
-        mapToPdfActivityBlock(dto, i),
-      );
-      setPdfActivities(activities);
-      if (activities.length > 0) setSelectedActivityId(activities[0].id);
+      setPdfExtractNonce((n) => n + 1);
+      /* 구조화 결과는 비동기 — CorrectionPdfTextSection 조회 폴링 후 반영 */
     } catch {
-      // 실패 시 상태만 복구
-    } finally {
       setIsPdfTextExtracting(false);
+      setIsPdfTextExtracted(false);
     }
-  }, [pdfUploadedFile, effectiveId]);
+  }, [pdfUploadedFile, effectiveId, queryClient]);
 
   const handleDeletePdfActivity = useCallback(async () => {
     const targetId = activityDeleteTargetId;
@@ -325,7 +336,14 @@ export function useCorrectionState(correctionId: string | undefined) {
         res as ExternalPortfolioControllerCreateExternalPortfolioBlock200
       ).result;
       if (!result) throw new Error();
-      const newBlock = mapToPdfActivityBlock(result, pdfActivities.length);
+      const insertIndex = pdfActivities.length;
+      const addSeq = pdfManualAddLabelSeqRef.current;
+      if (addSeq >= 5) return;
+      pdfManualAddLabelSeqRef.current = addSeq + 1;
+      const newBlock: PdfActivityBlock = {
+        ...mapToPdfActivityBlock(result, insertIndex),
+        label: getPdfActivityPlaceholderLabel(addSeq),
+      };
       setPdfActivities((prev) => [...prev, newBlock]);
       setSelectedActivityId(newBlock.id);
     } catch {
@@ -533,6 +551,8 @@ export function useCorrectionState(correctionId: string | undefined) {
     setIsPdfTextExtracted,
     isPdfTextExtracting,
     setIsPdfTextExtracting,
+    pdfExtractNonce,
+    handlePdfPortfoliosHydratedFromQuery,
     isPdfExtractConfirmModalOpen,
     setIsPdfExtractConfirmModalOpen,
     pdfUploadedFile,

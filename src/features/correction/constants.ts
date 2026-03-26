@@ -36,9 +36,15 @@ export function createPdfActivityBlock(
   };
 }
 
+/** 활동 탭 기본 라벨 (순서대로 활동 A ~ 활동 E, 최대 5블록) */
+export function getPdfActivityPlaceholderLabel(index: number): string {
+  const i = Math.min(Math.max(index, 0), 4);
+  return `활동 ${String.fromCharCode(65 + i)}`;
+}
+
 /** PDF 포트폴리오 초기 활동 블록 (활동 A, B, C) */
 export const INITIAL_PDF_ACTIVITIES: PdfActivityBlock[] = [
-  createPdfActivityBlock('pdf-act-0', '활동 A'),
-  createPdfActivityBlock('pdf-act-1', '활동 B'),
-  createPdfActivityBlock('pdf-act-2', '활동 C'),
+  createPdfActivityBlock('pdf-act-0', getPdfActivityPlaceholderLabel(0)),
+  createPdfActivityBlock('pdf-act-1', getPdfActivityPlaceholderLabel(1)),
+  createPdfActivityBlock('pdf-act-2', getPdfActivityPlaceholderLabel(2)),
 ];
