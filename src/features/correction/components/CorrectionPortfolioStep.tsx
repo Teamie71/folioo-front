@@ -42,6 +42,9 @@ export interface CorrectionPortfolioStepProps {
   onTabSelect: (tab: PdfCategoryName) => void;
   bulletTextareaRefs: MutableRefObject<(HTMLTextAreaElement | null)[]>;
   lastBulletEnterAt: MutableRefObject<number>;
+  correctionNumericId: number | null;
+  pdfExtractNonce: number;
+  onPdfPortfoliosHydratedFromQuery: (activities: PdfActivityBlock[]) => void;
   onRequestActivityDelete: (activityId: string) => void;
   pdfActivityHoverId: string | null;
   setPdfActivityHoverId: (id: string | null) => void;
@@ -75,6 +78,9 @@ export function CorrectionPortfolioStep({
   onTabSelect,
   bulletTextareaRefs,
   lastBulletEnterAt,
+  correctionNumericId,
+  pdfExtractNonce,
+  onPdfPortfoliosHydratedFromQuery,
   onRequestActivityDelete,
   pdfActivityHoverId,
   setPdfActivityHoverId,
@@ -136,6 +142,11 @@ export function CorrectionPortfolioStep({
                 setPdfActivityHoverId={setPdfActivityHoverId}
                 bulletTextareaRefs={bulletTextareaRefs}
                 lastBulletEnterAt={lastBulletEnterAt}
+                correctionNumericId={correctionNumericId}
+                pdfExtractNonce={pdfExtractNonce}
+                onPdfPortfoliosHydratedFromQuery={
+                  onPdfPortfoliosHydratedFromQuery
+                }
               />
             )}
           </div>
