@@ -1,5 +1,6 @@
 import type { StructuredPortfolioResDTO } from '@/api/models';
 import type { UpdatePortfolioBlockReqDTO } from '@/api/models';
+import { getPdfActivityPlaceholderLabel } from '@/features/correction/constants';
 import type { PdfActivityBlock, PdfCategoryName } from '@/types/correction';
 
 /** 줄바꿈으로 분리 후 빈 문자열이면 [''] */
@@ -47,7 +48,7 @@ export function mapToPdfActivityBlock(
   };
   return {
     id,
-    label: dto.name,
+    label: dto.name?.trim() || getPdfActivityPlaceholderLabel(index),
     categories: CATEGORY_ORDER.map((name) => ({
       name,
       bullets: bulletsMap[name],
