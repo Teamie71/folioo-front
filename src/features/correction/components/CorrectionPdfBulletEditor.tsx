@@ -92,11 +92,11 @@ export function CorrectionPdfBulletEditor({
         <div className='flex flex-1 flex-col gap-[0.5rem]'>
           {bullets.map((text, idx) => (
             <div key={idx} className='flex items-start gap-[0.5rem]'>
-              <span className='flex h-[1.5em] shrink-0 items-center text-[0.875rem] leading-[1.5] text-[#1A1A1A]'>
+              <span className='flex h-[1.5em] shrink-0 items-center text-[1rem] leading-[1.5] text-[#1A1A1A]'>
                 •
               </span>
               <textarea
-                className='min-h-[1.5rem] w-full resize-none overflow-hidden border-none bg-transparent p-0 text-[0.875rem] leading-[1.5] text-[#1A1A1A] outline-none placeholder:text-[#9EA4A9]'
+                className='min-h-[1.5rem] w-full resize-none overflow-hidden border-none bg-transparent p-0 text-[1rem] leading-[1.5] text-[#1A1A1A] outline-none placeholder:text-[#9EA4A9]'
                 placeholder='내용을 입력하세요'
                 value={text}
                 ref={(el) => {
