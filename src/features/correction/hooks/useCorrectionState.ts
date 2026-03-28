@@ -387,6 +387,25 @@ export function useCorrectionState(correctionId: string | undefined) {
               .filter((n) => !Number.isNaN(n));
       if (portfolioIds.length === 0) return;
       try {
+        if (selectedPortfolioType === 'pdf') {
+          if (debouncedPatchRef.current) {
+            clearTimeout(debouncedPatchRef.current);
+            debouncedPatchRef.current = null;
+          }
+          await Promise.all(
+            pdfActivities
+              .filter(
+                (a): a is PdfActivityBlock & { portfolioId: number } =>
+                  a.portfolioId != null,
+              )
+              .map((activity) =>
+                externalPortfolioControllerUpdateExternalPortfolio(
+                  activity.portfolioId,
+                  toPatchBody(activity),
+                ).catch(() => {}),
+              ),
+          );
+        }
         await portfolioCorrectionControllerMapCorrectionWithPortfolios(id, {
           portfolioIds,
         });
@@ -441,6 +460,7 @@ export function useCorrectionState(correctionId: string | undefined) {
     textPortfolios.length,
     pdfActivities,
     analysisInfoValue,
+    emphasisPointsValue,
   ]);
 
   const handleStartNewExperience = useCallback(() => {

@@ -16,8 +16,21 @@ const CATEGORY_ORDER: PdfCategoryName[] = [
   '배운 점',
 ];
 
+/**
+ * PATCH/DB 저장용: PDF 추출과 동일하게 줄마다 `- 내용` 형식으로 이어붙임.
+ * 불릿 문자열 안의 줄바꿈도 각각 한 줄로 분리해 하이픈을 붙임.
+ */
 function fromBullets(bullets: string[]): string {
-  return bullets.filter(Boolean).join('\n') || '';
+  const lines: string[] = [];
+  for (const b of bullets) {
+    for (const segment of b.split(/\r?\n/)) {
+      const t = segment.trim();
+      if (!t) continue;
+      const body = t.replace(/^-\s*/, '');
+      lines.push(`- ${body}`);
+    }
+  }
+  return lines.join('\n');
 }
 
 /** PdfActivityBlock → PATCH body (Orval UpdatePortfolioBlockReqDTO) */
