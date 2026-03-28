@@ -125,6 +125,7 @@ export function CorrectionPortfolioStep({
                 onRequestPdfFileDelete={onRequestPdfFileDelete}
                 onRequestPdfExtract={onRequestPdfExtract}
                 isPdfTextExtracted={isPdfTextExtracted}
+                isPdfTextExtracting={isPdfTextExtracting}
               />
             {isPdfTextExtracted && (
               <CorrectionPdfTextSection

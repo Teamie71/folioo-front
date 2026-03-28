@@ -13,6 +13,8 @@ export interface CorrectionPdfUploadBlockProps {
   onRequestPdfFileDelete: () => void;
   onRequestPdfExtract: () => void;
   isPdfTextExtracted: boolean;
+  /** 추출 모달 확인 후·추출 중에는 파일 삭제(호버) 비활성 */
+  isPdfTextExtracting: boolean;
 }
 
 export function CorrectionPdfUploadBlock({
@@ -23,7 +25,11 @@ export function CorrectionPdfUploadBlock({
   onRequestPdfFileDelete,
   onRequestPdfExtract,
   isPdfTextExtracted,
+  isPdfTextExtracting,
 }: CorrectionPdfUploadBlockProps) {
+  const showFileDeleteOnHover =
+    pdfUploadedFile && !isPdfTextExtracted && !isPdfTextExtracting;
+
   return (
     <div className='mt-[4.75rem] flex flex-col gap-[1.25rem]'>
       <div>
@@ -99,17 +105,19 @@ export function CorrectionPdfUploadBlock({
                     ? pdfUploadedFile.name
                     : `${pdfUploadedFile.name}.pdf`}
                 </span>
-                <button
-                  type='button'
-                  className='absolute top-[0.75rem] right-[0.75rem] flex h-[1.5rem] w-[1.5rem] cursor-pointer items-center justify-center rounded-[0.25rem] bg-[#74777D] opacity-0 transition-opacity duration-150 group-hover:opacity-100'
-                  aria-label='파일 삭제'
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRequestPdfFileDelete();
-                  }}
-                >
-                  <FileCloseIcon />
-                </button>
+                {showFileDeleteOnHover && (
+                  <button
+                    type='button'
+                    className='absolute top-[0.75rem] right-[0.75rem] flex h-[1.5rem] w-[1.5rem] cursor-pointer items-center justify-center rounded-[0.25rem] bg-[#74777D] opacity-0 transition-opacity duration-150 group-hover:opacity-100'
+                    aria-label='파일 삭제'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRequestPdfFileDelete();
+                    }}
+                  >
+                    <FileCloseIcon />
+                  </button>
+                )}
               </>
             ) : (
               <>
