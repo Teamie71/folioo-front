@@ -76,7 +76,6 @@ function TopupPageContent() {
 
   const [selectedVoucher, setSelectedVoucher] =
     useState<SelectedVoucher | null>(null);
-  /** OBT 임시: 구매하기 → OBTRedirectModal (결제 복구 시 false만 쓰도록 조정) */
   const [obtPurchaseRedirectOpen, setObtPurchaseRedirectOpen] = useState(false);
   const [challengeModalOpen, setChallengeModalOpen] = useState(false);
   const router = useRouter();
@@ -193,14 +192,10 @@ function TopupPageContent() {
     }, */
   ];
 
-  const handlePurchaseClick = (_type: VoucherType, _option: VoucherOption) => {
-    setObtPurchaseRedirectOpen(true);
-    /* OBT 임시 끝나면 아래 주석 해제 + PaymentModal JSX 주석 해제
+  const handlePurchaseClick = (type: VoucherType, option: VoucherOption) => {
     setSelectedVoucher({ type, option });
-    */
   };
 
-  /* OBT 임시: PaymentModal 비활성화 중 — 복구 시 아래 주석 해제
   const handleConfirmPurchase = async () => {
     if (!selectedVoucher) return;
     const ticketProductId = getTicketProductId(
@@ -242,7 +237,6 @@ function TopupPageContent() {
       setSelectedVoucher(null);
     }
   };
-  */
 
   return (
     <>
@@ -407,7 +401,6 @@ function TopupPageContent() {
         </section>
       </div>
 
-      {/* OBT 임시: 결제 모달 비활성 — 복구 시 주석 해제 + handleConfirmPurchase 주석 해제 + handlePurchaseClick에서 setSelectedVoucher 복구
       <PaymentModal
         open={!!selectedVoucher}
         onOpenChange={(open) => !open && setSelectedVoucher(null)}
@@ -418,7 +411,6 @@ function TopupPageContent() {
         }
         onConfirm={handleConfirmPurchase}
       />
-      */}
 
       <OBTRedirectModal
         open={obtPurchaseRedirectOpen}
