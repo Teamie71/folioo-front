@@ -222,6 +222,7 @@ export * from './interviewControllerGeneratePortfolio200';
 export * from './interviewControllerGeneratePortfolio200Error';
 export * from './interviewControllerGetSessionState200';
 export * from './interviewControllerGetSessionState200Error';
+export * from './interviewControllerSendChatStreamBody';
 export * from './interviewMessageResDTO';
 export * from './interviewSessionStateResDTO';
 export * from './mapCorrectionWithPortfoliosReqDTO';

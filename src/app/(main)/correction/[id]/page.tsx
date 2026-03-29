@@ -247,7 +247,9 @@ export default function CorrectionSettingsPage() {
         )}
       </div>
 
-      {s.step === 'result' && <FeedbackFloatingButton />}
+      {s.step === 'result' && s.status === 'DONE' && (
+        <FeedbackFloatingButton />
+      )}
     </CorrectionLayout>
   );
 }

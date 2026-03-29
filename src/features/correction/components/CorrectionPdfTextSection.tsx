@@ -4,7 +4,10 @@ import { type MutableRefObject, useEffect, useRef } from 'react';
 import { useExternalPortfolioControllerGetSelectedPortfolios } from '@/api/endpoints/portfolio/portfolio';
 import { CommonButton } from '@/components/CommonButton';
 import { CorrectionLoadingSpinner } from '@/features/correction/components/CorrectionLoadingSpinner';
-import { mapToPdfActivityBlock } from '@/services/correction';
+import {
+  assignPlaceholderLabelsForEmptyPdfNames,
+  mapToPdfActivityBlock,
+} from '@/services/correction';
 import type { PdfActivityBlock, PdfCategoryName } from '@/types/correction';
 import { CorrectionPdfActivityTabs } from './CorrectionPdfActivityTabs';
 import { CorrectionPdfBulletEditor } from './CorrectionPdfBulletEditor';
@@ -108,7 +111,9 @@ export function CorrectionPdfTextSection({
     if (!Array.isArray(list) || list.length === 0) return;
     if (lastSyncedExtractNonceRef.current === pdfExtractNonce) return;
 
-    const activities = list.map((dto, i) => mapToPdfActivityBlock(dto, i));
+    const activities = assignPlaceholderLabelsForEmptyPdfNames(
+      list.map((dto, i) => mapToPdfActivityBlock(dto, i)),
+    );
     setPdfActivities(activities);
     lastSyncedExtractNonceRef.current = pdfExtractNonce;
     onPdfPortfoliosHydratedFromQuery(activities);
