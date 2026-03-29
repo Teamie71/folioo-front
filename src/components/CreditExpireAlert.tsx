@@ -226,23 +226,40 @@ export function CreditExpireAlert({
               </defs>
             </svg>
 
-            {/* 내용 영역 */}
-            <div className='absolute inset-0 z-10 flex flex-col justify-center px-[1.5rem] pt-[0.25rem] md:px-[2.5rem]'>
-              <ul className='list-none text-center text-[0.875rem] font-semibold text-[#1A1A1A] md:list-disc md:text-[1rem]'>
+            {/* 내용 영역 — 모바일: 전체 박스, 데스크톱: SVG 흰색 본문 영역(꼭지·그림자 제외)에 맞춤 */}
+            <div
+              className={cn(
+                'absolute z-10 flex flex-col justify-center',
+                'inset-0 px-[1.125rem] pb-2 pt-[0.25rem]',
+                'md:inset-auto md:left-[12%] md:right-[6%] md:top-[20%] md:bottom-[13%]',
+                'md:justify-center md:px-0 md:py-0',
+              )}
+            >
+              <ul
+                className={cn(
+                  'w-full list-none text-center text-[0.875rem] font-semibold text-[#1A1A1A]',
+                  'md:list-outside md:list-disc md:pl-5 md:text-left md:text-[1rem]',
+                )}
+              >
                 {experienceCount > 0 && (
-                  <li>
+                  <li className='max-md:px-[0.25rem]'>
                     {experienceExpireDate} 경험 정리 {experienceCount}회 이용권
                     만료 예정
                   </li>
                 )}
                 {portfolioCount > 0 && (
-                  <li>
+                  <li className='max-md:px-[0.25rem]'>
                     {portfolioExpireDate} 포트폴리오 첨삭 {portfolioCount}회
                     이용권 만료 예정
                   </li>
                 )}
               </ul>
-              <p className='mt-[0.5rem] pl-[0.75rem] text-[0.75rem] text-[#74777D] md:pl-[1.75rem] md:text-[0.875rem]'>
+              <p
+                className={cn(
+                  'mt-[0.5rem] w-full text-left text-[0.75rem] text-[#74777D]',
+                  'pl-4 md:pl-2 md:text-[0.875rem]',
+                )}
+              >
                 이용권 결제 또는 획득 내역은 {/* OBT 기간 동안 주석 처리 */}
                 {/* <button
                   type='button'
