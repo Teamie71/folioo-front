@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import { ButtonProps } from '@/components/ui/Button';
 import { cn } from '@/utils/utils';
-import { useRouter } from 'next/navigation';
 import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { useUserControllerGetExpiringTickets } from '@/api/endpoints/user/user';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -51,29 +50,20 @@ export function CreditExpireAlert({
     { query: { enabled: !!accessToken } }
   );
 
-  // 강제로 띄우기 위한 임시 코드 (테스트용)
-  const hasExpiring = true;
-  const experienceCount = 1;
-  const portfolioCount = 1;
-  const experienceExpireDate = '2026.03.18';
-  const portfolioExpireDate = '2026.03.18';
-
-  // 기존 로직 주석 처리
-  // const result = expiringData?.result;
-  // const experienceCount = result?.experience?.count ?? 0;
-  // const portfolioCount = result?.portfolioCorrection?.count ?? 0;
-  // const experienceExpireDate = formatExpireDate(
-  //   result?.experience?.earliestExpiredAt as string | null | undefined
-  // );
-  // const portfolioExpireDate = formatExpireDate(
-  //   result?.portfolioCorrection?.earliestExpiredAt as string | null | undefined
-  // );
-  // const hasExpiring = experienceCount > 0 || portfolioCount > 0;
+  const result = expiringData?.result;
+  const experienceCount = result?.experience?.count ?? 0;
+  const portfolioCount = result?.portfolioCorrection?.count ?? 0;
+  const experienceExpireDate = formatExpireDate(
+    result?.experience?.earliestExpiredAt,
+  );
+  const portfolioExpireDate = formatExpireDate(
+    result?.portfolioCorrection?.earliestExpiredAt,
+  );
+  const hasExpiring = experienceCount > 0 || portfolioCount > 0;
 
   const [isOpen, setIsOpen] = useState(false);
   const [obtModalOpen, setObtModalOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
