@@ -28,7 +28,6 @@ import { useRouter } from 'next/navigation';
 import { useCorrectionNavbar } from '@/contexts/CorrectionNavbarContext';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
-  getNextPdfPlaceholderLabelIndex,
   getPdfActivityPlaceholderLabel,
   INITIAL_PDF_ACTIVITIES,
   PDF_CATEGORY_CHAR_LIMIT,
@@ -133,6 +132,8 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [pdfShakeKey, setPdfShakeKey] = useState(0);
   const [isPdfDropOverlayActive, setIsPdfDropOverlayActive] = useState(false);
   const pdfFileInputRef = useRef<HTMLInputElement>(null);
+  /** + 로 추가한 블록만 순서대로 활동 A, B… (리스트 인덱스와 무관) */
+  const pdfManualAddLabelSeqRef = useRef(0);
   const bulletTextareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
   const lastBulletEnterAt = useRef<number>(0);
   const [showTextPortfolioWarning, setShowTextPortfolioWarning] =
@@ -264,6 +265,7 @@ export function useCorrectionState(correctionId: string | undefined) {
 
   const handlePdfPortfoliosHydratedFromQuery = useCallback(
     (activities: PdfActivityBlock[]) => {
+      pdfManualAddLabelSeqRef.current = 0;
       setIsPdfTextExtracting(false);
       if (activities[0]) setSelectedActivityId(activities[0].id);
     },
@@ -324,8 +326,6 @@ export function useCorrectionState(correctionId: string | undefined) {
     const id = effectiveId ? Number(effectiveId) : null;
     if (id == null || Number.isNaN(id)) return;
     if (pdfActivities.length >= 5) return;
-    const addSeq = getNextPdfPlaceholderLabelIndex(pdfActivities);
-    if (addSeq == null) return;
     try {
       const res = await externalPortfolioControllerCreateExternalPortfolioBlock(
         {
@@ -337,6 +337,9 @@ export function useCorrectionState(correctionId: string | undefined) {
       ).result;
       if (!result) throw new Error();
       const insertIndex = pdfActivities.length;
+      const addSeq = pdfManualAddLabelSeqRef.current;
+      if (addSeq >= 5) return;
+      pdfManualAddLabelSeqRef.current = addSeq + 1;
       const newBlock: PdfActivityBlock = {
         ...mapToPdfActivityBlock(result, insertIndex),
         label: getPdfActivityPlaceholderLabel(addSeq),
@@ -346,7 +349,7 @@ export function useCorrectionState(correctionId: string | undefined) {
     } catch {
       // 실패 시 무시
     }
-  }, [effectiveId, pdfActivities]);
+  }, [effectiveId, pdfActivities.length]);
 
   const debouncedPatchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handlePdfActivityChange = useCallback((activity: PdfActivityBlock) => {
@@ -384,25 +387,6 @@ export function useCorrectionState(correctionId: string | undefined) {
               .filter((n) => !Number.isNaN(n));
       if (portfolioIds.length === 0) return;
       try {
-        if (selectedPortfolioType === 'pdf') {
-          if (debouncedPatchRef.current) {
-            clearTimeout(debouncedPatchRef.current);
-            debouncedPatchRef.current = null;
-          }
-          await Promise.all(
-            pdfActivities
-              .filter(
-                (a): a is PdfActivityBlock & { portfolioId: number } =>
-                  a.portfolioId != null,
-              )
-              .map((activity) =>
-                externalPortfolioControllerUpdateExternalPortfolio(
-                  activity.portfolioId,
-                  toPatchBody(activity),
-                ).catch(() => {}),
-              ),
-          );
-        }
         await portfolioCorrectionControllerMapCorrectionWithPortfolios(id, {
           portfolioIds,
         });
@@ -457,7 +441,6 @@ export function useCorrectionState(correctionId: string | undefined) {
     textPortfolios.length,
     pdfActivities,
     analysisInfoValue,
-    emphasisPointsValue,
   ]);
 
   const handleStartNewExperience = useCallback(() => {
