@@ -28,7 +28,7 @@ import type {
   CommonResponse,
   InterviewControllerGeneratePortfolio200,
   InterviewControllerGetSessionState200,
-  SendInterviewChatReqDTO,
+  InterviewControllerSendChatStreamBody,
   StreamContentBlockDeltaDTO,
   StreamMessageCompleteDTO,
   StreamPingDTO,
@@ -111,15 +111,22 @@ export const useInterviewControllerCreateSessionStream = <TError = CommonRespons
  */
 export const interviewControllerSendChatStream = (
     experienceId: number,
-    sendInterviewChatReqDTO: SendInterviewChatReqDTO,
+    interviewControllerSendChatStreamBody: InterviewControllerSendChatStreamBody,
  options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
-      
+      const formData = new FormData();
+formData.append(`message`, interviewControllerSendChatStreamBody.message);
+if(interviewControllerSendChatStreamBody.insightId !== undefined) {
+ formData.append(`insightId`, interviewControllerSendChatStreamBody.insightId.toString())
+ }
+if(interviewControllerSendChatStreamBody.files !== undefined) {
+ interviewControllerSendChatStreamBody.files.forEach(value => formData.append(`files`, value));
+ }
+
       return customInstance<StreamRetrieverStatusDTO | StreamRetrieverResultDTO | StreamPingDTO | StreamContentBlockDeltaDTO | StreamMessageCompleteDTO>(
       {url: `/interview/experiences/${experienceId}/messages/stream`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: sendInterviewChatReqDTO, signal
+       data: formData, signal
     },
       options);
     }
@@ -127,8 +134,8 @@ export const interviewControllerSendChatStream = (
 
 
 export const getInterviewControllerSendChatStreamMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof interviewControllerSendChatStream>>, TError,{experienceId: number;data: SendInterviewChatReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof interviewControllerSendChatStream>>, TError,{experienceId: number;data: SendInterviewChatReqDTO}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof interviewControllerSendChatStream>>, TError,{experienceId: number;data: InterviewControllerSendChatStreamBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof interviewControllerSendChatStream>>, TError,{experienceId: number;data: InterviewControllerSendChatStreamBody}, TContext> => {
 
 const mutationKey = ['interviewControllerSendChatStream'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -140,7 +147,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof interviewControllerSendChatStream>>, {experienceId: number;data: SendInterviewChatReqDTO}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof interviewControllerSendChatStream>>, {experienceId: number;data: InterviewControllerSendChatStreamBody}> = (props) => {
           const {experienceId,data} = props ?? {};
 
           return  interviewControllerSendChatStream(experienceId,data,requestOptions)
@@ -154,18 +161,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type InterviewControllerSendChatStreamMutationResult = NonNullable<Awaited<ReturnType<typeof interviewControllerSendChatStream>>>
-    export type InterviewControllerSendChatStreamMutationBody = SendInterviewChatReqDTO
+    export type InterviewControllerSendChatStreamMutationBody = InterviewControllerSendChatStreamBody
     export type InterviewControllerSendChatStreamMutationError = CommonResponse
 
     /**
  * @summary 인터뷰 채팅 메시지 전송 및 SSE 스트리밍
  */
 export const useInterviewControllerSendChatStream = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof interviewControllerSendChatStream>>, TError,{experienceId: number;data: SendInterviewChatReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof interviewControllerSendChatStream>>, TError,{experienceId: number;data: InterviewControllerSendChatStreamBody}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof interviewControllerSendChatStream>>,
         TError,
-        {experienceId: number;data: SendInterviewChatReqDTO},
+        {experienceId: number;data: InterviewControllerSendChatStreamBody},
         TContext
       > => {
       return useMutation(getInterviewControllerSendChatStreamMutationOptions(options), queryClient);
