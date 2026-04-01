@@ -193,7 +193,7 @@ function TopupPageContent() {
   ];
 
   const handlePurchaseClick = (type: VoucherType, option: VoucherOption) => {
-    setSelectedVoucher({ type, option });
+    setObtPurchaseRedirectOpen(true);
   };
 
   const handleConfirmPurchase = async () => {
