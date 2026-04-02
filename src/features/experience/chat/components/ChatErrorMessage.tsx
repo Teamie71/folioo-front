@@ -2,12 +2,17 @@
 
 import { ChatErrorIcon } from '@/components/icons/ChatErrorIcon';
 
-export type ChatErrorType = 'capacity' | 'format' | 'charLimit';
+export type ChatErrorType =
+  | 'capacity'
+  | 'format'
+  | 'charLimit'
+  | 'fileCountLimit';
 
 const ERROR_MESSAGES: Record<ChatErrorType, string> = {
   capacity: '업로드 가능한 총 용량(10MB)을 초과했어요.',
   format: 'PDF, PNG, JPG 형식만 업로드 가능해요.',
   charLimit: '입력 가능한 최대 글자수 (250자)를 초과했어요.',
+  fileCountLimit: '한 번에 최대 3개만 업로드 가능해요.',
 };
 
 interface ChatErrorMessageProps {
