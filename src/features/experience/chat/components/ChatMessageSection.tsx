@@ -152,12 +152,11 @@ export function ChatMessageSection({
               return null;
             }
 
-            const turnIndex =
-              index >= 2 ? Math.floor((index - 2) / 2) : -1;
+            const turnIndex = index >= 2 ? Math.floor((index - 2) / 2) : -1;
             const preloaded: InsightSummaryResDTO[] | undefined =
               turnIndex >= 0
                 ? (insightTurnHistory[turnIndex]?.insights ??
-                    insightsByTurn[turnIndex])
+                  insightsByTurn[turnIndex])
                 : undefined;
             const searchKeywordForTurn =
               index >= 1 && messages[index - 1]?.role === 'user'
@@ -188,9 +187,10 @@ export function ChatMessageSection({
                   width={48}
                   height={48}
                 />
-                <div className='font-regular max-w-[53.75rem] flex flex-col gap-[1.5rem] rounded-tl-[0.25rem] rounded-tr-[2rem] rounded-br-[2rem] rounded-bl-[2rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2.25rem] py-[1.75rem] text-[1rem] whitespace-pre-wrap text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
+                <div className='font-regular flex max-w-[53.75rem] flex-col gap-[1.5rem] rounded-tl-[0.25rem] rounded-tr-[2rem] rounded-br-[2rem] rounded-bl-[2rem] border border-[#CDD0D5] bg-[#FDFDFD] px-[2.25rem] py-[1.75rem] text-[1rem] whitespace-pre-wrap text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033]'>
                   {/* 1. 맨 위: 인사이트 문구 + 로그 카드 */}
-                  {(msg.content || (preloaded?.length ?? 0) > 0) && index > 0 ? (
+                  {(msg.content || (preloaded?.length ?? 0) > 0) &&
+                  index > 0 ? (
                     <ChatAnalogs
                       searchKeyword={searchKeywordForTurn}
                       preloadedInsights={preloaded}
@@ -243,7 +243,7 @@ export function ChatMessageSection({
                   }
                 }}
               >
-                <div className='font-regular mr-[0.5rem] max-w-[53.75rem] rounded-tl-[2rem] rounded-tr-[0.25rem] rounded-br-[2rem] rounded-bl-[2rem] border border-none bg-[#F6F5FF] px-[2.25rem] py-[1.75rem] text-[1rem] text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033] select-text'>
+                <div className='font-regular mr-[0.5rem] max-w-[54rem] rounded-tl-[2rem] rounded-tr-[0.25rem] rounded-br-[2rem] rounded-bl-[2rem] border border-none bg-[#F6F5FF] px-[2.25rem] py-[1.75rem] text-[1rem] text-[#1A1A1A] shadow-[0px_4px_8px_0px_#00000033] select-text'>
                   <div className='flex flex-col gap-[0.75rem]'>
                     {msg.files && msg.files.length > 0 && (
                       <div className='flex flex-wrap gap-[0.75rem]'>
@@ -253,7 +253,7 @@ export function ChatMessageSection({
                           return (
                             <div
                               key={fileIdx}
-                              className='relative flex h-[4.125rem] w-[17.875rem] items-center gap-[0.75rem] rounded-[0.75rem] border border-[#D1D5DB] bg-white px-[1rem] py-[0.75rem]'
+                              className='relative flex h-[4.125rem] w-[16rem] items-center gap-[0.75rem] rounded-[0.75rem] border border-[#D1D5DB] bg-white px-[1rem] py-[0.75rem]'
                             >
                               {isImage && file.preview ? (
                                 <div className='h-[2.5rem] w-[2.5rem] shrink-0 overflow-hidden'>
@@ -270,7 +270,7 @@ export function ChatMessageSection({
                                   <PdfIcon />
                                 </div>
                               ) : null}
-                              <div className='flex flex-col'>
+                              <div className='flex min-w-0 flex-1 flex-col'>
                                 <span
                                   className='truncate text-[1rem] font-semibold text-[#1A1A1A]'
                                   title={file.name}
