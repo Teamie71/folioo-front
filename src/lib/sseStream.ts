@@ -6,7 +6,7 @@ const getBaseUrl = () =>
 export async function fetchSSEStream<T = unknown>(params: {
   path: string;
   method: 'POST' | 'GET';
-  body?: string;
+  body?: string | FormData;
   signal?: AbortSignal;
   onEvent: (event: T) => void;
   onError?: (error: Error) => void;
@@ -16,9 +16,10 @@ export async function fetchSSEStream<T = unknown>(params: {
   const baseUrl = getBaseUrl();
   const url = `${baseUrl}${path}`;
   const token = useAuthStore.getState().accessToken;
+  const isFormData = body instanceof FormData;
   const headers: Record<string, string> = {
     Accept: 'text/event-stream',
-    ...(body ? { 'Content-Type': 'application/json' } : {}),
+    ...(body && !isFormData ? { 'Content-Type': 'application/json' } : {}),
   };
   if (token) {
     headers.Authorization = `Bearer ${token}`;
