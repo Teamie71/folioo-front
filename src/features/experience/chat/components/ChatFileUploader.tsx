@@ -61,7 +61,7 @@ export const ChatFileUploader = ({ onFileSelect }: ChatFileUploaderProps) => {
           alt=''
           width={432}
           height={110}
-          className='block'
+          className='block max-w-none'
         />
       </div>,
       document.body,
