@@ -62,7 +62,7 @@ export function EventModal({
             <p>Folioo와 함께 경험을 강력한 서류로 만들어보세요.</p>
           </div>
           <div className='text-[0.75rem] text-[#74777D]'>
-            <p>지급된 이용권은 일요일까지 사용 가능해요.</p>
+            <p>지급된 이용권은 {notice.payload?.displayPeriod ?? '일요일까지'} 사용 가능해요.</p>
           </div>
         </div>
       </div>

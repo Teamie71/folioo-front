@@ -374,6 +374,7 @@ export default function LogClient() {
                   value={selectedCategoryId}
                   onChange={setSelectedCategoryId}
                   menuWidth='15.375rem'
+                  menuClassName='right-[-1.25rem] top-[2.375rem]'
                 />
               </div>
             </div>
@@ -395,6 +396,7 @@ export default function LogClient() {
                   value={selectedActivityId}
                   onChange={setSelectedActivityId}
                   menuWidth='15.375rem'
+                  menuClassName='right-[-1.25rem] top-[2.375rem]'
                 />
               </div>
             </div>
