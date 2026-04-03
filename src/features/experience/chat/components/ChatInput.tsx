@@ -113,6 +113,7 @@ export const ChatInput = ({
     bottom: number;
   } | null>(null);
   const [capacityErrorShown, setCapacityErrorShown] = useState(false);
+  const [fileLimitErrorShown, setFileLimitErrorShown] = useState(false);
   const [charLimitToastShown, setCharLimitToastShown] = useState(false);
 
   useEffect(() => {
@@ -305,6 +306,12 @@ export const ChatInput = ({
     const hasRejected = allowed.length < selectedFiles.length;
     if (hasRejected) setFormatErrorShown(true);
 
+    // 개수 제한 체크 (최대 3개)
+    if (files.length + allowed.length > 3) {
+      setFileLimitErrorShown(true);
+      return;
+    }
+
     const currentTotal = files.reduce((sum, item) => sum + item.file.size, 0);
     let runningTotal = currentTotal;
     const toAdd: File[] = [];
@@ -327,6 +334,7 @@ export const ChatInput = ({
     if (!hasRejected && toAdd.length === allowed.length) {
       setFormatErrorShown(false);
       setCapacityErrorShown(false);
+      setFileLimitErrorShown(false);
     }
   };
 
@@ -337,11 +345,13 @@ export const ChatInput = ({
   const totalBytes = files.reduce((sum, item) => sum + item.file.size, 0);
   const error: ChatErrorType | null = charLimitToastShown
     ? 'charLimit'
-    : capacityErrorShown || totalBytes > MAX_UPLOAD_BYTES
-      ? 'capacity'
-      : formatErrorShown
-        ? 'format'
-        : null;
+    : fileLimitErrorShown
+      ? 'fileCountLimit'
+      : capacityErrorShown || totalBytes > MAX_UPLOAD_BYTES
+        ? 'capacity'
+        : formatErrorShown
+          ? 'format'
+          : null;
 
   const [errorSuppressed, setErrorSuppressed] = useState(false);
 
@@ -366,6 +376,12 @@ export const ChatInput = ({
     const t = setTimeout(() => setCapacityErrorShown(false), 2000);
     return () => clearTimeout(t);
   }, [capacityErrorShown]);
+
+  useEffect(() => {
+    if (!fileLimitErrorShown) return;
+    const t = setTimeout(() => setFileLimitErrorShown(false), 2000);
+    return () => clearTimeout(t);
+  }, [fileLimitErrorShown]);
 
   useEffect(() => {
     if (!charLimitToastShown) return;
