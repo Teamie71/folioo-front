@@ -154,10 +154,21 @@ function ExperienceSettingsChatContent() {
           const lastMsg = list[list.length - 1];
           // AI 답변이 도착했고 내용이 있는 경우에만 완료로 간주
           if (lastMsg.type === 'ai' && lastMsg.content) {
-            const restoredMessages: ChatMessage[] = list.map((m) => ({
-              role: (m.type === 'ai' ? 'ai' : 'user') as 'ai' | 'user',
-              content: m.content ?? '',
-            }));
+            const cached = getChatHistory<ChatMessage>(expId);
+            const restoredMessages: ChatMessage[] = list.map((m, idx) => {
+              const role = (m.type === 'ai' ? 'ai' : 'user') as 'ai' | 'user';
+              const base: ChatMessage = {
+                role,
+                content: m.content ?? '',
+              };
+              const prev = cached?.[idx];
+              if (prev && prev.role === role) {
+                if (prev.files) base.files = prev.files;
+                if (prev.contentParts) base.contentParts = prev.contentParts;
+              }
+              return base;
+            });
+
             setMessages(restoredMessages);
             setChatHistory(expId, restoredMessages);
             setIsStreaming(false);
@@ -379,10 +390,29 @@ function ExperienceSettingsChatContent() {
         const result = res?.result as InterviewSessionStateResDTO | undefined;
         const list = result?.messages;
         if (list && list.length > 0) {
-          const restoredMessages: ChatMessage[] = list.map((m) => ({
-            role: (m.type === 'ai' ? 'ai' : 'user') as 'ai' | 'user',
-            content: m.content ?? '',
+          const cachedRaw = getChatHistory<ChatMessage>(experienceId);
+          // Blob URL은 새로고침 후 무효화되므로 제거
+          const cached = cachedRaw?.map((msg) => ({
+            ...msg,
+            files: msg.files?.map((f) => ({
+              ...f,
+              preview: f.preview?.startsWith('blob:') ? undefined : f.preview,
+            })),
           }));
+
+          const restoredMessages: ChatMessage[] = list.map((m, idx) => {
+            const role = (m.type === 'ai' ? 'ai' : 'user') as 'ai' | 'user';
+            const base: ChatMessage = {
+              role,
+              content: m.content ?? '',
+            };
+            const prev = cached?.[idx];
+            if (prev && prev.role === role) {
+              if (prev.files) base.files = prev.files;
+              if (prev.contentParts) base.contentParts = prev.contentParts;
+            }
+            return base;
+          });
 
           const lastMsg = restoredMessages[restoredMessages.length - 1];
           // AI 답변이 와야 하는데 아직 없거나(user가 마지막), 비어있는 AI 메시지가 마지막인 경우 폴링 시작
@@ -537,7 +567,7 @@ function ExperienceSettingsChatContent() {
     /** 선택한 인사이트 ID (백엔드가 AI 서버에 mentioned_insight로 전달) */
     mentioned_insight?: string | number;
   }) => {
-    if (isStreaming || showRetryButton || !payload.content.trim()) return;
+    if (isStreaming || showRetryButton || (!payload.content.trim() && payload.files.length === 0)) return;
 
     const fileInfos = payload.files.map((f) => ({
       name: f.file.name,
