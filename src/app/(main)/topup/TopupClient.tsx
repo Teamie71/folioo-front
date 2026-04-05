@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useEffect, useRef } from 'react';
+import { Suspense, useState, useEffect, useRef, type ReactNode } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { openFeedbackForm } from '@/constants/feedback';
@@ -49,6 +49,15 @@ const PORTFOLIO_VOUCHERS: VoucherOption[] = [
 ];
 
 type SelectedVoucher = { type: VoucherType; option: VoucherOption };
+
+type BenefitCard = {
+  id: string;
+  icon: ReactNode;
+  title: string;
+  description: string;
+  /** 없으면 CTA 버튼 미표시 */
+  cta?: string;
+};
 
 // 이용권 타입 → API 타입 매핑
 const VOUCHER_TYPE_TO_API: Record<VoucherType, TicketProductResDTOType> = {
@@ -165,13 +174,20 @@ function TopupPageContent() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [searchParams]);
 
-  const benefitCards = [
+  const benefitCards: BenefitCard[] = [
+    {
+      id: 'weeklyGift',
+      icon: <BigCalendarIcon />,
+      title: 'Folioo는 매주 이용권 선물 증정 중!',
+      description:
+        '매주 월요일에 이용권 8개를 무료로 드려요. 그 주 일요일까지만 사용 가능하니, 선물을 놓치지 말고 사용해보세요!',
+    },
     {
       id: 'review',
       icon: <BigTicketIcon />,
-      title: 'Folioo 사용 후기를 남기면, 무료 이용권 2종 추가 지급!',
+      title: 'Folioo 사용 후기를 남기면, 이용권 2종 선물 증정!',
       description:
-        '이번 주의 첫 피드백을 남겨주시면, 감사의 마음을 담아 무료 이용권을 드려요.',
+        '첫 피드백을 남겨주시면, 감사의 마음을 담아 원하시는 무료 이용권을 드려요.',
       cta: '피드백 남기기',
     },
     /* OBT 기간 주석 처리
@@ -313,13 +329,15 @@ function TopupPageContent() {
           {benefitCards.map((card) => (
             <div
               key={card.id}
-              className='flex items-center justify-between gap-[1.5rem] rounded-[1.25rem] border border-[#E9EAEC] bg-white px-[2rem] py-[1.75rem] shadow-[0_4px_8px_rgba(0,0,0,0.08)]'
+              className={`flex items-center gap-[1.5rem] rounded-[1.25rem] border border-[#E9EAEC] bg-white px-[2rem] py-[1.75rem] shadow-[0_4px_8px_rgba(0,0,0,0.08)] ${
+                card.cta ? 'justify-between' : ''
+              }`}
             >
-              <div className='flex items-center gap-[1.75rem]'>
+              <div className='flex min-w-0 items-center gap-[1.75rem]'>
                 <div className='flex h-[4rem] w-[4rem] shrink-0 items-center justify-center'>
                   {card.icon}
                 </div>
-                <div className='flex flex-col gap-[0.5rem]'>
+                <div className='flex min-w-0 flex-col gap-[0.5rem]'>
                   <p className='text-[1.125rem] font-semibold'>{card.title}</p>
                   <p className='text-[1rem] text-[#74777D]'>
                     {card.description}
@@ -327,29 +345,31 @@ function TopupPageContent() {
                 </div>
               </div>
 
-              <CommonButton
-                variantType='Outline'
-                px='2.25rem'
-                py='0.5rem'
-                className='text-[1rem] font-semibold'
-                onClick={() => {
-                  if (card.id === 'phone') {
-                    router.push('/verify');
-                    return;
-                  }
-                  if (card.id === 'review') {
-                    openFeedbackForm();
-                    return;
-                  }
-                  if (card.id === 'cta') {
-                    setChallengeModalOpen(true);
-                    return;
-                  }
-                  console.log(`${card.id} CTA 클릭`);
-                }}
-              >
-                {card.cta}
-              </CommonButton>
+              {card.cta ? (
+                <CommonButton
+                  variantType='Outline'
+                  px='2.25rem'
+                  py='0.5rem'
+                  className='shrink-0 text-[1rem] font-semibold'
+                  onClick={() => {
+                    if (card.id === 'phone') {
+                      router.push('/verify');
+                      return;
+                    }
+                    if (card.id === 'review') {
+                      openFeedbackForm();
+                      return;
+                    }
+                    if (card.id === 'cta') {
+                      setChallengeModalOpen(true);
+                      return;
+                    }
+                    console.log(`${card.id} CTA 클릭`);
+                  }}
+                >
+                  {card.cta}
+                </CommonButton>
+              ) : null}
             </div>
           ))}
         </div>
