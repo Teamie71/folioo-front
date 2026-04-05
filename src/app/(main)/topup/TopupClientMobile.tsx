@@ -9,6 +9,7 @@ import { ChallengeModal } from '@/components/ChallengeModal';
 import { PaymentModal } from '@/components/PaymentModal';
 import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { BigTicketIcon } from '@/components/icons/BigTicketIcon';
+import { BigCalendarIcon } from '@/components/icons/BigCalendarIcon';
 import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
 import {
   usePaymentControllerCreatePayment,
@@ -275,6 +276,8 @@ function TopupClientMobileContent() {
       <div className='flex flex-col px-[1rem] py-[2rem] pb-[6.25rem]'>
         {activeTab === 'experience' && (
           <div className='flex flex-col gap-[2rem]'>
+            <WeeklyGiftEventCardMobile />
+
             {/* 이벤트 카드 */}
             <div className='flex flex-col items-center gap-[1rem] rounded-[1rem] border border-[#E9EAEC] bg-white p-[1.5rem] shadow-[0px_4px_8px_0px_#0000001A]'>
               <div className='flex w-full items-center justify-center gap-[0.75rem]'>
@@ -284,13 +287,13 @@ function TopupClientMobileContent() {
                 <p className='text-[1rem] leading-[1.4] font-semibold text-[#1A1A1A]'>
                   Folioo 사용 후기를 남기면,
                   <br />
-                  무료 이용권 2종 추가 지급!
+                  이용권 2종 선물 증정!
                 </p>
               </div>
               <p className='w-full text-center text-[0.75rem] leading-[1.4] text-[#74777D]'>
-                이번 주의 첫 피드백을 남겨주시면,
+                첫 피드백을 남겨주시면,
                 <br />
-                감사의 마음을 담아 무료 이용권을 드려요.
+                감사의 마음을 담아 원하시는 무료 이용권을 드려요.
               </p>
               <CommonButton
                 variantType='Outline'
@@ -388,6 +391,25 @@ export default function TopupClientMobile() {
     <Suspense fallback={null}>
       <TopupClientMobileContent />
     </Suspense>
+  );
+}
+
+function WeeklyGiftEventCardMobile() {
+  return (
+    <div className='flex flex-col items-center gap-[1rem] rounded-[1rem] border border-[#E9EAEC] bg-white p-[1.5rem] shadow-[0px_4px_8px_0px_#0000001A]'>
+      <div className='flex w-full items-center justify-center gap-[0.75rem]'>
+        <div className='flex h-[3rem] w-[3rem] shrink-0 items-center justify-center'>
+          <BigCalendarIcon />
+        </div>
+        <p className='text-[1rem] leading-[1.4] font-semibold text-[#1A1A1A]'>
+          Folioo는 매주 이용권 선물 증정 중!
+        </p>
+      </div>
+      <p className='w-full text-center text-[0.75rem] leading-[1.4] text-[#74777D]'>
+        매주 월요일에 이용권 8개를 무료로 드려요. 그 주 일요일까지만 사용 가능하니,
+        선물을 놓치지 말고 사용해보세요!
+      </p>
+    </div>
   );
 }
 
