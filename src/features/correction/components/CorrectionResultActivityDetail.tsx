@@ -27,6 +27,18 @@ const buttonClass = (selected: boolean) =>
     ? 'border border-[#CDD0D5] bg-[#FFFFFF] text-[#5060C5]'
     : 'border border-[#E9EAEC] bg-[#E9EAEC] text-[#74777D]';
 
+function hasPortfolioOriginText(value: string | undefined | null): boolean {
+  return Boolean(value?.trim());
+}
+
+function EmptyActivityOriginMessage() {
+  return (
+    <div className='flex min-h-[15.375rem] w-full flex-1 items-center justify-center text-center text-[1rem] font-normal text-[#74777D]'>
+      첨삭할 내용이 존재하지 않아요.
+    </div>
+  );
+}
+
 function highlightText(text: string, lines: CorrectionLineItemReqDTO[] = [], activeFilter: 'reduce' | 'emphasize') {
   if (!text) return '';
   let result = text;
@@ -113,11 +125,15 @@ export function CorrectionResultActivityDetail({
           상세정보
         </div>
         <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
-          <div className='min-w-0 flex-1'>
-            {renderMarkdown(
-              portfolio.description,
-              correctionItem.description?.lines || [],
-              detailInfoButton === '축소 또는 제외' ? 'reduce' : 'emphasize'
+          <div className='min-h-[15.375rem] min-w-0 flex-1'>
+            {hasPortfolioOriginText(portfolio.description) ? (
+              renderMarkdown(
+                portfolio.description,
+                correctionItem.description?.lines || [],
+                detailInfoButton === '축소 또는 제외' ? 'reduce' : 'emphasize',
+              )
+            ) : (
+              <EmptyActivityOriginMessage />
             )}
           </div>
           <div className='w-[1px] flex-shrink-0 bg-[#9EA4A9]' />
@@ -151,11 +167,15 @@ export function CorrectionResultActivityDetail({
           담당업무
         </div>
         <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
-          <div className='min-h-[8rem] min-w-0 flex-1'>
-            {renderMarkdown(
-              portfolio.responsibilities,
-              correctionItem.responsibilities?.lines || [],
-              responsibilityButton === '축소 또는 제외' ? 'reduce' : 'emphasize'
+          <div className='min-h-[15.375rem] min-w-0 flex-1'>
+            {hasPortfolioOriginText(portfolio.responsibilities) ? (
+              renderMarkdown(
+                portfolio.responsibilities,
+                correctionItem.responsibilities?.lines || [],
+                responsibilityButton === '축소 또는 제외' ? 'reduce' : 'emphasize',
+              )
+            ) : (
+              <EmptyActivityOriginMessage />
             )}
           </div>
           <div className='w-[1px] flex-shrink-0 bg-[#9EA4A9]' />
@@ -189,11 +209,15 @@ export function CorrectionResultActivityDetail({
           문제 해결
         </div>
         <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
-          <div className='min-h-[8rem] min-w-0 flex-1'>
-            {renderMarkdown(
-              portfolio.problemSolving,
-              correctionItem.problemSolving?.lines || [],
-              problemSolvingButton === '축소 또는 제외' ? 'reduce' : 'emphasize'
+          <div className='min-h-[15.375rem] min-w-0 flex-1'>
+            {hasPortfolioOriginText(portfolio.problemSolving) ? (
+              renderMarkdown(
+                portfolio.problemSolving,
+                correctionItem.problemSolving?.lines || [],
+                problemSolvingButton === '축소 또는 제외' ? 'reduce' : 'emphasize',
+              )
+            ) : (
+              <EmptyActivityOriginMessage />
             )}
           </div>
           <div className='w-[1px] flex-shrink-0 bg-[#9EA4A9]' />
@@ -223,11 +247,15 @@ export function CorrectionResultActivityDetail({
           배운 점
         </div>
         <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
-          <div className='min-h-[8rem] min-w-0 flex-1'>
-            {renderMarkdown(
-              portfolio.learnings,
-              correctionItem.learnings?.lines || [],
-              lessonsButton === '축소 또는 제외' ? 'reduce' : 'emphasize'
+          <div className='min-h-[15.375rem] min-w-0 flex-1'>
+            {hasPortfolioOriginText(portfolio.learnings) ? (
+              renderMarkdown(
+                portfolio.learnings,
+                correctionItem.learnings?.lines || [],
+                lessonsButton === '축소 또는 제외' ? 'reduce' : 'emphasize',
+              )
+            ) : (
+              <EmptyActivityOriginMessage />
             )}
           </div>
           <div className='w-[1px] flex-shrink-0 bg-[#9EA4A9]' />
