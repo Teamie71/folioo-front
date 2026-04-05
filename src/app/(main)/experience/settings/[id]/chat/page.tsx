@@ -567,7 +567,7 @@ function ExperienceSettingsChatContent() {
     /** 선택한 인사이트 ID (백엔드가 AI 서버에 mentioned_insight로 전달) */
     mentioned_insight?: string | number;
   }) => {
-    if (isStreaming || showRetryButton || !payload.content.trim()) return;
+    if (isStreaming || showRetryButton || (!payload.content.trim() && payload.files.length === 0)) return;
 
     const fileInfos = payload.files.map((f) => ({
       name: f.file.name,
