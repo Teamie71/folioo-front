@@ -3,14 +3,19 @@
 import { useRef, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { FileUploaderIcon } from '@/components/icons/FileUploaderIcon';
+import { ChatFileUploaderToolTip } from './ChatFileUploaderToolTip';
 
 const BUBBLE_GAP_PX = 10;
 
 interface ChatFileUploaderProps {
   onFileSelect?: (files: File[]) => void;
+  currentTotalSize?: number;
 }
 
-export const ChatFileUploader = ({ onFileSelect }: ChatFileUploaderProps) => {
+export const ChatFileUploader = ({
+  onFileSelect,
+  currentTotalSize = 0,
+}: ChatFileUploaderProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
   // hover 시 svg 표시
@@ -56,13 +61,7 @@ export const ChatFileUploader = ({ onFileSelect }: ChatFileUploaderProps) => {
           transform: 'translate(-50%, -100%)',
         }}
       >
-        <img
-          src='/FileHoveredBubble.svg'
-          alt=''
-          width={432}
-          height={110}
-          className='block max-w-none'
-        />
+        <ChatFileUploaderToolTip currentTotalSize={currentTotalSize} />
       </div>,
       document.body,
     );

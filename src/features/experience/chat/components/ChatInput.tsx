@@ -6,6 +6,7 @@ import { ChatErrorMessage, type ChatErrorType } from './ChatErrorMessage';
 import { ChatFileUploader } from './ChatFileUploader';
 import { ChatSendButton } from './ChatSendButton';
 import { ChatMention } from './ChatMention';
+import type { ChatMessage } from './ChatMessageSection';
 import { PdfIcon } from '@/components/icons/PdfIcon';
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10MB
@@ -59,6 +60,7 @@ interface ChatInputProps {
   }) => void;
   /* true면 전송 버튼 비활성화 */
   disabled?: boolean;
+  messages?: ChatMessage[];
 }
 
 const MAX_TITLE_LENGTH = 15;
@@ -101,6 +103,7 @@ export const ChatInput = ({
   onChange,
   onSend,
   disabled = false,
+  messages = [],
 }: ChatInputProps): React.ReactElement => {
   const contentRef = useRef<HTMLSpanElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -342,7 +345,14 @@ export const ChatInput = ({
     setFiles((prev) => prev.filter((item) => item.id !== fileId));
   };
 
-  const totalBytes = files.reduce((sum, item) => sum + item.file.size, 0);
+  const currentDraftBytes = files.reduce((sum, item) => sum + item.file.size, 0);
+  const sentFilesBytes = messages.reduce(
+    (sum, msg) =>
+      sum + (msg.files?.reduce((s, f) => s + (f.size ?? 0), 0) ?? 0),
+    0,
+  );
+  const totalBytes = currentDraftBytes + sentFilesBytes;
+
   const error: ChatErrorType | null = charLimitToastShown
     ? 'charLimit'
     : fileLimitErrorShown
@@ -486,7 +496,7 @@ export const ChatInput = ({
           onKeyDown={handleKeyDown}
         />
         <div className='flex shrink-0 items-center gap-[0.5rem]'>
-          <ChatFileUploader onFileSelect={handleFileSelect} />
+          <ChatFileUploader onFileSelect={handleFileSelect} currentTotalSize={totalBytes} />
           <ChatSendButton onClick={handleSend} disabled={!canSend} />
         </div>
       </div>

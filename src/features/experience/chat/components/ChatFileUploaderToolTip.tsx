@@ -1,6 +1,14 @@
 import React from 'react';
 
-export const ChatFileUploaderToolTip = () => {
+interface ChatFileUploaderToolTipProps {
+  currentTotalSize?: number;
+}
+
+export const ChatFileUploaderToolTip = ({
+  currentTotalSize = 0,
+}: ChatFileUploaderToolTipProps) => {
+  const formattedSize = (currentTotalSize / (1024 * 1024)).toFixed(1);
+
   return (
     <div
       className='relative flex flex-col items-center'
@@ -15,8 +23,7 @@ export const ChatFileUploaderToolTip = () => {
       <div className='flex flex-col items-center justify-center pt-[2rem] text-center'>
         <p className='typo-b2 text-gray9'>
           PDF, PNG, JPG 형식으로 총 10MB까지 첨부 가능해요.
-          <br />
-          (0 / 10.0 MB)
+          <br />({formattedSize} / 10.0 MB)
         </p>
       </div>
     </div>
