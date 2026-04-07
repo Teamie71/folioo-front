@@ -1041,6 +1041,7 @@ function ExperienceSettingsChatContent() {
           currentStep={currentStage}
           showTooltipForStep={showTooltipForStep}
           suppressStep0EntryTooltip={suppressStep0EntryTooltip}
+          messages={messages}
         />
       </div>
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ChatStepBubble } from './ChatStepBubble';
+import type { ChatMessage } from './ChatMessageSection';
 import { ChatInput, type ContentPart, type FileItem } from './ChatInput';
 
 const FADE_DURATION_MS = 500;
@@ -23,6 +24,7 @@ interface ChatStepSectionProps {
   showTooltipForStep?: number | null;
   /* true면 0단계 진입 툴팁 표시 안 함 (새로고침/세션 복원 시). 호버 시 툴팁은 그대로 */
   suppressStep0EntryTooltip?: boolean;
+  messages?: ChatMessage[];
 }
 
 export const ChatStepSection = ({
@@ -33,6 +35,7 @@ export const ChatStepSection = ({
   currentStep = 0,
   showTooltipForStep = null,
   suppressStep0EntryTooltip = true,
+  messages = [],
 }: ChatStepSectionProps) => {
   /* 그리드 호버 시 해당 단계 툴팁 표시 (0·1·2·3) */
   const [hoveringGridStep, setHoveringGridStep] = useState<number | null>(null);
@@ -346,6 +349,7 @@ export const ChatStepSection = ({
             onChange={onInputChange}
             onSend={onSend}
             disabled={disabled}
+            messages={messages}
           />
         </div>
       </div>
