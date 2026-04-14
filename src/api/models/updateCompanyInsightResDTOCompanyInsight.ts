@@ -7,7 +7,7 @@
  */
 
 /**
- * @maxLength 1500
+ * @maxLength 2000
  * @nullable
  */
 export type UpdateCompanyInsightResDTOCompanyInsight = { [key: string]: unknown } | null;

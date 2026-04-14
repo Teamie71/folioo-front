@@ -116,7 +116,9 @@ export const interviewControllerSendChatStream = (
 ) => {
       
       const formData = new FormData();
-formData.append(`message`, interviewControllerSendChatStreamBody.message);
+if(interviewControllerSendChatStreamBody.message !== undefined) {
+ formData.append(`message`, interviewControllerSendChatStreamBody.message);
+ }
 if(interviewControllerSendChatStreamBody.insightId !== undefined) {
  formData.append(`insightId`, interviewControllerSendChatStreamBody.insightId.toString())
  }

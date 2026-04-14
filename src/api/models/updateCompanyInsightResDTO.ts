@@ -12,7 +12,7 @@ export interface UpdateCompanyInsightResDTO {
   /** @nullable */
   id: number | null;
   /**
-   * @maxLength 1500
+   * @maxLength 2000
    * @nullable
    */
   companyInsight: UpdateCompanyInsightResDTOCompanyInsight;
