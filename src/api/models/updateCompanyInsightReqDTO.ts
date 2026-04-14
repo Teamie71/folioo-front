@@ -8,7 +8,7 @@
 
 export interface UpdateCompanyInsightReqDTO {
   /**
-   * @maxLength 1500
+   * @maxLength 2000
    * @nullable
    */
   companyInsight?: string | null;

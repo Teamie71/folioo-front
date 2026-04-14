@@ -9,7 +9,7 @@
 export interface UpdateCompanyInsightInternalReqDTO {
   /**
    * RAG로 생성된 기업 분석 텍스트
-   * @maxLength 1500
+   * @maxLength 2000
    */
   companyInsight: string;
 }
