@@ -595,23 +595,15 @@ function ExperienceSettingsChatContent() {
 
     const abort = new AbortController();
     const currentTurnIndex = (messages.length - 1) / 2;
-    const body: FormData | string =
-      payload.files.length > 0
-        ? (() => {
-            const fd = new FormData();
-            fd.append('message', payload.content.trim());
-            if (payload.mentioned_insight != null) {
-              fd.append('insightId', String(payload.mentioned_insight));
-            }
-            payload.files.forEach((f) => fd.append('files', f.file));
-            return fd;
-          })()
-        : JSON.stringify({
-            message: payload.content.trim(),
-            ...(payload.mentioned_insight != null && {
-              mentioned_insight: payload.mentioned_insight,
-            }),
-          });
+    const fd = new FormData();
+    fd.append('message', payload.content.trim());
+    if (payload.mentioned_insight != null) {
+      fd.append('insightId', String(payload.mentioned_insight));
+    }
+    if (payload.files.length > 0) {
+      payload.files.forEach((f) => fd.append('files', f.file));
+    }
+    const body = fd;
 
     fetchSSEStream({
       path: MESSAGES_STREAM_PATH(experienceId),
@@ -886,10 +878,12 @@ function ExperienceSettingsChatContent() {
     });
     setIsStreaming(true);
     const abort = new AbortController();
+    const fd = new FormData();
+    fd.append('message', content);
     fetchSSEStream({
       path: MESSAGES_STREAM_PATH(experienceId),
       method: 'POST',
-      body: JSON.stringify({ message: content }),
+      body: fd,
       signal: abort.signal,
       onEvent: (event: {
         delta?: { text?: string };
