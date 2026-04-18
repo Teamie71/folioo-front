@@ -6,11 +6,13 @@ import type { PortfolioType } from '@/types/correction';
 export interface CorrectionPortfolioTypeCardsProps {
   selectedPortfolioType: PortfolioType | null;
   onPortfolioSelect: (type: PortfolioType) => void;
+  disabled?: boolean;
 }
 
 export function CorrectionPortfolioTypeCards({
   selectedPortfolioType,
   onPortfolioSelect,
+  disabled = false,
 }: CorrectionPortfolioTypeCardsProps) {
   return (
     <div className='grid grid-cols-2 gap-[1.5rem]'>
@@ -34,6 +36,7 @@ export function CorrectionPortfolioTypeCards({
         title='텍스트형 포트폴리오'
         description='경험 정리를 바탕으로 생성된 텍스트형 포트폴리오를 첨삭해요.'
         selected={selectedPortfolioType === 'text'}
+        disabled={disabled}
         onClick={() => onPortfolioSelect('text')}
       />
       <PortfolioTypeCard
@@ -56,6 +59,7 @@ export function CorrectionPortfolioTypeCards({
         title='PDF 포트폴리오'
         description='업로드한 PDF 포트폴리오의 텍스트를 첨삭해요.'
         selected={selectedPortfolioType === 'pdf'}
+        disabled={disabled}
         onClick={() => onPortfolioSelect('pdf')}
       />
     </div>
