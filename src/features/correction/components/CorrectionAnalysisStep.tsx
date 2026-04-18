@@ -41,30 +41,22 @@ export function CorrectionAnalysisStep({
       : 0;
   const enabled = numId > 0 && !Number.isNaN(numId);
 
-  const { data, isLoading, isError, error, refetch } =
+  const { data, isLoading, isError, refetch } =
     usePortfolioCorrectionControllerGetCompanyInsight(numId, {
       query: {
         enabled,
-        retry: (failureCount, error: any) => {
-          const errorCode = error?.response?.data?.error?.errorCode || error?.error?.errorCode;
-          if (errorCode === 'CORRECTION4094') {
-            return true; // 계속 재시도
-          }
-          return failureCount < 3; // 기본적으로 3번 재시도
-        },
-        retryDelay: 3000,
         refetchInterval: (query) => {
-          const data = query.state.data as any;
-          if (data?.error?.errorCode === 'CORRECTION4094') {
-            return 3000;
-          }
+          type WithGenerationStatus = { generationStatus?: 'PENDING' | 'COMPLETED' | 'FAILED' };
+          const generationStatus = (query.state.data?.result as WithGenerationStatus)?.generationStatus;
+          if (generationStatus === 'PENDING') return 3000;
           return false;
         },
       },
     });
 
-  const isGenerating =
-    isLoading || data?.error?.errorCode === 'CORRECTION4094';
+  type WithGenerationStatus = { generationStatus?: 'PENDING' | 'COMPLETED' | 'FAILED' };
+  const generationStatus = (data?.result as WithGenerationStatus)?.generationStatus;
+  const isGenerating = isLoading || generationStatus === 'PENDING';
 
   const companyInsightRaw = data?.result?.companyInsight;
   const companyInsightText =
@@ -80,6 +72,7 @@ export function CorrectionAnalysisStep({
       !isGenerating &&
       !isError &&
       data?.isSuccess !== false &&
+      generationStatus !== 'FAILED' &&
       companyInsightText &&
       analysisInfoValue === ''
     ) {
@@ -92,6 +85,7 @@ export function CorrectionAnalysisStep({
     isGenerating,
     isError,
     data?.isSuccess,
+    generationStatus,
     companyInsightText,
     analysisInfoValue,
     onAnalysisInfoChange,
@@ -132,7 +126,7 @@ export function CorrectionAnalysisStep({
               <div className='flex min-h-[17.125rem] items-center justify-center rounded-[1.25rem] border border-[#74777D]'>
                 <CorrectionLoadingSpinner />
               </div>
-            ) : enabled && (isError || data?.isSuccess === false) ? (
+            ) : enabled && (isError || data?.isSuccess === false || generationStatus === 'FAILED') ? (
               <div className='flex min-h-[17.125rem] items-center justify-center rounded-[1.25rem] border border-[#74777D]'>
                 <CommonButton
                   variantType='Outline'
