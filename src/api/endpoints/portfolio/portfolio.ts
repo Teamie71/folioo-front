@@ -583,7 +583,7 @@ export const useExternalPortfolioControllerUpdateExternalPortfolio = <TError = C
       return useMutation(getExternalPortfolioControllerUpdateExternalPortfolioMutationOptions(options), queryClient);
     }
     /**
- * AI가 구조화한 포트폴리오 활동을 삭제합니다. (활동 옆 마이너스 버튼을 눌러 활성화)
+ * AI가 구조화한 포트폴리오 활동을 삭제합니다. 연결된 첨삭 선택/결과는 자동으로 해제됩니다. (활동 옆 마이너스 버튼을 눌러 활성화)
  * @summary PDF 포트폴리오 텍스트 정리 결과 삭제
  */
 export const externalPortfolioControllerDeleteExternalPortfolio = (
