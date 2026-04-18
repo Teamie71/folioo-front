@@ -63,40 +63,30 @@ export function CorrectionPdfTextSection({
       {
         query: {
           enabled,
-          retry: (failureCount, err: unknown) => {
-            const e = err as {
-              response?: { data?: { error?: { errorCode?: string } } };
-              error?: { errorCode?: string };
-            };
-            const errorCode =
-              e?.response?.data?.error?.errorCode || e?.error?.errorCode;
-            if (errorCode === 'CORRECTION4094') {
-              return true;
-            }
-            return failureCount < 3;
-          },
-          retryDelay: 3000,
           refetchInterval: (q) => {
+            type WithExtractionStatus = { extractionStatus?: 'PENDING' | 'COMPLETED' | 'FAILED' };
+            const extractionStatus = (q.state.data as WithExtractionStatus)?.extractionStatus;
             const len = q.state.data?.result?.length ?? 0;
-            if (len > 0) return false;
-            /* POST 성공 후(nonce>0)에도 isPdfTextExtracting이 먼저 false가 되면 폴링이 끊기지 않게 */
-            const shouldPoll =
-              isPdfTextExtracting || pdfExtractNonce > 0;
+            if (len > 0 || extractionStatus === 'COMPLETED' || extractionStatus === 'FAILED') return false;
+            const shouldPoll = isPdfTextExtracting || pdfExtractNonce > 0 || extractionStatus === 'PENDING';
             return shouldPoll ? 2000 : false;
           },
         },
       },
     );
 
+  type WithExtractionStatus = { extractionStatus?: 'PENDING' | 'COMPLETED' | 'FAILED' };
+  const extractionStatus = (data as WithExtractionStatus)?.extractionStatus;
   const listLen = data?.result?.length ?? 0;
-  const isFailed = isError || data?.isSuccess === false;
+  const isFailed = isError || data?.isSuccess === false || extractionStatus === 'FAILED';
   /**
    * 추출 접수 후·조회 중에는 결과 행이 생길 때까지 스피너 유지.
-   * (페칭 사이 간격에 isFetching이 잠깐 false여도 사라지지 않게 nonce·extracting으로 잡음)
+   * (페칭 사이 간격에 isFetching이 잠깐 false여도 사라지지 않게 nonce·extracting·PENDING으로 잡음)
    */
   const isWaitingForData =
     !isFailed &&
     (isPdfTextExtracting ||
+      extractionStatus === 'PENDING' ||
       (pdfExtractNonce > 0 && listLen === 0) ||
       (enabled && listLen === 0 && (isLoading || isFetching)));
   /** 성공 응답인데 행이 없고, 위 대기 조건도 아닐 때만(이론상 드묾) 재조회 유도 */
