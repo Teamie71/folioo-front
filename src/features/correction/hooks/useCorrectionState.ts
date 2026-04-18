@@ -131,7 +131,8 @@ export function useCorrectionState(correctionId: string | undefined) {
     useState(false);
   const [pdfUploadedFile, setPdfUploadedFile] = useState<{
     name: string;
-    file: File;
+    /** 직접 업로드한 경우에만 존재. 재진입 복원 시에는 없을 수 있음 */
+    file?: File;
   } | null>(null);
   const [pdfUploadError, setPdfUploadError] = useState<
     null | 'too_large' | 'too_many'
@@ -311,8 +312,11 @@ export function useCorrectionState(correctionId: string | undefined) {
         if (selectedPortfolioTypeRef.current !== null) return;
         if (res?.isSuccess === false) return;
 
-        type WithExtractionStatus = { extractionStatus?: 'PENDING' | 'COMPLETED' | 'FAILED' };
-        const extractionStatus = (res as WithExtractionStatus)?.extractionStatus;
+        type WithExtractionStatus = {
+          extractionStatus?: 'PENDING' | 'COMPLETED' | 'FAILED';
+          originalFileName?: string;
+        };
+        const { extractionStatus, originalFileName } = res as WithExtractionStatus;
 
         // extractionStatus 없음 → 추출 요청 전 → 타입 선택 화면 유지
         if (!extractionStatus) return;
@@ -321,6 +325,9 @@ export function useCorrectionState(correctionId: string | undefined) {
         setSelectedPortfolioType('pdf');
         setIsPdfTextExtracted(true);
         setIsPdfTextExtracting(false);
+        if (originalFileName) {
+          setPdfUploadedFile({ name: originalFileName });
+        }
 
         if (extractionStatus === 'PENDING') {
           // 추출 중: 섹션만 열고 nonce 올려 폴링 개시
@@ -358,7 +365,7 @@ export function useCorrectionState(correctionId: string | undefined) {
   ]);
 
   const handlePdfExtractConfirm = useCallback(async () => {
-    if (!pdfUploadedFile) return;
+    if (!pdfUploadedFile?.file) return;
     const id = effectiveId ? Number(effectiveId) : null;
     if (id == null || Number.isNaN(id)) return;
     const correctionId = id;
