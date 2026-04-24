@@ -312,14 +312,12 @@ export function useCorrectionState(correctionId: string | undefined) {
         if (selectedPortfolioTypeRef.current !== null) return;
         if (res?.isSuccess === false) return;
 
-        type WithExtractionStatus = {
-          extractionStatus?: 'PENDING' | 'COMPLETED' | 'FAILED';
-          originalFileName?: string;
-        };
-        const { extractionStatus, originalFileName } = res as WithExtractionStatus;
+        const extractionStatus = res?.result?.status;
+        const originalFileName = res?.result?.originalFileName as string | null | undefined;
+        const portfolios = res?.result?.portfolios ?? [];
 
-        // extractionStatus 없음 → 추출 요청 전 → 타입 선택 화면 유지
-        if (!extractionStatus) return;
+        // NONE → 추출 요청 전 → 타입 선택 화면 유지
+        if (!extractionStatus || extractionStatus === 'NONE') return;
 
         pdfPortfolioRestoreCompletedForIdRef.current = effectiveId;
         setSelectedPortfolioType('pdf');
@@ -329,22 +327,21 @@ export function useCorrectionState(correctionId: string | undefined) {
           setPdfUploadedFile({ name: originalFileName });
         }
 
-        if (extractionStatus === 'PENDING') {
+        if (extractionStatus === 'GENERATING') {
           // 추출 중: 섹션만 열고 nonce 올려 폴링 개시
           setPdfExtractNonce((n) => n + 1);
           return;
         }
 
         if (extractionStatus === 'FAILED') {
-          // 추출 실패: nonce 올리지 않음 → CorrectionPdfTextSection의 showEmptyRetry 표시
+          // 추출 실패: nonce 올리지 않음 → CorrectionPdfTextSection의 isFailed 표시
           return;
         }
 
-        // COMPLETED: 구조화 데이터 복원
-        const list = res?.result ?? [];
-        if (list.length > 0) {
+        // GENERATED: 구조화 데이터 복원
+        if (portfolios.length > 0) {
           const activities = assignPlaceholderLabelsForEmptyPdfNames(
-            list.map((dto, i) => mapToPdfActivityBlock(dto, i)),
+            portfolios.map((dto, i) => mapToPdfActivityBlock(dto, i)),
           );
           setPdfActivities(activities);
           setPdfExtractNonce((n) => n + 1);

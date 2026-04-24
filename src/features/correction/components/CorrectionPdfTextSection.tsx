@@ -64,29 +64,27 @@ export function CorrectionPdfTextSection({
         query: {
           enabled,
           refetchInterval: (q) => {
-            type WithExtractionStatus = { extractionStatus?: 'PENDING' | 'COMPLETED' | 'FAILED' };
-            const extractionStatus = (q.state.data as WithExtractionStatus)?.extractionStatus;
-            const len = q.state.data?.result?.length ?? 0;
-            if (len > 0 || extractionStatus === 'COMPLETED' || extractionStatus === 'FAILED') return false;
-            const shouldPoll = isPdfTextExtracting || pdfExtractNonce > 0 || extractionStatus === 'PENDING';
+            const status = q.state.data?.result?.status;
+            const len = q.state.data?.result?.portfolios?.length ?? 0;
+            if (len > 0 || status === 'GENERATED' || status === 'FAILED') return false;
+            const shouldPoll = isPdfTextExtracting || pdfExtractNonce > 0 || status === 'GENERATING';
             return shouldPoll ? 2000 : false;
           },
         },
       },
     );
 
-  type WithExtractionStatus = { extractionStatus?: 'PENDING' | 'COMPLETED' | 'FAILED' };
-  const extractionStatus = (data as WithExtractionStatus)?.extractionStatus;
-  const listLen = data?.result?.length ?? 0;
+  const extractionStatus = data?.result?.status;
+  const listLen = data?.result?.portfolios?.length ?? 0;
   const isFailed = isError || data?.isSuccess === false || extractionStatus === 'FAILED';
   /**
    * 추출 접수 후·조회 중에는 결과 행이 생길 때까지 스피너 유지.
-   * (페칭 사이 간격에 isFetching이 잠깐 false여도 사라지지 않게 nonce·extracting·PENDING으로 잡음)
+   * (페칭 사이 간격에 isFetching이 잠깐 false여도 사라지지 않게 nonce·extracting·GENERATING으로 잡음)
    */
   const isWaitingForData =
     !isFailed &&
     (isPdfTextExtracting ||
-      extractionStatus === 'PENDING' ||
+      extractionStatus === 'GENERATING' ||
       (pdfExtractNonce > 0 && listLen === 0) ||
       (enabled && listLen === 0 && (isLoading || isFetching)));
   /** 성공 응답인데 행이 없고, 위 대기 조건도 아닐 때만(이론상 드묾) 재조회 유도 */
@@ -97,7 +95,7 @@ export function CorrectionPdfTextSection({
 
   useEffect(() => {
     if (!enabled) return;
-    const list = data?.result;
+    const list = data?.result?.portfolios;
     if (!Array.isArray(list) || list.length === 0) return;
     if (lastSyncedExtractNonceRef.current === pdfExtractNonce) return;
 
