@@ -6,8 +6,10 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { CorrectionItemResDTO } from './correctionItemResDTO';
+import type { CorrectionResultResDTOStatus } from './correctionResultResDTOStatus';
 
 export interface CorrectionResultResDTO {
+  status: CorrectionResultResDTOStatus;
   companyName: string;
   positionName: string;
   jobDescription: string;
