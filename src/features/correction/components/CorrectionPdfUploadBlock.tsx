@@ -29,6 +29,8 @@ export function CorrectionPdfUploadBlock({
 }: CorrectionPdfUploadBlockProps) {
   const showFileDeleteOnHover =
     pdfUploadedFile && !isPdfTextExtracted && !isPdfTextExtracting;
+  /** 재진입 복원: 파일 객체는 없지만 이미 추출된 상태 */
+  const isRestoredWithoutFile = isPdfTextExtracted && !pdfUploadedFile;
 
   return (
     <div className='mt-[4.75rem] flex flex-col gap-[1.25rem]'>
@@ -97,13 +99,15 @@ export function CorrectionPdfUploadBlock({
               }
             }}
           >
-            {pdfUploadedFile ? (
+            {pdfUploadedFile || isRestoredWithoutFile ? (
               <>
                 <PdfIcon />
                 <span className='text-center text-[0.875rem] text-[#1A1A1A]'>
-                  {pdfUploadedFile.name.endsWith('.pdf')
-                    ? pdfUploadedFile.name
-                    : `${pdfUploadedFile.name}.pdf`}
+                  {pdfUploadedFile
+                    ? pdfUploadedFile.name.endsWith('.pdf')
+                      ? pdfUploadedFile.name
+                      : `${pdfUploadedFile.name}.pdf`
+                    : 'PDF 파일'}
                 </span>
                 {showFileDeleteOnHover && (
                   <button

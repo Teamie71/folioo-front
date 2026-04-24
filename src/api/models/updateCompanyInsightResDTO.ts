@@ -7,10 +7,12 @@
  */
 import type { UpdateCompanyInsightResDTOCompanyInsight } from './updateCompanyInsightResDTOCompanyInsight';
 import type { UpdateCompanyInsightResDTOHighlightPoint } from './updateCompanyInsightResDTOHighlightPoint';
+import type { UpdateCompanyInsightResDTOStatus } from './updateCompanyInsightResDTOStatus';
 
 export interface UpdateCompanyInsightResDTO {
   /** @nullable */
   id: number | null;
+  status: UpdateCompanyInsightResDTOStatus;
   /**
    * @maxLength 2000
    * @nullable

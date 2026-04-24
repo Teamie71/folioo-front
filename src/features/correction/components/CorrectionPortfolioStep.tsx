@@ -101,6 +101,7 @@ export function CorrectionPortfolioStep({
         <CorrectionPortfolioTypeCards
           selectedPortfolioType={selectedPortfolioType}
           onPortfolioSelect={onPortfolioSelect}
+          disabled={isPdfTextExtracted}
         />
 
         {selectedPortfolioType === 'text' && (

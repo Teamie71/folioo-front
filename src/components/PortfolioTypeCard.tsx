@@ -8,6 +8,7 @@ interface PortfolioTypeCardProps {
   title: string;
   description: string;
   selected?: boolean;
+  disabled?: boolean;
   onClick?: () => void;
   className?: string;
 }
@@ -17,6 +18,7 @@ export function PortfolioTypeCard({
   title,
   description,
   selected = false,
+  disabled = false,
   onClick,
   className,
 }: PortfolioTypeCardProps) {
@@ -25,12 +27,15 @@ export function PortfolioTypeCard({
       rounded="1.25rem"
       variant="white"
       className={cn(
-        'flex cursor-pointer flex-col items-center gap-[0.25rem] border border-[#CDD0D5] bg-[#FFFFFF] p-[2.25rem] shadow-[0_0.25rem_0.5rem_0_#00000033] transition-all hover:shadow-[0_0.375rem_1.25rem_0_#00000033]',
+        'flex flex-col items-center gap-[0.25rem] border border-[#CDD0D5] bg-[#FFFFFF] p-[2.25rem] shadow-[0_0.25rem_0.5rem_0_#00000033] transition-all',
+        disabled
+          ? 'cursor-default'
+          : 'cursor-pointer hover:shadow-[0_0.375rem_1.25rem_0_#00000033]',
         selected &&
           'border-[1.5px] border-[#5060C5] bg-[#F6F5FF] shadow-[0_0.25rem_0.5rem_0_#00000033] hover:shadow-[0_0.25rem_0.5rem_0_#00000033]',
         className,
       )}
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
     >
       <div
         className={cn(

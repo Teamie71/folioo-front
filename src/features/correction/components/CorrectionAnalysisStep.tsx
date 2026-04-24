@@ -41,30 +41,27 @@ export function CorrectionAnalysisStep({
       : 0;
   const enabled = numId > 0 && !Number.isNaN(numId);
 
-  const { data, isLoading, isError, error, refetch } =
+  const { data, isLoading, isError, refetch } =
     usePortfolioCorrectionControllerGetCompanyInsight(numId, {
       query: {
         enabled,
-        retry: (failureCount, error: any) => {
-          const errorCode = error?.response?.data?.error?.errorCode || error?.error?.errorCode;
-          if (errorCode === 'CORRECTION4094') {
-            return true; // 계속 재시도
-          }
-          return failureCount < 3; // 기본적으로 3번 재시도
-        },
-        retryDelay: 3000,
         refetchInterval: (query) => {
-          const data = query.state.data as any;
-          if (data?.error?.errorCode === 'CORRECTION4094') {
-            return 3000;
-          }
-          return false;
+          const status = query.state.data?.result?.status;
+          const isPending =
+            status === 'NOT_STARTED' ||
+            status === 'DOING_RAG';
+          return isPending ? 3000 : false;
         },
       },
     });
 
+  const generationStatus = data?.result?.status;
   const isGenerating =
-    isLoading || data?.error?.errorCode === 'CORRECTION4094';
+    isLoading ||
+    generationStatus === 'NOT_STARTED' ||
+    generationStatus === 'DOING_RAG';
+  const isGenerationFailed =
+    generationStatus === 'RAG_FAILED' || generationStatus === 'FAILED';
 
   const companyInsightRaw = data?.result?.companyInsight;
   const companyInsightText =
@@ -80,6 +77,7 @@ export function CorrectionAnalysisStep({
       !isGenerating &&
       !isError &&
       data?.isSuccess !== false &&
+      !isGenerationFailed &&
       companyInsightText &&
       analysisInfoValue === ''
     ) {
@@ -92,6 +90,7 @@ export function CorrectionAnalysisStep({
     isGenerating,
     isError,
     data?.isSuccess,
+    generationStatus,
     companyInsightText,
     analysisInfoValue,
     onAnalysisInfoChange,
@@ -132,7 +131,7 @@ export function CorrectionAnalysisStep({
               <div className='flex min-h-[17.125rem] items-center justify-center rounded-[1.25rem] border border-[#74777D]'>
                 <CorrectionLoadingSpinner />
               </div>
-            ) : enabled && (isError || data?.isSuccess === false) ? (
+            ) : enabled && (isError || data?.isSuccess === false || isGenerationFailed) ? (
               <div className='flex min-h-[17.125rem] items-center justify-center rounded-[1.25rem] border border-[#74777D]'>
                 <CommonButton
                   variantType='Outline'

@@ -6,12 +6,12 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { ExternalPortfolioControllerGetSelectedPortfolios200Error } from './externalPortfolioControllerGetSelectedPortfolios200Error';
-import type { StructuredPortfolioResDTO } from './structuredPortfolioResDTO';
+import type { ExternalPortfolioListResDTO } from './externalPortfolioListResDTO';
 
 export type ExternalPortfolioControllerGetSelectedPortfolios200 = {
   timestamp?: string;
   isSuccess?: boolean;
   /** @nullable */
   error?: ExternalPortfolioControllerGetSelectedPortfolios200Error;
-  result?: StructuredPortfolioResDTO[];
+  result?: ExternalPortfolioListResDTO;
 };

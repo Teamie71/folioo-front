@@ -4,6 +4,7 @@ import {
   externalPortfolioControllerCreateExternalPortfolioBlock,
   externalPortfolioControllerDeleteExternalPortfolio,
   externalPortfolioControllerExtractPortfolios,
+  externalPortfolioControllerGetSelectedPortfolios,
   externalPortfolioControllerUpdateExternalPortfolio,
   getExternalPortfolioControllerGetSelectedPortfoliosQueryKey,
 } from '@/api/endpoints/portfolio/portfolio';
@@ -21,7 +22,11 @@ import type {
   ExternalPortfolioControllerCreateExternalPortfolioBlock200,
 } from '@/api/models';
 import { usePortfolioControllerGetPortfolios } from '@/api/endpoints/portfolio/portfolio';
-import { mapToPdfActivityBlock, toPatchBody } from '@/services/correction';
+import {
+  assignPlaceholderLabelsForEmptyPdfNames,
+  mapToPdfActivityBlock,
+  toPatchBody,
+} from '@/services/correction';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -83,6 +88,8 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [status, setStatus] = useState<Status>('DRAFT');
   const [selectedPortfolioType, setSelectedPortfolioType] =
     useState<PortfolioType | null>(null);
+  const selectedPortfolioTypeRef = useRef<PortfolioType | null>(null);
+  selectedPortfolioTypeRef.current = selectedPortfolioType;
   const [pdfActivities, setPdfActivities] = useState<PdfActivityBlock[]>(
     INITIAL_PDF_ACTIVITIES,
   );
@@ -124,7 +131,8 @@ export function useCorrectionState(correctionId: string | undefined) {
     useState(false);
   const [pdfUploadedFile, setPdfUploadedFile] = useState<{
     name: string;
-    file: File;
+    /** 직접 업로드한 경우에만 존재. 재진입 복원 시에는 없을 수 있음 */
+    file?: File;
   } | null>(null);
   const [pdfUploadError, setPdfUploadError] = useState<
     null | 'too_large' | 'too_many'
@@ -272,8 +280,89 @@ export function useCorrectionState(correctionId: string | undefined) {
     [],
   );
 
+  /** 이 correctionId에 대해 서버 데이터로 PDF UI 복원을 이미 적용했는지 (Strict Mode 이중 실행 방지) */
+  const pdfPortfolioRestoreCompletedForIdRef = useRef<string>('');
+  useEffect(() => {
+    pdfPortfolioRestoreCompletedForIdRef.current = '';
+  }, [effectiveId]);
+
+  /**
+   * 재진입: step === 'portfolio'인데 이미 추출 요청이 된 적 있으면
+   * extractionStatus 기준으로 PDF 선택 + 텍스트 정리 UI 복원
+   *
+   * - PENDING  → PDF + 스피너 (nonce 증가로 CorrectionPdfTextSection 폴링 개시)
+   * - COMPLETED → PDF + 데이터 복원
+   * - FAILED   → PDF + 재시도 버튼 (nonce 올리지 않아 showEmptyRetry 표시)
+   * - undefined → 추출 요청 자체 없음 → 복원 안 함
+   */
+  useEffect(() => {
+    if (isInitializing) return;
+    if (step !== 'portfolio' || status !== 'DRAFT') return;
+    if (!effectiveId) return;
+    if (selectedPortfolioTypeRef.current !== null) return;
+
+    const id = Number(effectiveId);
+    if (Number.isNaN(id) || id <= 0) return;
+    if (pdfPortfolioRestoreCompletedForIdRef.current === effectiveId) return;
+
+    let cancelled = false;
+    externalPortfolioControllerGetSelectedPortfolios({ correctionId: id })
+      .then((res) => {
+        if (cancelled) return;
+        if (selectedPortfolioTypeRef.current !== null) return;
+        if (res?.isSuccess === false) return;
+
+        const extractionStatus = res?.result?.status;
+        const originalFileName = res?.result?.originalFileName as string | null | undefined;
+        const portfolios = res?.result?.portfolios ?? [];
+
+        // NONE → 추출 요청 전 → 타입 선택 화면 유지
+        if (!extractionStatus || extractionStatus === 'NONE') return;
+
+        pdfPortfolioRestoreCompletedForIdRef.current = effectiveId;
+        setSelectedPortfolioType('pdf');
+        setIsPdfTextExtracted(true);
+        setIsPdfTextExtracting(false);
+        if (originalFileName) {
+          setPdfUploadedFile({ name: originalFileName });
+        }
+
+        if (extractionStatus === 'GENERATING') {
+          // 추출 중: 섹션만 열고 nonce 올려 폴링 개시
+          setPdfExtractNonce((n) => n + 1);
+          return;
+        }
+
+        if (extractionStatus === 'FAILED') {
+          // 추출 실패: nonce 올리지 않음 → CorrectionPdfTextSection의 isFailed 표시
+          return;
+        }
+
+        // GENERATED: 구조화 데이터 복원
+        if (portfolios.length > 0) {
+          const activities = assignPlaceholderLabelsForEmptyPdfNames(
+            portfolios.map((dto, i) => mapToPdfActivityBlock(dto, i)),
+          );
+          setPdfActivities(activities);
+          setPdfExtractNonce((n) => n + 1);
+          handlePdfPortfoliosHydratedFromQuery(activities);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    effectiveId,
+    handlePdfPortfoliosHydratedFromQuery,
+    isInitializing,
+    step,
+    status,
+  ]);
+
   const handlePdfExtractConfirm = useCallback(async () => {
-    if (!pdfUploadedFile) return;
+    if (!pdfUploadedFile?.file) return;
     const id = effectiveId ? Number(effectiveId) : null;
     if (id == null || Number.isNaN(id)) return;
     const correctionId = id;
