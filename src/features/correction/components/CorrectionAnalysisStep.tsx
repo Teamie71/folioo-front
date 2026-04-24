@@ -46,17 +46,22 @@ export function CorrectionAnalysisStep({
       query: {
         enabled,
         refetchInterval: (query) => {
-          type WithGenerationStatus = { generationStatus?: 'PENDING' | 'COMPLETED' | 'FAILED' };
-          const generationStatus = (query.state.data?.result as WithGenerationStatus)?.generationStatus;
-          if (generationStatus === 'PENDING') return 3000;
-          return false;
+          const status = query.state.data?.result?.status;
+          const isPending =
+            status === 'NOT_STARTED' ||
+            status === 'DOING_RAG';
+          return isPending ? 3000 : false;
         },
       },
     });
 
-  type WithGenerationStatus = { generationStatus?: 'PENDING' | 'COMPLETED' | 'FAILED' };
-  const generationStatus = (data?.result as WithGenerationStatus)?.generationStatus;
-  const isGenerating = isLoading || generationStatus === 'PENDING';
+  const generationStatus = data?.result?.status;
+  const isGenerating =
+    isLoading ||
+    generationStatus === 'NOT_STARTED' ||
+    generationStatus === 'DOING_RAG';
+  const isGenerationFailed =
+    generationStatus === 'RAG_FAILED' || generationStatus === 'FAILED';
 
   const companyInsightRaw = data?.result?.companyInsight;
   const companyInsightText =
@@ -72,7 +77,7 @@ export function CorrectionAnalysisStep({
       !isGenerating &&
       !isError &&
       data?.isSuccess !== false &&
-      generationStatus !== 'FAILED' &&
+      !isGenerationFailed &&
       companyInsightText &&
       analysisInfoValue === ''
     ) {
@@ -126,7 +131,7 @@ export function CorrectionAnalysisStep({
               <div className='flex min-h-[17.125rem] items-center justify-center rounded-[1.25rem] border border-[#74777D]'>
                 <CorrectionLoadingSpinner />
               </div>
-            ) : enabled && (isError || data?.isSuccess === false || generationStatus === 'FAILED') ? (
+            ) : enabled && (isError || data?.isSuccess === false || isGenerationFailed) ? (
               <div className='flex min-h-[17.125rem] items-center justify-center rounded-[1.25rem] border border-[#74777D]'>
                 <CommonButton
                   variantType='Outline'
