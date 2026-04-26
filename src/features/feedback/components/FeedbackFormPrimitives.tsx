@@ -143,14 +143,14 @@ export function CheckboxChoiceRow({
   label: string;
 }) {
   return (
-    <label className='flex cursor-pointer items-start gap-2'>
+    <div className='flex items-start gap-2'>
       <Checkbox
         className='mt-[0.125rem]'
         checked={checked}
         onCheckedChange={(c) => onCheckedChange(c === true)}
       />
       <span className={feedbackFormClassNames.body}>{label}</span>
-    </label>
+    </div>
   );
 }
 
