@@ -357,7 +357,7 @@ function TopupPageContent() {
                       return;
                     }
                     if (card.id === 'review') {
-                      openFeedbackForm();
+                      router.push('/feedback');
                       return;
                     }
                     if (card.id === 'cta') {

@@ -298,7 +298,7 @@ function TopupClientMobileContent() {
               <CommonButton
                 variantType='Outline'
                 className='mt-[0.5rem] rounded-[3.75rem] px-[2.25rem] py-[0.5rem] text-[1rem] font-bold'
-                onClick={() => openFeedbackForm()}
+                onClick={() => router.push('/feedback')}
               >
                 피드백 남기기
               </CommonButton>
