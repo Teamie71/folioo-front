@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 export default function FeedbackPage() {
   return (
     <main className='flex flex-col gap-[4.5rem] pb-[15rem]'>
-      <div className='bg-sub1 mx-auto flex h-[15.625rem] w-full min-w-[66rem] flex-col justify-center'>
+      <div className='bg-sub1 mx-auto flex h-[10.9375rem] w-full min-w-[66rem] flex-col justify-center pt-[2rem]'>
         <div className='mx-auto w-full max-w-[66rem] min-w-[66rem] px-6'>
           <div className='flex items-start gap-6'>
             <BackButton className='shrink-0' />

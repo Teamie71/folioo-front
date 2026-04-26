@@ -72,7 +72,7 @@ export function FieldError({
 }
 
 const INLINE_UNDERLINE_INPUT =
-  'typo-b2 min-h-[1.375rem] min-w-0 flex-1 max-w-[60%] resize-none overflow-hidden border-0 border-b border-gray6 bg-transparent px-0 py-[0.125rem] text-gray9 placeholder:text-gray5 focus:outline-none';
+  'typo-b2 min-h-[1.375rem] min-w-0 flex-1 max-w-[60%] resize-none overflow-hidden border-0 border-b border-gray6 bg-transparent px-0 py-[0.125rem] text-gray9 placeholder:text-gray6 focus:outline-none';
 
 export function CheckboxOtherInlineRow({
   checked,
@@ -83,6 +83,7 @@ export function CheckboxOtherInlineRow({
   maxLength,
   active = false,
   onFocusInput,
+  placeholder,
 }: {
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
@@ -92,6 +93,7 @@ export function CheckboxOtherInlineRow({
   maxLength?: number;
   active?: boolean;
   onFocusInput?: () => void;
+  placeholder?: string;
 }) {
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -125,6 +127,7 @@ export function CheckboxOtherInlineRow({
         maxLength={maxLength}
         onFocus={onFocusInput}
         onChange={handleChange}
+        placeholder={placeholder}
       />
     </div>
   );

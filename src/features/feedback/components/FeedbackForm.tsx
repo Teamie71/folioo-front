@@ -157,6 +157,7 @@ export function FeedbackForm() {
                   onCheckedChange={(checked) =>
                     toggleDiscovery('other', checked)
                   }
+                  placeholder='그 외 Folioo를 알게된 경로를 알려주세요.'
                 />
               ) : (
                 <CheckboxChoiceRow
@@ -232,6 +233,7 @@ export function FeedbackForm() {
                   onCheckedChange={(checked) =>
                     handlePriorityCheck('other', checked)
                   }
+                  placeholder='그 외 의견을 작성해주세요.'
                 />
               ) : (
                 <CheckboxChoiceRow
