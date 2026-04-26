@@ -21,14 +21,12 @@ export default function Footer() {
               </Link>
             </div>
 
-            <a
-              href={FEEDBACK_FORM_URL}
-              target='_blank'
-              rel='noopener noreferrer'
+            <Link
+              href='/feedback'
               className='cursor-pointer rounded-[0.375rem] border-[0.09375rem] border-[#9EA4A9] bg-[#ffffff] px-[1.5rem] py-[0.375rem] text-[1rem] font-semibold hover:bg-[#F6F8FA]'
             >
               서비스 피드백 남기기
-            </a>
+            </Link>
           </div>
 
           <div className='w-full border border-[#CDD0D5]' />
