@@ -26,8 +26,8 @@ export default function FeedbackPage() {
           <div className='flex items-start gap-6'>
             <BackButton className='shrink-0' />
             <div className='flex min-w-0 flex-col gap-6'>
-              <h1 className='typo-h3 text-gray9'>Folioo 사용 후기</h1>
-              <p className='typo-b1-sb text-main'>
+              <h1 className='typo-h3'>Folioo 사용 후기</h1>
+              <p className='typo-b2-sb text-main'>
                 사용 후기 남기고, 무료 이용권 2종 받으세요!
               </p>
             </div>

@@ -7,12 +7,12 @@ import TextField from '@/components/TextField';
 import { cn } from '@/utils/utils';
 
 export const feedbackFormClassNames = {
-  questionTitle: 'typo-h5 text-gray9',
-  subQuestionTitle: 'typo-h5 text-gray9',
-  body: 'typo-b2 text-gray9',
-  fieldError: 'typo-b2 mt-[8px] mb-[12px] ml-3 text-error',
-  answerStack: 'flex flex-col gap-6 ml-3',
-  subQuestionBlockTop: 'mt-[4.5rem]',
+  questionTitle: 'typo-h5',
+  subQuestionTitle: 'typo-h5',
+  body: 'typo-b2',
+  fieldError: 'typo-b2 mt-[8px] mb-[12px] ml-[1.25rem] text-error',
+  answerStack: 'flex flex-col gap-[1.75rem] ml-[1.25rem]',
+  subQuestionBlockTop: 'mt-[6.25rem]',
 } as const;
 
 export function QuestionSection({
@@ -53,7 +53,7 @@ export function SubQuestionSection({
       )}
     >
       <h3 className={feedbackFormClassNames.subQuestionTitle}>{title}</h3>
-      <div className='mt-6'>{children}</div>
+      <div className='mt-[1.75rem]'>{children}</div>
     </div>
   );
 }
@@ -78,7 +78,6 @@ export function CheckboxOtherInlineRow({
   checked,
   onCheckedChange,
   label,
-  placeholder,
   value,
   onChange,
   maxLength,
@@ -88,7 +87,6 @@ export function CheckboxOtherInlineRow({
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
   label: string;
-  placeholder: string;
   value: string;
   onChange: (value: string) => void;
   maxLength?: number;
@@ -122,7 +120,6 @@ export function CheckboxOtherInlineRow({
           INLINE_UNDERLINE_INPUT,
           !active && 'opacity-50',
         )}
-        placeholder={placeholder}
         value={value}
         rows={1}
         maxLength={maxLength}
@@ -155,16 +152,15 @@ export function CheckboxChoiceRow({
 }
 
 export function LongFormTextField(props: {
-  placeholder: string;
   value: string;
   onChange: (value: string) => void;
   maxLength?: number;
   height?: string;
 }) {
   return (
-    <div className='ml-3 w-full'>
+    <div className='ml-[1.25rem] w-full'>
       <TextField
-        placeholder={props.placeholder}
+        className='text-gray9 placeholder:text-gray5'
         height={props.height ?? '8rem'}
         value={props.value}
         maxLength={props.maxLength}

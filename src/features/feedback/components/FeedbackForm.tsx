@@ -131,7 +131,7 @@ export function FeedbackForm() {
       />
       <form
         onSubmit={handleSubmit}
-        className='flex flex-col gap-[6rem]'
+        className='flex flex-col gap-[6.25rem]'
         noValidate
       >
         <QuestionSection
@@ -146,7 +146,6 @@ export function FeedbackForm() {
                   key={option.id}
                   checked={discovery.other}
                   label={option.label}
-                  placeholder='그 외 Folioo를 알게 된 경로를 알려주세요.'
                   value={discoveryOther}
                   onChange={(value) => {
                     setDiscoveryOther(value);
@@ -198,7 +197,6 @@ export function FeedbackForm() {
 
           <SubQuestionSection title='2-1. 그렇게 답변하신 주된 이유는 무엇인가요?'>
             <LongFormTextField
-              placeholder='답변을 입력해 주세요.'
               value={sentimentReason}
               onChange={setSentimentReason}
               maxLength={FEEDBACK_MAX_LENGTH.detail}
@@ -223,7 +221,6 @@ export function FeedbackForm() {
                   key={option.id}
                   checked={priority === 'other'}
                   label={option.label}
-                  placeholder='그 외 의견을 작성해주세요.'
                   value={priorityOther}
                   onChange={(value) => {
                     setPriorityOther(value);
@@ -251,7 +248,6 @@ export function FeedbackForm() {
 
           <SubQuestionSection title='3-1. 위에서 선택한 내용에 대해 조금만 더 자세히 설명해 주세요.'>
             <LongFormTextField
-              placeholder='설명을 입력해 주세요.'
               value={priorityDetail}
               onChange={setPriorityDetail}
               maxLength={FEEDBACK_MAX_LENGTH.detail}
