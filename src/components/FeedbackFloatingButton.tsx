@@ -1,17 +1,18 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { OBTFeedbackModal } from '@/components/OBT/OBTFeedbackModal';
-import { openFeedbackForm } from '@/constants/feedback';
 
 export const FeedbackFloatingButton = () => {
   const [modalOpen, setModalOpen] = useState(false);
+  const router = useRouter();
   // TODO: API로 첫 피드백 여부 조회 후 연동
   const isFirstFeedback = true;
 
   const handleFeedbackClick = () => {
     setModalOpen(false);
-    openFeedbackForm();
+    router.push('/feedback');
   };
 
   return (

@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { CommonModal } from '@/components/CommonModal';
-import { openFeedbackForm } from '@/constants/feedback';
 
 interface FeedbackModalProps {
   open: boolean;
@@ -22,7 +21,6 @@ export function OBTFeedbackModal({
 
   const handleFeedbackClick = () => {
     onOpenChange(false);
-    openFeedbackForm();
     onFeedbackClick();
   };
 
