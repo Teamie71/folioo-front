@@ -22,11 +22,11 @@ export function FeedbackSubmittedModal({
           <EventModalIcon />
         </div>
         <div className='flex flex-col items-center'>
-          <p className='text-[1.5rem] font-bold text-[#1A1A1A]'>
+          <p className='text-[1.5rem] font-bold text-gray9'>
             피드백 제출 완료!
           </p>
         </div>
-        <div className='mt-[1rem] flex flex-col gap-[0.25rem] text-[1rem] leading-[150%] text-[#1A1A1A]'>
+        <div className='mt-[1rem] flex flex-col gap-[0.25rem] text-[1rem] leading-[150%] text-gray9'>
           <p>소중한 의견을 남겨주셔서 감사합니다.</p>
           <p>보내주신 의견을 바탕으로 더 나은 Folioo를 만들어 나가겠습니다.</p>
           <p className='mt-[0.75rem]'>Folioo가 당신의 커리어를 응원해요!</p>

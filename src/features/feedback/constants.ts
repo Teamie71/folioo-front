@@ -1,6 +1,8 @@
-/** Feedback page: options, validation, request body shape */
-
 export const FEEDBACK_REQUIRED_ERROR = '답변을 선택해주세요.' as const;
+export const FEEDBACK_MAX_LENGTH = {
+  other: 200,
+  detail: 500,
+} as const;
 
 export const DISCOVERY_OPTIONS = [
   { id: 'word_of_mouth', label: '지인 추천/ 입소문' },
@@ -67,7 +69,9 @@ export function validateFeedbackForm(
   const errors: FeedbackFormErrors = {};
 
   const anyDiscovery = Object.values(values.discovery).some(Boolean);
-  if (!anyDiscovery) {
+  const isDiscoveryOtherInvalid =
+    values.discovery.other && values.discoveryOther.trim().length === 0;
+  if (!anyDiscovery || isDiscoveryOtherInvalid) {
     errors.discovery = FEEDBACK_REQUIRED_ERROR;
   }
 
@@ -75,29 +79,11 @@ export function validateFeedbackForm(
     errors.sentiment = FEEDBACK_REQUIRED_ERROR;
   }
 
-  if (values.priority == null) {
+  const isPriorityOtherInvalid =
+    values.priority === 'other' && values.priorityOther.trim().length === 0;
+  if (values.priority == null || isPriorityOtherInvalid) {
     errors.priority = FEEDBACK_REQUIRED_ERROR;
   }
 
   return errors;
-}
-
-export function serializeFeedbackForm(values: FeedbackFormValues) {
-  const discoverySelected = (
-    Object.entries(values.discovery) as [DiscoveryId, boolean][]
-  )
-    .filter(([, checked]) => checked)
-    .map(([id]) => id);
-
-  return {
-    discovery: {
-      selectedIds: discoverySelected,
-      otherText: values.discoveryOther.trim() || undefined,
-    },
-    sentiment: values.sentiment,
-    sentimentReason: values.sentimentReason.trim() || undefined,
-    priority: values.priority,
-    priorityOtherText: values.priorityOther.trim() || undefined,
-    priorityDetail: values.priorityDetail.trim() || undefined,
-  };
 }

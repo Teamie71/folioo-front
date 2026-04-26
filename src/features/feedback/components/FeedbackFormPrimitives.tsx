@@ -6,13 +6,12 @@ import { Checkbox } from '@/components/ui/CheckBox';
 import TextField from '@/components/TextField';
 import { cn } from '@/utils/utils';
 
-/** Class map for feedback form (typo-* from globals) */
 export const feedbackFormClassNames = {
-  questionTitle: 'typo-h5 text-[#1A1A1A]',
-  subQuestionTitle: 'typo-h5 text-[#1A1A1A]',
-  body: 'typo-b2 text-[#1A1A1A]',
-  fieldError: 'typo-b2 mt-[8px] mb-[12px] text-[#DC0000]',
-  answerStack: 'flex flex-col gap-6 px-4',
+  questionTitle: 'typo-h5 text-gray9',
+  subQuestionTitle: 'typo-h5 text-gray9',
+  body: 'typo-b2 text-gray9',
+  fieldError: 'typo-b2 mt-[8px] mb-[12px] ml-3 text-error',
+  answerStack: 'flex flex-col gap-6 ml-3',
   subQuestionBlockTop: 'mt-[4.5rem]',
 } as const;
 
@@ -31,7 +30,7 @@ export function QuestionSection({
     <section className='flex flex-col'>
       <h2 className={feedbackFormClassNames.questionTitle}>
         {title}
-        {required ? <span className='text-[#DC0000]'> *</span> : null}
+        {required ? <span className='text-error'> *</span> : null}
       </h2>
       <FieldError message={error} />
       <div className={cn(!error && 'mt-6')}>{children}</div>
@@ -72,9 +71,8 @@ export function FieldError({
   );
 }
 
-/** Checkbox + "기타" inline underline field */
 const INLINE_UNDERLINE_INPUT =
-  'typo-b2 min-h-[1.375rem] min-w-0 flex-1 max-w-[60%] resize-none overflow-hidden border-0 border-b border-[#74777D] bg-transparent px-0 py-[0.125rem] text-[#1A1A1A] placeholder:text-[#9EA4A9] focus:outline-none';
+  'typo-b2 min-h-[1.375rem] min-w-0 flex-1 max-w-[60%] resize-none overflow-hidden border-0 border-b border-gray6 bg-transparent px-0 py-[0.125rem] text-gray9 placeholder:text-gray5 focus:outline-none';
 
 export function CheckboxOtherInlineRow({
   checked,
@@ -83,6 +81,9 @@ export function CheckboxOtherInlineRow({
   placeholder,
   value,
   onChange,
+  maxLength,
+  active = false,
+  onFocusInput,
 }: {
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
@@ -90,14 +91,18 @@ export function CheckboxOtherInlineRow({
   placeholder: string;
   value: string;
   onChange: (value: string) => void;
+  maxLength?: number;
+  active?: boolean;
+  onFocusInput?: () => void;
 }) {
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      if (!checked) onCheckedChange(true);
       onChange(e.target.value);
       e.target.style.height = 'auto';
       e.target.style.height = `${e.target.scrollHeight}px`;
     },
-    [onChange],
+    [checked, onChange, onCheckedChange],
   );
 
   return (
@@ -113,10 +118,15 @@ export function CheckboxOtherInlineRow({
         {label}
       </span>
       <textarea
-        className={INLINE_UNDERLINE_INPUT}
+        className={cn(
+          INLINE_UNDERLINE_INPUT,
+          !active && 'opacity-50',
+        )}
         placeholder={placeholder}
         value={value}
         rows={1}
+        maxLength={maxLength}
+        onFocus={onFocusInput}
         onChange={handleChange}
       />
     </div>
@@ -152,7 +162,7 @@ export function LongFormTextField(props: {
   height?: string;
 }) {
   return (
-    <div className='w-full px-4'>
+    <div className='ml-3 w-full'>
       <TextField
         placeholder={props.placeholder}
         height={props.height ?? '8rem'}

@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import {
   DISCOVERY_OPTIONS,
+  FEEDBACK_MAX_LENGTH,
   PRIORITY_OPTIONS,
   SENTIMENT_OPTIONS,
   type DiscoveryId,
@@ -12,9 +13,8 @@ import {
   type PriorityId,
   type SentimentId,
   createEmptyDiscoverySelection,
-  serializeFeedbackForm,
   validateFeedbackForm,
-} from './feedbackForm.config';
+} from '../constants';
 import {
   CheckboxChoiceRow,
   CheckboxOtherInlineRow,
@@ -23,7 +23,10 @@ import {
   SubQuestionSection,
   feedbackFormClassNames,
 } from './FeedbackFormPrimitives';
+import { FeedbackRewardDistributedModal } from './FeedbackRewardDistributedModal';
 import { FeedbackSubmittedModal } from './FeedbackSubmittedModal';
+
+const FEEDBACK_REWARD_RECEIVED_STORAGE_KEY = 'folioo_feedback_reward_received';
 
 export function FeedbackForm() {
   const [discovery, setDiscovery] = useState(createEmptyDiscoverySelection);
@@ -34,7 +37,16 @@ export function FeedbackForm() {
   const [priorityOther, setPriorityOther] = useState('');
   const [priorityDetail, setPriorityDetail] = useState('');
   const [errors, setErrors] = useState<FeedbackFormErrors>({});
+  const [rewardDistributedModalOpen, setRewardDistributedModalOpen] =
+    useState(false);
   const [submittedModalOpen, setSubmittedModalOpen] = useState(false);
+
+  const clearFieldError = useCallback((field: keyof FeedbackFormErrors) => {
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      return { ...prev, [field]: undefined };
+    });
+  }, []);
 
   const formValues: FeedbackFormValues = useMemo(
     () => ({
@@ -58,23 +70,34 @@ export function FeedbackForm() {
   );
 
   const toggleDiscovery = useCallback((id: DiscoveryId, checked: boolean) => {
-    setDiscovery((prev) => ({ ...prev, [id]: checked }));
-  }, []);
+    if (!checked) return;
+    setDiscovery(() => ({
+      word_of_mouth: id === 'word_of_mouth',
+      instagram: id === 'instagram',
+      search: id === 'search',
+      community: id === 'community',
+      ai_recommend: id === 'ai_recommend',
+      other: id === 'other',
+    }));
+    clearFieldError('discovery');
+  }, [clearFieldError]);
 
   const handleSentimentCheck = useCallback(
     (id: SentimentId, checked: boolean) => {
-      if (checked) setSentiment(id);
-      else if (sentiment === id) setSentiment(null);
+      if (!checked) return;
+      setSentiment(id);
+      clearFieldError('sentiment');
     },
-    [sentiment],
+    [clearFieldError],
   );
 
   const handlePriorityCheck = useCallback(
     (id: PriorityId, checked: boolean) => {
-      if (checked) setPriority(id);
-      else if (priority === id) setPriority(null);
+      if (!checked) return;
+      setPriority(id);
+      clearFieldError('priority');
     },
-    [priority],
+    [clearFieldError],
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -83,12 +106,25 @@ export function FeedbackForm() {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
-    const _payload = serializeFeedbackForm(formValues);
+    if (typeof window !== 'undefined') {
+      const hasRewardHistory =
+        localStorage.getItem(FEEDBACK_REWARD_RECEIVED_STORAGE_KEY) === 'true';
+      if (!hasRewardHistory) {
+        localStorage.setItem(FEEDBACK_REWARD_RECEIVED_STORAGE_KEY, 'true');
+        setRewardDistributedModalOpen(true);
+        return;
+      }
+    }
+
     setSubmittedModalOpen(true);
   };
 
   return (
     <>
+      <FeedbackRewardDistributedModal
+        open={rewardDistributedModalOpen}
+        onOpenChange={setRewardDistributedModalOpen}
+      />
       <FeedbackSubmittedModal
         open={submittedModalOpen}
         onOpenChange={setSubmittedModalOpen}
@@ -112,7 +148,13 @@ export function FeedbackForm() {
                   label={option.label}
                   placeholder='그 외 Folioo를 알게 된 경로를 알려주세요.'
                   value={discoveryOther}
-                  onChange={setDiscoveryOther}
+                  onChange={(value) => {
+                    setDiscoveryOther(value);
+                    if (value.trim().length > 0) clearFieldError('discovery');
+                  }}
+                  maxLength={FEEDBACK_MAX_LENGTH.other}
+                  active={discovery.other}
+                  onFocusInput={() => toggleDiscovery('other', true)}
                   onCheckedChange={(checked) =>
                     toggleDiscovery('other', checked)
                   }
@@ -159,7 +201,7 @@ export function FeedbackForm() {
               placeholder='답변을 입력해 주세요.'
               value={sentimentReason}
               onChange={setSentimentReason}
-              maxLength={2000}
+              maxLength={FEEDBACK_MAX_LENGTH.detail}
             />
           </SubQuestionSection>
         </QuestionSection>
@@ -183,7 +225,13 @@ export function FeedbackForm() {
                   label={option.label}
                   placeholder='그 외 의견을 작성해주세요.'
                   value={priorityOther}
-                  onChange={setPriorityOther}
+                  onChange={(value) => {
+                    setPriorityOther(value);
+                    if (value.trim().length > 0) clearFieldError('priority');
+                  }}
+                  maxLength={FEEDBACK_MAX_LENGTH.other}
+                  active={priority === 'other'}
+                  onFocusInput={() => handlePriorityCheck('other', true)}
                   onCheckedChange={(checked) =>
                     handlePriorityCheck('other', checked)
                   }
@@ -206,7 +254,7 @@ export function FeedbackForm() {
               placeholder='설명을 입력해 주세요.'
               value={priorityDetail}
               onChange={setPriorityDetail}
-              maxLength={2000}
+              maxLength={FEEDBACK_MAX_LENGTH.detail}
             />
           </SubQuestionSection>
         </QuestionSection>

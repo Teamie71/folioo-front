@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/constants/seo';
 import { BackButton } from '@/components/BackButton';
-import { FeedbackForm } from './FeedbackForm';
+import { FeedbackForm } from '@/features/feedback/components/FeedbackForm';
 
 export const metadata: Metadata = {
   title: 'Folioo 사용 후기 - Folioo',
@@ -21,13 +21,13 @@ export const metadata: Metadata = {
 export default function FeedbackPage() {
   return (
     <main className='flex flex-col gap-[4.5rem] pb-[15rem]'>
-      <div className='mx-auto flex h-[15.625rem] w-full min-w-[66rem] flex-col justify-center bg-[#F6F5FF]'>
+      <div className='bg-sub1 mx-auto flex h-[15.625rem] w-full min-w-[66rem] flex-col justify-center'>
         <div className='mx-auto w-full max-w-[66rem] min-w-[66rem] px-6'>
           <div className='flex items-start gap-6'>
             <BackButton className='shrink-0' />
             <div className='flex min-w-0 flex-col gap-6'>
-              <h1 className='typo-h3 text-[#1A1A1A]'>Folioo 사용 후기</h1>
-              <p className='typo-b1-sb text-[#5060C5]'>
+              <h1 className='typo-h3 text-gray9'>Folioo 사용 후기</h1>
+              <p className='typo-b1-sb text-main'>
                 사용 후기 남기고, 무료 이용권 2종 받으세요!
               </p>
             </div>
