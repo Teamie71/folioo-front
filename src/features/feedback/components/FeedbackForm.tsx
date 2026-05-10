@@ -1,122 +1,156 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { CommonButton } from '@/components/CommonButton';
-import {
-  DISCOVERY_OPTIONS,
-  FEEDBACK_MAX_LENGTH,
-  PRIORITY_OPTIONS,
-  SENTIMENT_OPTIONS,
-  type DiscoveryId,
-  type FeedbackFormErrors,
-  type FeedbackFormValues,
-  type PriorityId,
-  type SentimentId,
-  createEmptyDiscoverySelection,
-  validateFeedbackForm,
-} from '../constants';
+import { useFeedbackSubmission } from '../hooks/useFeedbackSubmission';
 import {
   CheckboxChoiceRow,
   CheckboxOtherInlineRow,
   LongFormTextField,
   QuestionSection,
-  SubQuestionSection,
   feedbackFormClassNames,
 } from './FeedbackFormPrimitives';
 import { FeedbackRewardDistributedModal } from './FeedbackRewardDistributedModal';
 import { FeedbackSubmittedModal } from './FeedbackSubmittedModal';
 
-const FEEDBACK_REWARD_RECEIVED_STORAGE_KEY = 'folioo_feedback_reward_received';
+type UnknownRecord = Record<string, unknown>;
+type FeedbackQuestionType = 'CHOICE' | 'TEXT';
+
+type FeedbackOption = {
+  id: string;
+  label: string;
+};
+
+type FeedbackQuestion = {
+  id: string;
+  text: string;
+  type: FeedbackQuestionType;
+  required: boolean;
+  options: FeedbackOption[];
+  hasOther: boolean;
+  placeholder?: string;
+  otherPlaceholder?: string;
+};
+
+type ChoiceAnswer = {
+  optionId: string | null;
+  otherText: string;
+};
+
+function isRecord(value: unknown): value is UnknownRecord {
+  return typeof value === 'object' && value !== null;
+}
+
+function parseQuestion(item: unknown, index: number): FeedbackQuestion | null {
+  if (!isRecord(item)) return null;
+  const id = typeof item.id === 'string' && item.id.trim() ? item.id : `q${index + 1}`;
+  const text = typeof item.text === 'string' ? item.text : '';
+  const type = item.type === 'CHOICE' || item.type === 'TEXT' ? item.type : null;
+  if (!type || !text.trim()) return null;
+
+  const options: FeedbackOption[] = Array.isArray(item.options)
+    ? item.options
+        .map((option, optionIndex) => {
+          if (!isRecord(option)) return null;
+          const optionId =
+            typeof option.id === 'string' && option.id.trim()
+              ? option.id
+              : `opt${optionIndex + 1}`;
+          const label = typeof option.label === 'string' ? option.label : '';
+          if (!label.trim()) return null;
+          return { id: optionId, label };
+        })
+        .filter((option): option is FeedbackOption => option !== null)
+    : [];
+
+  return {
+    id,
+    text,
+    type,
+    required: item.required === true,
+    options,
+    hasOther: item.hasOther === true,
+    placeholder: typeof item.placeholder === 'string' ? item.placeholder : undefined,
+    otherPlaceholder:
+      typeof item.otherPlaceholder === 'string'
+        ? item.otherPlaceholder
+        : undefined,
+  };
+}
 
 export function FeedbackForm() {
-  const [discovery, setDiscovery] = useState(createEmptyDiscoverySelection);
-  const [discoveryOther, setDiscoveryOther] = useState('');
-  const [sentiment, setSentiment] = useState<SentimentId | null>(null);
-  const [sentimentReason, setSentimentReason] = useState('');
-  const [priority, setPriority] = useState<PriorityId | null>(null);
-  const [priorityOther, setPriorityOther] = useState('');
-  const [priorityDetail, setPriorityDetail] = useState('');
-  const [errors, setErrors] = useState<FeedbackFormErrors>({});
+  const [answers, setAnswers] = useState<Record<string, ChoiceAnswer | string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [rewardDistributedModalOpen, setRewardDistributedModalOpen] =
     useState(false);
   const [submittedModalOpen, setSubmittedModalOpen] = useState(false);
+  const { submitFeedback, isSubmitting, canSubmit, isFeedbackFormLoading, schema } =
+    useFeedbackSubmission();
 
-  const clearFieldError = useCallback((field: keyof FeedbackFormErrors) => {
-    setErrors((prev) => {
-      if (!prev[field]) return prev;
-      return { ...prev, [field]: undefined };
-    });
-  }, []);
-
-  const formValues: FeedbackFormValues = useMemo(
-    () => ({
-      discovery,
-      discoveryOther,
-      sentiment,
-      sentimentReason,
-      priority,
-      priorityOther,
-      priorityDetail,
-    }),
-    [
-      discovery,
-      discoveryOther,
-      sentiment,
-      sentimentReason,
-      priority,
-      priorityOther,
-      priorityDetail,
-    ],
+  const questions = useMemo(
+    () =>
+      schema
+        .map((item, index) => parseQuestion(item, index))
+        .filter((question): question is FeedbackQuestion => question !== null),
+    [schema],
   );
 
-  const toggleDiscovery = useCallback((id: DiscoveryId, checked: boolean) => {
-    if (!checked) return;
-    setDiscovery(() => ({
-      word_of_mouth: id === 'word_of_mouth',
-      instagram: id === 'instagram',
-      search: id === 'search',
-      community: id === 'community',
-      ai_recommend: id === 'ai_recommend',
-      other: id === 'other',
-    }));
-    clearFieldError('discovery');
-  }, [clearFieldError]);
-
-  const handleSentimentCheck = useCallback(
-    (id: SentimentId, checked: boolean) => {
-      if (!checked) return;
-      setSentiment(id);
-      clearFieldError('sentiment');
-    },
-    [clearFieldError],
-  );
-
-  const handlePriorityCheck = useCallback(
-    (id: PriorityId, checked: boolean) => {
-      if (!checked) return;
-      setPriority(id);
-      clearFieldError('priority');
-    },
-    [clearFieldError],
-  );
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const nextErrors = validateFeedbackForm(formValues);
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
+    const nextErrors: Record<string, string> = {};
 
-    if (typeof window !== 'undefined') {
-      const hasRewardHistory =
-        localStorage.getItem(FEEDBACK_REWARD_RECEIVED_STORAGE_KEY) === 'true';
-      if (!hasRewardHistory) {
-        localStorage.setItem(FEEDBACK_REWARD_RECEIVED_STORAGE_KEY, 'true');
-        setRewardDistributedModalOpen(true);
-        return;
+    for (const question of questions) {
+      if (!question.required) continue;
+      const answer = answers[question.id];
+
+      if (question.type === 'TEXT') {
+        if (typeof answer !== 'string' || answer.trim().length === 0) {
+          nextErrors[question.id] = '답변을 입력해주세요.';
+        }
+        continue;
+      }
+
+      if (!isRecord(answer) || typeof answer.optionId !== 'string') {
+        nextErrors[question.id] = '답변을 선택해주세요.';
+        continue;
+      }
+
+      if (
+        question.hasOther &&
+        answer.optionId === '__other__' &&
+        (typeof answer.otherText !== 'string' || answer.otherText.trim().length === 0)
+      ) {
+        nextErrors[question.id] = '기타 의견을 입력해주세요.';
       }
     }
 
-    setSubmittedModalOpen(true);
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
+    const payloadAnswers: Record<string, unknown> = {};
+    for (const question of questions) {
+      const answer = answers[question.id];
+      if (question.type === 'TEXT') {
+        payloadAnswers[question.id] = typeof answer === 'string' ? answer.trim() : '';
+        continue;
+      }
+      if (!isRecord(answer) || typeof answer.optionId !== 'string') continue;
+      payloadAnswers[question.id] =
+        answer.optionId === '__other__'
+          ? String(answer.otherText ?? '').trim()
+          : answer.optionId;
+    }
+
+    try {
+      const { rewardGranted } = await submitFeedback(payloadAnswers);
+      if (rewardGranted) {
+        setRewardDistributedModalOpen(true);
+        return;
+      }
+      setSubmittedModalOpen(true);
+    } catch {
+      return;
+    }
   };
 
   return (
@@ -134,128 +168,108 @@ export function FeedbackForm() {
         className='flex flex-col gap-[6.25rem]'
         noValidate
       >
-        <QuestionSection
-          required
-          title={<>1. Folioo를 어떻게 처음 알게 되셨나요?</>}
-          error={errors.discovery}
-        >
-          <div className={feedbackFormClassNames.answerStack}>
-            {DISCOVERY_OPTIONS.map((option) =>
-              option.id === 'other' ? (
-                <CheckboxOtherInlineRow
-                  key={option.id}
-                  checked={discovery.other}
-                  label={option.label}
-                  value={discoveryOther}
-                  onChange={(value) => {
-                    setDiscoveryOther(value);
-                    if (value.trim().length > 0) clearFieldError('discovery');
-                  }}
-                  maxLength={FEEDBACK_MAX_LENGTH.other}
-                  active={discovery.other}
-                  onFocusInput={() => toggleDiscovery('other', true)}
-                  onCheckedChange={(checked) =>
-                    toggleDiscovery('other', checked)
-                  }
-                  placeholder='그 외 Folioo를 알게된 경로를 알려주세요.'
-                />
+        {questions.map((question, index) => {
+          const answer = answers[question.id];
+          const choiceAnswer: ChoiceAnswer =
+            isRecord(answer) &&
+            (answer.optionId === null || typeof answer.optionId === 'string') &&
+            typeof answer.otherText === 'string'
+              ? { optionId: answer.optionId, otherText: answer.otherText }
+              : { optionId: null, otherText: '' };
+
+          return (
+            <QuestionSection
+              key={question.id}
+              required={question.required}
+              title={`${index + 1}. ${question.text}`}
+              error={errors[question.id]}
+            >
+              {question.type === 'CHOICE' ? (
+                <div className={feedbackFormClassNames.answerStack}>
+                  {question.options.map((option) => (
+                    <CheckboxChoiceRow
+                      key={`${question.id}-${option.id}`}
+                      checked={choiceAnswer.optionId === option.id}
+                      label={option.label}
+                      onCheckedChange={(checked) => {
+                        if (!checked) return;
+                        setAnswers((prev) => ({
+                          ...prev,
+                          [question.id]: { optionId: option.id, otherText: '' },
+                        }));
+                        setErrors((prev) => {
+                          if (!prev[question.id]) return prev;
+                          const next = { ...prev };
+                          delete next[question.id];
+                          return next;
+                        });
+                      }}
+                    />
+                  ))}
+                  {question.hasOther ? (
+                    <CheckboxOtherInlineRow
+                      checked={choiceAnswer.optionId === '__other__'}
+                      label='기타:'
+                      value={choiceAnswer.otherText}
+                      onChange={(value) => {
+                        setAnswers((prev) => ({
+                          ...prev,
+                          [question.id]: { optionId: '__other__', otherText: value },
+                        }));
+                        if (value.trim().length === 0) return;
+                        setErrors((prev) => {
+                          if (!prev[question.id]) return prev;
+                          const next = { ...prev };
+                          delete next[question.id];
+                          return next;
+                        });
+                      }}
+                      maxLength={200}
+                      active={choiceAnswer.optionId === '__other__'}
+                      onFocusInput={() =>
+                        setAnswers((prev) => ({
+                          ...prev,
+                          [question.id]: {
+                            optionId: '__other__',
+                            otherText: choiceAnswer.otherText,
+                          },
+                        }))
+                      }
+                      onCheckedChange={(checked) => {
+                        if (!checked) return;
+                        setAnswers((prev) => ({
+                          ...prev,
+                          [question.id]: {
+                            optionId: '__other__',
+                            otherText: choiceAnswer.otherText,
+                          },
+                        }));
+                      }}
+                      placeholder={
+                        question.otherPlaceholder ?? '기타 의견을 입력해주세요.'
+                      }
+                    />
+                  ) : null}
+                </div>
               ) : (
-                <CheckboxChoiceRow
-                  key={option.id}
-                  checked={discovery[option.id]}
-                  label={option.label}
-                  onCheckedChange={(checked) =>
-                    toggleDiscovery(option.id, checked)
-                  }
-                />
-              ),
-            )}
-          </div>
-        </QuestionSection>
-
-        <QuestionSection
-          required
-          title={
-            <>
-              2. 만약 오늘부터 Folioo를 더 이상 사용할 수 없게 된다면, 기분이
-              어떠시겠습니까?
-            </>
-          }
-          error={errors.sentiment}
-        >
-          <div className={feedbackFormClassNames.answerStack}>
-            {SENTIMENT_OPTIONS.map((option) => (
-              <CheckboxChoiceRow
-                key={option.id}
-                checked={sentiment === option.id}
-                label={option.label}
-                onCheckedChange={(checked) =>
-                  handleSentimentCheck(option.id, checked)
-                }
-              />
-            ))}
-          </div>
-
-          <SubQuestionSection title='2-1. 그렇게 답변하신 주된 이유는 무엇인가요?'>
-            <LongFormTextField
-              value={sentimentReason}
-              onChange={setSentimentReason}
-              maxLength={FEEDBACK_MAX_LENGTH.detail}
-            />
-          </SubQuestionSection>
-        </QuestionSection>
-
-        <QuestionSection
-          required
-          title={
-            <>
-              3. 우리 서비스가 귀하에게 더 완벽해지기 위해, 가장 시급하게
-              해결해야 할 1순위는 무엇인가요?
-            </>
-          }
-          error={errors.priority}
-        >
-          <div className={feedbackFormClassNames.answerStack}>
-            {PRIORITY_OPTIONS.map((option) =>
-              option.id === 'other' ? (
-                <CheckboxOtherInlineRow
-                  key={option.id}
-                  checked={priority === 'other'}
-                  label={option.label}
-                  value={priorityOther}
+                <LongFormTextField
+                  value={typeof answer === 'string' ? answer : ''}
                   onChange={(value) => {
-                    setPriorityOther(value);
-                    if (value.trim().length > 0) clearFieldError('priority');
+                    setAnswers((prev) => ({ ...prev, [question.id]: value }));
+                    if (value.trim().length === 0) return;
+                    setErrors((prev) => {
+                      if (!prev[question.id]) return prev;
+                      const next = { ...prev };
+                      delete next[question.id];
+                      return next;
+                    });
                   }}
-                  maxLength={FEEDBACK_MAX_LENGTH.other}
-                  active={priority === 'other'}
-                  onFocusInput={() => handlePriorityCheck('other', true)}
-                  onCheckedChange={(checked) =>
-                    handlePriorityCheck('other', checked)
-                  }
-                  placeholder='그 외 의견을 작성해주세요.'
+                  maxLength={500}
                 />
-              ) : (
-                <CheckboxChoiceRow
-                  key={option.id}
-                  checked={priority === option.id}
-                  label={option.label}
-                  onCheckedChange={(checked) =>
-                    handlePriorityCheck(option.id, checked)
-                  }
-                />
-              ),
-            )}
-          </div>
-
-          <SubQuestionSection title='3-1. 위에서 선택한 내용에 대해 조금만 더 자세히 설명해 주세요.'>
-            <LongFormTextField
-              value={priorityDetail}
-              onChange={setPriorityDetail}
-              maxLength={FEEDBACK_MAX_LENGTH.detail}
-            />
-          </SubQuestionSection>
-        </QuestionSection>
+              )}
+            </QuestionSection>
+          );
+        })}
 
         <div className='flex justify-center pb-4'>
           <CommonButton
@@ -263,6 +277,7 @@ export function FeedbackForm() {
             variantType='Primary'
             px='2.25rem'
             py='0.875rem'
+            disabled={isSubmitting || isFeedbackFormLoading || !canSubmit}
           >
             제출하기
           </CommonButton>
