@@ -1,7 +1,9 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { CommonButton } from '@/components/CommonButton';
+import { useAuthStore } from '@/store/useAuthStore';
 import { useFeedbackSubmission } from '../hooks/useFeedbackSubmission';
 import {
   CheckboxChoiceRow,
@@ -79,6 +81,8 @@ function parseQuestion(item: unknown, index: number): FeedbackQuestion | null {
 }
 
 export function FeedbackForm() {
+  const router = useRouter();
+  const accessToken = useAuthStore((s) => s.accessToken);
   const [answers, setAnswers] = useState<Record<string, ChoiceAnswer | string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [rewardDistributedModalOpen, setRewardDistributedModalOpen] =
@@ -86,6 +90,15 @@ export function FeedbackForm() {
   const [submittedModalOpen, setSubmittedModalOpen] = useState(false);
   const { submitFeedback, isSubmitting, canSubmit, isFeedbackFormLoading, schema } =
     useFeedbackSubmission();
+
+  const handleProofreadRequestClick = () => {
+    const target = '/correction/new';
+    if (!accessToken) {
+      router.push(`/login?redirect_to=${encodeURIComponent(target)}`);
+      return;
+    }
+    router.push(target);
+  };
 
   const questions = useMemo(
     () =>
@@ -158,6 +171,7 @@ export function FeedbackForm() {
       <FeedbackRewardDistributedModal
         open={rewardDistributedModalOpen}
         onOpenChange={setRewardDistributedModalOpen}
+        onProofreadRequestClick={handleProofreadRequestClick}
       />
       <FeedbackSubmittedModal
         open={submittedModalOpen}
