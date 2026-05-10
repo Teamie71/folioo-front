@@ -8,8 +8,12 @@ import { CorrectionResultTabContent } from './CorrectionResultTabContent';
 import { CorrectionResultTabs } from './CorrectionResultTabs';
 import { usePortfolioCorrectionControllerGetCorrection } from '@/api/endpoints/portfolio-correction/portfolio-correction';
 import { useQueries } from '@tanstack/react-query';
-import { getPortfolioControllerGetPortfolioQueryOptions } from '@/api/endpoints/portfolio/portfolio';
-import type { CorrectionResultItemReqDTO } from '@/api/models';
+import {
+  getPortfolioControllerGetPortfolioQueryOptions,
+  useExternalPortfolioControllerGetSelectedPortfolios,
+} from '@/api/endpoints/portfolio/portfolio';
+import type { CorrectionResultItemReqDTO, PortfolioDetailResDTO } from '@/api/models';
+import { CorrectionResultResDTOPortfolioSource } from '@/api/models';
 
 export type { ResultButtonValue };
 
@@ -53,19 +57,37 @@ export function CorrectionResultStep({
     { query: { enabled } },
   );
 
+  const portfolioSource = correctionData?.result?.portfolioSource;
+  const isExternal = portfolioSource === CorrectionResultResDTOPortfolioSource.EXTERNAL;
+
   const items = (correctionData?.result?.items as unknown as CorrectionResultItemReqDTO[]) || [];
   const portfolioIds = items.map((item) => item.portfolioId);
 
-  const portfolioQueries = useQueries({
+  // INTERNAL: 포트폴리오 ID별 개별 조회
+  const internalPortfolioQueries = useQueries({
     queries: portfolioIds.map((id) => ({
       ...getPortfolioControllerGetPortfolioQueryOptions(id),
-      enabled: !!id,
+      enabled: !!id && !isExternal,
     })),
   });
 
-  const portfolios = portfolioQueries
-    .map((q) => q.data?.result)
-    .filter((p): p is NonNullable<typeof p> => p != null);
+  // EXTERNAL: correctionId 기준으로 외부 포트폴리오 목록 조회
+  const { data: externalPortfoliosData } = useExternalPortfolioControllerGetSelectedPortfolios(
+    { correctionId: numericId || 0 },
+    { query: { enabled: enabled && isExternal } },
+  );
+
+  const portfolios: PortfolioDetailResDTO[] = isExternal
+    ? (externalPortfoliosData?.result ?? []).map((p) => ({
+        ...p,
+        id: p.portfolioId,
+        hopeJob: null,
+        contributionRate: null,
+        createdAt: '',
+      }))
+    : internalPortfolioQueries
+        .map((q) => q.data?.result)
+        .filter((p): p is NonNullable<typeof p> => p != null);
 
   const tabs = ['지원 정보', '총평', ...portfolios.map((p) => p.name)];
 
