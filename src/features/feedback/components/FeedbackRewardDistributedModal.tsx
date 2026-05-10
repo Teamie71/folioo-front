@@ -1,5 +1,7 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+
 import { OBTEventModal } from '@/components/OBT/OBTEventModal';
 
 export function FeedbackRewardDistributedModal({
@@ -11,6 +13,13 @@ export function FeedbackRewardDistributedModal({
   onOpenChange: (open: boolean) => void;
   onProofreadRequestClick?: () => void;
 }) {
+  const router = useRouter();
+
+  const handleProofreadRequest = () => {
+    onProofreadRequestClick?.();
+    router.push('/correction/new');
+  };
+
   return (
     <OBTEventModal
       open={open}
@@ -20,7 +29,7 @@ export function FeedbackRewardDistributedModal({
       reward='경험 정리 1회권 + 포트폴리오 첨삭 1회권'
       validityMessage='지급된 이용권은 6개월 간 사용 가능해요.'
       buttonText='첨삭 의뢰하기'
-      onButtonClick={onProofreadRequestClick}
+      onButtonClick={handleProofreadRequest}
     />
   );
 }
