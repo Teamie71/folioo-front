@@ -182,6 +182,7 @@ function TopupPageContent() {
       description:
         '매주 월요일에 이용권 8개를 무료로 드려요. 그 주 일요일까지만 사용 가능하니, 선물을 놓치지 말고 사용해보세요!',
     },
+    /*
     {
       id: 'review',
       icon: <BigTicketIcon />,
@@ -190,6 +191,7 @@ function TopupPageContent() {
         '첫 피드백을 남겨주시면, 감사의 마음을 담아 원하시는 무료 이용권을 드려요.',
       cta: '피드백 남기기',
     },
+    */
     /* OBT 기간 주석 처리
     {
       id: 'review',
@@ -272,7 +274,7 @@ function TopupPageContent() {
                       height={32}
                       className='h-[2rem] w-[2rem]'
                     />
-                    <span className='text-[1.5rem] font-bold'>이용권 구매</span>
+                    <span className='text-[1.5rem] font-bold'>이용권</span>
                   </div>
                   <span className='text-[1.125rem] leading-[150%] text-[#464B53]'>
                     합격을 위한 가장 효율적인 선택, AI 컨설턴트와 함께하세요.
@@ -373,9 +375,8 @@ function TopupPageContent() {
             </div>
           ))}
         </div>
-
         {/* 경험 정리 이용권 */}
-        <section className='mx-auto mt-[1.75rem] flex w-[66rem] flex-col gap-[1.5rem]'>
+        {/* <section className='mx-auto mt-[1.75rem] flex w-[66rem] flex-col gap-[1.5rem]'>
           <div className='flex flex-col gap-[0.75rem] pb-[1.75rem]'>
             <h2 className='text-[1.25rem] font-bold text-[#1A1A1A]'>
               경험 정리 이용권
@@ -395,10 +396,10 @@ function TopupPageContent() {
               />
             ))}
           </div>
-        </section>
+        </section> */}
 
         {/* 포트폴리오 첨삭 이용권 */}
-        <section className='mx-auto mt-[3rem] flex w-[66rem] flex-col gap-[1.5rem]'>
+        {/* <section className='mx-auto mt-[3rem] flex w-[66rem] flex-col gap-[1.5rem]'>
           <div className='flex flex-col gap-[0.75rem] pb-[1.75rem]'>
             <h2 className='text-[1.25rem] font-bold text-[#1A1A1A]'>
               포트폴리오 첨삭 이용권
@@ -418,7 +419,7 @@ function TopupPageContent() {
               />
             ))}
           </div>
-        </section>
+        </section> */}
       </div>
 
       <PaymentModal

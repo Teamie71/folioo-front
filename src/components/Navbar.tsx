@@ -170,7 +170,7 @@ export default function Navbar() {
                       className='invisible inline-block whitespace-nowrap font-bold'
                       aria-hidden
                     >
-                      이용권 구매
+                      이용권
                     </span>
                     <span
                       className={cn(
@@ -179,7 +179,7 @@ export default function Navbar() {
                         'group-hover:font-bold',
                       )}
                     >
-                      이용권 구매
+                      이용권
                     </span>
                   </span>
                 </Link>
@@ -204,7 +204,7 @@ export default function Navbar() {
                       className='invisible inline-block whitespace-nowrap font-bold'
                       aria-hidden
                     >
-                      이용권 구매
+                      이용권
                     </span>
                     <span
                       className={cn(
@@ -213,7 +213,7 @@ export default function Navbar() {
                         'group-hover:font-bold',
                       )}
                     >
-                      이용권 구매
+                      이용권
                     </span>
                   </span>
                 </Link>
