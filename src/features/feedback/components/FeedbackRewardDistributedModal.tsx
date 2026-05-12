@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { OBTEventModal } from '@/components/OBT/OBTEventModal';
@@ -14,8 +15,22 @@ export function FeedbackRewardDistributedModal({
   onProofreadRequestClick?: () => void;
 }) {
   const router = useRouter();
+  const isLeavingForProofreadRef = useRef(false);
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    onOpenChange(nextOpen);
+
+    if (!nextOpen && !isLeavingForProofreadRef.current) {
+      router.back();
+    }
+
+    if (!nextOpen) {
+      isLeavingForProofreadRef.current = false;
+    }
+  };
 
   const handleProofreadRequest = () => {
+    isLeavingForProofreadRef.current = true;
     onProofreadRequestClick?.();
     router.push('/correction/new');
   };
@@ -23,7 +38,7 @@ export function FeedbackRewardDistributedModal({
   return (
     <OBTEventModal
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={handleOpenChange}
       eventTitle='피드백 제출'
       eventSubTitle='보상 지급 완료'
       reward='경험 정리 1회권 + 포트폴리오 첨삭 1회권'
