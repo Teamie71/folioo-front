@@ -78,7 +78,7 @@ export function CorrectionResultStep({
   );
 
   const portfolios: PortfolioDetailResDTO[] = isExternal
-    ? (externalPortfoliosData?.result ?? []).map((p) => ({
+    ? (externalPortfoliosData?.result?.portfolios ?? []).map((p) => ({
         ...p,
         id: p.portfolioId,
         hopeJob: null,
