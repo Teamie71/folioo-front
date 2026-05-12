@@ -305,7 +305,7 @@ function TopupClientMobileContent() {
             </div>
 
             {/* 상품 목록 */}
-            <div className='flex flex-col gap-[1.25rem]'>
+            {/* <div className='flex flex-col gap-[1.25rem]'>
               <div className='flex flex-col gap-[0.5rem]'>
                 <h2 className='text-[1.125rem] font-bold text-[#1A1A1A]'>
                   경험 정리 이용권
@@ -325,14 +325,14 @@ function TopupClientMobileContent() {
                   />
                 ))}
               </div>
-            </div>
+            </div> */}
           </div>
         )}
 
         {activeTab === 'portfolio' && (
           <div className='flex flex-col gap-[2rem]'>
             {/* 상품 목록 */}
-            <div className='flex flex-col gap-[1rem]'>
+            {/* <div className='flex flex-col gap-[1rem]'>
               <div className='flex flex-col gap-[0.5rem]'>
                 <h2 className='text-[1.125rem] font-bold text-[#1A1A1A]'>
                   포트폴리오 첨삭 이용권
@@ -352,7 +352,7 @@ function TopupClientMobileContent() {
                   />
                 ))}
               </div>
-            </div>
+            </div> */}
           </div>
         )}
       </div>

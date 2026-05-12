@@ -65,17 +65,25 @@ function renderComments(lines: CorrectionLineItemReqDTO[] = [], filterType: 'red
   });
 
   if (filteredLines.length === 0) {
-    return <></>;
+    return (
+      <div className='flex w-full flex-1 items-center justify-center text-center text-[1rem] font-normal text-[#74777D]'>
+        해당하는 첨삭 가이드가 존재하지 않아요.
+      </div>
+    );
   }
 
-  return filteredLines.map((line, index) => {
-    const commentContent = typeof line.comment === 'string' ? line.comment : (line.comment as { content?: string })?.content;
-    return (
-      <li key={index} className='text-[1rem] text-[#1A1A1A]'>
-        {commentContent}
-      </li>
-    );
-  });
+  return (
+    <ol className='ml-[1.5rem] flex list-decimal flex-col gap-[0.5rem]'>
+      {filteredLines.map((line, index) => {
+        const commentContent = typeof line.comment === 'string' ? line.comment : (line.comment as { content?: string })?.content;
+        return (
+          <li key={index} className='text-[1rem] text-[#1A1A1A]'>
+            {commentContent}
+          </li>
+        );
+      })}
+    </ol>
+  );
 }
 
 export function CorrectionResultActivityDetail({
@@ -152,12 +160,10 @@ export function CorrectionResultActivityDetail({
                 구체화하여 강조
               </button>
             </div>
-            <ol className='ml-[1.5rem] flex list-decimal flex-col gap-[0.5rem]'>
-              {renderComments(
-                correctionItem.description?.lines,
-                detailInfoButton === '축소 또는 제외' ? 'reduce' : 'emphasize'
-              )}
-            </ol>
+            {renderComments(
+              correctionItem.description?.lines,
+              detailInfoButton === '축소 또는 제외' ? 'reduce' : 'emphasize'
+            )}
           </div>
         </div>
       </div>
@@ -194,12 +200,10 @@ export function CorrectionResultActivityDetail({
                 구체화하여 강조
               </button>
             </div>
-            <ol className='ml-[1.5rem] flex list-decimal flex-col gap-[0.5rem]'>
-              {renderComments(
-                correctionItem.responsibilities?.lines,
-                responsibilityButton === '축소 또는 제외' ? 'reduce' : 'emphasize'
-              )}
-            </ol>
+            {renderComments(
+              correctionItem.responsibilities?.lines,
+              responsibilityButton === '축소 또는 제외' ? 'reduce' : 'emphasize'
+            )}
           </div>
         </div>
       </div>
@@ -232,12 +236,10 @@ export function CorrectionResultActivityDetail({
                 setProblemSolvingButton(value as ResultButtonValue)
               }
             />
-            <ol className='ml-[1.5rem] flex list-decimal flex-col gap-[0.5rem]'>
-              {renderComments(
-                correctionItem.problemSolving?.lines,
-                problemSolvingButton === '축소 또는 제외' ? 'reduce' : 'emphasize'
-              )}
-            </ol>
+            {renderComments(
+              correctionItem.problemSolving?.lines,
+              problemSolvingButton === '축소 또는 제외' ? 'reduce' : 'emphasize'
+            )}
           </div>
         </div>
       </div>
@@ -274,12 +276,10 @@ export function CorrectionResultActivityDetail({
                 구체화하여 강조
               </button>
             </div>
-            <ol className='ml-[1.5rem] flex list-decimal flex-col gap-[0.5rem]'>
-              {renderComments(
-                correctionItem.learnings?.lines,
-                lessonsButton === '축소 또는 제외' ? 'reduce' : 'emphasize'
-              )}
-            </ol>
+            {renderComments(
+              correctionItem.learnings?.lines,
+              lessonsButton === '축소 또는 제외' ? 'reduce' : 'emphasize'
+            )}
           </div>
         </div>
       </div>

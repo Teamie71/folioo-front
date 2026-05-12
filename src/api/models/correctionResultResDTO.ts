@@ -6,9 +6,12 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { CorrectionItemResDTO } from './correctionItemResDTO';
+import type { CorrectionResultResDTOPortfolioSource } from './correctionResultResDTOPortfolioSource';
 import type { CorrectionResultResDTOStatus } from './correctionResultResDTOStatus';
 
 export interface CorrectionResultResDTO {
+  /** 첨삭 포트폴리오 출처. NONE→INTERNAL, GENERATING/GENERATED→EXTERNAL. FAILED는 서버 추론 로직에 따라 correction/items 데이터를 기준으로 결정됩니다. */
+  portfolioSource: CorrectionResultResDTOPortfolioSource;
   status: CorrectionResultResDTOStatus;
   companyName: string;
   positionName: string;

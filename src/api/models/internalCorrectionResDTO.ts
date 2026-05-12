@@ -7,10 +7,13 @@
  */
 import type { InternalCorrectionResDTOCompanyInsight } from './internalCorrectionResDTOCompanyInsight';
 import type { InternalCorrectionResDTOHighlightPoint } from './internalCorrectionResDTOHighlightPoint';
+import type { InternalCorrectionResDTOPortfolioSource } from './internalCorrectionResDTOPortfolioSource';
 import type { InternalCorrectionResDTOResult } from './internalCorrectionResDTOResult';
 import type { InternalCorrectionResDTOStatus } from './internalCorrectionResDTOStatus';
 
 export interface InternalCorrectionResDTO {
+  /** 첨삭 포트폴리오 출처. NONE→INTERNAL, GENERATING/GENERATED→EXTERNAL. FAILED는 결과 item 기준으로 추론. */
+  portfolioSource: InternalCorrectionResDTOPortfolioSource;
   /** 연관된 사용자 ID */
   userId: number;
   /** 선택된 포트폴리오 ID 목록 */
