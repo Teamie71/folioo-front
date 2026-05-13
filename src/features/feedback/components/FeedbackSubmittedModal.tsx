@@ -1,5 +1,7 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+
 import { CommonModal } from '@/components/CommonModal';
 import { EventModalIcon } from '@/components/icons/EventModalIcon';
 
@@ -10,10 +12,20 @@ export function FeedbackSubmittedModal({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const router = useRouter();
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    onOpenChange(nextOpen);
+
+    if (!nextOpen) {
+      router.back();
+    }
+  };
+
   return (
     <CommonModal
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={handleOpenChange}
       closeButtonOnly
       className='w-full max-w-[40rem] items-center gap-[1.5rem] py-[3.75rem] text-center'
     >

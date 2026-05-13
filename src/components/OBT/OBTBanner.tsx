@@ -1,7 +1,8 @@
 'use client';
 
+import Link from 'next/link';
+
 import { CloseIcon } from '../icons/CloseIcon';
-import { FEEDBACK_FORM_URL } from '@/constants/feedback';
 
 const SESSION_STORAGE_KEY = 'bannerBetaDismissed';
 
@@ -30,14 +31,12 @@ export const BannerBeta = () => {
         </div>
 
         <div className='flex items-center gap-[3.75rem]'>
-          <a
-            href={FEEDBACK_FORM_URL}
-            target='_blank'
-            rel='noopener noreferrer'
+          <Link
+            href='/feedback'
             className='cursor-pointer text-[1rem] font-semibold text-[#5060C5] underline hover:opacity-90'
           >
             피드백 남기기 →
-          </a>
+          </Link>
           <button
             type='button'
             className='cursor-pointer'
