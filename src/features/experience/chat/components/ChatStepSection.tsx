@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ChatStepBubble } from './ChatStepBubble';
+import { ChatCompleteBubble } from './ChatCompleteBubble';
 import type { ChatMessage } from './ChatMessageSection';
 import { ChatInput, type ContentPart, type FileItem } from './ChatInput';
 
@@ -25,6 +26,7 @@ interface ChatStepSectionProps {
   /* true면 0단계 진입 툴팁 표시 안 함 (새로고침/세션 복원 시). 호버 시 툴팁은 그대로 */
   suppressStep0EntryTooltip?: boolean;
   messages?: ChatMessage[];
+  onCompletePortfolio?: () => void;
 }
 
 export const ChatStepSection = ({
@@ -36,6 +38,7 @@ export const ChatStepSection = ({
   showTooltipForStep = null,
   suppressStep0EntryTooltip = true,
   messages = [],
+  onCompletePortfolio,
 }: ChatStepSectionProps) => {
   /* 그리드 호버 시 해당 단계 툴팁 표시 (0·1·2·3) */
   const [hoveringGridStep, setHoveringGridStep] = useState<number | null>(null);
@@ -44,11 +47,14 @@ export const ChatStepSection = ({
   }, [currentStep]);
 
   /* 진입 시 툴팁 2초 후 자동 숨김 */
-  const [tooltipDismissed, setTooltipDismissed] = useState<Record<number, boolean>>({
+  const [tooltipDismissed, setTooltipDismissed] = useState<
+    Record<number, boolean>
+  >({
     0: false,
     1: false,
     2: false,
     3: false,
+    4: false,
   });
 
   const showStep0ByEntry = currentStep === 0;
@@ -66,7 +72,10 @@ export const ChatStepSection = ({
       return;
     }
     setTooltipDismissed((prev) => ({ ...prev, 0: false }));
-    const t = setTimeout(() => setTooltipDismissed((prev) => ({ ...prev, 0: true })), TOOLTIP_DURATION_MS);
+    const t = setTimeout(
+      () => setTooltipDismissed((prev) => ({ ...prev, 0: true })),
+      TOOLTIP_DURATION_MS,
+    );
     return () => clearTimeout(t);
   }, [currentStep, suppressStep0EntryTooltip]);
 
@@ -76,7 +85,10 @@ export const ChatStepSection = ({
       return;
     }
     setTooltipDismissed((prev) => ({ ...prev, 1: false }));
-    const t = setTimeout(() => setTooltipDismissed((prev) => ({ ...prev, 1: true })), TOOLTIP_DURATION_MS);
+    const t = setTimeout(
+      () => setTooltipDismissed((prev) => ({ ...prev, 1: true })),
+      TOOLTIP_DURATION_MS,
+    );
     return () => clearTimeout(t);
   }, [showStep1ByEntry]);
 
@@ -86,7 +98,10 @@ export const ChatStepSection = ({
       return;
     }
     setTooltipDismissed((prev) => ({ ...prev, 2: false }));
-    const t = setTimeout(() => setTooltipDismissed((prev) => ({ ...prev, 2: true })), TOOLTIP_DURATION_MS);
+    const t = setTimeout(
+      () => setTooltipDismissed((prev) => ({ ...prev, 2: true })),
+      TOOLTIP_DURATION_MS,
+    );
     return () => clearTimeout(t);
   }, [showStep2ByEntry]);
 
@@ -96,9 +111,25 @@ export const ChatStepSection = ({
       return;
     }
     setTooltipDismissed((prev) => ({ ...prev, 3: false }));
-    const t = setTimeout(() => setTooltipDismissed((prev) => ({ ...prev, 3: true })), TOOLTIP_DURATION_MS);
+    const t = setTimeout(
+      () => setTooltipDismissed((prev) => ({ ...prev, 3: true })),
+      TOOLTIP_DURATION_MS,
+    );
     return () => clearTimeout(t);
   }, [showStep3ByEntry]);
+
+  useEffect(() => {
+    if (currentStep !== 4) {
+      setTooltipDismissed((prev) => ({ ...prev, 4: false }));
+      return;
+    }
+    setTooltipDismissed((prev) => ({ ...prev, 4: false }));
+    const t = setTimeout(
+      () => setTooltipDismissed((prev) => ({ ...prev, 4: true })),
+      TOOLTIP_DURATION_MS,
+    );
+    return () => clearTimeout(t);
+  }, [currentStep]);
 
   const gridCell =
     'h-[1.125rem] w-[1.125rem] border-[0.09375rem] border-[#74777D]';
@@ -208,6 +239,26 @@ export const ChatStepSection = ({
             <br />
             마지막 단계만 완료하면 포트폴리오 생성이 시작돼요.
           </ChatStepBubble>
+        </div>
+
+        {/* 4단계(최종) 툴팁: 대화 완료 시 ChatCompleteBubble 표시 */}
+        <div
+          className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
+          style={{
+            opacity:
+              currentStep === 4 &&
+              (!tooltipDismissed[4] || hoveringGridStep === 4)
+                ? 1
+                : 0,
+            transitionDuration: `${FADE_DURATION_MS}ms`,
+            pointerEvents:
+              currentStep === 4 &&
+              (!tooltipDismissed[4] || hoveringGridStep === 4)
+                ? 'auto'
+                : 'none',
+          }}
+        >
+          <ChatCompleteBubble onComplete={onCompletePortfolio} />
         </div>
       </div>
 
@@ -330,6 +381,8 @@ export const ChatStepSection = ({
               transitionDuration: `${FADE_DURATION_MS}ms`,
               pointerEvents: currentStep === 4 ? 'auto' : 'none',
             }}
+            onMouseEnter={() => setHoveringGridStep(4)}
+            onMouseLeave={() => setHoveringGridStep(null)}
           >
             <div className='flex gap-[0.25rem]'>
               <p
