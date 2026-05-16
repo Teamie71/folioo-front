@@ -240,26 +240,6 @@ export const ChatStepSection = ({
             마지막 단계만 완료하면 포트폴리오 생성이 시작돼요.
           </ChatStepBubble>
         </div>
-
-        {/* 4단계(최종) 툴팁: 대화 완료 시 ChatCompleteBubble 표시 */}
-        <div
-          className='absolute inset-x-0 top-0 flex flex-col transition-opacity'
-          style={{
-            opacity:
-              currentStep === 4 &&
-              (!tooltipDismissed[4] || hoveringGridStep === 4)
-                ? 1
-                : 0,
-            transitionDuration: `${FADE_DURATION_MS}ms`,
-            pointerEvents:
-              currentStep === 4 &&
-              (!tooltipDismissed[4] || hoveringGridStep === 4)
-                ? 'auto'
-                : 'none',
-          }}
-        >
-          <ChatCompleteBubble onComplete={onCompletePortfolio} />
-        </div>
       </div>
 
       {/* 그리드 + ChatInput */}
@@ -405,6 +385,29 @@ export const ChatStepSection = ({
             messages={messages}
           />
         </div>
+      </div>
+
+      {/* 4단계(최종) 툴팁: 대화 완료 시 ChatCompleteBubble 표시 */}
+
+      <div
+        className='absolute inset-x-0 top-0 z-50 flex h-full flex-col transition-opacity'
+        style={{
+          opacity:
+            currentStep === 4 &&
+            (!tooltipDismissed[4] || hoveringGridStep === 4)
+              ? 1
+              : 0,
+          transitionDuration: `${FADE_DURATION_MS}ms`,
+          pointerEvents:
+            currentStep === 4 &&
+            (!tooltipDismissed[4] || hoveringGridStep === 4)
+              ? 'auto'
+              : 'none',
+        }}
+        onMouseEnter={() => setHoveringGridStep(4)}
+        onMouseLeave={() => setHoveringGridStep(null)}
+      >
+        <ChatCompleteBubble onComplete={onCompletePortfolio} />
       </div>
     </div>
   );
