@@ -34,7 +34,7 @@ import {
 } from '@/api/endpoints/portfolio/portfolio';
 import { getHopeJobLabel } from '@/constants/hopeJob';
 import { ExportIcon } from '@/components/icons/ExportIcon';
-import { PortfolioVisualizationSwitchToggle } from '@/features/experience/chat/components/PortfolioVisualizationSwitchToggle';
+import { PortfolioVisualizationSwitchToggle } from '@/features/experience/portfolio/components/PortfolioVisualizationSwitchToggle';
 
 export default function ExperienceSettingsPortfolioPage() {
   const params = useParams();
