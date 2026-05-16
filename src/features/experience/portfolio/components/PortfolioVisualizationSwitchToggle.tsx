@@ -17,6 +17,11 @@ export const PortfolioVisualizationSwitchToggle = ({
     <Tabs
       value={value}
       onValueChange={onValueChange}
+      onKeyDown={(e) => {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+          e.preventDefault();
+        }
+      }}
       className='h-[1.875rem] w-[9.625rem]'
     >
       <TabsList className='bg-gray3 grid h-full w-full grid-cols-2 rounded-[0.25rem] p-0 font-semibold'>
