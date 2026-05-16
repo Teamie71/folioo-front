@@ -34,6 +34,7 @@ import {
 } from '@/api/endpoints/portfolio/portfolio';
 import { getHopeJobLabel } from '@/constants/hopeJob';
 import { ExportIcon } from '@/components/icons/ExportIcon';
+import { PortfolioVisualizationSwitchToggle } from '@/features/experience/chat/components/PortfolioVisualizationSwitchToggle';
 
 export default function ExperienceSettingsPortfolioPage() {
   const params = useParams();
@@ -194,7 +195,7 @@ export default function ExperienceSettingsPortfolioPage() {
   return (
     <>
       <div className='mx-auto w-[87rem] min-w-[87rem] pt-[4rem]'>
-        <div className='flex flex-col gap-[1.125rem] pb-[4.5rem]'>
+        <div className='flex flex-col gap-[1.125rem]'>
           {/* 헤더 */}
           <div className='flex w-full items-center justify-between'>
             <div className='flex items-center gap-[0.5rem]'>
@@ -254,6 +255,11 @@ export default function ExperienceSettingsPortfolioPage() {
 
           {/* 콘텐츠 구분선 */}
           <div className='rounded-[2rem] border border-[#9EA4A9]' />
+        </div>
+
+        {/* 텍스트 OR 시각화 전환 토글 */}
+        <div className='flex py-[2.5rem]'>
+          <PortfolioVisualizationSwitchToggle />
         </div>
 
         <div className='flex flex-col rounded-[2.5rem] px-[3.5rem] py-[4rem] shadow-[0px_2px_8px_0px_rgba(0,0,0,0.2)]'>
