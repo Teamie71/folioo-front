@@ -60,8 +60,8 @@ export const SlideContent = ({
           </CommonButton>
         </div>
       ) : selectedIndex === 2 ? (
-        <div className='relative flex h-full w-full flex-col items-center justify-center'>
-          <div className='absolute top-[1.5rem] right-[1.5rem]'>
+        <div className='group relative flex h-full w-full flex-col items-center justify-center'>
+          <div className='absolute top-[1.5rem] right-[1.5rem] opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
             <CommonButton
               variantType='Outline'
               px='2.25rem'
