@@ -182,7 +182,6 @@ function TopupPageContent() {
       description:
         '매주 월요일에 이용권 8개를 무료로 드려요. 그 주 일요일까지만 사용 가능하니, 선물을 놓치지 말고 사용해보세요!',
     },
-    /*
     {
       id: 'review',
       icon: <BigTicketIcon />,
@@ -191,7 +190,6 @@ function TopupPageContent() {
         '첫 피드백을 남겨주시면, 감사의 마음을 담아 원하시는 무료 이용권을 드려요.',
       cta: '피드백 남기기',
     },
-    */
     /* OBT 기간 주석 처리
     {
       id: 'review',
