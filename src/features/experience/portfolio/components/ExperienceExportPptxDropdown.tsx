@@ -20,7 +20,7 @@ export interface ExperienceExportProps {
   className?: string;
 }
 
-export function ExperienceExportDropdown({
+export function ExperienceExportPptxDropdown({
   title,
   data,
   className,
@@ -55,13 +55,22 @@ export function ExperienceExportDropdown({
     doc.save(`${safeTitle}.pdf`);
   };
 
+  const handleExportPptx = () => {
+    alert('PPTX 다운로드 기능은 현재 준비 중입니다.');
+  };
+
   return (
     <>
       <DropdownButton
-        items={[{ id: 'pdf', label: 'PDF로 내보내기' }]}
+        items={[
+          { id: 'pdf', label: 'PDF로 내보내기' },
+          { id: 'pptx', label: 'PPTX로 내보내기' },
+        ]}
         onChange={(id) => {
           if (id === 'pdf') {
             handleExportPdf();
+          } else if (id === 'pptx') {
+            handleExportPptx();
           }
         }}
         className={className}

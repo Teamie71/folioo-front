@@ -13,7 +13,8 @@ import { DeleteModalButton } from '@/components/DeleteModalButton';
 import { InlineEdit } from '@/components/InlineEdit';
 import { useExperienceStore } from '@/store/useExperienceStore';
 import { ContributionBar } from '@/features/experience/components/ContributionBar';
-import { ExperienceExport } from '@/features/experience/portfolio/components/ExperienceExport';
+import { ExperienceExportDropdown } from '@/features/experience/portfolio/components/ExperienceExportDropdown';
+import { ExperienceExportPptxDropdown } from '@/features/experience/portfolio/components/ExperienceExportPptxDropdown';
 import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { PortfolioDeleteBlockModal } from '@/features/experience/portfolio/components/PortfolioDeleteBlockModal';
 import Link from 'next/link';
@@ -237,16 +238,29 @@ export default function ExperienceSettingsPortfolioPage() {
             </div>
 
             <div className='flex items-center gap-[1.5rem]'>
-              <ExperienceExport
-                data={{
-                  description: detailInfo,
-                  responsibilities: roleContent,
-                  problemSolving: problemContent,
-                  learnings: learnContent,
-                }}
-                title={displayTitle}
-                className='flex cursor-pointer items-center gap-[0.5rem] border-none bg-transparent'
-              />
+              {viewMode === 'visual' ? (
+                <ExperienceExportPptxDropdown
+                  data={{
+                    description: detailInfo,
+                    responsibilities: roleContent,
+                    problemSolving: problemContent,
+                    learnings: learnContent,
+                  }}
+                  title={displayTitle}
+                  className='flex cursor-pointer items-center gap-[0.5rem] border-none bg-transparent'
+                />
+              ) : (
+                <ExperienceExportDropdown
+                  data={{
+                    description: detailInfo,
+                    responsibilities: roleContent,
+                    problemSolving: problemContent,
+                    learnings: learnContent,
+                  }}
+                  title={displayTitle}
+                  className='flex cursor-pointer items-center gap-[0.5rem] border-none bg-transparent'
+                />
+              )}
 
               {/* 구분선 */}
               <div className='h-[1.5rem] w-[0.125rem] border-none bg-[#9EA4A9]' />
