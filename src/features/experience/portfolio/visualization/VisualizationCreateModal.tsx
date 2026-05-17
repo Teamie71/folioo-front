@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CommonModal } from '@/components/CommonModal';
 import { CommonButton } from '@/components/CommonButton';
 import { cn } from '@/utils/utils';
@@ -14,7 +14,13 @@ export const VisualizationCreateModal = ({
   onOpenChange,
   onConfirm,
 }: VisualizationCreateModalProps) => {
-  const [selectedStyle, setSelectedStyle] = useState<number | null>(null);
+  const [selectedStyle, setSelectedStyle] = useState<number | null>(1);
+
+  useEffect(() => {
+    if (open) {
+      setSelectedStyle(1);
+    }
+  }, [open]);
 
   const styles = [
     { id: 1, name: '스타일명1' },
