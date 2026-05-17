@@ -127,12 +127,12 @@ export function CorrectionResultActivityDetail({
   };
 
   return (
-    <div className='flex flex-col gap-[3rem]'>
+    <div className='mx-auto flex w-[80rem] flex-col gap-[3rem]'>
       <div className='flex flex-col gap-[1rem]'>
         <div className='text-[1.125rem] font-bold leading-[1.3]'>
           상세정보
         </div>
-        <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
+        <div className='flex gap-[2.375rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
           <div className='min-h-[15.375rem] min-w-0 flex-1'>
             {hasPortfolioOriginText(portfolio.description) ? (
               renderMarkdown(
@@ -146,16 +146,16 @@ export function CorrectionResultActivityDetail({
           </div>
           <div className='w-[1px] flex-shrink-0 bg-[#9EA4A9]' />
           <div className='flex min-w-0 flex-1 flex-col gap-[2.5rem]'>
-            <div className='flex gap-[0.25rem] rounded-[6.25rem] bg-[#E9EAEC] p-[0.25rem]'>
+            <div className='flex w-[562px] gap-[0.25rem] rounded-[6.25rem] bg-[#E9EAEC] p-[0.25rem]'>
               <button
                 onClick={() => setDetailInfoButton('축소 또는 제외')}
-                className={`h-[40px] w-[211px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${buttonClass(detailInfoButton === '축소 또는 제외')}`}
+                className={`h-[40px] w-[280px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${buttonClass(detailInfoButton === '축소 또는 제외')}`}
               >
                 축소 또는 제외
               </button>
               <button
                 onClick={() => setDetailInfoButton('구체화하여 강조')}
-                className={`h-[40px] w-[212px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${buttonClass(detailInfoButton === '구체화하여 강조')}`}
+                className={`h-[40px] w-[280px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${buttonClass(detailInfoButton === '구체화하여 강조')}`}
               >
                 구체화하여 강조
               </button>
@@ -172,7 +172,7 @@ export function CorrectionResultActivityDetail({
         <div className='text-[1.125rem] font-bold leading-[1.3]'>
           담당업무
         </div>
-        <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
+        <div className='flex gap-[2.375rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
           <div className='min-h-[15.375rem] min-w-0 flex-1'>
             {hasPortfolioOriginText(portfolio.responsibilities) ? (
               renderMarkdown(
@@ -189,13 +189,13 @@ export function CorrectionResultActivityDetail({
             <div className='flex gap-[0.25rem] rounded-[6.25rem] bg-[#E9EAEC] p-[0.25rem]'>
               <button
                 onClick={() => setResponsibilityButton('축소 또는 제외')}
-                className={`h-[40px] w-[211px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${buttonClass(responsibilityButton === '축소 또는 제외')}`}
+                className={`h-[40px] w-[280px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${buttonClass(responsibilityButton === '축소 또는 제외')}`}
               >
                 축소 또는 제외
               </button>
               <button
                 onClick={() => setResponsibilityButton('구체화하여 강조')}
-                className={`h-[40px] w-[212px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${buttonClass(responsibilityButton === '구체화하여 강조')}`}
+                className={`h-[40px] w-[280px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${buttonClass(responsibilityButton === '구체화하여 강조')}`}
               >
                 구체화하여 강조
               </button>
@@ -212,7 +212,7 @@ export function CorrectionResultActivityDetail({
         <div className='text-[1.125rem] font-bold leading-[1.3]'>
           문제 해결
         </div>
-        <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
+        <div className='flex gap-[2.375rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
           <div className='min-h-[15.375rem] min-w-0 flex-1'>
             {hasPortfolioOriginText(portfolio.problemSolving) ? (
               renderMarkdown(
@@ -248,7 +248,7 @@ export function CorrectionResultActivityDetail({
         <div className='text-[1.125rem] font-bold leading-[1.3]'>
           배운 점
         </div>
-        <div className='flex gap-[1.5rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
+        <div className='flex gap-[2.375rem] rounded-[1.25rem] border border-[#74777D] px-[1.75rem] py-[2rem]'>
           <div className='min-h-[15.375rem] min-w-0 flex-1'>
             {hasPortfolioOriginText(portfolio.learnings) ? (
               renderMarkdown(
@@ -265,13 +265,13 @@ export function CorrectionResultActivityDetail({
             <div className='flex gap-[0.25rem] rounded-[6.25rem] bg-[#E9EAEC] p-[0.25rem]'>
               <button
                 onClick={() => setLessonsButton('축소 또는 제외')}
-                className={`h-[40px] w-[211px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${buttonClass(lessonsButton === '축소 또는 제외')}`}
+                className={`h-[40px] w-[280px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${buttonClass(lessonsButton === '축소 또는 제외')}`}
               >
                 축소 또는 제외
               </button>
               <button
                 onClick={() => setLessonsButton('구체화하여 강조')}
-                className={`h-[40px] w-[212px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${buttonClass(lessonsButton === '구체화하여 강조')}`}
+                className={`h-[40px] w-[280px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${buttonClass(lessonsButton === '구체화하여 강조')}`}
               >
                 구체화하여 강조
               </button>

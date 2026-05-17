@@ -589,7 +589,8 @@ export function useCorrectionState(correctionId: string | undefined) {
     pdfUploadError === 'too_large' || pdfUploadError === 'too_many'
       ? `pdf-shake-${pdfShakeKey}`
       : 'no-shake';
-  const layoutClassName = `mx-auto mt-[2.5rem] w-[66rem] min-w-[66rem] ${pdfUploadError === 'too_large' || pdfUploadError === 'too_many' ? 'animate-shake' : ''}`;
+  const layoutWidth = step === 'result' ? 'w-[87rem] min-w-[87rem]' : 'w-[66rem] min-w-[66rem]';
+  const layoutClassName = `mx-auto mt-[2.5rem] ${layoutWidth} ${pdfUploadError === 'too_large' || pdfUploadError === 'too_many' ? 'animate-shake' : ''}`;
 
   const pdfCategoryOverLimit =
     selectedPortfolioType === 'pdf' &&

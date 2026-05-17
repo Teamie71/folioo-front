@@ -33,7 +33,7 @@ export function CorrectionResultSupportInfo({
   const highlightPoint = result?.highlightPoint?.trim() || '—';
 
   return (
-    <div className='flex flex-col gap-[3.75rem]'>
+    <div className='mx-auto flex w-[80rem] flex-col gap-[3.75rem]'>
       <div className='grid grid-cols-2 gap-[1.5rem]'>
         <div className='flex flex-col gap-[1rem]'>
           <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
