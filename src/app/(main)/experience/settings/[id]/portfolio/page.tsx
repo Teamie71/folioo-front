@@ -37,6 +37,7 @@ import { ExportIcon } from '@/components/icons/ExportIcon';
 import { PortfolioVisualizationSwitchToggle } from '@/features/experience/portfolio/components/PortfolioVisualizationSwitchToggle';
 import VisualPortfolioContent from '@/features/experience/portfolio/visualization/VisualPortfolioContent';
 import TextPortfolioCard from '@/features/experience/portfolio/text/TextPortfolioCard';
+import { VisualizationCreateModal } from '@/features/experience/portfolio/visualization/VisualizationCreateModal';
 
 export default function ExperienceSettingsPortfolioPage() {
   const params = useParams();
@@ -62,6 +63,7 @@ export default function ExperienceSettingsPortfolioPage() {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [deleteBlockModalOpen, setDeleteBlockModalOpen] = useState(false);
   const [exportObtModalOpen, setExportObtModalOpen] = useState(false);
+  const [isVisualizationModalOpen, setVisualizationModalOpen] = useState(false);
   const [detailInfo, setDetailInfo] = useState('');
   const [roleContent, setRoleContent] = useState('');
   const [problemContent, setProblemContent] = useState('');
@@ -264,7 +266,14 @@ export default function ExperienceSettingsPortfolioPage() {
         <div className='flex py-[2.5rem]'>
           <PortfolioVisualizationSwitchToggle
             value={viewMode}
-            onValueChange={setViewMode}
+            onValueChange={(newMode) => {
+              if (newMode === 'visual' && viewMode !== 'visual') {
+                setExportObtModalOpen(false);
+                setVisualizationModalOpen(true);
+              } else {
+                setViewMode(newMode);
+              }
+            }}
           />
         </div>
 
@@ -284,7 +293,6 @@ export default function ExperienceSettingsPortfolioPage() {
         ) : (
           <VisualPortfolioContent />
         )}
-
 
         {/* 버튼 영역 */}
         <div className='flex items-center justify-center gap-[2.75rem] pt-[5rem] pb-[6.25rem]'>
@@ -315,6 +323,12 @@ export default function ExperienceSettingsPortfolioPage() {
       <PortfolioDeleteBlockModal
         open={deleteBlockModalOpen}
         onOpenChange={setDeleteBlockModalOpen}
+      />
+
+      <VisualizationCreateModal
+        open={isVisualizationModalOpen}
+        onOpenChange={setVisualizationModalOpen}
+        onConfirm={() => setViewMode('visual')}
       />
 
       <OBTRedirectModal
