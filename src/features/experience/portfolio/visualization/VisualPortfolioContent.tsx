@@ -36,7 +36,10 @@ const VisualPortfolioContent = () => {
           setSelectedIndex={setSelectedIndex}
         />
         <motion.div layout className='flex-1'>
-          <SlideContent selectedIndex={selectedIndex} />
+          <SlideContent
+            selectedIndex={selectedIndex}
+            isCollapsed={isCollapsed}
+          />
         </motion.div>
       </motion.div>
     </motion.div>

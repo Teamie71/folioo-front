@@ -3,13 +3,25 @@ import { CommonButton } from '@/components/CommonButton';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { RecreateModal } from './RecreateModal';
+import { cn } from '@/utils/utils';
 
-export const SlideContent = ({ selectedIndex }: { selectedIndex: number }) => {
+export const SlideContent = ({
+  selectedIndex,
+  isCollapsed,
+}: {
+  selectedIndex: number;
+  isCollapsed?: boolean;
+}) => {
   const [isRecreateModalOpen, setIsRecreateModalOpen] = useState(false);
   const [remainingCount, setRemainingCount] = useState(10);
 
   return (
-    <div className='border-gray6 text-gray5 relative flex h-[42.1875rem] w-full flex-col rounded-[1.25rem] border bg-white'>
+    <div
+      className={cn(
+        'border-gray6 text-gray5 relative flex w-full flex-col rounded-[1.25rem] border bg-white',
+        isCollapsed ? 'h-[48.9375rem]' : 'h-[42.1875rem]'
+      )}
+    >
       {selectedIndex === 0 ? (
         <div className='flex h-full flex-col items-center justify-center'>
           {/* 로딩 스피너 */}
