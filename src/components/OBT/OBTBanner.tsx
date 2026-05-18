@@ -2,11 +2,16 @@
 
 import Link from 'next/link';
 
+import { usePathname } from 'next/navigation';
 import { CloseIcon } from '../icons/CloseIcon';
+import { cn } from '@/utils/utils';
 
 const SESSION_STORAGE_KEY = 'bannerBetaDismissed';
 
 export const BannerBeta = () => {
+  const pathname = usePathname();
+  const isPortfolio = pathname?.includes('/portfolio');
+
   const handleClose = () => {
     sessionStorage.setItem(SESSION_STORAGE_KEY, 'true');
     if (typeof document !== 'undefined') {
@@ -16,7 +21,14 @@ export const BannerBeta = () => {
 
   return (
     <div className='banner-beta fixed top-[80px] right-0 left-0 z-40 flex h-[3.75rem] w-full bg-gradient-to-r from-[#FFFDE5] to-[#FFF1FE]'>
-      <div className='mx-auto flex min-w-[66rem] items-center justify-between'>
+      <div
+        className={cn(
+          'mx-auto flex items-center justify-between',
+          isPortfolio
+            ? 'w-[1392px] min-w-[1392px]'
+            : 'w-[1056px] min-w-[1056px]',
+        )}
+      >
         <div className='flex items-center gap-[1.25rem]'>
           <div className='rounded-[3.75rem] bg-white px-[1.75rem] py-[0.25rem] text-[1rem] font-semibold text-[#5060C5]'>
             Beta

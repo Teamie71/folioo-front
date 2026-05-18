@@ -138,7 +138,7 @@ export default function Navbar() {
 
   return (
     <nav className='fixed top-0 right-0 left-0 z-50 w-full bg-white'>
-      <div className='mx-auto w-[1056px]'>
+      <div className={cn('mx-auto', pathname?.includes('/portfolio') ? 'w-[1392px]' : 'w-[1056px]')}>
         <div className='flex h-[80px] items-center justify-between'>
           <div className='flex items-center gap-[60px]'>
             <Link href='/'>
