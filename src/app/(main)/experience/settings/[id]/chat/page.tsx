@@ -28,7 +28,6 @@ import type {
   ContentPart,
   FileItem,
 } from '@/features/experience/chat/components/ChatInput';
-import { ChatCompleteModal } from '@/features/experience/chat/components/ChatCompleteModal';
 import { PortfolioCreateModal } from '@/features/experience/chat/components/PortfolioCreateModal';
 import { fetchSSEStream } from '@/lib/sseStream';
 import {
@@ -50,6 +49,7 @@ import {
 } from '@/api/models';
 import { ExperienceStateResDTOStatus } from '@/api/models/experienceStateResDTOStatus';
 import { getExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
+import ChatCompleteBubble from '@/features/experience/chat/components/ChatCompleteBubble';
 
 const SESSION_STREAM_PATH = (experienceId: number) =>
   `/interview/experiences/${experienceId}/session/stream`;
@@ -97,7 +97,6 @@ function ExperienceSettingsChatContent() {
     ? (experienceName ?? storeTitle ?? '새로운 경험 정리')
     : '';
 
-  const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
   const [isPortfolioCreateModalOpen, setIsPortfolioCreateModalOpen] =
     useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -230,7 +229,7 @@ function ExperienceSettingsChatContent() {
       prevStageRef.current = restoredStage;
       setCurrentStage(restoredStage);
       if (restoredStage === 4) {
-        setIsCompletionModalOpen(true);
+        // No modal open here anymore
       }
     } catch {}
   };
@@ -242,19 +241,15 @@ function ExperienceSettingsChatContent() {
     isExtendedSessionRef.current = false;
     extendedTurnCountRef.current = 0;
     extendedSessionRoundsRef.current += 1;
-    if (extendedSessionRoundsRef.current >= 2) {
-      setIsPortfolioCreateModalOpen(true);
-    } else {
-      prevStageRef.current = 4;
-      setCurrentStage(4); /* 다음 3턴 연장도 4단계 상태에서 진행 */
-      setIsCompletionModalOpen(true);
-    }
+    
+    prevStageRef.current = 4;
+    setCurrentStage(4); /* 대화 완료 상태 유지 */
   };
 
   /* 단계가 다 채워지면( currentStage === 4 ) 완료 모달 */
   useEffect(() => {
     if (currentStage === 4 && prevStageRef.current !== 4) {
-      setIsCompletionModalOpen(true);
+      // No modal open here anymore
     }
     prevStageRef.current = currentStage;
   }, [currentStage]);
@@ -356,7 +351,6 @@ function ExperienceSettingsChatContent() {
                 }
                 if (newStage === 4 && prevStageRef.current !== 4) {
                   prevStageRef.current = 4;
-                  setIsCompletionModalOpen(true);
                 }
                 setCurrentStage(newStage);
               }
@@ -449,7 +443,7 @@ function ExperienceSettingsChatContent() {
           prevStageRef.current = restoredStage;
           setCurrentStage(restoredStage);
           if (restoredStage === 4) {
-            setIsCompletionModalOpen(true);
+            // No modal open here anymore
           }
           setShowTooltipForStep(null);
           setSessionStreamError(null);
@@ -567,7 +561,12 @@ function ExperienceSettingsChatContent() {
     /** 선택한 인사이트 ID (백엔드가 AI 서버에 mentioned_insight로 전달) */
     mentioned_insight?: string | number;
   }) => {
-    if (isStreaming || showRetryButton || (!payload.content.trim() && payload.files.length === 0)) return;
+    if (
+      isStreaming ||
+      showRetryButton ||
+      (!payload.content.trim() && payload.files.length === 0)
+    )
+      return;
 
     const fileInfos = payload.files.map((f) => ({
       name: f.file.name,
@@ -686,7 +685,6 @@ function ExperienceSettingsChatContent() {
                 }
                 if (newStage === 4 && prevStageRef.current !== 4) {
                   prevStageRef.current = 4;
-                  setIsCompletionModalOpen(true);
                 }
                 setCurrentStage(newStage);
               }
@@ -777,7 +775,6 @@ function ExperienceSettingsChatContent() {
 
   /** 3턴 대화 이어가기: 4단계 상태 유지한 채 연장 스트림으로 첫 AI 질문 수신, 3턴만 진행 후 CompleteModal */
   const handleContinueChat = () => {
-    setIsCompletionModalOpen(false);
     isExtendedSessionRef.current = true;
     extendedTurnCountRef.current = 0;
     prevStageRef.current = 4;
@@ -834,7 +831,6 @@ function ExperienceSettingsChatContent() {
                 );
                 if (newStage === 4 && prevStageRef.current !== 4) {
                   prevStageRef.current = 4;
-                  setIsCompletionModalOpen(true);
                 }
                 setCurrentStage(newStage);
               }
@@ -928,7 +924,7 @@ function ExperienceSettingsChatContent() {
               }
               if (newStage === 4 && prevStageRef.current !== 4) {
                 prevStageRef.current = 4;
-                setIsCompletionModalOpen(true);
+                // No modal open here anymore
               }
               setCurrentStage(newStage);
             }
@@ -1036,19 +1032,10 @@ function ExperienceSettingsChatContent() {
           showTooltipForStep={showTooltipForStep}
           suppressStep0EntryTooltip={suppressStep0EntryTooltip}
           messages={messages}
+          onCompletePortfolio={() => setIsPortfolioCreateModalOpen(true)}
         />
       </div>
 
-      {/* 대화 완료 모달: 단계가 다 채워졌을 때만 표시 */}
-      <ChatCompleteModal
-        open={isCompletionModalOpen}
-        onOpenChange={setIsCompletionModalOpen}
-        onEndConversation={() => {
-          setIsCompletionModalOpen(false);
-          setIsPortfolioCreateModalOpen(true);
-        }}
-        onContinueWithCredits={handleContinueChat}
-      />
 
       {/* 3턴 연장 후: 안내 모달 → 포트폴리오 생성 API 호출 후 createloading 이동 (3턴은 한 번만) */}
       <PortfolioCreateModal
