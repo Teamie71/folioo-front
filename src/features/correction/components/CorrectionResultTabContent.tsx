@@ -42,7 +42,7 @@ export function CorrectionResultTabContent({
     : null;
 
   return (
-    <div className='relative z-20 rounded-tr-[1.25rem] rounded-br-[1.25rem] rounded-bl-[1.25rem] border border-t-0 border-[#E9EAEC] bg-[#FFFFFF] px-[2.5rem] py-[3rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
+    <div className='relative z-20 rounded-tr-[1.25rem] rounded-br-[1.25rem] rounded-bl-[1.25rem] border border-t-0 border-[#E9EAEC] bg-[#FFFFFF] px-[2.5rem] py-[3.75rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
       {resultTab === '지원 정보' && (
         <CorrectionResultSupportInfo correctionId={correctionId} />
       )}
