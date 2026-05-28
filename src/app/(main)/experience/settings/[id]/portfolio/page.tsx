@@ -282,8 +282,9 @@ export default function ExperienceSettingsPortfolioPage() {
             value={viewMode}
             onValueChange={(newMode) => {
               if (newMode === 'visual' && viewMode !== 'visual') {
-                setExportObtModalOpen(false);
-                setVisualizationModalOpen(true);
+                // setExportObtModalOpen(false);
+                // setVisualizationModalOpen(true);
+                setExportObtModalOpen(true);
               } else {
                 setViewMode(newMode);
               }
