@@ -235,15 +235,16 @@ function ExperienceSettingsChatContent() {
   };
 
   const handleExtendedTurnDone = () => {
-    if (!isExtendedSessionRef.current) return;
+    if (!isExtendedSessionRef.current) return false;
     extendedTurnCountRef.current += 1;
-    if (extendedTurnCountRef.current < 3) return;
+    if (extendedTurnCountRef.current < 3) return false;
     isExtendedSessionRef.current = false;
     extendedTurnCountRef.current = 0;
     extendedSessionRoundsRef.current += 1;
     
     prevStageRef.current = 4;
     setCurrentStage(4); /* 대화 완료 상태 유지 */
+    return true;
   };
 
   /* 단계가 다 채워지면( currentStage === 4 ) 완료 모달 */
@@ -554,6 +555,9 @@ function ExperienceSettingsChatContent() {
       messages[messages.length - 1]?.role === 'ai' &&
       messages[messages.length - 1]?.isError === true);
 
+  const userMessageCount = messages.filter((m) => m.role === 'user').length;
+  const isMaxTurnsReached = userMessageCount >= 18;
+
   const handleSend = (payload: {
     content: string;
     contentParts?: ContentPart[];
@@ -603,6 +607,8 @@ function ExperienceSettingsChatContent() {
       payload.files.forEach((f) => fd.append('files', f.file));
     }
     const body = fd;
+    let transitionedToStage4 = false;
+    const is18thTurn = userMessageCount + 1 >= 18;
 
     fetchSSEStream({
       path: MESSAGES_STREAM_PATH(experienceId),
@@ -685,6 +691,7 @@ function ExperienceSettingsChatContent() {
                 }
                 if (newStage === 4 && prevStageRef.current !== 4) {
                   prevStageRef.current = 4;
+                  transitionedToStage4 = true;
                 }
                 setCurrentStage(newStage);
               }
@@ -708,7 +715,15 @@ function ExperienceSettingsChatContent() {
       onDone: async () => {
         setIsStreaming(false);
         await syncStageFromServer(isExtendedSessionRef.current);
-        handleExtendedTurnDone();
+        const cycleFinished = handleExtendedTurnDone();
+        
+        if (is18thTurn) {
+          setIsPortfolioCreateModalOpen(true);
+        } else if (transitionedToStage4 && !isExtendedSessionRef.current) {
+          handleContinueChat();
+        } else if (cycleFinished) {
+          handleContinueChat();
+        }
       },
     });
   };
@@ -774,7 +789,7 @@ function ExperienceSettingsChatContent() {
   };
 
   /** 3턴 대화 이어가기: 4단계 상태 유지한 채 연장 스트림으로 첫 AI 질문 수신, 3턴만 진행 후 CompleteModal */
-  const handleContinueChat = () => {
+  function handleContinueChat() {
     isExtendedSessionRef.current = true;
     extendedTurnCountRef.current = 0;
     prevStageRef.current = 4;
@@ -876,6 +891,9 @@ function ExperienceSettingsChatContent() {
     const abort = new AbortController();
     const fd = new FormData();
     fd.append('message', content);
+    let transitionedToStage4 = false;
+    const is18thTurn = userMessageCount >= 18;
+
     fetchSSEStream({
       path: MESSAGES_STREAM_PATH(experienceId),
       method: 'POST',
@@ -924,6 +942,7 @@ function ExperienceSettingsChatContent() {
               }
               if (newStage === 4 && prevStageRef.current !== 4) {
                 prevStageRef.current = 4;
+                transitionedToStage4 = true;
                 // No modal open here anymore
               }
               setCurrentStage(newStage);
@@ -947,7 +966,15 @@ function ExperienceSettingsChatContent() {
       onDone: async () => {
         setIsStreaming(false);
         await syncStageFromServer(isExtendedSessionRef.current);
-        handleExtendedTurnDone();
+        const cycleFinished = handleExtendedTurnDone();
+
+        if (is18thTurn) {
+          setIsPortfolioCreateModalOpen(true);
+        } else if (transitionedToStage4 && !isExtendedSessionRef.current) {
+          handleContinueChat();
+        } else if (cycleFinished) {
+          handleContinueChat();
+        }
       },
     });
   };
@@ -1027,7 +1054,7 @@ function ExperienceSettingsChatContent() {
           inputValue={inputValue}
           onInputChange={setInputValue}
           onSend={handleSend}
-          disabled={isStreaming || showRetryButton}
+          disabled={isStreaming || showRetryButton || isMaxTurnsReached}
           currentStep={currentStage}
           showTooltipForStep={showTooltipForStep}
           suppressStep0EntryTooltip={suppressStep0EntryTooltip}
