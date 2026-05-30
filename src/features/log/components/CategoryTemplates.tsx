@@ -215,7 +215,7 @@ export function InterpersonTemplateForm({
             <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>배운 점/ 계획</span>
             <div className='w-full md:w-[51.25rem]'>
               <TextField
-                placeholder={`무엇을 배웠고, 앞으로는 비슷한 상황에서\n어떻게 대응할건가요?`}
+                placeholder={`무엇을 배웠고, 앞으로는 비슷한 상황에서 어떻게 대응할건가요?`}
                 value={data.lesson}
                 onChange={(e) =>
                   setData({
@@ -348,7 +348,7 @@ export function ProblemSolveTemplateForm({
             <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>배운 점/ 계획</span>
             <div className='w-full md:w-[51.25rem]'>
               <TextField
-                placeholder={`무엇을 배웠고, 앞으로는 비슷한 상황에서\n어떻게 대응할건가요?`}
+                placeholder={`무엇을 배웠고, 앞으로는 비슷한 상황에서 어떻게 대응할건가요?`}
                 value={data.lesson}
                 onChange={(e) =>
                   setData({
@@ -417,7 +417,7 @@ export function LearningTemplateForm({
             </span>
             <div className='w-full md:w-[51.25rem]'>
               <TextField
-                placeholder='어떤 상황에서, 어떤 문제가 발생했나요?'
+                placeholder='어떤 매체를 통해, 무엇을 계기로 학습을 진행했나요?'
                 value={data.path}
                 onChange={(e) =>
                   setData({
@@ -434,7 +434,7 @@ export function LearningTemplateForm({
             <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>배운 내용</span>
             <div className='w-full md:w-[51.25rem]'>
               <TextField
-                placeholder='문제를 해결하기 위해 어떤 시도를 해보았나요?'
+                placeholder='어떤 지식 또는 스킬을 배웠나요?'
                 value={data.learned}
                 onChange={(e) =>
                   setData({
@@ -451,7 +451,7 @@ export function LearningTemplateForm({
             <span className='text-[0.875rem] text-[#1A1A1A] md:text-[1rem]'>적용 계획</span>
             <div className='w-full md:w-[51.25rem]'>
               <TextField
-                placeholder='어떤 결과가 나타났나요?'
+                placeholder='앞으로 어디에, 어떻게 적용해 볼 건가요?'
                 value={data.plan}
                 onChange={(e) =>
                   setData({
