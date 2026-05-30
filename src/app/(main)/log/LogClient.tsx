@@ -405,7 +405,7 @@ export default function LogClient() {
 
         {/* 카드 */}
         <div className='grid grid-cols-2 gap-[1.5rem]'>
-          {isLoggedIn && isLoading ? (
+          {isLoading ? (
             <div className='col-span-2 mt-[5rem] flex items-center justify-center'>
               <motion.div
                 animate={{ rotate: 720 }}

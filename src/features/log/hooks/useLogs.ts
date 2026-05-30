@@ -38,10 +38,12 @@ export function useLogs(params: UseLogsParams = {}) {
   const sessionRestoreAttempted = useAuthStore(
     (s) => s.sessionRestoreAttempted,
   );
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const isLoggedIn = accessToken != null;
   const queryParams = toGetLogsParams(params);
   const {
     data = [],
-    isLoading,
+    isPending,
     refetch,
   } = useQuery({
     queryKey: [
@@ -54,5 +56,8 @@ export function useLogs(params: UseLogsParams = {}) {
     enabled: sessionRestoreAttempted,
   });
   const logCards: LogCardData[] = toLogCardDataList(data);
+  // 세션 복원 전·로그인 후 첫 fetch 전에는 빈 목록으로 오인하지 않도록 로딩 처리
+  const isLoading =
+    !sessionRestoreAttempted || (isLoggedIn && isPending);
   return { logCards, isLoading, refetch };
 }
