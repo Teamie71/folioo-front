@@ -9,7 +9,6 @@ import { useLogs } from '@/features/log/hooks/useLogs';
 import { useActivityTags } from '@/features/log/hooks/useActivityTags';
 import { MobileLogDetailView } from '@/features/log/components/mobile/MobileLogDetailView';
 import { type LogCardData } from '@/store/useLogStore';
-import { useAuthStore } from '@/store/useAuthStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { updateInsightLog, deleteInsightLog } from '@/services/insight';
 import { INSIGHTS_QUERY_KEY } from '@/features/log/constants';
@@ -30,8 +29,6 @@ import { MobileLogForm } from '@/features/log/components/mobile/MobileLogForm';
 
 export default function LogClientMobile() {
   const router = useRouter();
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const isLoggedIn = accessToken != null;
   const queryClient = useQueryClient();
 
   const [searchInput, setSearchInput] = useState('');
@@ -224,7 +221,7 @@ export default function LogClientMobile() {
 
           {/* List */}
           <div className='flex flex-col gap-4'>
-            {isLoggedIn && isLoading ? (
+            {isLoading ? (
               <div className='mt-8 flex justify-center'>
                 <motion.div
                   animate={{ rotate: 720 }}
