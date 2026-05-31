@@ -127,6 +127,18 @@ function ExperienceSettingsChatContent() {
   >({});
 
   const prevStageRef = useRef(0);
+
+  const updateAndGetMaxStage = (calculatedStage: number) => {
+    if (typeof window === 'undefined' || Number.isNaN(experienceId)) {
+      return Math.max(calculatedStage, prevStageRef.current);
+    }
+    const storageKey = `folioo-max-stage-${experienceId}`;
+    const savedMax = parseInt(localStorage.getItem(storageKey) || '0', 10);
+    const finalStage = Math.max(calculatedStage, savedMax, prevStageRef.current);
+    localStorage.setItem(storageKey, finalStage.toString());
+    return finalStage;
+  };
+
   /* 3턴 이어가기 모드: true면 연장 세션 중 */
   const isExtendedSessionRef = useRef(false);
   /* 연장 세션에서 완료된 턴 수 (AI 응답 1회 = 1턴, 3턴이면 CompleteModal 오픈) */
@@ -226,8 +238,9 @@ function ExperienceSettingsChatContent() {
         res.result?.currentStage ?? 1,
         res.result?.allComplete,
       );
-      prevStageRef.current = restoredStage;
-      setCurrentStage(restoredStage);
+      const finalStage = updateAndGetMaxStage(restoredStage);
+      prevStageRef.current = finalStage;
+      setCurrentStage(finalStage);
       if (restoredStage === 4) {
         // No modal open here anymore
       }
@@ -678,10 +691,11 @@ function ExperienceSettingsChatContent() {
                 typeof event.message.current_stage === 'number' ||
                 event.message.all_complete
               ) {
-                const newStage = toGridStep(
+                const calculatedStage = toGridStep(
                   event.message.current_stage ?? 1,
                   event.message.all_complete,
                 );
+                const newStage = updateAndGetMaxStage(calculatedStage);
                 if (
                   newStage >= 1 &&
                   newStage <= 3 &&
@@ -840,10 +854,11 @@ function ExperienceSettingsChatContent() {
                 typeof event.message.current_stage === 'number' ||
                 event.message.all_complete
               ) {
-                const newStage = toGridStep(
+                const calculatedStage = toGridStep(
                   event.message.current_stage ?? 1,
                   event.message.all_complete,
                 );
+                const newStage = updateAndGetMaxStage(calculatedStage);
                 if (newStage === 4 && prevStageRef.current !== 4) {
                   prevStageRef.current = 4;
                 }
@@ -929,10 +944,11 @@ function ExperienceSettingsChatContent() {
               typeof event.message.current_stage === 'number' ||
               event.message.all_complete
             ) {
-              const newStage = toGridStep(
+              const calculatedStage = toGridStep(
                 event.message.current_stage ?? 1,
                 event.message.all_complete,
               );
+              const newStage = updateAndGetMaxStage(calculatedStage);
               if (
                 newStage >= 1 &&
                 newStage <= 3 &&
