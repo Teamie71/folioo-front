@@ -1,6 +1,5 @@
 'use client';
 
-import { ToggleLarge } from '@/components/ToggleLarge';
 import type { PortfolioDetailResDTO, CorrectionResultItemReqDTO, CorrectionLineItemReqDTO } from '@/api/models';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -226,16 +225,20 @@ export function CorrectionResultActivityDetail({
           </div>
           <div className='w-[1px] flex-shrink-0 bg-[#9EA4A9]' />
           <div className='flex min-w-0 flex-1 flex-col gap-[2.5rem]'>
-            <ToggleLarge
-              options={[
-                { value: '축소 또는 제외', label: '축소 또는 제외' },
-                { value: '구체화하여 강조', label: '구체화하여 강조' },
-              ]}
-              value={problemSolvingButton}
-              onChange={(value) =>
-                setProblemSolvingButton(value as ResultButtonValue)
-              }
-            />
+            <div className='flex gap-[0.25rem] rounded-[6.25rem] bg-[#E9EAEC] p-[0.25rem]'>
+              <button
+                onClick={() => setProblemSolvingButton('축소 또는 제외')}
+                className={`h-[40px] w-[280px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${buttonClass(problemSolvingButton === '축소 또는 제외')}`}
+              >
+                축소 또는 제외
+              </button>
+              <button
+                onClick={() => setProblemSolvingButton('구체화하여 강조')}
+                className={`h-[40px] w-[280px] cursor-pointer rounded-[6.25rem] text-[1rem] font-medium whitespace-nowrap ${buttonClass(problemSolvingButton === '구체화하여 강조')}`}
+              >
+                구체화하여 강조
+              </button>
+            </div>
             {renderComments(
               correctionItem.problemSolving?.lines,
               problemSolvingButton === '축소 또는 제외' ? 'reduce' : 'emphasize'
