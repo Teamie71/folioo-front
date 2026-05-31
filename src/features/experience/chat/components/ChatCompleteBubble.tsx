@@ -17,7 +17,7 @@ export const ChatCompleteBubble = ({ onComplete }: ChatCompleteBubbleProps) => {
       />
       <div className='absolute inset-x-0 top-[2rem] flex flex-col'>
         <p className='justify-center text-center text-[1rem] leading-[150%] text-[#1A1A1A]'>
-          대화의 모든 대화가 완료되었어요!
+          대화의 모든 단계가 완료되었어요!
           <br />더 풍부한 경험 정리를 위해 대화를 더 진행할 수 있어요.
         </p>
       </div>
