@@ -9,10 +9,7 @@ import {
   usePortfolioCorrectionControllerGetCompanyInsight,
 } from '@/api/endpoints/portfolio-correction/portfolio-correction';
 import { useEffect, useState } from 'react';
-import {
-  ANALYSIS_INFO_MAX_LENGTH,
-  EMPHASIS_POINTS_MAX_LENGTH,
-} from '@/features/correction/constants';
+import { EMPHASIS_POINTS_MAX_LENGTH } from '@/features/correction/constants';
 
 interface CorrectionAnalysisStepProps {
   correctionId?: string;
@@ -81,9 +78,7 @@ export function CorrectionAnalysisStep({
       companyInsightText &&
       analysisInfoValue === ''
     ) {
-      onAnalysisInfoChange(
-        limitAllowedInput(companyInsightText, ANALYSIS_INFO_MAX_LENGTH),
-      );
+      onAnalysisInfoChange(companyInsightText);
     }
   }, [
     enabled,
@@ -148,14 +143,7 @@ export function CorrectionAnalysisStep({
                   className='rounded-[1.25rem]'
                   minHeight='17.125rem'
                   value={analysisInfoValue}
-                  onChange={(val) => {
-                    onAnalysisInfoChange(
-                      limitAllowedInput(
-                        val,
-                        ANALYSIS_INFO_MAX_LENGTH,
-                      ),
-                    );
-                  }}
+                  onChange={onAnalysisInfoChange}
                 />
               </div>
             )}

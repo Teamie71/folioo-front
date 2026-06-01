@@ -15,9 +15,6 @@ export const PDF_CATEGORY_NAMES: readonly PdfCategoryName[] = [
 /** PDF 카테고리당 글자 수 제한 */
 export const PDF_CATEGORY_CHAR_LIMIT = 400;
 
-/** 기업 분석 정보 최대 길이 */
-export const ANALYSIS_INFO_MAX_LENGTH = 1500;
-
 /** 강조 포인트 최대 길이 */
 export const EMPHASIS_POINTS_MAX_LENGTH = 200;
 
