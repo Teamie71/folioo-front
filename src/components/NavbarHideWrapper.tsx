@@ -3,13 +3,8 @@
 import { usePathname } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 
-function shouldHideNavbar(pathname: string): boolean {
-  // experience/settings 페이지
-  if (pathname === '/experience/settings') return true;
-  // experience/settings/[id]/chat 페이지
-  if (/^\/experience\/settings\/[^/]+\/chat$/.test(pathname)) return true;
-  if (/^\/experience\/settings\/[^/]+\/createloading$/.test(pathname))
-    return true;
+function shouldHideNavbar(_pathname: string): boolean {
+  // 경험정리 settings/chat/createloading 경로 분기 제거됨 (리뉴얼 전 정리)
   return false;
 }
 

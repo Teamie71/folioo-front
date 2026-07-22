@@ -10,12 +10,10 @@ const meta = {
 NavbarHideWrapper는 특정 경로에서 Navbar를 자동으로 숨기는 래퍼 컴포넌트입니다.
 
 **Navbar가 숨겨지는 경로:**
-- \`/experience/settings\`
-- \`/experience/settings/[id]/chat\`
-- \`/experience/settings/[id]/createloading\`
+- 현재 없음 (경험정리 settings/chat/createloading 분기 제거됨)
 
 **Navbar가 표시되는 경로:**
-- 위 경로를 제외한 모든 경로
+- 모든 경로
 
 **동작 방식:**
 - Navbar가 표시될 때: \`pt-[80px]\` 패딩이 적용되어 Navbar 아래에 컨텐츠가 위치
@@ -73,11 +71,11 @@ export const HiddenNavbar: Story = {
             <p className='text-gray-600'>
               Navbar가 숨겨지고 패딩 없이 화면 상단부터 컨텐츠가 시작됩니다.
             </p>
-            <p className='mt-4 text-sm text-gray-500'>적용 경로:</p>
+            <p className='mt-4 text-sm text-gray-500'>
+              적용 경로: 현재 없음 (경험정리 settings 분기 제거됨)
+            </p>
             <ul className='mt-2 list-inside list-disc text-sm text-gray-500'>
-              <li>/experience/settings</li>
-              <li>/experience/settings/[id]/chat</li>
-              <li>/experience/settings/[id]/createloading</li>
+              <li>(없음)</li>
             </ul>
           </div>
         </div>
@@ -127,57 +125,6 @@ export const Comparison: Story = {
                 <p className='text-sm text-gray-700'>패딩 없이 상단부터 시작</p>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  ),
-};
-
-// 경험 설정 페이지 예시
-export const ExperienceSettingsPage: Story = {
-  render: () => (
-    <div className='min-h-screen bg-gradient-to-br from-purple-50 to-blue-50'>
-      <div className='p-8'>
-        <div className='mx-auto max-w-4xl rounded-lg bg-white p-8 shadow-lg'>
-          <h1 className='mb-4 text-3xl font-bold text-gray-900'>
-            경험 설정 페이지
-          </h1>
-          <p className='mb-6 text-gray-600'>
-            이 페이지에서는 Navbar가 숨겨져 더 넓은 작업 공간을 제공합니다.
-          </p>
-          <div className='space-y-4'>
-            <div className='rounded-lg border border-gray-200 p-4'>
-              <h3 className='font-semibold text-gray-800'>
-                경로: /experience/settings
-              </h3>
-              <p className='mt-2 text-sm text-gray-600'>
-                전체 화면을 활용하여 경험 정리 작업에 집중할 수 있습니다.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  ),
-};
-
-// 채팅 페이지 예시
-export const ChatPage: Story = {
-  render: () => (
-    <div className='flex min-h-screen flex-col bg-gray-100'>
-      <div className='flex-1 p-4'>
-        <div className='mx-auto max-w-3xl rounded-lg bg-white shadow'>
-          <div className='border-b border-gray-200 p-4'>
-            <h2 className='font-bold text-gray-900'>AI 채팅</h2>
-            <p className='text-sm text-gray-500'>
-              경로: /experience/settings/[id]/chat
-            </p>
-          </div>
-          <div className='h-96 p-4'>
-            <p className='text-sm text-gray-600'>
-              채팅 인터페이스에서는 Navbar 없이 대화에 집중할 수 있습니다.
-            </p>
           </div>
         </div>
       </div>
