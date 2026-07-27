@@ -36,6 +36,9 @@ function isCorrectionDetailPath(pathname: string) {
     /^\/correction\/[^/]+$/.test(pathname) && !isCorrectionNewPath(pathname)
   );
 }
+function isExperiencePath(pathname: string) {
+  return pathname === '/experience' || pathname.startsWith('/experience/');
+}
 export default function LayoutContent({
   children,
   isMobileDevice,
@@ -64,7 +67,7 @@ export default function LayoutContent({
     useUserControllerMarkTicketGrantNoticeDismissed();
 
   const path = pathname ?? '';
-  const hideNavbar = isCorrectionNewPath(path);
+  const hideNavbar = isCorrectionNewPath(path) || isExperiencePath(path);
 
   useEffect(() => {
     if (!isCorrectionDetailPath(path)) setShowNavbarOnResult(false);
