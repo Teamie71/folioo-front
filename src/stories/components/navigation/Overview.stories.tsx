@@ -29,7 +29,10 @@ const meta = {
 
 ### NavbarHideWrapper
 - **설명**: 특정 경로에서 Navbar를 자동으로 숨기는 래퍼 컴포넌트
-- **숨김 경로**: 현재 없음 (경험정리 settings/chat/createloading 분기 제거됨)
+- **숨김 경로**:
+  - /experience/settings
+  - /experience/settings/[id]/chat
+  - /experience/settings/[id]/createloading
 - **동작**: Navbar 표시 시 pt-[80px] 패딩 자동 적용
 
 ### Footer
@@ -164,12 +167,19 @@ export const AllNavigationComponents: Story = {
                 <ul className='space-y-2 text-sm text-gray-700'>
                   <li className='flex items-start'>
                     <span className='mr-2 text-red-600'>▪</span>
-                    <span>현재 없음</span>
+                    <span>/experience/settings</span>
+                  </li>
+                  <li className='flex items-start'>
+                    <span className='mr-2 text-red-600'>▪</span>
+                    <span>/experience/settings/[id]/chat</span>
+                  </li>
+                  <li className='flex items-start'>
+                    <span className='mr-2 text-red-600'>▪</span>
+                    <span>/experience/settings/[id]/createloading</span>
                   </li>
                 </ul>
                 <p className='mt-4 text-xs text-gray-500'>
-                  경험정리 settings/chat/createloading 분기는 리뉴얼 전 정리로
-                  제거되었습니다.
+                  이 경로들은 전체 화면 활용이 필요한 작업 페이지입니다.
                 </p>
               </div>
             </div>
