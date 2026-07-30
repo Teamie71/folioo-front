@@ -1,10 +1,12 @@
 'use client';
 
-import Image from 'next/image';
 import { cn } from '@/utils/utils';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
-import { EXPERIENCE_LIST_ASSET } from '@/features/experience/list/constants';
-import { HoverTooltip } from '@/features/experience/list/components/ui/HoverTooltip';
+import { HoverTooltip } from '@/features/experience/list/components/HoverTooltip';
+import { ListDeleteIcon } from '@/components/icons/ListDeleteIcon';
+import { ListViewIcon } from '@/components/icons/ListViewIcon';
+import { RedoIcon } from '@/components/icons/RedoIcon';
+import { UndoIcon } from '@/components/icons/UndoIcon';
 
 type Props = {
   experienceId: string | undefined;
@@ -42,15 +44,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
               className='flex size-[32px] items-center justify-center rounded-[6px] p-[2px] hover:bg-white'
               aria-label='나의 경험 탭 열기'
             >
-              <span className='relative size-[28px] overflow-hidden'>
-                <Image
-                  src={`${EXPERIENCE_LIST_ASSET}/icon-list-view.svg`}
-                  alt=''
-                  fill
-                  className='object-contain'
-                  unoptimized
-                />
-              </span>
+              <ListViewIcon className='size-[28px]' />
             </button>
           </HoverTooltip>
         )}
@@ -104,15 +98,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
             className='flex size-[28px] items-center justify-center rounded-[6px] border border-gray5 bg-white disabled:opacity-40'
             aria-label='실행 취소'
           >
-            <span className='relative size-[20px] overflow-hidden'>
-              <Image
-                src={`${EXPERIENCE_LIST_ASSET}/icon-undo.svg`}
-                alt=''
-                fill
-                className='object-contain'
-                unoptimized
-              />
-            </span>
+            <UndoIcon className='size-[20px]' />
           </button>
           <button
             type='button'
@@ -121,15 +107,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
             className='flex size-[28px] items-center justify-center rounded-[6px] border border-gray5 bg-white disabled:opacity-40'
             aria-label='다시 실행'
           >
-            <span className='relative size-[20px] overflow-hidden'>
-              <Image
-                src={`${EXPERIENCE_LIST_ASSET}/icon-redo.svg`}
-                alt=''
-                fill
-                className='object-contain'
-                unoptimized
-              />
-            </span>
+            <RedoIcon className='size-[20px]' />
           </button>
         </div>
       </div>
@@ -146,15 +124,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
             }
             className='flex h-[38px] items-center gap-[4px] rounded-[6px] border border-gray4 bg-white px-[12px] py-[6px] transition-colors hover:bg-gray2'
           >
-            <span className='relative size-[20px] overflow-hidden'>
-              <Image
-                src={`${EXPERIENCE_LIST_ASSET}/icon-delete.svg`}
-                alt=''
-                fill
-                className='object-contain'
-                unoptimized
-              />
-            </span>
+            <ListDeleteIcon className='size-[20px]' />
             <span className='typo-b2 text-center text-gray9'>경험 삭제</span>
           </button>
         ) : null}

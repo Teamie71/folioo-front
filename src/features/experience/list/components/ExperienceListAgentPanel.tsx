@@ -1,10 +1,11 @@
 'use client';
 
-import Image from 'next/image';
 import { useState } from 'react';
 import { MOCK_AGENT_MESSAGES, type MockAgentMessage } from '@/features/experience/list/mock';
-import { EXPERIENCE_LIST_ASSET } from '@/features/experience/list/constants';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
+import { AttachIcon } from '@/components/icons/AttachIcon';
+import { SendArrowIcon } from '@/components/icons/SendArrowIcon';
+import { SidebarPanelIcon } from '@/components/icons/SidebarPanelIcon';
 
 export function ExperienceListAgentPanel() {
   const open = useExperienceListStore((s) => s.agentOpen);
@@ -39,13 +40,7 @@ export function ExperienceListAgentPanel() {
           className='flex size-[32px] items-center justify-center rounded-[8px]'
           aria-label='AI 에이전트 열기'
         >
-          <Image
-            src={`${EXPERIENCE_LIST_ASSET}/icon-sidebar.svg`}
-            alt=''
-            width={20}
-            height={20}
-            unoptimized
-          />
+          <SidebarPanelIcon className='size-[20px]' />
         </button>
       </aside>
     );
@@ -60,13 +55,7 @@ export function ExperienceListAgentPanel() {
           className='flex size-[32px] items-center justify-center rounded-[8px]'
           aria-label='AI 에이전트 접기'
         >
-          <Image
-            src={`${EXPERIENCE_LIST_ASSET}/icon-sidebar.svg`}
-            alt=''
-            width={20}
-            height={20}
-            unoptimized
-          />
+          <SidebarPanelIcon className='size-[20px]' />
         </button>
         <h2 className='typo-b2-b text-gray9'>AI 에이전트</h2>
       </header>
@@ -121,13 +110,7 @@ export function ExperienceListAgentPanel() {
             className='relative z-10 mr-[8px] flex size-[28px] shrink-0 items-center justify-center'
             aria-label='파일 첨부'
           >
-            <Image
-              src={`${EXPERIENCE_LIST_ASSET}/icon-attach.svg`}
-              alt=''
-              width={20}
-              height={23}
-              unoptimized
-            />
+            <AttachIcon className='h-[23px] w-[20px]' />
           </button>
           <button
             type='button'
@@ -135,13 +118,7 @@ export function ExperienceListAgentPanel() {
             className='relative z-10 mr-[8px] flex size-[32px] shrink-0 items-center justify-center rounded-full bg-main'
             aria-label='전송'
           >
-            <Image
-              src={`${EXPERIENCE_LIST_ASSET}/icon-send-arrow.svg`}
-              alt=''
-              width={14}
-              height={17}
-              unoptimized
-            />
+            <SendArrowIcon className='h-[17px] w-[14px]' />
           </button>
         </div>
       </div>

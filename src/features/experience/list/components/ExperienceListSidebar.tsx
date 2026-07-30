@@ -1,10 +1,9 @@
 'use client';
 
-import Image from 'next/image';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { ExperienceListSidebarGroup } from '@/features/experience/list/components/ExperienceListSidebarGroup';
-import { SIDEBAR_ASSET } from '@/features/experience/list/components/sidebarStyles';
 import { useSidebarDnd } from '@/features/experience/list/hooks/useSidebarDnd';
+import { ListViewIcon } from '@/components/icons/ListViewIcon';
 
 export function ExperienceListSidebar() {
   const groups = useExperienceListStore((s) => s.groups);
@@ -32,15 +31,7 @@ export function ExperienceListSidebar() {
           className='flex size-[32px] items-center justify-center rounded-[6px] p-[2px]'
           aria-label='나의 경험 탭 닫기'
         >
-          <span className='relative size-[28px] overflow-hidden'>
-            <Image
-              src={`${SIDEBAR_ASSET}/icon-list-view.svg`}
-              alt=''
-              fill
-              className='object-contain'
-              unoptimized
-            />
-          </span>
+          <ListViewIcon className='size-[28px]' />
         </button>
       </div>
 

@@ -4,8 +4,6 @@ import type {
   SectionTemplateKey,
 } from '@/features/experience/list/types';
 
-export const EXPERIENCE_LIST_ASSET = '/experience/list';
-
 export const MAX_GROUP_COUNT = 50;
 export const MAX_EXPERIENCE_COUNT = 50;
 
