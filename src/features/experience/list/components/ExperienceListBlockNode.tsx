@@ -5,9 +5,9 @@ import { useExperienceListStore } from '@/store/useExperienceListStore';
 import {
   DragMenuButton,
   type MenuItem,
-} from '@/features/experience/list/components/ui/Dropdown';
-import { EditableLabel } from '@/features/experience/list/components/ui/EditableLabel';
-import { DropIndicator } from '@/features/experience/list/components/ui/DropIndicator';
+} from '@/features/experience/list/components/ExperienceListMenu';
+import { EditableLabel } from '@/features/experience/list/components/EditableLabel';
+import { DropIndicator } from '@/features/experience/list/components/DropIndicator';
 import { EmptySectionAddButton } from '@/features/experience/list/components/ExperienceListEmptyStates';
 import {
   DEFAULT_BLOCK_PLACEHOLDER,

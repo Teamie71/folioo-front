@@ -5,7 +5,7 @@ import { useExperienceListStore } from '@/store/useExperienceListStore';
 import {
   MenuButton,
   type MenuItem,
-} from '@/features/experience/list/components/ui/Dropdown';
+} from '@/features/experience/list/components/ExperienceListMenu';
 import {
   PROBLEM_TEMPLATE_OPTIONS,
   SECTION_TEMPLATE_OPTIONS,

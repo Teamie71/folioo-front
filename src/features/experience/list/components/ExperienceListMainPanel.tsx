@@ -1,7 +1,7 @@
 'use client';
 
 import { useExperienceListStore } from '@/store/useExperienceListStore';
-import { EditableLabel } from '@/features/experience/list/components/ui/EditableLabel';
+import { EditableLabel } from '@/features/experience/list/components/EditableLabel';
 import { ExperienceListBlockTree } from '@/features/experience/list/components/ExperienceListBlockTree';
 import {
   EmptyExperienceState,

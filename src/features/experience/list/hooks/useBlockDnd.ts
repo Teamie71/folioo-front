@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext } from 'react';
-import type { DragSize } from '@/features/experience/list/components/ui/DropIndicator';
+import type { DragSize } from '@/features/experience/list/components/DropIndicator';
 import type { Block } from '@/features/experience/list/types';
 
 export type BlockDropHint = {

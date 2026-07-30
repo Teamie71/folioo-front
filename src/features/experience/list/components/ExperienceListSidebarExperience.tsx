@@ -1,30 +1,29 @@
 'use client';
 
-import Image from 'next/image';
 import { cn } from '@/utils/utils';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import {
   DragMenuButton,
   type MenuItem,
-} from '@/features/experience/list/components/ui/Dropdown';
-import { EditableLabel } from '@/features/experience/list/components/ui/EditableLabel';
-import { HoverTooltip } from '@/features/experience/list/components/ui/HoverTooltip';
+} from '@/features/experience/list/components/ExperienceListMenu';
+import { EditableLabel } from '@/features/experience/list/components/EditableLabel';
+import { HoverTooltip } from '@/features/experience/list/components/HoverTooltip';
 import {
   DropIndicator,
   getActiveDrag,
   getDragPayload,
   placeFromY,
-} from '@/features/experience/list/components/ui/DropIndicator';
+} from '@/features/experience/list/components/DropIndicator';
 import {
-  SIDEBAR_ASSET,
   SIDEBAR_ROW_GAP,
   sidebarLabelCls,
   sidebarLabelClsSelected,
   sidebarLabelInputCls,
   sidebarRowActionCls,
-} from '@/features/experience/list/components/sidebarStyles';
+} from '@/features/experience/list/utils/sidebarStyles';
 import type { SidebarDndState } from '@/features/experience/list/hooks/useSidebarDnd';
 import type { Experience, Group } from '@/features/experience/list/types';
+import { ListPlusIcon } from '@/components/icons/ListPlusIcon';
 
 type Props = {
   item: Experience;
@@ -195,15 +194,7 @@ export function ExperienceListSidebarExperience({
             )}
             aria-label='경험 추가'
           >
-            <span className='relative size-[16px] overflow-hidden' aria-hidden>
-              <Image
-                src={`${SIDEBAR_ASSET}/icon-plus.svg`}
-                alt=''
-                fill
-                className='object-contain'
-                unoptimized
-              />
-            </span>
+            <ListPlusIcon className='size-[16px]' />
           </button>
         </HoverTooltip>
       </div>

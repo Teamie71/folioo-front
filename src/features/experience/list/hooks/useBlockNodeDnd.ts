@@ -6,7 +6,7 @@ import {
   siblingDropKindFromY,
   getActiveBlockDrag,
   getDragPayload,
-} from '@/features/experience/list/components/ui/DropIndicator';
+} from '@/features/experience/list/components/DropIndicator';
 import { useBlockDnd } from '@/features/experience/list/hooks/useBlockDnd';
 import type { Block } from '@/features/experience/list/types';
 import {

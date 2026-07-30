@@ -4,7 +4,7 @@ import { useState } from 'react';
 import {
   type DragSize,
   clearActiveDrag,
-} from '@/features/experience/list/components/ui/DropIndicator';
+} from '@/features/experience/list/components/DropIndicator';
 
 export type SidebarDropHint =
   | { kind: 'group'; id: string; place: 'before' | 'after' }

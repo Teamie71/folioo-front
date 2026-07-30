@@ -6,7 +6,7 @@ import {
   clearActiveDrag,
   getActiveBlockDrag,
   getDragPayload,
-} from '@/features/experience/list/components/ui/DropIndicator';
+} from '@/features/experience/list/components/DropIndicator';
 import {
   type BlockDndCtx,
   type BlockDropHint,

@@ -1,30 +1,30 @@
 'use client';
 
-import Image from 'next/image';
 import { cn } from '@/utils/utils';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import {
   DragMenuButton,
   type MenuItem,
-} from '@/features/experience/list/components/ui/Dropdown';
-import { EditableLabel } from '@/features/experience/list/components/ui/EditableLabel';
-import { HoverTooltip } from '@/features/experience/list/components/ui/HoverTooltip';
+} from '@/features/experience/list/components/ExperienceListMenu';
+import { EditableLabel } from '@/features/experience/list/components/EditableLabel';
+import { HoverTooltip } from '@/features/experience/list/components/HoverTooltip';
 import {
   DropIndicator,
   getActiveDrag,
   getDragPayload,
   placeFromY,
-} from '@/features/experience/list/components/ui/DropIndicator';
+} from '@/features/experience/list/components/DropIndicator';
 import { ExperienceListSidebarExperience } from '@/features/experience/list/components/ExperienceListSidebarExperience';
 import {
-  SIDEBAR_ASSET,
   SIDEBAR_ROW_GAP,
   sidebarLabelCls,
   sidebarLabelInputCls,
   sidebarRowActionCls,
-} from '@/features/experience/list/components/sidebarStyles';
+} from '@/features/experience/list/utils/sidebarStyles';
 import type { SidebarDndState } from '@/features/experience/list/hooks/useSidebarDnd';
 import type { Experience, Group } from '@/features/experience/list/types';
+import { ListChevronIcon } from '@/components/icons/ListChevronIcon';
+import { ListPlusIcon } from '@/components/icons/ListPlusIcon';
 
 type Props = {
   group: Group;
@@ -192,20 +192,12 @@ export function ExperienceListSidebarGroup({
           className='flex size-[16px] shrink-0 cursor-pointer items-center justify-center'
           aria-label={collapsed ? '아코디언 열기' : '아코디언 닫기'}
         >
-          <span
+          <ListChevronIcon
             className={cn(
-              'relative size-[16px] overflow-hidden transition-transform',
+              'size-[16px] transition-transform',
               collapsed ? 'rotate-90' : 'rotate-180',
             )}
-          >
-            <Image
-              src={`${SIDEBAR_ASSET}/icon-chevron.svg`}
-              alt=''
-              fill
-              className='object-contain'
-              unoptimized
-            />
-          </span>
+          />
         </button>
 
         <div
@@ -243,18 +235,7 @@ export function ExperienceListSidebarGroup({
               )}
               aria-label='그룹 추가'
             >
-              <span
-                className='relative size-[16px] overflow-hidden'
-                aria-hidden
-              >
-                <Image
-                  src={`${SIDEBAR_ASSET}/icon-plus.svg`}
-                  alt=''
-                  fill
-                  className='object-contain'
-                  unoptimized
-                />
-              </span>
+              <ListPlusIcon className='size-[16px]' />
             </button>
           </HoverTooltip>
         )}

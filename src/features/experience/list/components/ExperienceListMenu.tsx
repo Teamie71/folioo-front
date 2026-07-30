@@ -1,19 +1,16 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/utils/utils';
-import { HoverTooltip } from '@/features/experience/list/components/ui/HoverTooltip';
+import { HoverTooltip } from '@/features/experience/list/components/HoverTooltip';
 import {
   type DragPayload,
   type DragSize,
   setDragPayload,
-} from '@/features/experience/list/components/ui/DropIndicator';
-import { EXPERIENCE_LIST_ASSET } from '@/features/experience/list/constants';
-
-const KEBAB_ICON = `${EXPERIENCE_LIST_ASSET}/icon-kebab.svg`;
-const MENU_CHEVRON_ICON = `${EXPERIENCE_LIST_ASSET}/icon-menu-chevron.svg`;
+} from '@/features/experience/list/components/DropIndicator';
+import { KebabIcon } from '@/components/icons/KebabIcon';
+import { ListChevronIcon } from '@/components/icons/ListChevronIcon';
 
 const MENU_GAP = 4;
 const MENU_WIDTH = 120;
@@ -49,7 +46,7 @@ function fitMenuInViewport(
   return { top, left: preferredLeft };
 }
 
-function KebabIcon({ className }: { className?: string }) {
+function KebabTriggerIcon({ className }: { className?: string }) {
   return (
     <span
       className={cn(
@@ -57,36 +54,16 @@ function KebabIcon({ className }: { className?: string }) {
         className,
       )}
     >
-      <Image
-        src={KEBAB_ICON}
-        alt=''
-        width={2}
-        height={10}
-        className='h-[10px] w-[2px]'
-        draggable={false}
-        unoptimized
-      />
+      <KebabIcon className='h-[10px] w-[2px]' />
     </span>
   );
 }
 
 function MenuChevron({ className }: { className?: string }) {
   return (
-    <span
-      className={cn(
-        'relative size-[16px] shrink-0 overflow-hidden',
-        className,
-      )}
-      aria-hidden
-    >
-      <Image
-        src={MENU_CHEVRON_ICON}
-        alt=''
-        fill
-        className='rotate-90 object-contain'
-        unoptimized
-      />
-    </span>
+    <ListChevronIcon
+      className={cn('size-[16px] shrink-0 rotate-90', className)}
+    />
   );
 }
 
@@ -418,7 +395,7 @@ export function DragMenuButton({
   className,
   menuClassName,
   variant = 'sidebar',
-  children = <KebabIcon />,
+  children = <KebabTriggerIcon />,
   payload,
   measureSelector = '[data-dnd-measure]',
   onDragBegin,
