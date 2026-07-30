@@ -1,8 +1,19 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/utils/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { HoverTooltip } from '@/features/experience/list/components/HoverTooltip';
 import {
   type DragPayload,
@@ -13,10 +24,15 @@ import { KebabIcon } from '@/components/icons/KebabIcon';
 import { ListChevronIcon } from '@/components/icons/ListChevronIcon';
 
 const MENU_GAP = 4;
-const MENU_WIDTH = 120;
-const MENU_ITEM_HEIGHT = 32;
+const MENU_WIDTH = 100;
+const MENU_ITEM_HEIGHT = 28;
 const MENU_TITLE_HEIGHT = 18;
 const VIEWPORT_PAD = 8;
+
+const menuContentCls = cn(
+  'z-[200] overflow-visible rounded-none border-0 bg-transparent p-0 shadow-none outline-none',
+  'min-w-0 data-[state=open]:animate-none data-[state=closed]:animate-none',
+);
 
 type MenuPosition = { top: number; left: number; maxHeight?: number };
 
@@ -61,9 +77,15 @@ function KebabTriggerIcon({ className }: { className?: string }) {
 
 function MenuChevron({ className }: { className?: string }) {
   return (
-    <ListChevronIcon
-      className={cn('size-[16px] shrink-0 rotate-90', className)}
-    />
+    <span
+      className={cn(
+        'relative size-[16px] shrink-0 overflow-hidden',
+        className,
+      )}
+      aria-hidden
+    >
+      <ListChevronIcon className='absolute inset-0 rotate-90' />
+    </span>
   );
 }
 
@@ -77,24 +99,6 @@ export type MenuItem = {
 };
 
 export type MenuVariant = 'sidebar' | 'block';
-
-function useOutsideClick(
-  refs: Array<React.RefObject<HTMLElement | null>>,
-  onOutside: () => void,
-  enabled: boolean,
-) {
-  useEffect(() => {
-    if (!enabled) return;
-    const handler = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (refs.every((r) => !r.current || !r.current.contains(target))) {
-        onOutside();
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [refs, onOutside, enabled]);
-}
 
 function MenuPanel({
   items,
@@ -135,9 +139,7 @@ function MenuPanel({
   return (
     <>
       <div className='flex flex-col gap-[4px]' style={{ width: MENU_WIDTH }}>
-        {title ? (
-          <p className='typo-c1 text-gray6'>{title}</p>
-        ) : null}
+        {title ? <p className='typo-c1 text-gray6'>{title}</p> : null}
         <div
           className={cn(
             'shadow-chat-card overflow-hidden rounded-[8px] bg-white',
@@ -197,35 +199,119 @@ function MenuPanel({
 
       {openSub &&
         subPos &&
-        items
-          .filter((i) => i.key === openSub && i.submenu)
-          .map((item) => (
-            <div
-              key={`sub-${item.key}`}
-              className='fixed z-[201]'
-              style={{
-                top: subPos.top,
-                left: subPos.left,
-                ...(subPos.maxHeight != null
-                  ? {
-                      maxHeight: subPos.maxHeight,
-                      overflowY: 'auto' as const,
-                    }
-                  : {}),
-              }}
-              onMouseEnter={() => setOpenSub(item.key)}
-            >
-              <MenuPanel
-                items={item.submenu!}
-                onClose={onClose}
-                variant={variant}
-                title={item.submenuTitle}
-              />
-            </div>
-          ))}
+        typeof document !== 'undefined' &&
+        createPortal(
+          items
+            .filter((i) => i.key === openSub && i.submenu)
+            .map((item) => (
+              <div
+                key={`sub-${item.key}`}
+                data-experience-list-submenu=''
+                className='fixed z-[201]'
+                style={{
+                  top: subPos.top,
+                  left: subPos.left,
+                  ...(subPos.maxHeight != null
+                    ? {
+                        maxHeight: subPos.maxHeight,
+                        overflowY: 'auto' as const,
+                      }
+                    : {}),
+                }}
+                onMouseEnter={() => setOpenSub(item.key)}
+              >
+                <MenuPanel
+                  items={item.submenu!}
+                  onClose={onClose}
+                  variant={variant}
+                  title={item.submenuTitle}
+                />
+              </div>
+            )),
+          document.body,
+        )}
     </>
   );
 }
+
+function isListSubmenuTarget(target: EventTarget | null) {
+  return (
+    target instanceof Element &&
+    Boolean(target.closest('[data-experience-list-submenu]'))
+  );
+}
+
+function PositionedMenu({
+  open,
+  onOpenChange,
+  pos,
+  items,
+  variant,
+  menuClassName,
+  menuTitle,
+  contentRef,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  pos: MenuPosition;
+  items: MenuItem[];
+  variant: MenuVariant;
+  menuClassName?: string;
+  menuTitle?: string;
+  contentRef?: RefObject<HTMLDivElement | null>;
+}) {
+  return (
+    <DropdownMenu open={open} onOpenChange={onOpenChange} modal={false}>
+      <DropdownMenuTrigger asChild>
+        <button
+          type='button'
+          tabIndex={-1}
+          aria-hidden
+          className='pointer-events-none fixed opacity-0'
+          style={{
+            top: pos.top,
+            left: pos.left,
+            width: 1,
+            height: 1,
+          }}
+        />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        ref={contentRef}
+        side='bottom'
+        align='start'
+        sideOffset={0}
+        avoidCollisions={false}
+        className={menuContentCls}
+        style={{
+          width: MENU_WIDTH,
+          minWidth: MENU_WIDTH,
+          maxWidth: MENU_WIDTH,
+          ...(pos.maxHeight != null
+            ? { maxHeight: pos.maxHeight, overflowY: 'auto' as const }
+            : {}),
+        }}
+        onCloseAutoFocus={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => {
+          if (isListSubmenuTarget(e.target)) e.preventDefault();
+        }}
+        onFocusOutside={(e) => {
+          if (isListSubmenuTarget(e.target)) e.preventDefault();
+        }}
+      >
+        <MenuPanel
+          items={items}
+          onClose={() => onOpenChange(false)}
+          className={menuClassName}
+          variant={variant}
+          title={menuTitle}
+        />
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+type Placement = 'left' | 'right' | 'bottom';
 
 type MenuButtonProps = {
   items: MenuItem[];
@@ -234,9 +320,9 @@ type MenuButtonProps = {
   menuClassName?: string;
   wrapClassName?: string;
   variant?: MenuVariant;
-  children: React.ReactNode;
+  children: ReactNode;
   tooltip?: string;
-  menuPlacement?: 'left' | 'right' | 'bottom';
+  menuPlacement?: Placement;
   menuAlign?: 'start' | 'center';
   menuTitle?: string;
 };
@@ -257,10 +343,6 @@ export function MenuButton({
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<MenuPosition | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const portalRef = useRef<HTMLDivElement>(null);
-  const wrapRef = useRef<HTMLDivElement>(null);
-
-  useOutsideClick([wrapRef, portalRef], () => setOpen(false), open);
 
   useLayoutEffect(() => {
     if (!open || !triggerRef.current) {
@@ -287,10 +369,7 @@ export function MenuButton({
         }
         let top = rect.bottom + gap;
         if (top + estimatedHeight > window.innerHeight - VIEWPORT_PAD) {
-          top = Math.max(
-            VIEWPORT_PAD,
-            rect.top - gap - estimatedHeight,
-          );
+          top = Math.max(VIEWPORT_PAD, rect.top - gap - estimatedHeight);
         }
         setPos(fitMenuInViewport(top, left, estimatedHeight));
         return;
@@ -319,7 +398,7 @@ export function MenuButton({
       window.removeEventListener('scroll', update, true);
       window.removeEventListener('resize', update);
     };
-  }, [open, items.length, variant, menuPlacement, menuAlign, menuTitle]);
+  }, [open, items.length, menuPlacement, menuAlign, menuTitle]);
 
   const button = (
     <button
@@ -338,7 +417,7 @@ export function MenuButton({
   );
 
   return (
-    <div ref={wrapRef} className={cn('relative inline-flex', wrapClassName)}>
+    <div className={cn('relative inline-flex', wrapClassName)}>
       {tooltip ? (
         <HoverTooltip label={tooltip} disabled={open}>
           {button}
@@ -350,25 +429,15 @@ export function MenuButton({
         pos &&
         typeof document !== 'undefined' &&
         createPortal(
-          <div
-            ref={portalRef}
-            className='fixed z-[200]'
-            style={{
-              top: pos.top,
-              left: pos.left,
-              ...(pos.maxHeight != null
-                ? { maxHeight: pos.maxHeight, overflowY: 'auto' as const }
-                : {}),
-            }}
-          >
-            <MenuPanel
-              items={items}
-              onClose={() => setOpen(false)}
-              className={menuClassName}
-              variant={variant}
-              title={menuTitle}
-            />
-          </div>,
+          <PositionedMenu
+            open={open}
+            onOpenChange={setOpen}
+            pos={pos}
+            items={items}
+            variant={variant}
+            menuClassName={menuClassName}
+            menuTitle={menuTitle}
+          />,
           document.body,
         )}
     </div>
@@ -381,7 +450,7 @@ type DragMenuButtonProps = {
   className?: string;
   menuClassName?: string;
   variant?: MenuVariant;
-  children?: React.ReactNode;
+  children?: ReactNode;
   payload: DragPayload;
   measureSelector?: string;
   onDragBegin?: (size: DragSize) => void;
@@ -406,11 +475,16 @@ export function DragMenuButton({
   const [pos, setPos] = useState<MenuPosition | null>(null);
   const [dragging, setDragging] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const portalRef = useRef<HTMLDivElement>(null);
-  const wrapRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const didDragRef = useRef(false);
 
-  useOutsideClick([wrapRef, portalRef], () => setOpen(false), open);
+  const handleOpenChange = (next: boolean) => {
+    if (didDragRef.current || dragging) {
+      setOpen(false);
+      return;
+    }
+    setOpen(next);
+  };
 
   useLayoutEffect(() => {
     if (!open || !triggerRef.current) {
@@ -426,11 +500,10 @@ export function DragMenuButton({
       ) as HTMLElement | null;
       const rowRect = row?.getBoundingClientRect() ?? rect;
       const gap = MENU_GAP;
-      const edge = 8;
-      const menuBox = portalRef.current?.getBoundingClientRect();
+      const edge = VIEWPORT_PAD;
+      const menuBox = contentRef.current?.getBoundingClientRect();
       const menuWidth = menuBox?.width || MENU_WIDTH;
-      const menuHeight =
-        menuBox?.height || items.length * MENU_ITEM_HEIGHT;
+      const menuHeight = menuBox?.height || items.length * MENU_ITEM_HEIGHT;
 
       const leftCandidate = rect.left - menuWidth - gap;
       if (leftCandidate >= edge) {
@@ -455,99 +528,91 @@ export function DragMenuButton({
     };
 
     update();
+    const raf = requestAnimationFrame(update);
     window.addEventListener('scroll', update, true);
     window.addEventListener('resize', update);
     return () => {
+      cancelAnimationFrame(raf);
       window.removeEventListener('scroll', update, true);
       window.removeEventListener('resize', update);
     };
-  }, [open, items.length, variant]);
-
-  const button = (
-    <button
-      ref={triggerRef}
-      type='button'
-      draggable
-      aria-label={ariaLabel}
-      aria-expanded={open}
-      className={cn(
-        className,
-        'select-none cursor-grab active:cursor-grabbing',
-      )}
-      onClick={(e) => {
-        e.stopPropagation();
-        if (didDragRef.current) {
-          didDragRef.current = false;
-          return;
-        }
-        setOpen((prev) => !prev);
-      }}
-      onDragStart={(e) => {
-        didDragRef.current = true;
-        setDragging(true);
-        setOpen(false);
-
-        const root =
-          (e.currentTarget as HTMLElement).closest(measureSelector) ??
-          (e.currentTarget as HTMLElement);
-        const rect = root.getBoundingClientRect();
-        const size = { width: rect.width, height: rect.height };
-
-        const empty = document.createElement('div');
-        empty.style.width = '1px';
-        empty.style.height = '1px';
-        empty.style.opacity = '0';
-        empty.style.position = 'fixed';
-        empty.style.top = '-9999px';
-        document.body.appendChild(empty);
-        e.dataTransfer.setDragImage(empty, 0, 0);
-        requestAnimationFrame(() => {
-          empty.remove();
-        });
-
-        setDragPayload(e, payload);
-        onDragBegin?.(size);
-      }}
-      onDragEnd={() => {
-        setDragging(false);
-        onDragFinish?.();
-        window.setTimeout(() => {
-          didDragRef.current = false;
-        }, 50);
-      }}
-    >
-      {children}
-    </button>
-  );
+  }, [open, items.length]);
 
   return (
-    <div ref={wrapRef} className='relative inline-flex' data-no-dnd>
+    <div className='relative inline-flex' data-no-dnd>
       <HoverTooltip
         label='드래그해서 옮기기'
         align={tooltipAlign}
         disabled={open || dragging}
       >
-        {button}
+        <button
+          ref={triggerRef}
+          type='button'
+          draggable
+          aria-label={ariaLabel}
+          aria-expanded={open}
+          className={cn(
+            className,
+            'cursor-grab select-none active:cursor-grabbing',
+          )}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (didDragRef.current) {
+              didDragRef.current = false;
+              return;
+            }
+            setOpen((prev) => !prev);
+          }}
+          onDragStart={(e) => {
+            didDragRef.current = true;
+            setDragging(true);
+            setOpen(false);
+
+            const root =
+              (e.currentTarget as HTMLElement).closest(measureSelector) ??
+              (e.currentTarget as HTMLElement);
+            const rect = root.getBoundingClientRect();
+            const size = { width: rect.width, height: rect.height };
+
+            const empty = document.createElement('div');
+            empty.style.width = '1px';
+            empty.style.height = '1px';
+            empty.style.opacity = '0';
+            empty.style.position = 'fixed';
+            empty.style.top = '-9999px';
+            document.body.appendChild(empty);
+            e.dataTransfer.setDragImage(empty, 0, 0);
+            requestAnimationFrame(() => {
+              empty.remove();
+            });
+
+            setDragPayload(e, payload);
+            onDragBegin?.(size);
+          }}
+          onDragEnd={() => {
+            setDragging(false);
+            onDragFinish?.();
+            window.setTimeout(() => {
+              didDragRef.current = false;
+            }, 50);
+          }}
+        >
+          {children}
+        </button>
       </HoverTooltip>
       {open &&
+        pos &&
         typeof document !== 'undefined' &&
         createPortal(
-          <div
-            ref={portalRef}
-            className='fixed z-[200]'
-            style={{
-              top: pos?.top ?? 0,
-              left: pos?.left ?? 0,
-              visibility: pos ? 'visible' : 'hidden',
-            }}
-          >
-            <MenuPanel
-              items={items}
-              onClose={() => setOpen(false)}
-              className={menuClassName}
-              variant={variant}
-            />
-          </div>,
+          <PositionedMenu
+            open={open}
+            onOpenChange={handleOpenChange}
+            pos={pos}
+            items={items}
+            variant={variant}
+            menuClassName={menuClassName}
+            contentRef={contentRef}
+          />,
           document.body,
         )}
     </div>
