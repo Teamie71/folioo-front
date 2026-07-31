@@ -49,7 +49,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
           </HoverTooltip>
         )}
 
-        <div className='relative flex h-[29px] w-[158px] overflow-hidden rounded-[6px] bg-gray3'>
+        <div className='bg-gray3 relative flex h-[29px] w-[158px] overflow-hidden rounded-[6px]'>
           <button
             type='button'
             onClick={() => setViewMode('map')}
@@ -95,7 +95,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
             type='button'
             onClick={undo}
             disabled={pastLen === 0}
-            className='flex size-[28px] items-center justify-center rounded-[6px] border border-gray5 bg-white disabled:opacity-40'
+            className='border-gray5 flex size-[28px] items-center justify-center rounded-[6px] border bg-white disabled:opacity-40'
             aria-label='실행 취소'
           >
             <UndoIcon className='size-[20px]' />
@@ -104,7 +104,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
             type='button'
             onClick={redo}
             disabled={futureLen === 0}
-            className='flex size-[28px] items-center justify-center rounded-[6px] border border-gray5 bg-white disabled:opacity-40'
+            className='border-gray5 flex size-[28px] items-center justify-center rounded-[6px] border bg-white disabled:opacity-40'
             aria-label='다시 실행'
           >
             <RedoIcon className='size-[20px]' />
@@ -122,10 +122,10 @@ export function ExperienceListToolbar({ experienceId }: Props) {
                 experienceId,
               })
             }
-            className='flex h-[38px] items-center gap-[4px] rounded-[6px] border border-gray4 bg-white px-[12px] py-[6px] transition-colors hover:bg-gray2'
+            className='border-gray4 hover:bg-gray2 flex h-[38px] items-center gap-[4px] rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors'
           >
             <ListDeleteIcon className='size-[20px]' />
-            <span className='typo-b2 text-center text-gray9'>경험 삭제</span>
+            <span className='typo-b2 text-gray9 text-center'>경험 삭제</span>
           </button>
         ) : null}
       </div>

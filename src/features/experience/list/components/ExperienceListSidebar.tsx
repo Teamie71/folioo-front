@@ -21,7 +21,7 @@ export function ExperienceListSidebar() {
   return (
     <aside
       data-experience-sidebar
-      className='flex h-full w-[240px] shrink-0 flex-col border-r border-gray3 bg-white'
+      className='border-gray3 flex h-full w-[240px] shrink-0 flex-col border-r bg-white'
     >
       <div className='flex items-center justify-between px-[20px] pt-[30px] pb-[22px]'>
         <h2 className='typo-b2-b text-gray9'>나의 경험</h2>

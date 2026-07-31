@@ -138,7 +138,7 @@ export function ExperienceListSidebarExperience({
         }}
         className={cn(
           'group/exp relative ml-[24px] flex w-[calc(100%-24px)] items-center rounded-[8px] py-[4px] pr-[4px] pl-[12px]',
-          selected ? 'bg-gray3' : 'bg-transparent hover:bg-gray3',
+          selected ? 'bg-gray3' : 'hover:bg-gray3 bg-transparent',
           isExpDragging && 'opacity-40',
         )}
       >
@@ -173,7 +173,7 @@ export function ExperienceListSidebarExperience({
               selectExperience(item.id);
             }
           }}
-          className='min-w-0 w-full flex-1 cursor-pointer text-left'
+          className='w-full min-w-0 flex-1 cursor-pointer text-left'
         >
           <EditableLabel
             value={item.name}

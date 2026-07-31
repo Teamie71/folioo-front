@@ -170,7 +170,7 @@ export function EditableLabel({
         }}
         placeholder={placeholder}
         className={cn(
-          'm-0 block min-w-0 w-full flex-1 resize-none overflow-hidden break-words border-0 bg-transparent p-0 outline-none',
+          'm-0 block w-full min-w-0 flex-1 resize-none overflow-hidden border-0 bg-transparent p-0 break-words outline-none',
           inputClassName,
         )}
       />

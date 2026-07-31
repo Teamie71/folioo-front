@@ -84,14 +84,13 @@ export function insertBlockAt(
   return blocks.map((b) => {
     if (b.id === parentId) {
       const children = [...b.children];
-      children.splice(
-        Math.max(0, Math.min(index, children.length)),
-        0,
-        block,
-      );
+      children.splice(Math.max(0, Math.min(index, children.length)), 0, block);
       return { ...b, children };
     }
-    return { ...b, children: insertBlockAt(b.children, parentId, index, block) };
+    return {
+      ...b,
+      children: insertBlockAt(b.children, parentId, index, block),
+    };
   });
 }
 
@@ -114,8 +113,7 @@ export function canDropAt(
   const targetLoc = findBlockLocation(blocks, targetId);
   if (!dragged || !draggedLoc || !targetLoc) return false;
 
-  const targetLevel =
-    kind === 'inside' ? targetLoc.level + 1 : targetLoc.level;
+  const targetLevel = kind === 'inside' ? targetLoc.level + 1 : targetLoc.level;
 
   if (draggedLoc.level === 3) {
     if (kind === 'inside') return false;
@@ -193,10 +191,7 @@ export function applyBlockMove(
     index = target?.children.length ?? 0;
   } else {
     parentId = targetLoc.parentId;
-    index =
-      drop.kind === 'before'
-        ? targetLoc.index
-        : targetLoc.index + 1;
+    index = drop.kind === 'before' ? targetLoc.index : targetLoc.index + 1;
   }
 
   const { blocks: without, extracted } = extractBlock(blocks, draggedId);
@@ -205,11 +200,7 @@ export function applyBlockMove(
   let adjustedIndex = index;
   if (drop.kind !== 'inside' && parentId === targetLoc.parentId) {
     const oldLoc = findBlockLocation(blocks, draggedId);
-    if (
-      oldLoc &&
-      oldLoc.parentId === parentId &&
-      oldLoc.index < index
-    ) {
+    if (oldLoc && oldLoc.parentId === parentId && oldLoc.index < index) {
       adjustedIndex = index - 1;
     }
   }
@@ -217,18 +208,12 @@ export function applyBlockMove(
   return insertBlockAt(without, parentId, adjustedIndex, extracted);
 }
 
-function siblingsOf(
-  blocks: Block[],
-  parentId: string | null,
-): Block[] {
+function siblingsOf(blocks: Block[], parentId: string | null): Block[] {
   if (parentId == null) return blocks;
   return findBlock(blocks, parentId)?.children ?? [];
 }
 
-export function indentBlock(
-  blocks: Block[],
-  blockId: string,
-): Block[] | null {
+export function indentBlock(blocks: Block[], blockId: string): Block[] | null {
   const loc = findBlockLocation(blocks, blockId);
   if (!loc || loc.index === 0) return null;
   const prev = siblingsOf(blocks, loc.parentId)[loc.index - 1];
@@ -239,10 +224,7 @@ export function indentBlock(
   });
 }
 
-export function outdentBlock(
-  blocks: Block[],
-  blockId: string,
-): Block[] | null {
+export function outdentBlock(blocks: Block[], blockId: string): Block[] | null {
   const loc = findBlockLocation(blocks, blockId);
   if (!loc || loc.parentId == null) return null;
   return applyBlockMove(blocks, blockId, {

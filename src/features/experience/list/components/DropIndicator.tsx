@@ -46,11 +46,7 @@ export function DropIndicator({
     >
       <div
         className='bg-main absolute top-[-1px] h-[2px]'
-        style={
-          width != null
-            ? { left, width }
-            : { left, right }
-        }
+        style={width != null ? { left, width } : { left, right }}
       />
     </div>
   );
@@ -105,10 +101,7 @@ export function getDragPayload(e: DragEvent): DragPayload | null {
   }
 }
 
-export function placeFromY(
-  e: DragEvent,
-  el: HTMLElement,
-): 'before' | 'after' {
+export function placeFromY(e: DragEvent, el: HTMLElement): 'before' | 'after' {
   const rect = el.getBoundingClientRect();
   const mid = rect.top + rect.height / 2;
   return e.clientY < mid ? 'before' : 'after';
@@ -174,10 +167,7 @@ export function blockDropKindFromY(
     if (stickyKind === 'before' && y < rowRect.top + topEdge + pad) {
       return 'before';
     }
-    if (
-      stickyKind === 'after' &&
-      y > measureRect.bottom - bottomEdge - pad
-    ) {
+    if (stickyKind === 'after' && y > measureRect.bottom - bottomEdge - pad) {
       return 'after';
     }
     if (

@@ -26,9 +26,7 @@ function sectionDropMeasureEl(from: HTMLElement): HTMLElement {
 }
 
 function blockMeasureEl(from: HTMLElement): HTMLElement {
-  return (
-    (from.closest('[data-dnd-measure]') as HTMLElement | null) ?? from
-  );
+  return (from.closest('[data-dnd-measure]') as HTMLElement | null) ?? from;
 }
 
 function parentBlockMeasureEl(from: HTMLElement): HTMLElement | null {
@@ -53,8 +51,7 @@ export function useBlockNodeDnd({
     isDragging ||
     (dnd.draggingId != null &&
       isDescendant(dnd.rootBlocks, dnd.draggingId, block.id));
-  const hint =
-    dnd.dropHint?.targetId === block.id ? dnd.dropHint.kind : null;
+  const hint = dnd.dropHint?.targetId === block.id ? dnd.dropHint.kind : null;
 
   const setHintOrClear = (
     e: DragEvent<HTMLElement>,
@@ -275,8 +272,9 @@ export function useBlockNodeDnd({
           return;
         }
         const sectionEl =
-          (e.currentTarget.closest('[data-section-dnd]') as HTMLElement | null) ??
-          e.currentTarget;
+          (e.currentTarget.closest(
+            '[data-section-dnd]',
+          ) as HTMLElement | null) ?? e.currentTarget;
         applySiblingHint(
           e,
           active.id,
@@ -300,18 +298,11 @@ export function useBlockNodeDnd({
 
     const measureEl = blockMeasureEl(e.currentTarget);
     const rowEl =
-      (measureEl.querySelector(
-        '[data-block-row-dnd]',
-      ) as HTMLElement | null) ?? measureEl;
+      (measureEl.querySelector('[data-block-row-dnd]') as HTMLElement | null) ??
+      measureEl;
     const stickyKind =
       dnd.dropHint?.targetId === block.id ? dnd.dropHint.kind : null;
-    const kind = blockDropKindFromY(
-      e,
-      rowEl,
-      true,
-      stickyKind,
-      measureEl,
-    );
+    const kind = blockDropKindFromY(e, rowEl, true, stickyKind, measureEl);
     setHintOrClear(e, active.id, block.id, kind);
   };
 

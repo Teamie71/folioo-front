@@ -1,7 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { MOCK_AGENT_MESSAGES, type MockAgentMessage } from '@/features/experience/list/mock';
+import {
+  MOCK_AGENT_MESSAGES,
+  type MockAgentMessage,
+} from '@/features/experience/list/mock';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { AttachIcon } from '@/components/icons/AttachIcon';
 import { SendArrowIcon } from '@/components/icons/SendArrowIcon';
@@ -11,7 +14,8 @@ export function ExperienceListAgentPanel() {
   const open = useExperienceListStore((s) => s.agentOpen);
   const onToggle = useExperienceListStore((s) => s.toggleAgent);
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<MockAgentMessage[]>(MOCK_AGENT_MESSAGES);
+  const [messages, setMessages] =
+    useState<MockAgentMessage[]>(MOCK_AGENT_MESSAGES);
 
   const send = () => {
     const text = input.trim();
@@ -47,7 +51,7 @@ export function ExperienceListAgentPanel() {
   }
 
   return (
-    <aside className='flex h-full w-[400px] shrink-0 flex-col border-l border-gray3 bg-[#f7f7f8]'>
+    <aside className='border-gray3 flex h-full w-[400px] shrink-0 flex-col border-l bg-[#f7f7f8]'>
       <header className='flex shrink-0 items-center gap-[12px] px-[19px] pt-[28px] pb-[20px]'>
         <button
           type='button'
@@ -62,9 +66,7 @@ export function ExperienceListAgentPanel() {
 
       <div className='flex flex-1 flex-col gap-[16px] overflow-y-auto px-[19px] pb-[16px]'>
         {messages.length === 0 ? (
-          <p className='typo-b2 text-gray6'>
-            경험 정리에 대해 질문해 보세요.
-          </p>
+          <p className='typo-b2 text-gray6'>경험 정리에 대해 질문해 보세요.</p>
         ) : (
           messages.map((message) =>
             message.role === 'user' ? (
@@ -76,7 +78,7 @@ export function ExperienceListAgentPanel() {
             ) : (
               <p
                 key={message.id}
-                className='typo-b2 max-w-[calc(100%-60px)] text-gray9'
+                className='typo-b2 text-gray9 max-w-[calc(100%-60px)]'
               >
                 {message.content}
               </p>
@@ -103,7 +105,7 @@ export function ExperienceListAgentPanel() {
               }
             }}
             placeholder='질문하세요.'
-            className='typo-b2 relative z-10 h-full min-w-0 flex-1 bg-transparent pr-[8px] pl-[24px] text-gray9 outline-none placeholder:text-gray6'
+            className='typo-b2 text-gray9 placeholder:text-gray6 relative z-10 h-full min-w-0 flex-1 bg-transparent pr-[8px] pl-[24px] outline-none'
           />
           <button
             type='button'
@@ -115,7 +117,7 @@ export function ExperienceListAgentPanel() {
           <button
             type='button'
             onClick={send}
-            className='relative z-10 mr-[8px] flex size-[32px] shrink-0 items-center justify-center rounded-full bg-main'
+            className='bg-main relative z-10 mr-[8px] flex size-[32px] shrink-0 items-center justify-center rounded-full'
             aria-label='전송'
           >
             <SendArrowIcon className='h-[17px] w-[14px]' />

@@ -33,7 +33,7 @@ export function ExperienceListModals() {
         open={modal?.type === 'group-delete'}
         onOpenChange={(open) => !open && closeModal()}
         title={
-          <span className='typo-h5 flex w-full min-w-0 flex-wrap justify-center gap-x-[0.25em] text-center text-gray9'>
+          <span className='typo-h5 text-gray9 flex w-full min-w-0 flex-wrap justify-center gap-x-[0.25em] text-center'>
             <span className='break-all'>{groupName}</span>
             <span className='whitespace-nowrap'>
               그룹을 정말 삭제하시겠습니까?
@@ -41,7 +41,7 @@ export function ExperienceListModals() {
           </span>
         }
         description={
-          <span className='typo-c1 whitespace-nowrap text-gray6'>
+          <span className='typo-c1 text-gray6 whitespace-nowrap'>
             이 그룹 아래의 경험은 미분류 그룹으로 이동해요.
           </span>
         }
@@ -59,7 +59,7 @@ export function ExperienceListModals() {
         open={modal?.type === 'experience-delete'}
         onOpenChange={(open) => !open && closeModal()}
         title={
-          <span className='typo-h5 flex w-full min-w-0 flex-wrap justify-center gap-x-[0.25em] text-center text-gray9'>
+          <span className='typo-h5 text-gray9 flex w-full min-w-0 flex-wrap justify-center gap-x-[0.25em] text-center'>
             <span className='break-all'>{experienceName}</span>
             <span className='whitespace-nowrap'>
               경험을 정말 삭제하시겠습니까?
@@ -67,7 +67,7 @@ export function ExperienceListModals() {
           </span>
         }
         description={
-          <span className='typo-c1 whitespace-nowrap text-gray6'>
+          <span className='typo-c1 text-gray6 whitespace-nowrap'>
             이 경험의 모든 하위 블록이 함께 삭제돼요.
           </span>
         }

@@ -78,10 +78,7 @@ function KebabTriggerIcon({ className }: { className?: string }) {
 function MenuChevron({ className }: { className?: string }) {
   return (
     <span
-      className={cn(
-        'relative size-[16px] shrink-0 overflow-hidden',
-        className,
-      )}
+      className={cn('relative size-[16px] shrink-0 overflow-hidden', className)}
       aria-hidden
     >
       <ListChevronIcon className='absolute inset-0 rotate-90' />
@@ -156,7 +153,7 @@ function MenuPanel({
               type='button'
               role='menuitem'
               className={cn(
-                'typo-b2 relative flex w-full items-center text-left whitespace-nowrap text-gray9 hover:bg-gray2',
+                'typo-b2 text-gray9 hover:bg-gray2 relative flex w-full items-center text-left whitespace-nowrap',
                 index === 0 && 'rounded-t-[8px]',
                 index === items.length - 1 && 'rounded-b-[8px]',
                 isBlock && item.danger && 'text-error',
@@ -189,7 +186,7 @@ function MenuPanel({
               {index < items.length - 1 && (
                 <span
                   aria-hidden
-                  className='pointer-events-none absolute right-0 bottom-0 left-0 h-px bg-gray3'
+                  className='bg-gray3 pointer-events-none absolute right-0 bottom-0 left-0 h-px'
                 />
               )}
             </button>
@@ -495,9 +492,7 @@ export function DragMenuButton({
       const trigger = triggerRef.current;
       if (!trigger) return;
       const rect = trigger.getBoundingClientRect();
-      const row = trigger.closest(
-        '[data-dnd-measure]',
-      ) as HTMLElement | null;
+      const row = trigger.closest('[data-dnd-measure]') as HTMLElement | null;
       const rowRect = row?.getBoundingClientRect() ?? rect;
       const gap = MENU_GAP;
       const edge = VIEWPORT_PAD;

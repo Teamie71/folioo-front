@@ -9,7 +9,7 @@ import { useExperienceListStore } from '@/store/useExperienceListStore';
 function CommonSidebarSlot() {
   return (
     <aside
-      className='flex h-full w-[60px] shrink-0 flex-col items-center border-r border-gray3 bg-white pt-[32px]'
+      className='border-gray3 flex h-full w-[60px] shrink-0 flex-col items-center border-r bg-white pt-[32px]'
       aria-hidden
     />
   );

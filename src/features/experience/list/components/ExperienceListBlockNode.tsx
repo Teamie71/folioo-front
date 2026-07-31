@@ -28,8 +28,7 @@ import { isMeaningfulDrop } from '@/features/experience/list/utils/blockTreeUtil
 const kebabCls =
   'flex size-[20px] shrink-0 items-center justify-center rounded-[4px] text-[16px] leading-none text-gray6 hover:bg-gray3';
 
-const firstLineSlotCls =
-  'flex h-[1lh] shrink-0 items-center justify-center';
+const firstLineSlotCls = 'flex h-[1lh] shrink-0 items-center justify-center';
 
 const SECTION_GAP = 20;
 const LEVEL4_GAP = 2;
@@ -95,7 +94,12 @@ export function ExperienceListBlockNode({
 
   const menu: MenuItem[] = [
     addSubmenu
-      ? { key: 'add', label: '아래에 추가', submenu: addSubmenu, submenuTitle: '템플릿 선택' }
+      ? {
+          key: 'add',
+          label: '아래에 추가',
+          submenu: addSubmenu,
+          submenuTitle: '템플릿 선택',
+        }
       : {
           key: 'add',
           label: '아래에 추가',
@@ -207,7 +211,7 @@ export function ExperienceListBlockNode({
           </div>
         ) : (
           <div
-            className='flex w-full flex-col overflow-visible rounded-[12px] border border-gray5 bg-white p-[16px]'
+            className='border-gray5 flex w-full flex-col overflow-visible rounded-[12px] border bg-white p-[16px]'
             onDragOver={onDragOverInsideOnly}
             onDrop={onDropInsideOnly}
           >
@@ -246,13 +250,12 @@ export function ExperienceListBlockNode({
     <div
       className={cn(
         'group/blk relative',
-        isDragging &&
-          '-mx-[4px] rounded-[6px] bg-sub1 px-[4px] py-[2px]',
+        isDragging && 'bg-sub1 -mx-[4px] rounded-[6px] px-[4px] py-[2px]',
       )}
     >
       <div
         data-dnd-measure
-        className='relative flex min-w-0 w-full flex-col gap-[2px]'
+        className='relative flex w-full min-w-0 flex-col gap-[2px]'
         onDragOver={onDragOverRow}
         onDrop={onDropRow}
       >
@@ -282,10 +285,7 @@ export function ExperienceListBlockNode({
                 {dragKebab}
               </div>
               <div className='typo-text-field relative flex w-full min-w-0 items-start'>
-                <span
-                  className={cn(firstLineSlotCls, 'w-[24px]')}
-                  aria-hidden
-                >
+                <span className={cn(firstLineSlotCls, 'w-[24px]')} aria-hidden>
                   <span
                     className={cn(
                       'size-[4px] rounded-full',
@@ -324,9 +324,7 @@ export function ExperienceListBlockNode({
                   }}
                   requestEdit={dnd.editRequest?.id === block.id}
                   requestEditCaret={
-                    dnd.editRequest?.id === block.id
-                      ? dnd.editRequest.caret
-                      : 0
+                    dnd.editRequest?.id === block.id ? dnd.editRequest.caret : 0
                   }
                   onRequestEditHandled={() => {
                     if (dnd.editRequest?.id === block.id) {

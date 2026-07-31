@@ -1,9 +1,7 @@
 'use client';
 
 import { ExperienceListBlockNode } from '@/features/experience/list/components/ExperienceListBlockNode';
-import {
-  BlockDndContext,
-} from '@/features/experience/list/hooks/useBlockDnd';
+import { BlockDndContext } from '@/features/experience/list/hooks/useBlockDnd';
 import { useBlockTreeDnd } from '@/features/experience/list/hooks/useBlockTreeDnd';
 import type { Block } from '@/features/experience/list/types';
 

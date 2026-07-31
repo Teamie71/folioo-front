@@ -45,7 +45,7 @@ export function EmptyExperienceState({
           menuPlacement='bottom'
           ariaLabel='새로운 블록 추가'
           menuTitle='템플릿 선택'
-          className='inline-flex items-center gap-[4px] rounded-[6px] border border-gray4 bg-white px-[12px] py-[6px] transition-colors hover:bg-gray2'
+          className='border-gray4 hover:bg-gray2 inline-flex items-center gap-[4px] rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors'
         >
           <span className='typo-b2 text-gray9'>새로운 블록 추가</span>
         </MenuButton>
@@ -139,9 +139,7 @@ export function EmptySectionAddButton({
   return (
     <button
       type='button'
-      onClick={() =>
-        addChildBlock(experienceId, section.id, createFreeBlock())
-      }
+      onClick={() => addChildBlock(experienceId, section.id, createFreeBlock())}
       className={boxCls}
     >
       {label}

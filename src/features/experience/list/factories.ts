@@ -27,15 +27,11 @@ const SECTION_TEMPLATE_CHILDREN: Record<
     },
     {
       placeholder: PROBLEM_EPISODE_PLACEHOLDER,
-      children: [
-        '문제의 원인은 무엇이었고, 어떤 방식으로 원인을 파악했나요?',
-      ],
+      children: ['문제의 원인은 무엇이었고, 어떤 방식으로 원인을 파악했나요?'],
     },
     {
       placeholder: PROBLEM_EPISODE_PLACEHOLDER,
-      children: [
-        '해결책을 도출한 과정과 구체적인 실행 방법은 무엇인가요?',
-      ],
+      children: ['해결책을 도출한 과정과 구체적인 실행 방법은 무엇인가요?'],
     },
     {
       placeholder: PROBLEM_EPISODE_PLACEHOLDER,

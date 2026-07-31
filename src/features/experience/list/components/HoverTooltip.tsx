@@ -57,9 +57,7 @@ export function HoverTooltip({
       const maxRight = vw - VIEWPORT_PAD;
 
       const top =
-        placement === 'top'
-          ? rect.top - GAP - tipHeight
-          : rect.bottom + GAP;
+        placement === 'top' ? rect.top - GAP - tipHeight : rect.bottom + GAP;
 
       if (preferAlign === 'start') {
         let left = rect.left;
@@ -137,7 +135,7 @@ export function HoverTooltip({
               visibility: pos ? 'visible' : 'hidden',
             }}
           >
-            <div className='rounded-[6px] bg-gray7 px-[8px] py-[4px] typo-c1 whitespace-nowrap text-white'>
+            <div className='bg-gray7 typo-c1 rounded-[6px] px-[8px] py-[4px] whitespace-nowrap text-white'>
               {label}
             </div>
           </div>,
