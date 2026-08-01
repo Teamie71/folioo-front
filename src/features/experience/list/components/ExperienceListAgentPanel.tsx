@@ -42,7 +42,7 @@ export function ExperienceListAgentPanel() {
   return (
     <>
       {!open && (
-        <aside className='absolute top-[27px] right-[20px] z-20'>
+        <aside className='absolute top-[24px] right-[20px] z-20'>
           <button
             type='button'
             onClick={onToggle}
@@ -66,7 +66,7 @@ export function ExperienceListAgentPanel() {
         aria-hidden={!open}
       >
         <div className='flex h-full w-[400px] flex-col'>
-          <header className='flex shrink-0 items-center gap-[12px] px-[19px] pt-[28px] pb-[20px]'>
+          <header className='flex h-[79px] shrink-0 items-center gap-[12px] px-[20px]'>
             <button
               type='button'
               onClick={onToggle}
