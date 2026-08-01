@@ -1,6 +1,6 @@
 'use client';
 
-import { PlusIcon } from '@/components/icons/PlusIcon';
+import { CommonButton } from '@/components/CommonButton';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import {
   MenuButton,
@@ -61,16 +61,12 @@ export function EmptyGroupState({ groupId }: { groupId: string }) {
       <p className='typo-b2 text-gray6'>
         아직 이 그룹 안에 정리된 경험이 없어요.
       </p>
-      <button
-        type='button'
+      <CommonButton
+        variantType='StartChat'
         onClick={() => addExperience(groupId)}
-        className='inline-flex items-center gap-[8px] rounded-[100px] bg-white px-[32px] py-[20px] shadow-[0px_0px_4px_0px_rgba(0,0,0,0.15)]'
       >
-        <span className='flex size-[24px] shrink-0 items-center justify-center overflow-hidden'>
-          <PlusIcon />
-        </span>
-        <span className='typo-h5 text-gray9'>새로운 경험 추가</span>
-      </button>
+        새로운 경험 추가
+      </CommonButton>
     </div>
   );
 }
