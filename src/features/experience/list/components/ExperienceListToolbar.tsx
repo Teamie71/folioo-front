@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/utils/utils';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { HoverTooltip } from '@/features/experience/list/components/HoverTooltip';
+import { ExperienceListViewSwitchToggle } from '@/features/experience/list/components/ExperienceListViewSwitchToggle';
 import { ListDeleteIcon } from '@/components/icons/ListDeleteIcon';
 import { ListViewIcon } from '@/components/icons/ListViewIcon';
 import { RedoIcon } from '@/components/icons/RedoIcon';
@@ -75,46 +76,10 @@ export function ExperienceListToolbar({ experienceId }: Props) {
           </HoverTooltip>
         )}
 
-        <div className='bg-gray3 relative flex h-[29px] w-[158px] overflow-hidden rounded-[6px]'>
-          <button
-            type='button'
-            onClick={() => setViewMode('map')}
-            className={cn(
-              'flex h-full flex-1 cursor-pointer items-center justify-center rounded-[6px] px-[20px] py-[4px]',
-              viewMode === 'map' ? 'bg-main' : 'bg-gray3',
-            )}
-          >
-            <span
-              className={cn(
-                'whitespace-nowrap',
-                viewMode === 'map'
-                  ? 'typo-c1-sb text-white'
-                  : 'typo-c1-b text-gray6',
-              )}
-            >
-              맵 뷰
-            </span>
-          </button>
-          <button
-            type='button'
-            onClick={() => setViewMode('list')}
-            className={cn(
-              'flex h-full flex-1 cursor-pointer items-center justify-center rounded-[6px] px-[20px] py-[4px]',
-              viewMode === 'list' ? 'bg-main' : 'bg-gray3',
-            )}
-          >
-            <span
-              className={cn(
-                'whitespace-nowrap',
-                viewMode === 'list'
-                  ? 'typo-c1-sb text-white'
-                  : 'typo-c1-b text-gray6',
-              )}
-            >
-              리스트 뷰
-            </span>
-          </button>
-        </div>
+        <ExperienceListViewSwitchToggle
+          value={viewMode}
+          onValueChange={setViewMode}
+        />
 
         <div className='flex items-center gap-[4px]'>
           <button
