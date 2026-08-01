@@ -228,7 +228,7 @@ export function ExperienceListSidebarGroup({
           <HoverTooltip label='클릭하여 그룹 추가'>
             <button
               type='button'
-              onClick={addGroup}
+              onClick={() => addGroup(group.id)}
               className={cn(
                 sidebarRowActionCls,
                 'shrink-0 opacity-0 group-hover/row:opacity-100',

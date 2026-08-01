@@ -128,7 +128,7 @@ interface ExperienceListState {
   selectGroup: (groupId: string) => void;
 
   renameGroup: (id: string, name: string) => void;
-  addGroup: () => void;
+  addGroup: (afterGroupId?: string) => void;
   deleteGroup: (id: string) => void;
   reorderGroup: (fromId: string, toId: string, place: 'before' | 'after') => void;
 
@@ -255,7 +255,7 @@ export const useExperienceListStore = create<ExperienceListState>()(
           });
         },
 
-        addGroup: () => {
+        addGroup: (afterGroupId) => {
           const s = get();
           if (s.groups.length >= MAX_GROUP_COUNT) {
             set({ modal: { type: 'group-limit' } });
@@ -267,10 +267,17 @@ export const useExperienceListStore = create<ExperienceListState>()(
             name: `새로운 그룹 ${nextCounter}`,
             isUnclassified: false,
           };
-          const unclassifiedIdx = s.groups.findIndex((g) => g.isUnclassified);
           const groups = [...s.groups];
-          if (unclassifiedIdx === -1) groups.push(newGroup);
-          else groups.splice(unclassifiedIdx, 0, newGroup);
+          const afterIdx = afterGroupId
+            ? groups.findIndex((g) => g.id === afterGroupId)
+            : -1;
+          if (afterIdx !== -1) {
+            groups.splice(afterIdx + 1, 0, newGroup);
+          } else {
+            const unclassifiedIdx = groups.findIndex((g) => g.isUnclassified);
+            if (unclassifiedIdx === -1) groups.push(newGroup);
+            else groups.splice(unclassifiedIdx, 0, newGroup);
+          }
           set((prev) => ({
             collapsedGroups: { ...prev.collapsedGroups, [newGroup.id]: false },
           }));
