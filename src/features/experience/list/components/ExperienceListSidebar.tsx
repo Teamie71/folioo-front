@@ -41,7 +41,7 @@ export function ExperienceListSidebar() {
           <button
             type='button'
             onClick={toggleSidebar}
-            className='flex size-[32px] items-center justify-center rounded-[6px] p-[2px]'
+            className='flex size-[32px] cursor-pointer items-center justify-center rounded-[6px] p-[2px]'
             aria-label='나의 경험 탭 닫기'
             tabIndex={open ? 0 : -1}
           >

@@ -67,7 +67,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
             <button
               type='button'
               onClick={toggleSidebar}
-              className='flex size-[32px] items-center justify-center rounded-[6px] p-[2px] hover:bg-white'
+              className='flex size-[32px] cursor-pointer items-center justify-center rounded-[6px] p-[2px] hover:bg-white'
               aria-label='나의 경험 탭 열기'
             >
               <ListViewIcon className='size-[28px]' />
