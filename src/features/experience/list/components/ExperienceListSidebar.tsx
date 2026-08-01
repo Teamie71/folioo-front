@@ -1,11 +1,16 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { ExperienceListSidebarGroup } from '@/features/experience/list/components/ExperienceListSidebarGroup';
 import { useSidebarDnd } from '@/features/experience/list/hooks/useSidebarDnd';
 import { ListViewIcon } from '@/components/icons/ListViewIcon';
 
+const PANEL_WIDTH = '240px';
+const PANEL_TRANSITION = { duration: 0.3, ease: [0.4, 0, 0.2, 1] as const };
+
 export function ExperienceListSidebar() {
+  const open = useExperienceListStore((s) => s.sidebarOpen);
   const groups = useExperienceListStore((s) => s.groups);
   const experiences = useExperienceListStore((s) => s.experiences);
   const selection = useExperienceListStore((s) => s.selection);
@@ -19,40 +24,50 @@ export function ExperienceListSidebar() {
   const selectedGroupId = selection?.kind === 'group' ? selection.id : null;
 
   return (
-    <aside
+    <motion.aside
       data-experience-sidebar
-      className='border-gray3 flex h-full w-[240px] shrink-0 flex-col border-r bg-white'
+      initial={false}
+      animate={{
+        width: open ? PANEL_WIDTH : 0,
+        opacity: open ? 1 : 0,
+      }}
+      transition={PANEL_TRANSITION}
+      style={{ overflow: 'hidden' }}
+      className='border-gray3 flex h-full shrink-0 flex-col border-r bg-white'
     >
-      <div className='flex items-center justify-between px-[20px] pt-[30px] pb-[22px]'>
-        <h2 className='typo-b2-b text-gray9'>나의 경험</h2>
-        <button
-          type='button'
-          onClick={toggleSidebar}
-          className='flex size-[32px] items-center justify-center rounded-[6px] p-[2px]'
-          aria-label='나의 경험 탭 닫기'
-        >
-          <ListViewIcon className='size-[28px]' />
-        </button>
-      </div>
+      <div className='flex w-[240px] flex-1 flex-col'>
+        <div className='flex items-center justify-between px-[20px] pt-[30px] pb-[22px]'>
+          <h2 className='typo-b2-b text-gray9'>나의 경험</h2>
+          <button
+            type='button'
+            onClick={toggleSidebar}
+            className='flex size-[32px] items-center justify-center rounded-[6px] p-[2px]'
+            aria-label='나의 경험 탭 닫기'
+            tabIndex={open ? 0 : -1}
+          >
+            <ListViewIcon className='size-[28px]' />
+          </button>
+        </div>
 
-      <div
-        className='flex flex-col gap-[4px] overflow-x-hidden overflow-y-auto px-[15px] pb-[24px]'
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={() => dnd.clearDrag()}
-      >
-        {groups.map((group) => (
-          <ExperienceListSidebarGroup
-            key={group.id}
-            group={group}
-            groups={groups}
-            groupExperiences={experiences.filter((e) => e.groupId === group.id)}
-            collapsed={collapsedGroups[group.id] ?? false}
-            selectedGroupId={selectedGroupId}
-            selectedExperienceId={selectedExperienceId}
-            dnd={dnd}
-          />
-        ))}
+        <div
+          className='flex flex-col gap-[4px] overflow-x-hidden overflow-y-auto px-[15px] pb-[24px]'
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={() => dnd.clearDrag()}
+        >
+          {groups.map((group) => (
+            <ExperienceListSidebarGroup
+              key={group.id}
+              group={group}
+              groups={groups}
+              groupExperiences={experiences.filter((e) => e.groupId === group.id)}
+              collapsed={collapsedGroups[group.id] ?? false}
+              selectedGroupId={selectedGroupId}
+              selectedExperienceId={selectedExperienceId}
+              dnd={dnd}
+            />
+          ))}
+        </div>
       </div>
-    </aside>
+    </motion.aside>
   );
 }

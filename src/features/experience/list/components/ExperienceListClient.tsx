@@ -4,7 +4,6 @@ import { ExperienceListSidebar } from '@/features/experience/list/components/Exp
 import { ExperienceListMainPanel } from '@/features/experience/list/components/ExperienceListMainPanel';
 import { ExperienceListAgentPanel } from '@/features/experience/list/components/ExperienceListAgentPanel';
 import { ExperienceListModals } from '@/features/experience/list/components/ExperienceListModals';
-import { useExperienceListStore } from '@/store/useExperienceListStore';
 
 function CommonSidebarSlot() {
   return (
@@ -16,14 +15,12 @@ function CommonSidebarSlot() {
 }
 
 export default function ExperienceListClient() {
-  const sidebarOpen = useExperienceListStore((s) => s.sidebarOpen);
-
   return (
     <div className='flex h-[100dvh] w-full overflow-hidden bg-white'>
       <CommonSidebarSlot />
 
       <div className='relative flex min-w-0 flex-1 overflow-hidden'>
-        {sidebarOpen && <ExperienceListSidebar />}
+        <ExperienceListSidebar />
         <ExperienceListMainPanel />
         <ExperienceListAgentPanel />
       </div>

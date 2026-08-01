@@ -14,6 +14,7 @@ type HoverTooltipProps = {
   className?: string;
   disabled?: boolean;
   wrapperClassName?: string;
+  suppressUntilPointerLeave?: boolean;
 };
 
 const GAP = 6;
@@ -27,16 +28,27 @@ export function HoverTooltip({
   className,
   disabled = false,
   wrapperClassName,
+  suppressUntilPointerLeave = false,
 }: HoverTooltipProps) {
   const tipId = useId();
   const triggerRef = useRef<HTMLSpanElement>(null);
   const tipRef = useRef<HTMLDivElement>(null);
+  const blockedRef = useRef(suppressUntilPointerLeave);
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{
     top: number;
     left: number;
     align: 'center' | 'start';
   } | null>(null);
+
+  useLayoutEffect(() => {
+    if (!suppressUntilPointerLeave) {
+      blockedRef.current = false;
+      return;
+    }
+    blockedRef.current = !!triggerRef.current?.matches(':hover');
+    if (blockedRef.current) setOpen(false);
+  }, [suppressUntilPointerLeave]);
 
   useLayoutEffect(() => {
     if (!open || disabled || !triggerRef.current) {
@@ -99,9 +111,13 @@ export function HoverTooltip({
   }, [open, disabled, placement, label, preferAlign]);
 
   const show = () => {
-    if (!disabled) setOpen(true);
+    if (disabled || blockedRef.current) return;
+    setOpen(true);
   };
-  const hide = () => setOpen(false);
+  const hide = () => {
+    blockedRef.current = false;
+    setOpen(false);
+  };
 
   return (
     <>

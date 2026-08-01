@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/utils/utils';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { HoverTooltip } from '@/features/experience/list/components/HoverTooltip';
@@ -7,6 +8,8 @@ import { ListDeleteIcon } from '@/components/icons/ListDeleteIcon';
 import { ListViewIcon } from '@/components/icons/ListViewIcon';
 import { RedoIcon } from '@/components/icons/RedoIcon';
 import { UndoIcon } from '@/components/icons/UndoIcon';
+
+const SIDEBAR_CLOSE_MS = 300;
 
 type Props = {
   experienceId: string | undefined;
@@ -24,6 +27,28 @@ export function ExperienceListToolbar({ experienceId }: Props) {
   const pastLen = useExperienceListStore((s) => s.past.length);
   const futureLen = useExperienceListStore((s) => s.future.length);
 
+  const wasSidebarOpenRef = useRef(sidebarOpen);
+  const [showOpenButton, setShowOpenButton] = useState(!sidebarOpen);
+
+  useEffect(() => {
+    if (sidebarOpen) {
+      wasSidebarOpenRef.current = true;
+      setShowOpenButton(false);
+      return;
+    }
+
+    const closing = wasSidebarOpenRef.current;
+    wasSidebarOpenRef.current = false;
+
+    if (!closing) {
+      setShowOpenButton(true);
+      return;
+    }
+
+    const id = window.setTimeout(() => setShowOpenButton(true), SIDEBAR_CLOSE_MS);
+    return () => window.clearTimeout(id);
+  }, [sidebarOpen]);
+
   return (
     <header
       className={cn(
@@ -32,11 +57,12 @@ export function ExperienceListToolbar({ experienceId }: Props) {
       )}
     >
       <div className='flex items-center gap-[20px]'>
-        {!sidebarOpen && (
+        {showOpenButton && (
           <HoverTooltip
             label='클릭하여 나의 경험 탭 열기'
             placement='bottom'
             align='start'
+            suppressUntilPointerLeave
           >
             <button
               type='button'
