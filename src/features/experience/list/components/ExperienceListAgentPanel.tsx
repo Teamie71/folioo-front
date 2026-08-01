@@ -46,7 +46,7 @@ export function ExperienceListAgentPanel() {
           <button
             type='button'
             onClick={onToggle}
-            className='flex size-[32px] items-center justify-center rounded-[8px]'
+            className='flex size-[32px] cursor-pointer items-center justify-center rounded-[8px]'
             aria-label='AI 에이전트 열기'
           >
             <SidebarPanelIcon className='size-[20px]' />
@@ -70,7 +70,7 @@ export function ExperienceListAgentPanel() {
             <button
               type='button'
               onClick={onToggle}
-              className='flex size-[32px] items-center justify-center rounded-[8px]'
+              className='flex size-[32px] cursor-pointer items-center justify-center rounded-[8px]'
               aria-label='AI 에이전트 접기'
               tabIndex={open ? 0 : -1}
             >
@@ -128,7 +128,7 @@ export function ExperienceListAgentPanel() {
               <button
                 type='button'
                 tabIndex={open ? 0 : -1}
-                className='relative z-10 mr-[8px] flex size-[28px] shrink-0 items-center justify-center'
+                className='relative z-10 mr-[8px] flex size-[28px] shrink-0 cursor-pointer items-center justify-center'
                 aria-label='파일 첨부'
               >
                 <AttachIcon className='h-[23px] w-[20px]' />
@@ -137,7 +137,7 @@ export function ExperienceListAgentPanel() {
                 type='button'
                 onClick={send}
                 tabIndex={open ? 0 : -1}
-                className='bg-main relative z-10 mr-[8px] flex size-[32px] shrink-0 items-center justify-center rounded-full'
+                className='bg-main relative z-10 mr-[8px] flex size-[32px] shrink-0 cursor-pointer items-center justify-center rounded-full'
                 aria-label='전송'
               >
                 <SendArrowIcon className='h-[17px] w-[14px]' />

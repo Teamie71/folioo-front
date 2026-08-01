@@ -80,7 +80,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
             type='button'
             onClick={() => setViewMode('map')}
             className={cn(
-              'flex h-full flex-1 items-center justify-center rounded-[6px] px-[20px] py-[4px]',
+              'flex h-full flex-1 cursor-pointer items-center justify-center rounded-[6px] px-[20px] py-[4px]',
               viewMode === 'map' ? 'bg-main' : 'bg-gray3',
             )}
           >
@@ -99,7 +99,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
             type='button'
             onClick={() => setViewMode('list')}
             className={cn(
-              'flex h-full flex-1 items-center justify-center rounded-[6px] px-[20px] py-[4px]',
+              'flex h-full flex-1 cursor-pointer items-center justify-center rounded-[6px] px-[20px] py-[4px]',
               viewMode === 'list' ? 'bg-main' : 'bg-gray3',
             )}
           >
@@ -121,7 +121,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
             type='button'
             onClick={undo}
             disabled={pastLen === 0}
-            className='border-gray5 flex size-[28px] items-center justify-center rounded-[6px] border bg-white disabled:opacity-40'
+            className='border-gray5 flex size-[28px] cursor-pointer items-center justify-center rounded-[6px] border bg-white disabled:pointer-events-none disabled:opacity-50'
             aria-label='실행 취소'
           >
             <UndoIcon className='size-[20px]' />
@@ -130,7 +130,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
             type='button'
             onClick={redo}
             disabled={futureLen === 0}
-            className='border-gray5 flex size-[28px] items-center justify-center rounded-[6px] border bg-white disabled:opacity-40'
+            className='border-gray5 flex size-[28px] cursor-pointer items-center justify-center rounded-[6px] border bg-white disabled:pointer-events-none disabled:opacity-50'
             aria-label='다시 실행'
           >
             <RedoIcon className='size-[20px]' />
@@ -148,7 +148,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
                 experienceId,
               })
             }
-            className='border-gray4 hover:bg-gray2 flex h-[38px] items-center gap-[4px] rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors'
+            className='border-gray4 hover:bg-gray2 flex h-[38px] cursor-pointer items-center gap-[4px] rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors'
           >
             <ListDeleteIcon className='size-[20px]' />
             <span className='typo-b2 text-gray9 text-center'>경험 삭제</span>

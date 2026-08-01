@@ -153,7 +153,7 @@ function MenuPanel({
               type='button'
               role='menuitem'
               className={cn(
-                'typo-b2 text-gray9 hover:bg-gray2 relative flex w-full items-center text-left whitespace-nowrap',
+                'typo-b2 text-gray9 hover:bg-gray2 relative flex w-full cursor-pointer items-center text-left whitespace-nowrap',
                 index === 0 && 'rounded-t-[8px]',
                 index === items.length - 1 && 'rounded-b-[8px]',
                 isBlock && item.danger && 'text-error',
@@ -403,7 +403,7 @@ export function MenuButton({
       type='button'
       aria-label={ariaLabel}
       aria-expanded={open}
-      className={className}
+      className={cn('cursor-pointer', className)}
       onClick={(e) => {
         e.stopPropagation();
         setOpen((prev) => !prev);

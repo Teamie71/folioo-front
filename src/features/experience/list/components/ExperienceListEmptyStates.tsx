@@ -82,7 +82,7 @@ export function EmptySectionAddButton({
   const addChildrenBlocks = useExperienceListStore((s) => s.addChildrenBlocks);
 
   const boxCls =
-    'flex h-[58px] w-full items-center rounded-[12px] border border-gray5 bg-white p-[16px] typo-text-field text-gray5 transition-colors hover:bg-gray2';
+    'flex h-[58px] w-full cursor-pointer items-center rounded-[12px] border border-gray5 bg-white p-[16px] typo-text-field text-gray5 transition-colors hover:bg-gray2';
 
   const label = <span>+ 새로운 블록 추가</span>;
 
