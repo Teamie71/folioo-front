@@ -403,7 +403,11 @@ export function MenuButton({
       type='button'
       aria-label={ariaLabel}
       aria-expanded={open}
-      className={cn('cursor-pointer', className)}
+      className={cn(
+        'cursor-pointer',
+        className,
+        open && '!pointer-events-auto !opacity-100',
+      )}
       onClick={(e) => {
         e.stopPropagation();
         setOpen((prev) => !prev);
@@ -550,6 +554,7 @@ export function DragMenuButton({
           className={cn(
             className,
             'select-none !cursor-grab active:!cursor-grabbing',
+            open && '!pointer-events-auto !opacity-100',
           )}
           onClick={(e) => {
             e.stopPropagation();
