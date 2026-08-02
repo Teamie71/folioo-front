@@ -36,7 +36,7 @@ export function ExperienceListSidebar() {
       className='border-gray3 flex h-full shrink-0 flex-col border-r bg-white'
     >
       <div className='flex w-[240px] flex-1 flex-col'>
-        <div className='flex items-center justify-between px-[20px] pt-[30px] pb-[22px]'>
+        <div className='flex h-[79px] shrink-0 items-center justify-between px-[20px]'>
           <h2 className='typo-b2-b text-gray9'>나의 경험</h2>
           <button
             type='button'

@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { cn } from '@/utils/utils';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { HoverTooltip } from '@/features/experience/list/components/HoverTooltip';
 import { ExperienceListViewSwitchToggle } from '@/features/experience/list/components/ExperienceListViewSwitchToggle';
 import { ListDeleteIcon } from '@/components/icons/ListDeleteIcon';
 import { ListViewIcon } from '@/components/icons/ListViewIcon';
 import { RedoIcon } from '@/components/icons/RedoIcon';
+import { SidebarPanelIcon } from '@/components/icons/SidebarPanelIcon';
 import { UndoIcon } from '@/components/icons/UndoIcon';
 
 const SIDEBAR_CLOSE_MS = 300;
@@ -22,6 +22,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
   const agentOpen = useExperienceListStore((s) => s.agentOpen);
   const setViewMode = useExperienceListStore((s) => s.setViewMode);
   const toggleSidebar = useExperienceListStore((s) => s.toggleSidebar);
+  const toggleAgent = useExperienceListStore((s) => s.toggleAgent);
   const openModal = useExperienceListStore((s) => s.openModal);
   const undo = useExperienceListStore((s) => s.undo);
   const redo = useExperienceListStore((s) => s.redo);
@@ -51,12 +52,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
   }, [sidebarOpen]);
 
   return (
-    <header
-      className={cn(
-        'flex h-[79px] shrink-0 items-center justify-between pl-[20px]',
-        agentOpen ? 'pr-[20px]' : 'pr-[72px]',
-      )}
-    >
+    <header className='flex h-[79px] shrink-0 items-center justify-between px-[20px]'>
       <div className='flex items-center gap-[20px]'>
         {showOpenButton && (
           <HoverTooltip
@@ -103,7 +99,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
         </div>
       </div>
 
-      <div className='flex h-[38px] items-center'>
+      <div className='flex items-center gap-[12px]'>
         {experienceId ? (
           <button
             type='button'
@@ -119,6 +115,16 @@ export function ExperienceListToolbar({ experienceId }: Props) {
             <span className='typo-b2 text-gray9 text-center'>경험 삭제</span>
           </button>
         ) : null}
+        {!agentOpen && (
+          <button
+            type='button'
+            onClick={toggleAgent}
+            className='flex size-[32px] cursor-pointer items-center justify-center rounded-[8px]'
+            aria-label='AI 에이전트 열기'
+          >
+            <SidebarPanelIcon className='size-[20px]' />
+          </button>
+        )}
       </div>
     </header>
   );
