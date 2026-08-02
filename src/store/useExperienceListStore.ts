@@ -320,7 +320,7 @@ export const useExperienceListStore = create<ExperienceListState>()(
           const newExperience: Experience = {
             id: uid('e'),
             groupId,
-            name: `새로운 경험 ${nextCounter}`,
+            name: `새로운 활동 ${nextCounter}`,
             blocks: [],
           };
           set((prev) => ({

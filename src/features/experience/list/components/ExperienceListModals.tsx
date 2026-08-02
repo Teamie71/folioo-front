@@ -24,7 +24,7 @@ export function ExperienceListModals() {
       : '';
   const experienceName =
     modal?.type === 'experience-delete'
-      ? (experiences.find((e) => e.id === modal.experienceId)?.name ?? '경험')
+      ? (experiences.find((e) => e.id === modal.experienceId)?.name ?? '활동')
       : '';
 
   return (
@@ -42,7 +42,7 @@ export function ExperienceListModals() {
         }
         description={
           <span className='typo-c1 text-gray6 whitespace-nowrap'>
-            이 그룹 아래의 경험은 미분류 그룹으로 이동해요.
+            이 그룹 아래의 활동은 미분류 그룹으로 이동해요.
           </span>
         }
         className={MODAL_CLS}
@@ -62,13 +62,13 @@ export function ExperienceListModals() {
           <span className='typo-h5 text-gray9 flex w-full min-w-0 flex-wrap justify-center gap-x-[0.25em] text-center'>
             <span className='break-all'>{experienceName}</span>
             <span className='whitespace-nowrap'>
-              경험을 정말 삭제하시겠습니까?
+              활동을 정말 삭제하시겠습니까?
             </span>
           </span>
         }
         description={
           <span className='typo-c1 text-gray6 whitespace-nowrap'>
-            이 경험의 모든 하위 블록이 함께 삭제돼요.
+            이 활동의 모든 하위 블록이 함께 삭제돼요.
           </span>
         }
         className={MODAL_CLS}
@@ -103,9 +103,9 @@ export function ExperienceListModals() {
         className={MODAL_CLS}
         title={
           <span className='typo-h5 text-gray9'>
-            경험은 최대 {MAX_EXPERIENCE_COUNT}개까지만 저장할 수 있어요.
+            활동은 최대 {MAX_EXPERIENCE_COUNT}개까지만 저장할 수 있어요.
             <br />
-            기존 경험을 삭제한 후, 새로운 경험을 정리해주세요.
+            기존 활동을 삭제한 후, 새로운 활동을 추가해주세요.
           </span>
         }
       />

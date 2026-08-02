@@ -37,12 +37,12 @@ export function ExperienceListSidebar() {
     >
       <div className='flex w-[240px] flex-1 flex-col'>
         <div className='flex h-[79px] shrink-0 items-center justify-between px-[20px]'>
-          <h2 className='typo-b2-b text-gray9'>나의 경험</h2>
+          <h2 className='typo-b2-b text-gray9'>나의 활동</h2>
           <button
             type='button'
             onClick={toggleSidebar}
             className='flex size-[32px] cursor-pointer items-center justify-center rounded-[6px] p-[2px]'
-            aria-label='나의 경험 탭 닫기'
+            aria-label='나의 활동 탭 닫기'
             tabIndex={open ? 0 : -1}
           >
             <ListViewIcon className='size-[28px]' />

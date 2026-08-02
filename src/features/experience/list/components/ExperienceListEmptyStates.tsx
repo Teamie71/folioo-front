@@ -37,7 +37,7 @@ export function EmptyExperienceState({
     <div className='flex min-h-0 flex-1 flex-col items-center justify-center px-[60px] pb-[80px]'>
       <div className='flex flex-col items-center gap-[24px]'>
         <p className='typo-b2 text-[#898989]'>
-          아직 이 경험 안에 정리된 블록이 없어요.
+          아직 이 활동 안에 정리된 블록이 없어요.
         </p>
         <MenuButton
           items={items}
@@ -59,13 +59,13 @@ export function EmptyGroupState({ groupId }: { groupId: string }) {
   return (
     <div className='flex flex-1 flex-col items-center justify-center gap-[24px]'>
       <p className='typo-b2 text-gray6'>
-        아직 이 그룹 안에 정리된 경험이 없어요.
+        아직 이 그룹 안에 정리된 활동이 없어요.
       </p>
       <CommonButton
         variantType='StartChat'
         onClick={() => addExperience(groupId)}
       >
-        새로운 경험 추가
+        새로운 활동 추가
       </CommonButton>
     </div>
   );

@@ -29,7 +29,7 @@ export function ExperienceListMainPanel() {
         </div>
       ) : !experience ? (
         <div className='px-[60px] pt-[44px]'>
-          <p className='typo-b2 text-gray6'>경험을 선택해 주세요.</p>
+          <p className='typo-b2 text-gray6'>활동을 선택해 주세요.</p>
         </div>
       ) : experience.blocks.length === 0 ? (
         <div className='relative flex min-h-0 flex-1 flex-col overflow-hidden'>

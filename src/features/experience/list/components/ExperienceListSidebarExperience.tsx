@@ -145,7 +145,7 @@ export function ExperienceListSidebarExperience({
         <div className='absolute top-1/2 left-0 flex size-[16px] -translate-x-full -translate-y-1/2 items-center justify-center'>
           <DragMenuButton
             items={experienceMenu}
-            ariaLabel='경험 메뉴'
+            ariaLabel='활동 메뉴'
             tooltipAlign='start'
             className={cn(
               sidebarRowActionCls,
@@ -184,7 +184,7 @@ export function ExperienceListSidebarExperience({
           />
         </div>
 
-        <HoverTooltip label='클릭하여 경험 추가'>
+        <HoverTooltip label='클릭하여 활동 추가'>
           <button
             type='button'
             onClick={() => addExperience(item.groupId)}
@@ -192,7 +192,7 @@ export function ExperienceListSidebarExperience({
               sidebarRowActionCls,
               'shrink-0 pointer-events-none opacity-0 group-hover/exp:pointer-events-auto group-hover/exp:opacity-100',
             )}
-            aria-label='경험 추가'
+            aria-label='활동 추가'
           >
             <ListPlusIcon className='size-[16px]' />
           </button>

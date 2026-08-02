@@ -16,7 +16,7 @@ export const MOCK_EXPERIENCES: Experience[] = [
   {
     id: 'e_1',
     groupId: 'g_2026',
-    name: '새로운 경험 1',
+    name: '새로운 활동 1',
     blocks: [
       createSectionBlock('detail', [
         createFreeBlock('진행 기간: 2023.09 ~ 2023.12 (4개월)'),
@@ -106,19 +106,19 @@ export const MOCK_EXPERIENCES: Experience[] = [
   {
     id: 'e_2',
     groupId: 'g_2026',
-    name: '새로운 경험 2',
+    name: '새로운 활동 2',
     blocks: createExperienceTemplateBlocks(),
   },
   {
     id: 'e_3',
     groupId: 'g_2026',
-    name: '새로운 경험 3',
+    name: '새로운 활동 3',
     blocks: [],
   },
   {
     id: 'e_4',
     groupId: 'g_2026',
-    name: '새로운 경험 4',
+    name: '새로운 활동 4',
     blocks: createExperienceTemplateBlocks(),
   },
 ];

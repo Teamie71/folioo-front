@@ -56,7 +56,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
       <div className='flex items-center gap-[20px]'>
         {showOpenButton && (
           <HoverTooltip
-            label='클릭하여 나의 경험 탭 열기'
+            label='클릭하여 나의 활동 탭 열기'
             placement='bottom'
             align='start'
             suppressUntilPointerLeave
@@ -65,7 +65,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
               type='button'
               onClick={toggleSidebar}
               className='flex size-[32px] cursor-pointer items-center justify-center rounded-[6px] p-[2px] hover:bg-white'
-              aria-label='나의 경험 탭 열기'
+              aria-label='나의 활동 탭 열기'
             >
               <ListViewIcon className='size-[28px]' />
             </button>
@@ -112,7 +112,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
             className='border-gray4 hover:bg-gray2 flex h-[38px] cursor-pointer items-center gap-[4px] rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors'
           >
             <ListDeleteIcon className='size-[20px]' />
-            <span className='typo-b2 text-gray9 text-center'>경험 삭제</span>
+            <span className='typo-b2 text-gray9 text-center'>활동 삭제</span>
           </button>
         ) : null}
         {!agentOpen && (

@@ -43,7 +43,7 @@ const SECTION_TEMPLATE_CHILDREN: Record<
   learning: [
     {
       placeholder:
-        '이 경험을 통해 새롭게 배우거나 성장한 점은 무엇이며, 향후 어떻게 활용할 계획인가요?',
+        '이 활동을 통해 새롭게 배우거나 성장한 점은 무엇이며, 향후 어떻게 활용할 계획인가요?',
     },
   ],
 };
