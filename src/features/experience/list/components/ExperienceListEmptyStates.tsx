@@ -34,7 +34,7 @@ export function EmptyExperienceState({
   }));
 
   return (
-    <div className='flex min-h-0 flex-1 flex-col items-center justify-center px-[60px] pb-[80px]'>
+    <div className='flex min-h-0 flex-1 flex-col items-center justify-center pb-[80px]'>
       <div className='flex flex-col items-center gap-[24px]'>
         <p className='typo-b2 text-[#898989]'>
           아직 이 활동 안에 정리된 블록이 없어요.

@@ -31,35 +31,25 @@ export function ExperienceListMainPanel() {
         <div className='px-[60px] pt-[44px]'>
           <p className='typo-b2 text-gray6'>활동을 선택해 주세요.</p>
         </div>
-      ) : experience.blocks.length === 0 ? (
-        <div className='relative flex min-h-0 flex-1 flex-col overflow-hidden'>
-          <div className='mx-auto w-full max-w-[1100px] shrink-0 px-[60px] pt-[44px]'>
-            <EditableLabel
-              as='h1'
-              value={experience.name}
-              editable
-              onCommit={(next) => renameExperience(experience.id, next)}
-              className='typo-h5 text-gray9'
-              inputClassName='typo-h5 text-gray9'
-            />
-          </div>
-          <EmptyExperienceState experienceId={experience.id} />
-        </div>
       ) : (
         <div className='flex min-h-0 flex-1 flex-col overflow-y-auto px-[60px] pt-[44px] pb-[48px]'>
-          <div className='mx-auto flex w-full max-w-[1100px] flex-col gap-[28px]'>
+          <div className='mx-auto flex min-h-0 w-full max-w-[1100px] flex-1 flex-col gap-[28px]'>
             <EditableLabel
               as='h1'
               value={experience.name}
               editable
               onCommit={(next) => renameExperience(experience.id, next)}
-              className='typo-h5 text-gray9'
+              className='typo-h5 text-gray9 shrink-0'
               inputClassName='typo-h5 text-gray9'
             />
-            <ExperienceListBlockTree
-              experienceId={experience.id}
-              blocks={experience.blocks}
-            />
+            {experience.blocks.length === 0 ? (
+              <EmptyExperienceState experienceId={experience.id} />
+            ) : (
+              <ExperienceListBlockTree
+                experienceId={experience.id}
+                blocks={experience.blocks}
+              />
+            )}
           </div>
         </div>
       )}
