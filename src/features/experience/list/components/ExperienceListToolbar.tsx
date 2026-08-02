@@ -51,6 +51,26 @@ export function ExperienceListToolbar({ experienceId }: Props) {
     return () => window.clearTimeout(id);
   }, [sidebarOpen]);
 
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey)) return;
+
+      const key = e.key.toLowerCase();
+      if (key === 'z' && e.shiftKey) {
+        e.preventDefault();
+        redo();
+        return;
+      }
+      if (key === 'z') {
+        e.preventDefault();
+        undo();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown, true);
+    return () => window.removeEventListener('keydown', onKeyDown, true);
+  }, [undo, redo]);
+
   return (
     <header className='flex h-[79px] shrink-0 items-center justify-between px-[20px]'>
       <div className='flex items-center gap-[20px]'>
