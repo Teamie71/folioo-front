@@ -41,7 +41,7 @@ export function ExperienceListViewSwitchToggle({
             aria-selected={selected}
             onClick={() => onValueChange(option.value)}
             className={cn(
-              'typo-c1-b relative z-10 flex h-[29px] w-[79px] cursor-pointer items-center justify-center rounded-[6px] px-[20px] py-[4px] transition-colors',
+              'typo-c1-b relative z-10 flex h-[29px] w-[79px] cursor-pointer items-center justify-center whitespace-nowrap rounded-[6px] px-[8px] py-[4px] transition-colors',
               selected ? 'text-white' : 'text-gray6',
             )}
           >
