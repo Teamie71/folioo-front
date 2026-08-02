@@ -116,8 +116,11 @@ export function EditableLabel({
 
   const commit = () => {
     setEditing(false);
-    const next = draft.trim();
-    if (next && next !== value) onCommit(next);
+    if (!draft.trim()) {
+      setDraft(value);
+      return;
+    }
+    if (draft !== value) onCommit(draft);
     else setDraft(value);
   };
 
@@ -189,7 +192,7 @@ export function EditableLabel({
         }}
         placeholder={placeholder}
         className={cn(
-          'm-0 box-border block w-full min-w-0 flex-1 resize-none overflow-hidden border-0 bg-transparent p-0 font-[inherit] leading-[inherit] tracking-[inherit] break-words outline-none',
+          'm-0 box-border block w-full min-w-0 flex-1 resize-none overflow-hidden border-0 bg-transparent p-0 font-[inherit] leading-[inherit] tracking-[inherit] break-words whitespace-pre-wrap outline-none',
           className,
           inputClassName,
         )}
@@ -201,7 +204,11 @@ export function EditableLabel({
   const Tag = as;
   return (
     <Tag
-      className={cn(className, editable && editOn === 'click' && 'cursor-text')}
+      className={cn(
+        'whitespace-pre-wrap',
+        className,
+        editable && editOn === 'click' && 'cursor-text',
+      )}
       onClick={editOn === 'click' ? startEdit : undefined}
       onDoubleClick={editOn === 'doubleClick' ? startEdit : undefined}
     >
