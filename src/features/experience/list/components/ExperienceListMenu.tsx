@@ -534,11 +534,12 @@ export function DragMenuButton({
   }, [open, items.length]);
 
   return (
-    <div className='relative inline-flex' data-no-dnd>
+    <div className='relative inline-flex cursor-grab' data-no-dnd>
       <HoverTooltip
         label='드래그해서 옮기기'
         align={tooltipAlign}
         disabled={open || dragging}
+        wrapperClassName='cursor-grab'
       >
         <button
           ref={triggerRef}
@@ -548,7 +549,7 @@ export function DragMenuButton({
           aria-expanded={open}
           className={cn(
             className,
-            'cursor-grab select-none active:cursor-grabbing',
+            'select-none !cursor-grab active:!cursor-grabbing',
           )}
           onClick={(e) => {
             e.stopPropagation();

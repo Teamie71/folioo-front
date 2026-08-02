@@ -30,7 +30,7 @@ export function ExperienceListViewSwitchToggle({
         <TabsTrigger
           value='map'
           className={cn(
-            'relative h-full cursor-pointer rounded-[0.25rem] shadow-none transition-all',
+            'relative h-full cursor-pointer rounded-[0.25rem] shadow-none transition-colors',
             'typo-c1-b',
             value === 'map' ? 'text-white' : 'text-gray6',
           )}
@@ -38,7 +38,7 @@ export function ExperienceListViewSwitchToggle({
           {value === 'map' && (
             <motion.div
               layoutId='experience-list-view-pill'
-              className='bg-main absolute inset-0 rounded-[0.25rem]'
+              className='bg-main pointer-events-none absolute inset-0 rounded-[0.25rem]'
               transition={{ type: 'tween', ease: 'easeInOut', duration: 0.2 }}
             />
           )}
@@ -47,7 +47,7 @@ export function ExperienceListViewSwitchToggle({
         <TabsTrigger
           value='list'
           className={cn(
-            'relative h-full cursor-pointer rounded-[0.25rem] shadow-none transition-all',
+            'relative h-full cursor-pointer rounded-[0.25rem] shadow-none transition-colors',
             'typo-c1-b',
             value === 'list' ? 'text-white' : 'text-gray6',
           )}
@@ -55,7 +55,7 @@ export function ExperienceListViewSwitchToggle({
           {value === 'list' && (
             <motion.div
               layoutId='experience-list-view-pill'
-              className='bg-main absolute inset-0 rounded-[0.25rem]'
+              className='bg-main pointer-events-none absolute inset-0 rounded-[0.25rem]'
               transition={{ type: 'tween', ease: 'easeInOut', duration: 0.2 }}
             />
           )}

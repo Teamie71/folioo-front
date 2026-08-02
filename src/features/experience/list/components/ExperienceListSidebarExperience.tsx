@@ -149,7 +149,7 @@ export function ExperienceListSidebarExperience({
             tooltipAlign='start'
             className={cn(
               sidebarRowActionCls,
-              'opacity-0 group-hover/exp:opacity-100',
+              'pointer-events-none opacity-0 group-hover/exp:pointer-events-auto group-hover/exp:opacity-100',
             )}
             payload={{ type: 'experience', id: item.id }}
             onDragBegin={(size) => {
@@ -190,7 +190,7 @@ export function ExperienceListSidebarExperience({
             onClick={() => addExperience(item.groupId)}
             className={cn(
               sidebarRowActionCls,
-              'shrink-0 opacity-0 group-hover/exp:opacity-100',
+              'shrink-0 pointer-events-none opacity-0 group-hover/exp:pointer-events-auto group-hover/exp:opacity-100',
             )}
             aria-label='경험 추가'
           >

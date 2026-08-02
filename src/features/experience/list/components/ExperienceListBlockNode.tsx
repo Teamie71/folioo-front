@@ -133,8 +133,8 @@ export function ExperienceListBlockNode({
         isInDragSubtree && !isDragging
           ? 'pointer-events-none !opacity-0'
           : level === 3
-            ? 'opacity-0 group-hover/sec:opacity-100'
-            : 'opacity-0 group-hover/blk:opacity-100',
+            ? 'pointer-events-none opacity-0 group-hover/sec:pointer-events-auto group-hover/sec:opacity-100'
+            : 'pointer-events-none opacity-0 group-hover/blk:pointer-events-auto group-hover/blk:opacity-100',
       )}
       payload={{
         type: 'block',

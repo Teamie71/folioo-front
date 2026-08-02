@@ -174,7 +174,7 @@ export function ExperienceListSidebarGroup({
               tooltipAlign='start'
               className={cn(
                 sidebarRowActionCls,
-                'opacity-0 group-hover/row:opacity-100',
+                'pointer-events-none opacity-0 group-hover/row:pointer-events-auto group-hover/row:opacity-100',
               )}
               payload={{ type: 'group', id: group.id }}
               onDragBegin={(size) => {
@@ -231,7 +231,7 @@ export function ExperienceListSidebarGroup({
               onClick={() => addGroup(group.id)}
               className={cn(
                 sidebarRowActionCls,
-                'shrink-0 opacity-0 group-hover/row:opacity-100',
+                'shrink-0 pointer-events-none opacity-0 group-hover/row:pointer-events-auto group-hover/row:opacity-100',
               )}
               aria-label='그룹 추가'
             >
