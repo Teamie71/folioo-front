@@ -187,7 +187,7 @@ export function ExperienceListSidebarExperience({
         <HoverTooltip label='클릭하여 활동 추가'>
           <button
             type='button'
-            onClick={() => addExperience(item.groupId)}
+            onClick={() => addExperience(item.groupId, item.id)}
             className={cn(
               sidebarRowActionCls,
               'shrink-0 pointer-events-none opacity-0 group-hover/exp:pointer-events-auto group-hover/exp:opacity-100',

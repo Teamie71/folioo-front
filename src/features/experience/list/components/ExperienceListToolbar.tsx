@@ -47,7 +47,10 @@ export function ExperienceListToolbar({ experienceId }: Props) {
       return;
     }
 
-    const id = window.setTimeout(() => setShowOpenButton(true), SIDEBAR_CLOSE_MS);
+    const id = window.setTimeout(
+      () => setShowOpenButton(true),
+      SIDEBAR_CLOSE_MS,
+    );
     return () => window.clearTimeout(id);
   }, [sidebarOpen]);
 

@@ -133,7 +133,7 @@ interface ExperienceListState {
   reorderGroup: (fromId: string, toId: string, place: 'before' | 'after') => void;
 
   renameExperience: (id: string, name: string) => void;
-  addExperience: (groupId?: string) => void;
+  addExperience: (groupId?: string, afterExperienceId?: string) => void;
   deleteExperience: (id: string) => void;
   moveExperienceToGroup: (experienceId: string, groupId: string) => void;
   reorderExperience: (
@@ -310,24 +310,40 @@ export const useExperienceListStore = create<ExperienceListState>()(
             ),
           }),
 
-        addExperience: (groupId = UNCLASSIFIED_ID) => {
+        addExperience: (groupId = UNCLASSIFIED_ID, afterExperienceId) => {
           const s = get();
           if (s.experiences.length >= MAX_EXPERIENCE_COUNT) {
             set({ modal: { type: 'experience-limit' } });
             return;
           }
+          const after = afterExperienceId
+            ? s.experiences.find((e) => e.id === afterExperienceId)
+            : undefined;
+          const targetGroupId = after?.groupId ?? groupId;
           const nextCounter = s.experienceCounter + 1;
           const newExperience: Experience = {
             id: uid('e'),
-            groupId,
+            groupId: targetGroupId,
             name: `새로운 활동 ${nextCounter}`,
             blocks: [],
           };
+          const experiences = [...s.experiences];
+          const afterIdx = after
+            ? experiences.findIndex((e) => e.id === after.id)
+            : -1;
+          if (afterIdx !== -1) {
+            experiences.splice(afterIdx + 1, 0, newExperience);
+          } else {
+            experiences.push(newExperience);
+          }
           set((prev) => ({
-            collapsedGroups: { ...prev.collapsedGroups, [groupId]: false },
+            collapsedGroups: {
+              ...prev.collapsedGroups,
+              [targetGroupId]: false,
+            },
           }));
           commit({
-            experiences: [...s.experiences, newExperience],
+            experiences,
             experienceCounter: nextCounter,
             selection: { kind: 'experience', id: newExperience.id },
           });
