@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
-import { HoverTooltip } from '@/features/experience/list/components/HoverTooltip';
+import { HoverTooltip } from '@/components/HoverTooltip';
 import { ExperienceListViewSwitchToggle } from '@/features/experience/list/components/ExperienceListViewSwitchToggle';
 import { ListDeleteIcon } from '@/components/icons/ListDeleteIcon';
 import { ListViewIcon } from '@/components/icons/ListViewIcon';

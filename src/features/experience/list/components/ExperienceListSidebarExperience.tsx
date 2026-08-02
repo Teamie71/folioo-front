@@ -7,7 +7,7 @@ import {
   type MenuItem,
 } from '@/features/experience/list/components/ExperienceListMenu';
 import { EditableLabel } from '@/features/experience/list/components/EditableLabel';
-import { HoverTooltip } from '@/features/experience/list/components/HoverTooltip';
+import { HoverTooltip } from '@/components/HoverTooltip';
 import {
   DropIndicator,
   getActiveDrag,

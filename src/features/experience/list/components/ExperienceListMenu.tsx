@@ -14,7 +14,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { HoverTooltip } from '@/features/experience/list/components/HoverTooltip';
+import { HoverTooltip } from '@/components/HoverTooltip';
 import {
   type DragPayload,
   type DragSize,
