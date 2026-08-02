@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/utils/utils';
 
@@ -49,6 +49,23 @@ export function HoverTooltip({
     blockedRef.current = !!triggerRef.current?.matches(':hover');
     if (blockedRef.current) setOpen(false);
   }, [suppressUntilPointerLeave]);
+
+  useLayoutEffect(() => {
+    if (disabled) setOpen(false);
+  }, [disabled]);
+
+  useEffect(() => {
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+
+    const close = () => setOpen(false);
+    trigger.addEventListener('dragstart', close, true);
+    window.addEventListener('dragend', close, true);
+    return () => {
+      trigger.removeEventListener('dragstart', close, true);
+      window.removeEventListener('dragend', close, true);
+    };
+  }, []);
 
   useLayoutEffect(() => {
     if (!open || disabled || !triggerRef.current) {
