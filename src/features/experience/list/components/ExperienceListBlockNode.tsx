@@ -298,12 +298,13 @@ export function ExperienceListBlockNode({
                   onCommit={(next) =>
                     updateBlockText(dnd.experienceId, block.id, next)
                   }
-                  onEnter={(draft) => {
-                    const next = draft.trim();
-                    if (next && next !== block.text) {
-                      updateBlockText(dnd.experienceId, block.id, next);
+                  onEnter={(draft, start, end) => {
+                    const left = draft.slice(0, start);
+                    const right = draft.slice(end);
+                    if (left !== block.text) {
+                      updateBlockText(dnd.experienceId, block.id, left);
                     }
-                    const sibling = createFreeBlock();
+                    const sibling = createFreeBlock(right);
                     addSiblingBlock(dnd.experienceId, block.id, sibling);
                     dnd.setEditRequest({ id: sibling.id, caret: 0 });
                   }}

@@ -7,7 +7,7 @@ type Props = {
   value: string;
   editable: boolean;
   onCommit: (next: string) => void;
-  onEnter?: (draft: string) => void;
+  onEnter?: (draft: string, start: number, end: number) => void;
   onTab?: (
     draft: string,
     direction: 'indent' | 'outdent',
@@ -157,9 +157,11 @@ export function EditableLabel({
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             if (onEnter) {
+              const start = e.currentTarget.selectionStart ?? draft.length;
+              const end = e.currentTarget.selectionEnd ?? draft.length;
               skipBlurRef.current = true;
               setEditing(false);
-              onEnter(draft);
+              onEnter(draft, start, end);
             } else {
               commit();
             }
@@ -187,9 +189,11 @@ export function EditableLabel({
         }}
         placeholder={placeholder}
         className={cn(
-          'm-0 block w-full min-w-0 flex-1 resize-none overflow-hidden border-0 bg-transparent p-0 break-words outline-none',
+          'm-0 box-border block w-full min-w-0 flex-1 resize-none overflow-hidden border-0 bg-transparent p-0 font-[inherit] leading-[inherit] tracking-[inherit] break-words outline-none',
+          className,
           inputClassName,
         )}
+        style={{ padding: 0, margin: 0 }}
       />
     );
   }
