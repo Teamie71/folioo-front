@@ -151,7 +151,7 @@ function sectionBlock(kind: SectionKind, children: Block[] = []): Block {
     id: uid(),
     kind,
     text: SECTION_TITLE[kind],
-    editable: kind === 'free',
+    editable: false,
     children,
   };
 }

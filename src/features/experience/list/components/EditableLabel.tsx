@@ -8,7 +8,6 @@ type Props = {
   editable: boolean;
   onCommit: (next: string) => void;
   onEnter?: (draft: string) => void;
-  /** true면 위계 이동 성공 */
   onTab?: (
     draft: string,
     direction: 'indent' | 'outdent',
@@ -21,6 +20,7 @@ type Props = {
   inputClassName?: string;
   as?: 'span' | 'h1' | 'h3';
   placeholder?: string;
+  editOn?: 'click' | 'doubleClick';
 };
 
 function caretOffsetFromPoint(
@@ -72,6 +72,7 @@ export function EditableLabel({
   inputClassName,
   as = 'span',
   placeholder,
+  editOn = 'doubleClick',
 }: Props) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
@@ -118,6 +119,22 @@ export function EditableLabel({
     const next = draft.trim();
     if (next && next !== value) onCommit(next);
     else setDraft(value);
+  };
+
+  const startEdit = (e: React.MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!editable) return;
+    if (value) {
+      caretRef.current = caretOffsetFromPoint(
+        e.currentTarget,
+        e.clientX,
+        e.clientY,
+      );
+    } else {
+      caretRef.current = 0;
+    }
+    setEditing(true);
   };
 
   if (editing && editable) {
@@ -180,22 +197,9 @@ export function EditableLabel({
   const Tag = as;
   return (
     <Tag
-      className={className}
-      onDoubleClick={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        if (!editable) return;
-        if (value) {
-          caretRef.current = caretOffsetFromPoint(
-            e.currentTarget,
-            e.clientX,
-            e.clientY,
-          );
-        } else {
-          caretRef.current = 0;
-        }
-        setEditing(true);
-      }}
+      className={cn(className, editable && editOn === 'click' && 'cursor-text')}
+      onClick={editOn === 'click' ? startEdit : undefined}
+      onDoubleClick={editOn === 'doubleClick' ? startEdit : undefined}
     >
       {value || placeholder}
     </Tag>

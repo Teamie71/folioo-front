@@ -150,7 +150,10 @@ export function ExperienceListBlockNode({
   );
 
   if (level === 3) {
-    const title = block.editable ? block.text : SECTION_TITLE[block.kind];
+    const title =
+      block.kind === 'free'
+        ? block.text || SECTION_TITLE.free
+        : SECTION_TITLE[block.kind];
     return (
       <div
         data-section-dnd
@@ -177,19 +180,14 @@ export function ExperienceListBlockNode({
           >
             {dragKebab}
           </div>
-          <EditableLabel
-            as='h3'
-            value={title}
-            editable={block.editable}
-            onCommit={(next) =>
-              updateBlockText(dnd.experienceId, block.id, next)
-            }
+          <h3
             className={cn(
               'typo-b2-sb',
               isDragging ? 'text-gray5' : 'text-gray9',
             )}
-            inputClassName='typo-b2-sb text-gray9'
-          />
+          >
+            {title}
+          </h3>
         </div>
 
         {block.children.length === 0 ? (
@@ -296,6 +294,7 @@ export function ExperienceListBlockNode({
                 <EditableLabel
                   value={block.text}
                   editable={block.editable}
+                  editOn='click'
                   onCommit={(next) =>
                     updateBlockText(dnd.experienceId, block.id, next)
                   }
