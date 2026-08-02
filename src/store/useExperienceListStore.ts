@@ -14,8 +14,6 @@ import type {
 import { getExperienceListSeed } from '@/features/experience/list/mock';
 import {
   applyBlockMove,
-  indentBlock as indentBlockInTree,
-  outdentBlock as outdentBlockInTree,
   type DropPosition,
 } from '@/features/experience/list/utils/blockTreeUtils';
 
@@ -144,6 +142,12 @@ interface ExperienceListState {
   ) => void;
 
   updateBlockText: (experienceId: string, blockId: string, text: string) => void;
+  splitBlockAt: (
+    experienceId: string,
+    blockId: string,
+    leftText: string,
+    sibling: Block,
+  ) => void;
   addSiblingBlock: (
     experienceId: string,
     targetBlockId: string,
@@ -167,8 +171,6 @@ interface ExperienceListState {
     draggedId: string,
     drop: DropPosition,
   ) => void;
-  indentBlock: (experienceId: string, blockId: string) => boolean;
-  outdentBlock: (experienceId: string, blockId: string) => boolean;
 
   undo: () => void;
   redo: () => void;
@@ -454,6 +456,30 @@ export const useExperienceListStore = create<ExperienceListState>()(
             ),
           }),
 
+        splitBlockAt: (experienceId, blockId, leftText, sibling) => {
+          const fullText = `${leftText}${sibling.text ?? ''}`;
+          set((s) => ({
+            experiences: s.experiences.map((e) =>
+              e.id === experienceId
+                ? {
+                    ...e,
+                    blocks: setBlockTextInTree(e.blocks, blockId, fullText),
+                  }
+                : e,
+            ),
+          }));
+          commit({
+            experiences: get().experiences.map((e) => {
+              if (e.id !== experienceId) return e;
+              const withText = setBlockTextInTree(e.blocks, blockId, leftText);
+              return {
+                ...e,
+                blocks: insertSiblingAfter(withText, blockId, sibling),
+              };
+            }),
+          });
+        },
+
         addSiblingBlock: (experienceId, targetBlockId, newBlock) =>
           commit({
             experiences: get().experiences.map((e) =>
@@ -527,34 +553,6 @@ export const useExperienceListStore = create<ExperienceListState>()(
               e.id === experienceId ? { ...e, blocks: nextBlocks } : e,
             ),
           });
-        },
-
-        indentBlock: (experienceId, blockId) => {
-          const s = get();
-          const exp = s.experiences.find((e) => e.id === experienceId);
-          if (!exp) return false;
-          const nextBlocks = indentBlockInTree(exp.blocks, blockId);
-          if (!nextBlocks) return false;
-          commit({
-            experiences: s.experiences.map((e) =>
-              e.id === experienceId ? { ...e, blocks: nextBlocks } : e,
-            ),
-          });
-          return true;
-        },
-
-        outdentBlock: (experienceId, blockId) => {
-          const s = get();
-          const exp = s.experiences.find((e) => e.id === experienceId);
-          if (!exp) return false;
-          const nextBlocks = outdentBlockInTree(exp.blocks, blockId);
-          if (!nextBlocks) return false;
-          commit({
-            experiences: s.experiences.map((e) =>
-              e.id === experienceId ? { ...e, blocks: nextBlocks } : e,
-            ),
-          });
-          return true;
         },
 
         undo: () =>

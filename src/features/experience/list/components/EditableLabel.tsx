@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useExperienceListStore } from '@/store/useExperienceListStore';
+import { registerEditSessionHandlers, notifyEditSessionChanged } from '@/features/experience/list/utils/editSessionHistory';
 import { cn } from '@/utils/utils';
 
 type Props = {
@@ -8,11 +10,6 @@ type Props = {
   editable: boolean;
   onCommit: (next: string) => void;
   onEnter?: (draft: string, start: number, end: number) => void;
-  onTab?: (
-    draft: string,
-    direction: 'indent' | 'outdent',
-    caret: number,
-  ) => boolean;
   requestEdit?: boolean;
   requestEditCaret?: number;
   onRequestEditHandled?: () => void;
@@ -64,7 +61,6 @@ export function EditableLabel({
   editable,
   onCommit,
   onEnter,
-  onTab,
   requestEdit = false,
   requestEditCaret = 0,
   onRequestEditHandled,
@@ -79,17 +75,60 @@ export function EditableLabel({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const caretRef = useRef<number | null>(null);
   const skipBlurRef = useRef(false);
+  const draftPastRef = useRef<string[]>([]);
+  const draftFutureRef = useRef<string[]>([]);
+  const draftRef = useRef(draft);
+  draftRef.current = draft;
+
+  const clearDraftHistory = () => {
+    draftPastRef.current = [];
+    draftFutureRef.current = [];
+  };
 
   useEffect(() => {
     setDraft(value);
+    clearDraftHistory();
   }, [value]);
 
   useEffect(() => {
     if (!requestEdit || !editable) return;
     caretRef.current = requestEditCaret;
+    clearDraftHistory();
     setEditing(true);
     onRequestEditHandled?.();
   }, [requestEdit, editable, requestEditCaret]);
+
+  useEffect(() => {
+    if (!editing) return;
+
+    const applyDraft = (next: string) => {
+      caretRef.current = next.length;
+      setDraft(next);
+    };
+
+    return registerEditSessionHandlers({
+      canUndo: () => draftPastRef.current.length > 0,
+      canRedo: () => draftFutureRef.current.length > 0,
+      undo: () => {
+        const prev = draftPastRef.current.pop();
+        if (prev == null) {
+          skipBlurRef.current = true;
+          setEditing(false);
+          return false;
+        }
+        draftFutureRef.current.push(draftRef.current);
+        applyDraft(prev);
+        return true;
+      },
+      redo: () => {
+        const next = draftFutureRef.current.pop();
+        if (next == null) return false;
+        draftPastRef.current.push(draftRef.current);
+        applyDraft(next);
+        return true;
+      },
+    });
+  }, [editing]);
 
   const resize = () => {
     const el = inputRef.current;
@@ -103,19 +142,19 @@ export function EditableLabel({
     resize();
     const el = inputRef.current;
     if (!el) return;
-    el.focus();
-    const len = el.value.length;
-    const offset = Math.min(Math.max(caretRef.current ?? len, 0), len);
-    el.setSelectionRange(offset, offset);
-    caretRef.current = null;
-  }, [editing]);
-
-  useLayoutEffect(() => {
-    if (editing) resize();
-  }, [draft, editing]);
+    if (caretRef.current != null) {
+      const offset = Math.min(Math.max(caretRef.current, 0), el.value.length);
+      el.focus();
+      el.setSelectionRange(offset, offset);
+      caretRef.current = null;
+      return;
+    }
+    if (document.activeElement !== el) el.focus();
+  }, [editing, draft]);
 
   const commit = () => {
     setEditing(false);
+    clearDraftHistory();
     if (!draft.trim()) {
       setDraft(value);
       return;
@@ -124,10 +163,44 @@ export function EditableLabel({
     else setDraft(value);
   };
 
+  const cancel = () => {
+    skipBlurRef.current = true;
+    clearDraftHistory();
+    setDraft(value);
+    setEditing(false);
+  };
+
+  const undoFromSession = () => {
+    const prev = draftPastRef.current.pop();
+    if (prev != null) {
+      draftFutureRef.current.push(draft);
+      caretRef.current = prev.length;
+      setDraft(prev);
+      notifyEditSessionChanged();
+      return;
+    }
+    skipBlurRef.current = true;
+    setEditing(false);
+    useExperienceListStore.getState().undo();
+  };
+
+  const redoFromSession = () => {
+    const next = draftFutureRef.current.pop();
+    if (next != null) {
+      draftPastRef.current.push(draft);
+      caretRef.current = next.length;
+      setDraft(next);
+      notifyEditSessionChanged();
+      return;
+    }
+    useExperienceListStore.getState().redo();
+  };
+
   const startEdit = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     e.preventDefault();
     if (!editable) return;
+    clearDraftHistory();
     if (value) {
       caretRef.current = caretOffsetFromPoint(
         e.currentTarget,
@@ -146,7 +219,12 @@ export function EditableLabel({
         ref={inputRef}
         rows={1}
         value={draft}
-        onChange={(e) => setDraft(e.target.value)}
+        onChange={(e) => {
+          draftPastRef.current.push(draft);
+          draftFutureRef.current = [];
+          setDraft(e.target.value);
+          notifyEditSessionChanged();
+        }}
         onBlur={() => {
           if (skipBlurRef.current) {
             skipBlurRef.current = false;
@@ -157,37 +235,33 @@ export function EditableLabel({
         onClick={(e) => e.stopPropagation()}
         onKeyDown={(e) => {
           e.stopPropagation();
+          if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+
+          if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
+            e.preventDefault();
+            if (e.shiftKey) redoFromSession();
+            else undoFromSession();
+            return;
+          }
+
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             if (onEnter) {
               const start = e.currentTarget.selectionStart ?? draft.length;
               const end = e.currentTarget.selectionEnd ?? draft.length;
               skipBlurRef.current = true;
+              clearDraftHistory();
               setEditing(false);
               onEnter(draft, start, end);
             } else {
-              commit();
-            }
-            return;
-          }
-          if (e.key === 'Tab' && onTab) {
-            e.preventDefault();
-            const caret = e.currentTarget.selectionStart ?? draft.length;
-            const moved = onTab(
-              draft,
-              e.shiftKey ? 'outdent' : 'indent',
-              caret,
-            );
-            if (moved) {
               skipBlurRef.current = true;
-              setEditing(false);
+              commit();
             }
             return;
           }
           if (e.key === 'Escape') {
             e.preventDefault();
-            setDraft(value);
-            setEditing(false);
+            cancel();
           }
         }}
         placeholder={placeholder}

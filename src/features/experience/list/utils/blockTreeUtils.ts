@@ -207,28 +207,3 @@ export function applyBlockMove(
 
   return insertBlockAt(without, parentId, adjustedIndex, extracted);
 }
-
-function siblingsOf(blocks: Block[], parentId: string | null): Block[] {
-  if (parentId == null) return blocks;
-  return findBlock(blocks, parentId)?.children ?? [];
-}
-
-export function indentBlock(blocks: Block[], blockId: string): Block[] | null {
-  const loc = findBlockLocation(blocks, blockId);
-  if (!loc || loc.index === 0) return null;
-  const prev = siblingsOf(blocks, loc.parentId)[loc.index - 1];
-  if (!prev) return null;
-  return applyBlockMove(blocks, blockId, {
-    kind: 'inside',
-    targetId: prev.id,
-  });
-}
-
-export function outdentBlock(blocks: Block[], blockId: string): Block[] | null {
-  const loc = findBlockLocation(blocks, blockId);
-  if (!loc || loc.parentId == null) return null;
-  return applyBlockMove(blocks, blockId, {
-    kind: 'after',
-    targetId: loc.parentId,
-  });
-}

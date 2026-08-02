@@ -1,9 +1,17 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { HoverTooltip } from '@/components/HoverTooltip';
 import { ExperienceListViewSwitchToggle } from '@/features/experience/list/components/ExperienceListViewSwitchToggle';
+import {
+  editSessionCanRedo,
+  editSessionCanUndo,
+  getEditSessionVersion,
+  runListRedo,
+  runListUndo,
+  subscribeEditSession,
+} from '@/features/experience/list/utils/editSessionHistory';
 import { ListDeleteIcon } from '@/components/icons/ListDeleteIcon';
 import { ListViewIcon } from '@/components/icons/ListViewIcon';
 import { RedoIcon } from '@/components/icons/RedoIcon';
@@ -28,6 +36,11 @@ export function ExperienceListToolbar({ experienceId }: Props) {
   const redo = useExperienceListStore((s) => s.redo);
   const pastLen = useExperienceListStore((s) => s.past.length);
   const futureLen = useExperienceListStore((s) => s.future.length);
+  useSyncExternalStore(
+    subscribeEditSession,
+    getEditSessionVersion,
+    getEditSessionVersion,
+  );
 
   const wasSidebarOpenRef = useRef(sidebarOpen);
   const [showOpenButton, setShowOpenButton] = useState(!sidebarOpen);
@@ -58,15 +71,24 @@ export function ExperienceListToolbar({ experienceId }: Props) {
     const onKeyDown = (e: KeyboardEvent) => {
       if (!(e.metaKey || e.ctrlKey)) return;
 
+      const target = e.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable ||
+          target.closest('input, textarea, select, [contenteditable="true"]'))
+      ) {
+        return;
+      }
+
       const key = e.key.toLowerCase();
       if (key === 'z' && e.shiftKey) {
         e.preventDefault();
-        redo();
+        runListRedo(redo);
         return;
       }
       if (key === 'z') {
         e.preventDefault();
-        undo();
+        runListUndo(undo);
       }
     };
 
@@ -103,8 +125,8 @@ export function ExperienceListToolbar({ experienceId }: Props) {
         <div className='flex items-center gap-[4px]'>
           <button
             type='button'
-            onClick={undo}
-            disabled={pastLen === 0}
+            onClick={() => runListUndo(undo)}
+            disabled={pastLen === 0 && !editSessionCanUndo()}
             className='border-gray5 flex size-[28px] cursor-pointer items-center justify-center rounded-[6px] border bg-white disabled:pointer-events-none disabled:opacity-50'
             aria-label='실행 취소'
           >
@@ -112,8 +134,8 @@ export function ExperienceListToolbar({ experienceId }: Props) {
           </button>
           <button
             type='button'
-            onClick={redo}
-            disabled={futureLen === 0}
+            onClick={() => runListRedo(redo)}
+            disabled={futureLen === 0 && !editSessionCanRedo()}
             className='border-gray5 flex size-[28px] cursor-pointer items-center justify-center rounded-[6px] border bg-white disabled:pointer-events-none disabled:opacity-50'
             aria-label='다시 실행'
           >

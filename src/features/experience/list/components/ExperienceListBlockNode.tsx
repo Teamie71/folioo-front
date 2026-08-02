@@ -48,8 +48,7 @@ export function ExperienceListBlockNode({
   const addSiblingBlock = useExperienceListStore((s) => s.addSiblingBlock);
   const deleteBlock = useExperienceListStore((s) => s.deleteBlock);
   const updateBlockText = useExperienceListStore((s) => s.updateBlockText);
-  const indentBlock = useExperienceListStore((s) => s.indentBlock);
-  const outdentBlock = useExperienceListStore((s) => s.outdentBlock);
+  const splitBlockAt = useExperienceListStore((s) => s.splitBlockAt);
 
   const {
     dnd,
@@ -299,28 +298,13 @@ export function ExperienceListBlockNode({
                     updateBlockText(dnd.experienceId, block.id, next)
                   }
                   onEnter={(draft, start, end) => {
-                    const left = draft.slice(0, start);
-                    const right = draft.slice(end);
-                    if (left !== block.text) {
-                      updateBlockText(dnd.experienceId, block.id, left);
-                    }
+                    let left = draft.slice(0, start);
+                    let right = draft.slice(end);
+                    if (left.endsWith('\n')) left = left.slice(0, -1);
+                    else if (right.startsWith('\n')) right = right.slice(1);
                     const sibling = createFreeBlock(right);
-                    addSiblingBlock(dnd.experienceId, block.id, sibling);
+                    splitBlockAt(dnd.experienceId, block.id, left, sibling);
                     dnd.setEditRequest({ id: sibling.id, caret: 0 });
-                  }}
-                  onTab={(draft, direction, caret) => {
-                    const next = draft.trim();
-                    if (next && next !== block.text) {
-                      updateBlockText(dnd.experienceId, block.id, next);
-                    }
-                    const moved =
-                      direction === 'indent'
-                        ? indentBlock(dnd.experienceId, block.id)
-                        : outdentBlock(dnd.experienceId, block.id);
-                    if (moved) {
-                      dnd.setEditRequest({ id: block.id, caret });
-                    }
-                    return moved;
                   }}
                   requestEdit={dnd.editRequest?.id === block.id}
                   requestEditCaret={
