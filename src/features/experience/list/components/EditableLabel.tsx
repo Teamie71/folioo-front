@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
-import { registerEditSessionHandlers, notifyEditSessionChanged } from '@/features/experience/list/utils/editSessionHistory';
+import { registerEditSessionHandlers, notifyEditSessionChanged } from '@/features/experience/list/utils/editSessionUndo';
 import { cn } from '@/utils/utils';
 
 type Props = {

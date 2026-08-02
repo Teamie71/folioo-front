@@ -11,7 +11,7 @@ import {
   runListRedo,
   runListUndo,
   subscribeEditSession,
-} from '@/features/experience/list/utils/editSessionHistory';
+} from '@/features/experience/list/utils/editSessionUndo';
 import { ListDeleteIcon } from '@/components/icons/ListDeleteIcon';
 import { ListViewIcon } from '@/components/icons/ListViewIcon';
 import { RedoIcon } from '@/components/icons/RedoIcon';
