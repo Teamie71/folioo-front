@@ -111,6 +111,7 @@ interface ExperienceListState {
   agentOpen: boolean;
   collapsedGroups: Record<string, boolean>;
   modal: ModalState;
+  isContentLoading: boolean;
 
   past: Snapshot[];
   future: Snapshot[];
@@ -118,6 +119,7 @@ interface ExperienceListState {
   setViewMode: (mode: ViewMode) => void;
   toggleSidebar: () => void;
   toggleAgent: () => void;
+  setContentLoading: (loading: boolean) => void;
   toggleGroupCollapsed: (groupId: string) => void;
   openModal: (modal: NonNullable<ModalState>) => void;
   closeModal: () => void;
@@ -218,6 +220,7 @@ export const useExperienceListStore = create<ExperienceListState>()(
         agentOpen: true,
         collapsedGroups: {},
         modal: null,
+        isContentLoading: false,
 
         past: [],
         future: [],
@@ -225,6 +228,7 @@ export const useExperienceListStore = create<ExperienceListState>()(
         setViewMode: (mode) => set({ viewMode: mode }),
         toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
         toggleAgent: () => set((s) => ({ agentOpen: !s.agentOpen })),
+        setContentLoading: (loading) => set({ isContentLoading: loading }),
         toggleGroupCollapsed: (groupId) =>
           set((s) => ({
             collapsedGroups: {

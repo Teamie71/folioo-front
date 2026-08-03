@@ -3,15 +3,20 @@
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { EditableLabel } from '@/features/experience/list/components/EditableLabel';
 import { ExperienceListBlockTree } from '@/features/experience/list/components/ExperienceListBlockTree';
+import { ExperienceListContentSkeleton } from '@/features/experience/list/components/ExperienceListContentSkeleton';
 import {
   EmptyExperienceState,
   EmptyGroupState,
 } from '@/features/experience/list/components/ExperienceListEmptyStates';
 import { ExperienceListToolbar } from '@/features/experience/list/components/ExperienceListToolbar';
 
+const MAIN_SCROLL_CLS =
+  'flex min-h-0 flex-1 flex-col overflow-y-auto px-[60px] pt-[44px] pb-[48px]';
+
 export function ExperienceListMainPanel() {
   const selection = useExperienceListStore((s) => s.selection);
   const experiences = useExperienceListStore((s) => s.experiences);
+  const isContentLoading = useExperienceListStore((s) => s.isContentLoading);
   const renameExperience = useExperienceListStore((s) => s.renameExperience);
 
   const experience =
@@ -23,8 +28,12 @@ export function ExperienceListMainPanel() {
     <section className='relative flex min-w-0 flex-1 flex-col overflow-hidden bg-white'>
       <ExperienceListToolbar experienceId={experience?.id} />
 
-      {selection?.kind === 'group' ? (
-        <div className='flex flex-1 flex-col overflow-y-auto px-[60px] pt-[44px] pb-[48px]'>
+      {isContentLoading ? (
+        <div className={MAIN_SCROLL_CLS}>
+          <ExperienceListContentSkeleton />
+        </div>
+      ) : selection?.kind === 'group' ? (
+        <div className={MAIN_SCROLL_CLS}>
           <EmptyGroupState groupId={selection.id} />
         </div>
       ) : !experience ? (
@@ -32,7 +41,7 @@ export function ExperienceListMainPanel() {
           <p className='typo-b2 text-gray6'>활동을 선택해 주세요.</p>
         </div>
       ) : (
-        <div className='flex min-h-0 flex-1 flex-col overflow-y-auto px-[60px] pt-[44px] pb-[48px]'>
+        <div className={MAIN_SCROLL_CLS}>
           <div className='mx-auto flex min-h-0 w-full max-w-[1100px] flex-1 flex-col gap-[28px]'>
             <EditableLabel
               as='h1'
