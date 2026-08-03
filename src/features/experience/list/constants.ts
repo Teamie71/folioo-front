@@ -7,6 +7,11 @@ import type {
 export const MAX_GROUP_COUNT = 50;
 export const MAX_EXPERIENCE_COUNT = 50;
 
+export type AgentPanelMode = 'comingSoon' | 'chat';
+
+export const AGENT_PANEL_MODE: AgentPanelMode =
+  process.env.NEXT_PUBLIC_AGENT_RELEASED === 'true' ? 'chat' : 'comingSoon';
+
 export const UNCLASSIFIED_ID = 'unclassified';
 
 export const DEFAULT_BLOCK_PLACEHOLDER = '내용을 입력해 주세요.';
