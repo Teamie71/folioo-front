@@ -11,12 +11,16 @@ import { DropIndicator } from '@/features/experience/list/components/DropIndicat
 import { EmptySectionAddButton } from '@/features/experience/list/components/ExperienceListEmptyStates';
 import {
   DEFAULT_BLOCK_PLACEHOLDER,
+  DUTY_TEMPLATE_OPTIONS,
   PROBLEM_TEMPLATE_OPTIONS,
   SECTION_TITLE,
 } from '@/features/experience/list/constants';
 import {
+  createDutyChildFromTemplate,
+  createDutyLevel5FromTemplate,
   createFreeBlock,
   createProblemChildFromTemplate,
+  createProblemLevel5FromTemplate,
   createSectionFromTemplate,
   sectionBlockPlaceholderAt,
 } from '@/features/experience/list/factories';
@@ -46,6 +50,7 @@ export function ExperienceListBlockNode({
   index?: number;
 }) {
   const addSiblingBlock = useExperienceListStore((s) => s.addSiblingBlock);
+  const addSiblingBlocks = useExperienceListStore((s) => s.addSiblingBlocks);
   const deleteBlock = useExperienceListStore((s) => s.deleteBlock);
   const updateBlockText = useExperienceListStore((s) => s.updateBlockText);
   const splitBlockAt = useExperienceListStore((s) => s.splitBlockAt);
@@ -68,6 +73,9 @@ export function ExperienceListBlockNode({
     isMeaningfulDrop(dnd.rootBlocks, dnd.draggingId, block.id, 'inside');
 
   const usesProblemTemplateAdd = level === 4 && parentKind === 'problem';
+  const usesDutyTemplateAdd = level === 4 && parentKind === 'duty';
+  const usesLevel5TemplateAdd =
+    level === 5 && (parentKind === 'problem' || parentKind === 'duty');
 
   const sectionTemplateOptions =
     level === 3
@@ -85,6 +93,43 @@ export function ExperienceListBlockNode({
             createProblemChildFromTemplate(opt.key),
           ),
       }))
+    : null;
+
+  const dutyTemplateOptions = usesDutyTemplateAdd
+    ? DUTY_TEMPLATE_OPTIONS.map((opt) => ({
+        key: opt.key,
+        label: opt.label,
+        onSelect: () =>
+          addSiblingBlock(
+            dnd.experienceId,
+            block.id,
+            createDutyChildFromTemplate(opt.key),
+          ),
+      }))
+    : null;
+
+  const level5TemplateOptions = usesLevel5TemplateAdd
+    ? parentKind === 'duty'
+      ? DUTY_TEMPLATE_OPTIONS.map((opt) => ({
+          key: opt.key,
+          label: opt.label,
+          onSelect: () =>
+            addSiblingBlocks(
+              dnd.experienceId,
+              block.id,
+              createDutyLevel5FromTemplate(opt.key),
+            ),
+        }))
+      : PROBLEM_TEMPLATE_OPTIONS.map((opt) => ({
+          key: opt.key,
+          label: opt.label,
+          onSelect: () =>
+            addSiblingBlocks(
+              dnd.experienceId,
+              block.id,
+              createProblemLevel5FromTemplate(opt.key),
+            ),
+        }))
     : null;
 
   let addMenuItem: MenuItem;
@@ -121,6 +166,20 @@ export function ExperienceListBlockNode({
       key: 'add',
       label: '아래에 추가',
       submenu: problemTemplateOptions,
+      submenuTitle: '템플릿 선택',
+    };
+  } else if (dutyTemplateOptions) {
+    addMenuItem = {
+      key: 'add',
+      label: '아래에 추가',
+      submenu: dutyTemplateOptions,
+      submenuTitle: '템플릿 선택',
+    };
+  } else if (level5TemplateOptions) {
+    addMenuItem = {
+      key: 'add',
+      label: '아래에 추가',
+      submenu: level5TemplateOptions,
       submenuTitle: '템플릿 선택',
     };
   } else {
@@ -375,7 +434,11 @@ export function ExperienceListBlockNode({
                 key={child.id}
                 block={child}
                 level={level + 1}
-                parentKind={block.kind}
+                parentKind={
+                  parentKind === 'duty' || parentKind === 'problem'
+                    ? parentKind
+                    : block.kind
+                }
                 index={i}
               />
             ))}

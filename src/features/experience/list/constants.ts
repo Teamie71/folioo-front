@@ -1,4 +1,5 @@
 import type {
+  DutyTemplateKey,
   ProblemTemplateKey,
   SectionKind,
   SectionTemplateKey,
@@ -18,6 +19,9 @@ export const DEFAULT_BLOCK_PLACEHOLDER = '내용을 입력해 주세요.';
 
 export const PROBLEM_EPISODE_PLACEHOLDER =
   '문제해결 에피소드를 한 줄로 요약해 주세요.';
+
+export const DUTY_EPISODE_PLACEHOLDER =
+  '담당한 주요 업무 또는 역할을 적어주세요.';
 
 export const FIXED_SECTION_KINDS: Array<Exclude<SectionKind, 'free'>> = [
   'detail',
@@ -58,5 +62,13 @@ export const PROBLEM_TEMPLATE_OPTIONS: Array<{
   { key: 'troubleshooting', label: '기술 트러블슈팅' },
   { key: 'feedback', label: '피드백 대응' },
   { key: 'recovery', label: '실패 회복' },
+  { key: 'free', label: '자유 블록' },
+];
+
+export const DUTY_TEMPLATE_OPTIONS: Array<{
+  key: DutyTemplateKey;
+  label: string;
+}> = [
+  { key: 'basic', label: '기본' },
   { key: 'free', label: '자유 블록' },
 ];

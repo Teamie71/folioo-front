@@ -6,9 +6,13 @@ import {
   MenuButton,
   type MenuItem,
 } from '@/features/experience/list/components/ExperienceListMenu';
-import { PROBLEM_TEMPLATE_OPTIONS } from '@/features/experience/list/constants';
+import {
+  DUTY_TEMPLATE_OPTIONS,
+  PROBLEM_TEMPLATE_OPTIONS,
+} from '@/features/experience/list/constants';
 import {
   buildSectionChildren,
+  createDutyChildFromTemplate,
   createFreeBlock,
   createProblemChildFromTemplate,
   createSectionFromTemplate,
@@ -93,6 +97,9 @@ export function EmptyGroupState({ groupId }: { groupId: string }) {
   );
 }
 
+const emptyAddBoxCls =
+  'flex h-[58px] w-full cursor-pointer items-center rounded-[12px] border border-gray5 bg-white p-[16px] typo-text-field text-gray5 transition-colors hover:bg-gray2';
+
 export function EmptySectionAddButton({
   experienceId,
   section,
@@ -102,9 +109,6 @@ export function EmptySectionAddButton({
 }) {
   const addChildBlock = useExperienceListStore((s) => s.addChildBlock);
   const addChildrenBlocks = useExperienceListStore((s) => s.addChildrenBlocks);
-
-  const boxCls =
-    'flex h-[58px] w-full cursor-pointer items-center rounded-[12px] border border-gray5 bg-white p-[16px] typo-text-field text-gray5 transition-colors hover:bg-gray2';
 
   const label = <span>+ 새로운 블록 추가</span>;
 
@@ -128,7 +132,34 @@ export function EmptySectionAddButton({
         wrapClassName='w-full'
         ariaLabel='새로운 블록 추가'
         menuTitle='템플릿 선택'
-        className={boxCls}
+        className={emptyAddBoxCls}
+      >
+        {label}
+      </MenuButton>
+    );
+  }
+
+  if (section.kind === 'duty') {
+    const items: MenuItem[] = DUTY_TEMPLATE_OPTIONS.map((opt) => ({
+      key: opt.key,
+      label: opt.label,
+      onSelect: () =>
+        addChildBlock(
+          experienceId,
+          section.id,
+          createDutyChildFromTemplate(opt.key),
+        ),
+    }));
+    return (
+      <MenuButton
+        items={items}
+        variant='block'
+        menuPlacement='bottom'
+        menuAlign='start'
+        wrapClassName='w-full'
+        ariaLabel='새로운 블록 추가'
+        menuTitle='템플릿 선택'
+        className={emptyAddBoxCls}
       >
         {label}
       </MenuButton>
@@ -147,7 +178,7 @@ export function EmptySectionAddButton({
             buildSectionChildren(fixedKind),
           )
         }
-        className={boxCls}
+        className={emptyAddBoxCls}
       >
         {label}
       </button>
@@ -158,7 +189,7 @@ export function EmptySectionAddButton({
     <button
       type='button'
       onClick={() => addChildBlock(experienceId, section.id, createFreeBlock())}
-      className={boxCls}
+      className={emptyAddBoxCls}
     >
       {label}
     </button>

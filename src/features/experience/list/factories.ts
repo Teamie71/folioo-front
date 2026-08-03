@@ -1,11 +1,13 @@
 import {
   DEFAULT_BLOCK_PLACEHOLDER,
+  DUTY_EPISODE_PLACEHOLDER,
   FIXED_SECTION_KINDS,
   PROBLEM_EPISODE_PLACEHOLDER,
   SECTION_TITLE,
 } from '@/features/experience/list/constants';
 import type {
   Block,
+  DutyTemplateKey,
   ProblemTemplateKey,
   SectionKind,
   SectionTemplateKey,
@@ -17,7 +19,7 @@ const SECTION_TEMPLATE_CHILDREN: Record<
 > = {
   detail: [{ placeholder: DEFAULT_BLOCK_PLACEHOLDER }],
   achievement: [{ placeholder: DEFAULT_BLOCK_PLACEHOLDER }],
-  duty: [{ placeholder: '담당한 주요 업무 또는 역할을 적어주세요.' }],
+  duty: [{ placeholder: DUTY_EPISODE_PLACEHOLDER }],
   problem: [
     {
       placeholder: PROBLEM_EPISODE_PLACEHOLDER,
@@ -90,6 +92,16 @@ const PROBLEM_TEMPLATE_LEVEL5: Record<
   ],
 };
 
+const DUTY_TEMPLATE_LEVEL5: Record<Exclude<DutyTemplateKey, 'free'>, string[]> =
+  {
+    basic: [
+      '이 업무를 진행한 목적은 무엇이며, 구체적으로 어떤 목표를 달성하고자 했나요?',
+      '원활한 업무 수행을 위해 조사한 정보나 추가로 학습한 내용은 무엇인가요?',
+      '실제 작업은 어떤 방식으로, 어떤 과정을 거쳐서 진행했나요?',
+      '업무 완료 후 나타난 결과는 무엇이며, 이 과정을 통해 배운 점은 무엇인가요?',
+    ],
+  };
+
 let uidCounter = 0;
 export function uid(prefix = 'b'): string {
   uidCounter += 1;
@@ -123,7 +135,7 @@ function placeholderBlock(
 }
 
 function sectionBlockPlaceholders(kind: SectionKind): string[] {
-  if (kind === 'free' || kind === 'problem') return [];
+  if (kind === 'free' || kind === 'problem' || kind === 'duty') return [];
   return SECTION_TEMPLATE_CHILDREN[kind].map((n) => n.placeholder);
 }
 
@@ -141,7 +153,7 @@ export function buildSectionChildren(
     placeholderBlock(
       node.placeholder,
       (node.children ?? []).map((p) => placeholderBlock(p)),
-      kind === 'problem' ? 'problem' : 'free',
+      kind === 'problem' || kind === 'duty' ? kind : 'free',
     ),
   );
 }
@@ -170,6 +182,31 @@ export function createProblemChildFromTemplate(key: ProblemTemplateKey): Block {
     level5.map((p) => placeholderBlock(p)),
     'problem',
   );
+}
+
+export function createDutyChildFromTemplate(key: DutyTemplateKey): Block {
+  if (key === 'free') {
+    return placeholderBlock(DUTY_EPISODE_PLACEHOLDER, [], 'duty');
+  }
+
+  const level5 = DUTY_TEMPLATE_LEVEL5[key];
+  return placeholderBlock(
+    DUTY_EPISODE_PLACEHOLDER,
+    level5.map((p) => placeholderBlock(p)),
+    'duty',
+  );
+}
+
+export function createDutyLevel5FromTemplate(key: DutyTemplateKey): Block[] {
+  if (key === 'free') return [freeBlock()];
+  return DUTY_TEMPLATE_LEVEL5[key].map((p) => placeholderBlock(p));
+}
+
+export function createProblemLevel5FromTemplate(
+  key: ProblemTemplateKey,
+): Block[] {
+  if (key === 'free') return [freeBlock()];
+  return PROBLEM_TEMPLATE_LEVEL5[key].map((p) => placeholderBlock(p));
 }
 
 export function createExperienceTemplateBlocks(): Block[] {

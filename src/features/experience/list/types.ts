@@ -39,3 +39,5 @@ export type ProblemTemplateKey =
   | 'feedback'
   | 'recovery'
   | 'free';
+
+export type DutyTemplateKey = 'basic' | 'free';

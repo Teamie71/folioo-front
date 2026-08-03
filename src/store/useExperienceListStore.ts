@@ -19,21 +19,29 @@ import {
 
 const seed = getExperienceListSeed();
 
+function insertSiblingsAfter(
+  blocks: Block[],
+  targetId: string,
+  newBlocks: Block[],
+): Block[] {
+  const idx = blocks.findIndex((b) => b.id === targetId);
+  if (idx !== -1) {
+    const next = [...blocks];
+    next.splice(idx + 1, 0, ...newBlocks);
+    return next;
+  }
+  return blocks.map((b) => ({
+    ...b,
+    children: insertSiblingsAfter(b.children, targetId, newBlocks),
+  }));
+}
+
 function insertSiblingAfter(
   blocks: Block[],
   targetId: string,
   newBlock: Block,
 ): Block[] {
-  const idx = blocks.findIndex((b) => b.id === targetId);
-  if (idx !== -1) {
-    const next = [...blocks];
-    next.splice(idx + 1, 0, newBlock);
-    return next;
-  }
-  return blocks.map((b) => ({
-    ...b,
-    children: insertSiblingAfter(b.children, targetId, newBlock),
-  }));
+  return insertSiblingsAfter(blocks, targetId, [newBlock]);
 }
 
 function removeBlockFromTree(blocks: Block[], targetId: string): Block[] {
@@ -154,6 +162,11 @@ interface ExperienceListState {
     experienceId: string,
     targetBlockId: string,
     newBlock: Block,
+  ) => void;
+  addSiblingBlocks: (
+    experienceId: string,
+    targetBlockId: string,
+    newBlocks: Block[],
   ) => void;
   addSectionToExperience: (experienceId: string, block: Block) => void;
   addChildBlock: (
@@ -494,6 +507,22 @@ export const useExperienceListStore = create<ExperienceListState>()(
                       e.blocks,
                       targetBlockId,
                       newBlock,
+                    ),
+                  }
+                : e,
+            ),
+          }),
+
+        addSiblingBlocks: (experienceId, targetBlockId, newBlocks) =>
+          commit({
+            experiences: get().experiences.map((e) =>
+              e.id === experienceId
+                ? {
+                    ...e,
+                    blocks: insertSiblingsAfter(
+                      e.blocks,
+                      targetBlockId,
+                      newBlocks,
                     ),
                   }
                 : e,
