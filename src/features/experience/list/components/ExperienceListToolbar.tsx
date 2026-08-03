@@ -101,7 +101,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
       <div className='flex items-center gap-[20px]'>
         {showOpenButton && (
           <HoverTooltip
-            label='클릭하여 나의 활동 탭 열기'
+            label='클릭하여 나의 경험 탭 열기'
             placement='bottom'
             align='start'
             suppressUntilPointerLeave
@@ -110,7 +110,7 @@ export function ExperienceListToolbar({ experienceId }: Props) {
               type='button'
               onClick={toggleSidebar}
               className='flex size-[32px] cursor-pointer items-center justify-center rounded-[6px] p-[2px] hover:bg-white'
-              aria-label='나의 활동 탭 열기'
+              aria-label='나의 경험 탭 열기'
             >
               <ListViewIcon className='size-[28px]' />
             </button>
