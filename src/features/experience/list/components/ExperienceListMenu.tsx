@@ -24,8 +24,8 @@ import { KebabIcon } from '@/components/icons/KebabIcon';
 import { ListChevronIcon } from '@/components/icons/ListChevronIcon';
 
 const MENU_GAP = 4;
-const MENU_WIDTH = 100;
-const MENU_ITEM_HEIGHT = 28;
+const MENU_WIDTH = 120;
+const MENU_ITEM_HEIGHT = 32;
 const MENU_TITLE_HEIGHT = 18;
 const VIEWPORT_PAD = 8;
 
