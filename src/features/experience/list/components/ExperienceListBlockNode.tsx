@@ -12,7 +12,6 @@ import { EmptySectionAddButton } from '@/features/experience/list/components/Exp
 import {
   DEFAULT_BLOCK_PLACEHOLDER,
   PROBLEM_TEMPLATE_OPTIONS,
-  SECTION_TEMPLATE_OPTIONS,
   SECTION_TITLE,
 } from '@/features/experience/list/constants';
 import {
@@ -24,6 +23,7 @@ import {
 import { useBlockNodeDnd } from '@/features/experience/list/hooks/useBlockNodeDnd';
 import type { Block } from '@/features/experience/list/types';
 import { isMeaningfulDrop } from '@/features/experience/list/utils/blockTreeUtils';
+import { getAvailableSectionTemplateOptions } from '@/features/experience/list/utils/sectionTemplateOptions';
 
 const kebabCls =
   'flex size-[20px] shrink-0 items-center justify-center rounded-[4px] text-[16px] leading-none text-gray6 hover:bg-gray3';
@@ -67,53 +67,82 @@ export function ExperienceListBlockNode({
     dnd.draggingId != null &&
     isMeaningfulDrop(dnd.rootBlocks, dnd.draggingId, block.id, 'inside');
 
-  const usesTemplateAdd =
-    level === 3 || (level === 4 && parentKind === 'problem');
+  const usesProblemTemplateAdd = level === 4 && parentKind === 'problem';
 
-  const addSubmenu: MenuItem[] | undefined = usesTemplateAdd
-    ? (level === 3 ? SECTION_TEMPLATE_OPTIONS : PROBLEM_TEMPLATE_OPTIONS).map(
-        (opt) => ({
-          key: opt.key,
-          label: opt.label,
-          onSelect: () =>
-            addSiblingBlock(
-              dnd.experienceId,
-              block.id,
-              level === 3
-                ? createSectionFromTemplate(
-                    opt.key as (typeof SECTION_TEMPLATE_OPTIONS)[number]['key'],
-                  )
-                : createProblemChildFromTemplate(
-                    opt.key as (typeof PROBLEM_TEMPLATE_OPTIONS)[number]['key'],
-                  ),
-            ),
-        }),
-      )
-    : undefined;
+  const sectionTemplateOptions =
+    level === 3
+      ? getAvailableSectionTemplateOptions(dnd.rootBlocks)
+      : null;
+
+  const problemTemplateOptions = usesProblemTemplateAdd
+    ? PROBLEM_TEMPLATE_OPTIONS.map((opt) => ({
+        key: opt.key,
+        label: opt.label,
+        onSelect: () =>
+          addSiblingBlock(
+            dnd.experienceId,
+            block.id,
+            createProblemChildFromTemplate(opt.key),
+          ),
+      }))
+    : null;
+
+  let addMenuItem: MenuItem;
+  if (sectionTemplateOptions) {
+    addMenuItem =
+      sectionTemplateOptions.length === 0
+        ? {
+            key: 'add',
+            label: '아래에 추가',
+            onSelect: () =>
+              addSiblingBlock(
+                dnd.experienceId,
+                block.id,
+                createSectionFromTemplate('free'),
+              ),
+          }
+        : {
+            key: 'add',
+            label: '아래에 추가',
+            submenu: sectionTemplateOptions.map((opt) => ({
+              key: opt.key,
+              label: opt.label,
+              onSelect: () =>
+                addSiblingBlock(
+                  dnd.experienceId,
+                  block.id,
+                  createSectionFromTemplate(opt.key),
+                ),
+            })),
+            submenuTitle: '템플릿 선택',
+          };
+  } else if (problemTemplateOptions) {
+    addMenuItem = {
+      key: 'add',
+      label: '아래에 추가',
+      submenu: problemTemplateOptions,
+      submenuTitle: '템플릿 선택',
+    };
+  } else {
+    addMenuItem = {
+      key: 'add',
+      label: '아래에 추가',
+      onSelect: () =>
+        addSiblingBlock(
+          dnd.experienceId,
+          block.id,
+          createFreeBlock(
+            '',
+            level === 4 && parentKind
+              ? sectionBlockPlaceholderAt(parentKind, index + 1)
+              : undefined,
+          ),
+        ),
+    };
+  }
 
   const menu: MenuItem[] = [
-    addSubmenu
-      ? {
-          key: 'add',
-          label: '아래에 추가',
-          submenu: addSubmenu,
-          submenuTitle: '템플릿 선택',
-        }
-      : {
-          key: 'add',
-          label: '아래에 추가',
-          onSelect: () =>
-            addSiblingBlock(
-              dnd.experienceId,
-              block.id,
-              createFreeBlock(
-                '',
-                level === 4 && parentKind
-                  ? sectionBlockPlaceholderAt(parentKind, index + 1)
-                  : undefined,
-              ),
-            ),
-        },
+    addMenuItem,
     {
       key: 'delete',
       label: '삭제',

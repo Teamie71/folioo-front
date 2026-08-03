@@ -6,10 +6,7 @@ import {
   MenuButton,
   type MenuItem,
 } from '@/features/experience/list/components/ExperienceListMenu';
-import {
-  PROBLEM_TEMPLATE_OPTIONS,
-  SECTION_TEMPLATE_OPTIONS,
-} from '@/features/experience/list/constants';
+import { PROBLEM_TEMPLATE_OPTIONS } from '@/features/experience/list/constants';
 import {
   buildSectionChildren,
   createFreeBlock,
@@ -17,6 +14,7 @@ import {
   createSectionFromTemplate,
 } from '@/features/experience/list/factories';
 import type { Block } from '@/features/experience/list/types';
+import { getAvailableSectionTemplateOptions } from '@/features/experience/list/utils/sectionTemplateOptions';
 
 export function EmptyExperienceState({
   experienceId,
@@ -26,12 +24,13 @@ export function EmptyExperienceState({
   const addSectionToExperience = useExperienceListStore(
     (s) => s.addSectionToExperience,
   );
-  const items: MenuItem[] = SECTION_TEMPLATE_OPTIONS.map((opt) => ({
-    key: opt.key,
-    label: opt.label,
-    onSelect: () =>
-      addSectionToExperience(experienceId, createSectionFromTemplate(opt.key)),
-  }));
+  const experiences = useExperienceListStore((s) => s.experiences);
+  const blocks =
+    experiences.find((e) => e.id === experienceId)?.blocks ?? [];
+  const options = getAvailableSectionTemplateOptions(blocks);
+
+  const addButtonClassName =
+    'border-gray4 hover:bg-gray2 inline-flex cursor-pointer items-center gap-[4px] rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors';
 
   return (
     <div className='flex min-h-0 flex-1 flex-col items-center justify-center pb-[80px]'>
@@ -39,16 +38,39 @@ export function EmptyExperienceState({
         <p className='typo-b2 text-[#898989]'>
           아직 이 활동 안에 정리된 블록이 없어요.
         </p>
-        <MenuButton
-          items={items}
-          variant='block'
-          menuPlacement='bottom'
-          ariaLabel='새로운 블록 추가'
-          menuTitle='템플릿 선택'
-          className='border-gray4 hover:bg-gray2 inline-flex items-center gap-[4px] rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors'
-        >
-          <span className='typo-b2 text-gray9'>새로운 블록 추가</span>
-        </MenuButton>
+        {options.length === 0 ? (
+          <button
+            type='button'
+            onClick={() =>
+              addSectionToExperience(
+                experienceId,
+                createSectionFromTemplate('free'),
+              )
+            }
+            className={addButtonClassName}
+          >
+            <span className='typo-b2 text-gray9'>새로운 블록 추가</span>
+          </button>
+        ) : (
+          <MenuButton
+            items={options.map((opt) => ({
+              key: opt.key,
+              label: opt.label,
+              onSelect: () =>
+                addSectionToExperience(
+                  experienceId,
+                  createSectionFromTemplate(opt.key),
+                ),
+            }))}
+            variant='block'
+            menuPlacement='bottom'
+            ariaLabel='새로운 블록 추가'
+            menuTitle='템플릿 선택'
+            className={addButtonClassName}
+          >
+            <span className='typo-b2 text-gray9'>새로운 블록 추가</span>
+          </MenuButton>
+        )}
       </div>
     </div>
   );
