@@ -13,7 +13,6 @@ import { EventModal } from '@/components/EventModal';
 import { EventModalMobile } from '@/components/EventModalMobile';
 import { markWeeklyVoucherGranted } from '@/utils/weeklyVoucher';
 import { CorrectionNavbarContext } from '@/contexts/CorrectionNavbarContext';
-import { PortfolioCreationPoller } from '@/features/experience/components/PortfolioCreationPoller';
 import { useEventControllerClaimEventReward } from '@/api/endpoints/event/event';
 import {
   getUserControllerGetTicketBalanceQueryKey,
@@ -37,12 +36,9 @@ function isCorrectionDetailPath(pathname: string) {
     /^\/correction\/[^/]+$/.test(pathname) && !isCorrectionNewPath(pathname)
   );
 }
-function isExperienceSettingsPathWithoutNavbar(pathname: string) {
-  return (
-    /^\/experience\/settings/.test(pathname) && !pathname.includes('/portfolio')
-  );
+function isExperiencePath(pathname: string) {
+  return pathname === '/experience' || pathname.startsWith('/experience/');
 }
-
 export default function LayoutContent({
   children,
   isMobileDevice,
@@ -71,11 +67,7 @@ export default function LayoutContent({
     useUserControllerMarkTicketGrantNoticeDismissed();
 
   const path = pathname ?? '';
-  const hideNavbar = isCorrectionNewPath(path)
-    ? true
-    : isCorrectionDetailPath(path)
-      ? false
-      : isExperienceSettingsPathWithoutNavbar(path);
+  const hideNavbar = isCorrectionNewPath(path) || isExperiencePath(path);
 
   useEffect(() => {
     if (!isCorrectionDetailPath(path)) setShowNavbarOnResult(false);
@@ -280,9 +272,6 @@ export default function LayoutContent({
       >
         {children}
       </div>
-
-      {/* 포트폴리오 생성 완료 시 어디서든 portfolio 페이지로 리다이렉트 */}
-      <PortfolioCreationPoller />
 
       {/* 주간 이용권 지급 */}
       {isMobileDevice ? (

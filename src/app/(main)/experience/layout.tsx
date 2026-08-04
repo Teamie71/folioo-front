@@ -10,7 +10,5 @@ export default function ExperienceLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <LoginRequiredRouteGuard>{children}</LoginRequiredRouteGuard>
-  );
+  return <LoginRequiredRouteGuard>{children}</LoginRequiredRouteGuard>;
 }
