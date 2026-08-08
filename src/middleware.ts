@@ -18,7 +18,11 @@ export function middleware(request: NextRequest) {
   }
 
   // experience 하위 페이지 모바일 접근 시 차단 (모바일 전용은 목록만)
-  if (pathname.startsWith('/experience/') && isMobilePhone(userAgent)) {
+  if (
+    pathname.startsWith('/experience/') &&
+    pathname !== '/experience/list' &&
+    isMobilePhone(userAgent)
+  ) {
     return NextResponse.redirect(new URL('/mobile-blocked', request.url));
   }
 
@@ -41,6 +45,7 @@ export function middleware(request: NextRequest) {
     '/',
     '/log',
     '/experience',
+    '/experience/list',
     '/correction',
     '/topup',
     '/profile',
