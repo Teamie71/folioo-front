@@ -229,6 +229,23 @@ function CollapsedMenuItem({
   );
 }
 
+function SocialEmailLogo({ socialType }: { socialType?: string }) {
+  const logo =
+    socialType === 'KAKAO'
+      ? '/KakaoEmailLogo.svg'
+      : socialType === 'NAVER'
+        ? '/NaverEmailLogo.svg'
+        : socialType === 'GOOGLE'
+          ? '/GoogleEmailLogo.svg'
+          : null;
+
+  return logo ? (
+    <Image src={logo} alt='' width={20} height={20} />
+  ) : (
+    <SidebarIcon src='/sidebar/profile-placeholder.svg' size={20} />
+  );
+}
+
 function ExpandedBrand({ onClick }: { onClick: () => void }) {
   return (
     <>
@@ -380,10 +397,7 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
                   />
                 </span>
                 <span className='mt-[4px] flex items-center gap-[8px]'>
-                  <SidebarIcon
-                    src='/sidebar/profile-placeholder.svg'
-                    size={20}
-                  />
+                  <SocialEmailLogo socialType={socialAccount?.socialType} />
                   <span className='typo-c1 text-gray6 whitespace-nowrap'>
                     {socialEmail}
                   </span>
@@ -425,6 +439,21 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
       ) : (
         <div className='relative h-full w-[60px]'>
           <CollapsedBrand onClick={() => setIsExpanded(true)} />
+
+          <Image
+            src='/sidebar/divider-collapsed.svg'
+            alt=''
+            width={44}
+            height={1}
+            className='absolute top-[216px] left-[8px]'
+          />
+          <Image
+            src='/sidebar/divider-collapsed.svg'
+            alt=''
+            width={44}
+            height={1}
+            className='absolute top-[272px] left-[8px]'
+          />
 
           <nav aria-label='주요 메뉴'>
             {MENU_ITEMS.map((item, index) => (
