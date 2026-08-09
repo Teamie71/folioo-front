@@ -34,11 +34,11 @@ export const BannerBeta = () => {
             Beta
           </div>
 
-          <div className='flex items-center gap-[0.25rem] text-[1rem] leading-[150%]'>
-            <p>Beta 기간 한정! 사용 후기를 남겨주시는</p>
-            <p className='font-bold'>모든 분께 무료 이용권 증정,</p>
-            <p>베스트 피드백 선정 시</p>
-            <p className='font-bold'> 배민 1만원권까지! </p>
+          <div className='text-[1rem] leading-[150%]'>
+            <p>
+              Beta 기간 한정! 베스트 피드백 선정 시{' '}
+              <span className='font-bold'>배민 1만원권</span>을 드립니다.
+            </p>
           </div>
         </div>
 
