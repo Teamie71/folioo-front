@@ -10,6 +10,7 @@ import { ProfileButton } from '@/components/ProfileButton';
 import { ProfileDropdown } from '@/components/ProfileDropdown';
 import { ProfileModal } from '@/components/ProfileModal';
 import { LogoutModal } from '@/components/LogoutModal';
+import { HoverTooltip } from '@/components/HoverTooltip';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useAuthControllerHandleLogout } from '@/api/endpoints/auth/auth';
 import { cn } from '@/utils/utils';
@@ -152,9 +153,11 @@ export default function Navbar() {
             </Link>
 
             {/* 네비게이션 링크 — hover 시 bold만 적용, 레이아웃 시프트 없음 */}
-            <span className='inline-block py-[8px] text-[16px] text-[#1A1A1A]'>
-              직무 추천
-            </span>
+            <HoverTooltip label='준비 중이에요.' wrapperClassName='inline-flex'>
+              <span className='inline-block py-[8px] text-[16px] text-[#1A1A1A]'>
+                직무 추천
+              </span>
+            </HoverTooltip>
             {navLink('/experience', '경험 정리', true)}
             {navLink('/correction', '포트폴리오 첨삭', true)}
           </div>
