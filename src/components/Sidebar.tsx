@@ -139,7 +139,9 @@ function ExpandedMenuItem({
 }) {
   const content = (
     <div className='group relative flex h-[24px] w-full items-center text-left'>
-      <MenuIcon item={item} />
+      <span className='ml-[21.92px]'>
+        <MenuIcon item={item} />
+      </span>
       <span className='typo-b2 ml-[13.7px] whitespace-nowrap text-gray9'>
         {item.label}
       </span>
@@ -338,7 +340,7 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
       }}
       transition={SIDEBAR_TRANSITION}
       className={cn(
-        'h-full shrink-0 overflow-hidden bg-white',
+        'h-[100dvh] shrink-0 overflow-hidden bg-white',
         !isExpanded && 'border-r border-gray4',
       )}
       aria-label='사이드바'
@@ -372,7 +374,7 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
                 ref={profileTriggerRef}
                 type='button'
                 onClick={() => setIsProfileDropdownOpen((open) => !open)}
-                className='absolute top-[264px] left-[20px] cursor-pointer text-left'
+                className='absolute top-[264px] left-[20px] w-[162px] cursor-pointer text-left'
                 aria-expanded={isProfileDropdownOpen}
                 aria-label='프로필 메뉴 열기'
               >
@@ -386,7 +388,7 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
                   <SidebarIcon
                     src='/sidebar/chevron-right.svg'
                     size={20}
-                    className='ml-[8px] rotate-90'
+                    className='absolute top-[2px] left-[135px] rotate-90'
                   />
                 </span>
                 <span className='absolute top-[31px] left-0 flex h-[21px] items-center'>
@@ -400,7 +402,7 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
               <button
                 type='button'
                 onClick={() => router.push('/login')}
-                className='absolute top-[264px] left-[20px] cursor-pointer text-left'
+                className='absolute top-[264px] left-[20px] w-[197px] cursor-pointer text-left'
                 aria-label='로그인'
               >
                 <span className='flex h-[23px] items-center'>
@@ -408,7 +410,7 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
                   <SidebarIcon
                     src='/sidebar/chevron-right.svg'
                     size={20}
-                    className='ml-[8px] rotate-90'
+                    className='absolute top-[2px] left-[75px] rotate-90'
                   />
                 </span>
                 <span className='typo-c1 absolute top-[31px] left-0 whitespace-nowrap text-gray6'>
