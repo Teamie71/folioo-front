@@ -27,6 +27,10 @@ type SidebarMenuItem = {
   href?: string;
   expandedIcon: string;
   collapsedIcon: string;
+  expandedIconWidth?: number;
+  expandedIconHeight?: number;
+  collapsedIconWidth?: number;
+  collapsedIconHeight?: number;
   disabled?: boolean;
 };
 
@@ -42,6 +46,10 @@ const MENU_ITEMS: SidebarMenuItem[] = [
     href: '/experience',
     expandedIcon: '/sidebar/experience.svg',
     collapsedIcon: '/sidebar/experience-collapsed.svg',
+    expandedIconWidth: 16,
+    expandedIconHeight: 14.6667,
+    collapsedIconWidth: 19.2,
+    collapsedIconHeight: 17.6,
   },
   {
     label: '포트폴리오 첨삭',
@@ -61,17 +69,48 @@ interface SidebarProps {
   defaultExpanded?: boolean;
 }
 
-function SidebarIcon({
-  src,
-  size,
-  className,
-}: {
+type SidebarIconProps = {
   src: string;
-  size: number;
   className?: string;
-}) {
+} &
+  ({ size: number } | { width: number; height: number });
+
+function SidebarIcon(props: SidebarIconProps) {
+  const { src, className } = props;
+  const width = 'size' in props ? props.size : props.width;
+  const height = 'size' in props ? props.size : props.height;
+
   return (
-    <Image src={src} alt='' width={size} height={size} className={className} />
+    <Image src={src} alt='' width={width} height={height} className={className} />
+  );
+}
+
+function MenuIcon({
+  item,
+  variant,
+}: {
+  item: SidebarMenuItem;
+  variant: 'expanded' | 'collapsed';
+}) {
+  const frameSize = variant === 'expanded' ? 20 : 24;
+  const src = variant === 'expanded' ? item.expandedIcon : item.collapsedIcon;
+  const width =
+    variant === 'expanded'
+      ? (item.expandedIconWidth ?? frameSize)
+      : (item.collapsedIconWidth ?? frameSize);
+  const height =
+    variant === 'expanded'
+      ? (item.expandedIconHeight ?? frameSize)
+      : (item.collapsedIconHeight ?? frameSize);
+
+  // Figma 아이콘 프레임과 실제 벡터 크기가 다른 메뉴만 별도 크기를 둔다.
+  return (
+    <span
+      className='flex shrink-0 items-center justify-center'
+      style={{ width: frameSize, height: frameSize }}
+    >
+      <SidebarIcon src={src} width={width} height={height} />
+    </span>
   );
 }
 
@@ -94,7 +133,7 @@ function ExpandedMenuItem({
       )}
     >
       <div className='flex items-center gap-[8px]'>
-        <SidebarIcon src={item.expandedIcon} size={20} />
+        <MenuIcon item={item} variant='expanded' />
         <span className='typo-b2 text-gray9'>{item.label}</span>
       </div>
       {item.disabled ? (
@@ -136,7 +175,7 @@ function CollapsedMenuItem({
           : cn('cursor-pointer hover:bg-gray2', active && 'bg-sub1'),
       )}
     >
-      <SidebarIcon src={item.collapsedIcon} size={24} />
+      <MenuIcon item={item} variant='collapsed' />
     </div>
   );
 
@@ -218,7 +257,7 @@ export default function Sidebar({
             className='absolute top-[30px] right-[15px] flex size-[32px] cursor-pointer items-center justify-center rounded-[8px] p-[4px] hover:bg-gray2'
             aria-label='사이드바 최소화'
           >
-            <SidebarIcon src='/sidebar/sidebar-toggle.svg' size={20} />
+            <SidebarIcon src='/sidebar/sidebar-toggle.svg' size={22} />
           </button>
 
           <nav aria-label='주요 메뉴'>
@@ -247,16 +286,16 @@ export default function Sidebar({
           <Image
             src='/sidebar/divider.svg'
             alt=''
-            width={200}
+            width={201}
             height={1}
-            className='absolute top-[216px] left-[20px]'
+            className='absolute top-[215.5px] left-[19.5px]'
           />
           <Image
             src='/sidebar/divider.svg'
             alt=''
-            width={200}
+            width={201}
             height={1}
-            className='absolute top-[272px] left-[20px]'
+            className='absolute top-[271.5px] left-[19.5px]'
           />
 
           {showAccount &&
@@ -348,16 +387,16 @@ export default function Sidebar({
           <Image
             src='/sidebar/divider-collapsed.svg'
             alt=''
-            width={44}
+            width={45}
             height={1}
-            className='absolute top-[216px] left-[8px]'
+            className='absolute top-[215.5px] left-[7.5px]'
           />
           <Image
             src='/sidebar/divider-collapsed.svg'
             alt=''
-            width={44}
+            width={45}
             height={1}
-            className='absolute top-[272px] left-[8px]'
+            className='absolute top-[271.5px] left-[7.5px]'
           />
         </div>
       )}
