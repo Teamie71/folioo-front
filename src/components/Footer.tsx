@@ -27,7 +27,7 @@ export default function Footer() {
             </Link>
           </div>
 
-          <div className='w-full border border-[#CDD0D5]' />
+          <div className='h-px w-full bg-[#CDD0D5]' />
         </div>
 
         <div className='flex w-full justify-between'>
@@ -79,11 +79,11 @@ export default function Footer() {
             >
               개인정보 처리방침
             </Link>
-            <div className='h-[1.25rem] border border-[#CDD0D5]' />
+            <div className='h-[1.25rem] w-px shrink-0 bg-[#CDD0D5]' />
             <Link href='/tos' className='cursor-pointer hover:underline'>
               서비스 이용약관
             </Link>
-            <div className='h-[1.25rem] border border-[#CDD0D5]' />
+            <div className='h-[1.25rem] w-px shrink-0 bg-[#CDD0D5]' />
             <Link href='/marketing' className='cursor-pointer hover:underline'>
               마케팅 정보 수신
             </Link>
