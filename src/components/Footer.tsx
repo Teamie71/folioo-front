@@ -10,9 +10,7 @@ export default function Footer() {
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-[5rem] text-[1rem] leading-[150%]'>
               <p className='font-bold'>서비스</p>
-              <Link href='/log' className='cursor-pointer'>
-                인사이트 로그
-              </Link>
+              <span className='text-[#9EA4A9]'>직무 추천</span>
               <Link href='/experience' className='cursor-pointer'>
                 경험 정리
               </Link>
