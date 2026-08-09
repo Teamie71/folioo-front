@@ -301,12 +301,12 @@ function CollapsedBrand({ onClick }: { onClick: () => void }) {
     <HoverTooltip
       label='사이드바 열기'
       placement='bottom'
-      wrapperClassName='absolute top-[30px] left-[15px] block size-[30px]'
+      wrapperClassName='absolute top-[29px] left-[14px] block size-[32px]'
     >
       <button
         type='button'
         onClick={onClick}
-        className='group hover:bg-gray2 relative flex size-[30px] cursor-pointer items-center justify-center rounded-[8px]'
+        className='group relative flex size-[32px] cursor-pointer items-center justify-center rounded-[8px] p-[4px]'
         aria-label='사이드바 최대화'
       >
         <Image
@@ -314,7 +314,21 @@ function CollapsedBrand({ onClick }: { onClick: () => void }) {
           alt='Folioo'
           width={30}
           height={30}
+          className='absolute transition-opacity group-hover:opacity-0'
         />
+        <span className='absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100'>
+          <span className='flex size-[28px] items-center justify-center overflow-hidden rounded-[2px] p-[3px]'>
+            <span className='relative size-[20px]'>
+              <Image
+                src='/sidebar/sidebar-icon-hover.svg'
+                alt=''
+                width={20}
+                height={20}
+                className='absolute top-[-5%] left-[-5%] size-[110%] max-w-none'
+              />
+            </span>
+          </span>
+        </span>
       </button>
     </HoverTooltip>
   );
