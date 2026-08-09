@@ -3,13 +3,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuthControllerHandleLogout } from '@/api/endpoints/auth/auth';
 import { useUserControllerGetProfile } from '@/api/endpoints/user/user';
 import { HoverTooltip } from '@/components/HoverTooltip';
 import { LogoutModal } from '@/components/LogoutModal';
-import { ProfileDropdown } from '@/components/ProfileDropdown';
 import { ProfileModal } from '@/components/ProfileModal';
 import { useAuthStore } from '@/store/useAuthStore';
 import { cn } from '@/utils/utils';
@@ -153,7 +152,7 @@ function ExpandedMenuItem({
         <SidebarIcon
           src='/sidebar/chevron-right.svg'
           size={20}
-          className='absolute top-[2px] right-[1px] rotate-90'
+          className='absolute top-[2px] right-[21px] rotate-90'
         />
       )}
     </div>
@@ -293,10 +292,8 @@ function CollapsedBrand({ onClick }: { onClick: () => void }) {
 
 export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
-  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  const profileTriggerRef = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();
   const router = useRouter();
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -371,12 +368,10 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
           {showAccount &&
             (isLoggedIn ? (
               <button
-                ref={profileTriggerRef}
                 type='button'
-                onClick={() => setIsProfileDropdownOpen((open) => !open)}
+                onClick={() => setIsProfileModalOpen(true)}
                 className='absolute top-[264px] left-[20px] w-[162px] cursor-pointer text-left'
-                aria-expanded={isProfileDropdownOpen}
-                aria-label='프로필 메뉴 열기'
+                aria-label='프로필 열기'
               >
                 <span className='flex h-[23px] items-center'>
                   <span className='typo-h5 whitespace-nowrap text-gray9'>
@@ -388,7 +383,7 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
                   <SidebarIcon
                     src='/sidebar/chevron-right.svg'
                     size={20}
-                    className='absolute top-[2px] left-[135px] rotate-90'
+                    className='absolute top-[2px] left-[115px] rotate-90'
                   />
                 </span>
                 <span className='absolute top-[31px] left-0 flex h-[21px] items-center'>
@@ -410,7 +405,7 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
                   <SidebarIcon
                     src='/sidebar/chevron-right.svg'
                     size={20}
-                    className='absolute top-[2px] left-[75px] rotate-90'
+                    className='absolute top-[2px] left-[55px] rotate-90'
                   />
                 </span>
                 <span className='typo-c1 absolute top-[31px] left-0 whitespace-nowrap text-gray6'>
@@ -448,13 +443,6 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
         </div>
       )}
 
-      <ProfileDropdown
-        open={isProfileDropdownOpen}
-        onClose={() => setIsProfileDropdownOpen(false)}
-        triggerRef={profileTriggerRef}
-        onProfileClick={() => setIsProfileModalOpen(true)}
-        onLogoutClick={() => setIsLogoutModalOpen(true)}
-      />
       <ProfileModal
         open={isProfileModalOpen}
         onOpenChange={setIsProfileModalOpen}
