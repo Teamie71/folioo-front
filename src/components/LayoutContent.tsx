@@ -5,6 +5,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import MobileNavbar from '@/components/MobileNavbar';
+import Sidebar from '@/components/Sidebar';
 import { OBTBannerMobile } from '@/components/OBT/OBTBannerMobile';
 import { BannerBeta } from '@/components/OBT/OBTBanner';
 import { OBTEventModal } from '@/components/OBT/OBTEventModal';
@@ -68,6 +69,8 @@ export default function LayoutContent({
 
   const path = pathname ?? '';
   const hideNavbar = isCorrectionNewPath(path) || isExperiencePath(path);
+  // 랜딩 페이지만 기존 상단 네브바를 유지하고, 나머지 데스크톱 화면은 공통 사이드바를 사용한다.
+  const showDesktopSidebar = !isMobileDevice && path !== '/';
 
   useEffect(() => {
     if (!isCorrectionDetailPath(path)) setShowNavbarOnResult(false);
@@ -242,36 +245,45 @@ export default function LayoutContent({
         ),
       }}
     >
-      {!hideNavbar && (
+      {showDesktopSidebar ? (
+        <div className='flex min-h-[100dvh] w-full'>
+          <Sidebar />
+          <div className='min-w-0 flex-1'>{children}</div>
+        </div>
+      ) : (
         <>
-          {isMobileDevice ? (
+          {!hideNavbar && (
             <>
-              <MobileNavbar />
-              {isOBTBannerVisible && (
-                <OBTBannerMobile onDismiss={handleDismissBanner} />
+              {isMobileDevice ? (
+                <>
+                  <MobileNavbar />
+                  {isOBTBannerVisible && (
+                    <OBTBannerMobile onDismiss={handleDismissBanner} />
+                  )}
+                </>
+              ) : (
+                <>
+                  <Navbar />
+                  <BannerBeta />
+                </>
               )}
             </>
-          ) : (
-            <>
-              <Navbar />
-              <BannerBeta />
-            </>
           )}
+          <div
+            className={cn(
+              hideNavbar ? '' : 'layout-content-below-header',
+              !hideNavbar &&
+                (isMobileDevice
+                  ? isOBTBannerVisible
+                    ? 'pt-[102px]'
+                    : 'pt-[52px]'
+                  : 'pt-[140px]'),
+            )}
+          >
+            {children}
+          </div>
         </>
       )}
-      <div
-        className={cn(
-          hideNavbar ? '' : 'layout-content-below-header',
-          !hideNavbar &&
-            (isMobileDevice
-              ? isOBTBannerVisible
-                ? 'pt-[102px]'
-                : 'pt-[52px]'
-              : 'pt-[140px]'),
-        )}
-      >
-        {children}
-      </div>
 
       {/* 주간 이용권 지급 */}
       {isMobileDevice ? (

@@ -4,13 +4,10 @@ import { ExperienceListSidebar } from '@/features/experience/list/components/Exp
 import { ExperienceListMainPanel } from '@/features/experience/list/components/ExperienceListMainPanel';
 import { ExperienceListAgentPanel } from '@/features/experience/list/components/ExperienceListAgentPanel';
 import { ExperienceListModals } from '@/features/experience/list/components/ExperienceListModals';
-import Sidebar from '@/components/Sidebar';
 
 export default function ExperienceListClient() {
   return (
     <div className='flex h-[100dvh] w-full overflow-hidden bg-white'>
-      <Sidebar />
-
       <div className='relative flex min-w-0 flex-1 overflow-hidden'>
         <ExperienceListSidebar />
         <ExperienceListMainPanel />
