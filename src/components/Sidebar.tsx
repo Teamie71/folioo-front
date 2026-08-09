@@ -28,6 +28,7 @@ type SidebarMenuItem = {
   href?: string;
   expandedIcon: string;
   collapsedIcon: string;
+  collapsedActiveIcon?: string;
   disabled?: boolean;
   tooltip?: string;
 };
@@ -36,7 +37,8 @@ const MENU_ITEMS: SidebarMenuItem[] = [
   {
     label: '직무 추천',
     expandedIcon: '/sidebar/job-recommendation.svg',
-    collapsedIcon: '/sidebar/job-recommendation-collapsed.svg',
+    collapsedIcon: '/sidebar/job-recommendation-hover.svg',
+    collapsedActiveIcon: '/sidebar/job-recommendation-active.svg',
     disabled: true,
     tooltip: '준비 중이에요.',
   },
@@ -91,12 +93,37 @@ function SidebarIcon(props: SidebarIconProps) {
 function MenuIcon({
   item,
   collapsed = false,
+  active = false,
 }: {
   item: SidebarMenuItem;
   collapsed?: boolean;
+  active?: boolean;
 }) {
   const iconSize = collapsed ? 24 : 20;
-  const icon = collapsed ? item.collapsedIcon : item.expandedIcon;
+  const icon =
+    collapsed && active && item.collapsedActiveIcon
+      ? item.collapsedActiveIcon
+      : collapsed
+        ? item.collapsedIcon
+        : item.expandedIcon;
+  const activeClass =
+    collapsed && active && !item.collapsedActiveIcon
+      ? 'sidebar-menu-icon-active'
+      : undefined;
+
+  if (collapsed && item.label === '직무 추천') {
+    return (
+      <span className='relative block size-[24px] shrink-0 overflow-hidden'>
+        <Image
+          src={icon}
+          alt=''
+          width={21.6}
+          height={21.6}
+          className='absolute top-[1.2px] left-[1.2px]'
+        />
+      </span>
+    );
+  }
 
   if (item.label === '경험 정리') {
     return (
@@ -113,6 +140,7 @@ function MenuIcon({
           height={collapsed ? 17.6 : 14.6667}
           className={cn(
             'absolute',
+            activeClass,
             collapsed ? 'top-[3.6px] left-[2.4px]' : 'top-[3px] left-[2px]',
           )}
         />
@@ -120,7 +148,7 @@ function MenuIcon({
     );
   }
 
-  return <SidebarIcon src={icon} size={iconSize} />;
+  return <SidebarIcon src={icon} size={iconSize} className={activeClass} />;
 }
 
 function ExpandedMenuItem({
@@ -142,7 +170,7 @@ function ExpandedMenuItem({
       )}
     >
       <div className='flex items-center gap-[8px]'>
-        <MenuIcon item={item} />
+        <MenuIcon item={item} active={active} />
         <span className='typo-b2 text-gray9'>{item.label}</span>
       </div>
       {item.disabled ? (
@@ -198,7 +226,7 @@ function CollapsedMenuItem({
           : cn('hover:bg-gray2 cursor-pointer', active && 'bg-sub1'),
       )}
     >
-      <MenuIcon item={item} collapsed />
+      <MenuIcon item={item} collapsed active={active} />
     </div>
   );
 
