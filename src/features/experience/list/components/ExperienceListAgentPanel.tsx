@@ -7,7 +7,10 @@ import {
   MOCK_AGENT_MESSAGES,
   type MockAgentMessage,
 } from '@/features/experience/list/mock';
-import { AGENT_PANEL_MODE } from '@/features/experience/list/constants';
+import {
+  AGENT_COMING_SOON_COPY,
+  AGENT_PANEL_MODE,
+} from '@/features/experience/list/constants';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { AttachIcon } from '@/components/icons/AttachIcon';
 import { SendArrowIcon } from '@/components/icons/SendArrowIcon';
@@ -20,22 +23,22 @@ function AgentComingSoonBody() {
   return (
     <div className='flex flex-1 flex-col items-center justify-center px-[24px] text-center'>
       <p className='typo-b1-sb text-gray9'>
-        경험정리를 도와주는
+        {AGENT_COMING_SOON_COPY.titleFirstLine}
         <br />
-        AI 에이전트를 준비 중이에요.
+        {AGENT_COMING_SOON_COPY.titleSecondLine}
       </p>
       <p className='typo-c2 text-gray9 mt-[20px]'>
-        경험정리 과정에서 어렵거나 불편한 점이 있다면
+        {AGENT_COMING_SOON_COPY.feedbackLead}
         <br />
         <Link
           href='/feedback'
           className='text-main underline underline-offset-2'
         >
-          피드백
+          {AGENT_COMING_SOON_COPY.feedbackLinkLabel}
         </Link>
-        을 통해 알려주세요.
+        {AGENT_COMING_SOON_COPY.feedbackTail}
         <br />
-        보내주신 의견을 바탕으로 더 나은 서비스를 만들겠습니다.
+        {AGENT_COMING_SOON_COPY.feedbackClosing}
       </p>
     </div>
   );
