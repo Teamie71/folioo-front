@@ -66,7 +66,7 @@ function KebabTriggerIcon({ className }: { className?: string }) {
   return (
     <span
       className={cn(
-        'relative flex size-[16px] items-center justify-center overflow-hidden',
+        'text-gray9 relative flex size-[16px] items-center justify-center overflow-hidden',
         className,
       )}
     >
@@ -308,7 +308,7 @@ function PositionedMenu({
   );
 }
 
-type Placement = 'left' | 'right' | 'bottom';
+type Placement = 'left' | 'right' | 'bottom' | 'inside-end';
 
 type MenuButtonProps = {
   items: MenuItem[];
@@ -320,7 +320,7 @@ type MenuButtonProps = {
   children: ReactNode;
   tooltip?: string;
   menuPlacement?: Placement;
-  menuAlign?: 'start' | 'center';
+  menuAlign?: 'start' | 'center' | 'end';
   menuTitle?: string;
 };
 
@@ -347,7 +347,8 @@ export function MenuButton({
       return;
     }
     const update = () => {
-      const rect = triggerRef.current!.getBoundingClientRect();
+      const trigger = triggerRef.current!;
+      const rect = trigger.getBoundingClientRect();
       const menuWidth = MENU_WIDTH;
       const gap = MENU_GAP;
       const estimatedHeight = estimateMenuHeight(
@@ -355,11 +356,26 @@ export function MenuButton({
         Boolean(menuTitle),
       );
 
+      if (menuPlacement === 'inside-end') {
+        const style = window.getComputedStyle(trigger);
+        const padRight = parseFloat(style.paddingRight) || 0;
+        const padTop = parseFloat(style.paddingTop) || 0;
+        let left = rect.right - padRight - menuWidth;
+        if (left < VIEWPORT_PAD) left = VIEWPORT_PAD;
+        if (left + menuWidth > window.innerWidth - VIEWPORT_PAD) {
+          left = window.innerWidth - VIEWPORT_PAD - menuWidth;
+        }
+        setPos(fitMenuInViewport(rect.top + padTop, left, estimatedHeight));
+        return;
+      }
+
       if (menuPlacement === 'bottom') {
         let left =
           menuAlign === 'start'
             ? rect.left
-            : rect.left + (rect.width - menuWidth) / 2;
+            : menuAlign === 'end'
+              ? rect.right - menuWidth
+              : rect.left + (rect.width - menuWidth) / 2;
         if (left < VIEWPORT_PAD) left = VIEWPORT_PAD;
         if (left + menuWidth > window.innerWidth - VIEWPORT_PAD) {
           left = window.innerWidth - VIEWPORT_PAD - menuWidth;
@@ -537,11 +553,76 @@ export function DragMenuButton({
     };
   }, [open, items.length]);
 
+  const measureSize = () => {
+    const root =
+      triggerRef.current?.closest(measureSelector) ?? triggerRef.current;
+    if (!root) return { width: 0, height: 0 };
+    const rect = root.getBoundingClientRect();
+    return { width: rect.width, height: rect.height };
+  };
+
+  const gatePointer = !open;
+
+  const button = (
+    <button
+      ref={triggerRef}
+      type='button'
+      draggable
+      aria-label={ariaLabel}
+      aria-expanded={open}
+      className={cn(
+        className,
+        '!cursor-grab select-none active:!cursor-grabbing',
+        open && '!pointer-events-auto !opacity-100',
+      )}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (didDragRef.current) {
+          didDragRef.current = false;
+          return;
+        }
+        setOpen((prev) => !prev);
+      }}
+      onDragStart={(e) => {
+        didDragRef.current = true;
+        setDragging(true);
+        setOpen(false);
+        e.dataTransfer.effectAllowed = 'move';
+
+        const size = measureSize();
+
+        const empty = document.createElement('div');
+        empty.style.width = '1px';
+        empty.style.height = '1px';
+        empty.style.opacity = '0';
+        empty.style.position = 'fixed';
+        empty.style.top = '-9999px';
+        document.body.appendChild(empty);
+        e.dataTransfer.setDragImage(empty, 0, 0);
+        requestAnimationFrame(() => {
+          empty.remove();
+        });
+
+        setDragPayload(e, payload);
+        onDragBegin?.(size);
+      }}
+      onDragEnd={() => {
+        setDragging(false);
+        onDragFinish?.();
+        window.setTimeout(() => {
+          didDragRef.current = false;
+        }, 50);
+      }}
+    >
+      {children}
+    </button>
+  );
+
   return (
     <div
       className={cn(
         'relative inline-flex cursor-grab',
-        !open && 'pointer-events-none',
+        gatePointer && 'pointer-events-none',
       )}
       data-no-dnd
     >
@@ -549,63 +630,9 @@ export function DragMenuButton({
         label='드래그해서 옮기기'
         align={tooltipAlign}
         disabled={open || dragging}
-        wrapperClassName={cn('cursor-grab', !open && 'pointer-events-none')}
+        wrapperClassName={cn('cursor-grab', gatePointer && 'pointer-events-none')}
       >
-        <button
-          ref={triggerRef}
-          type='button'
-          draggable
-          aria-label={ariaLabel}
-          aria-expanded={open}
-          className={cn(
-            className,
-            '!cursor-grab select-none active:!cursor-grabbing',
-            open && '!pointer-events-auto !opacity-100',
-          )}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (didDragRef.current) {
-              didDragRef.current = false;
-              return;
-            }
-            setOpen((prev) => !prev);
-          }}
-          onDragStart={(e) => {
-            didDragRef.current = true;
-            setDragging(true);
-            setOpen(false);
-
-            const root =
-              (e.currentTarget as HTMLElement).closest(measureSelector) ??
-              (e.currentTarget as HTMLElement);
-            const rect = root.getBoundingClientRect();
-            const size = { width: rect.width, height: rect.height };
-
-            const empty = document.createElement('div');
-            empty.style.width = '1px';
-            empty.style.height = '1px';
-            empty.style.opacity = '0';
-            empty.style.position = 'fixed';
-            empty.style.top = '-9999px';
-            document.body.appendChild(empty);
-            e.dataTransfer.setDragImage(empty, 0, 0);
-            requestAnimationFrame(() => {
-              empty.remove();
-            });
-
-            setDragPayload(e, payload);
-            onDragBegin?.(size);
-          }}
-          onDragEnd={() => {
-            setDragging(false);
-            onDragFinish?.();
-            window.setTimeout(() => {
-              didDragRef.current = false;
-            }, 50);
-          }}
-        >
-          {children}
-        </button>
+        {button}
       </HoverTooltip>
       {open &&
         pos &&

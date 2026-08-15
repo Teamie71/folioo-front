@@ -12,6 +12,7 @@ type Props = {
   onEnter?: (draft: string, start: number, end: number) => void;
   requestEdit?: boolean;
   requestEditCaret?: number;
+  requestEditSelectAll?: boolean;
   onRequestEditHandled?: () => void;
   className?: string;
   inputClassName?: string;
@@ -63,6 +64,7 @@ export function EditableLabel({
   onEnter,
   requestEdit = false,
   requestEditCaret = 0,
+  requestEditSelectAll = false,
   onRequestEditHandled,
   className,
   inputClassName,
@@ -74,6 +76,7 @@ export function EditableLabel({
   const [draft, setDraft] = useState(value);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const caretRef = useRef<number | null>(null);
+  const selectAllRef = useRef(false);
   const skipBlurRef = useRef(false);
   const draftPastRef = useRef<string[]>([]);
   const draftFutureRef = useRef<string[]>([]);
@@ -92,11 +95,12 @@ export function EditableLabel({
 
   useEffect(() => {
     if (!requestEdit || !editable) return;
-    caretRef.current = requestEditCaret;
+    selectAllRef.current = requestEditSelectAll;
+    caretRef.current = requestEditSelectAll ? null : requestEditCaret;
     clearDraftHistory();
     setEditing(true);
     onRequestEditHandled?.();
-  }, [requestEdit, editable, requestEditCaret]);
+  }, [requestEdit, editable, requestEditCaret, requestEditSelectAll]);
 
   useEffect(() => {
     if (!editing) return;
@@ -142,6 +146,12 @@ export function EditableLabel({
     resize();
     const el = inputRef.current;
     if (!el) return;
+    if (selectAllRef.current) {
+      selectAllRef.current = false;
+      el.focus();
+      el.setSelectionRange(0, el.value.length);
+      return;
+    }
     if (caretRef.current != null) {
       const offset = Math.min(Math.max(caretRef.current, 0), el.value.length);
       el.focus();

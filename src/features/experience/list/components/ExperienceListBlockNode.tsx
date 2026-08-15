@@ -244,6 +244,7 @@ export function ExperienceListBlockNode({
     return (
       <div
         data-section-dnd
+        data-block-id={block.id}
         className='group/sec relative flex flex-col gap-[8px]'
       >
         <DropIndicator

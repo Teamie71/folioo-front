@@ -59,7 +59,6 @@ export type DragPayload =
 
 export type DragSize = { width: number; height: number };
 
-/** dragOver에서 React state보다 먼저 읽기 위한 동기 페이로드 */
 let activeDrag: DragPayload | null = null;
 
 export function getActiveDrag(): DragPayload | null {
@@ -82,7 +81,10 @@ export function clearActiveDrag() {
   activeDrag = null;
 }
 
-/** Safari는 커스텀 MIME을 막아서 text/plain 사용 */
+export function setActiveDragPayload(payload: DragPayload | null) {
+  activeDrag = payload;
+}
+
 export function setDragPayload(e: DragEvent, payload: DragPayload) {
   activeDrag = payload;
   const raw = JSON.stringify(payload);
@@ -102,20 +104,26 @@ export function getDragPayload(e: DragEvent): DragPayload | null {
 }
 
 export function placeFromY(e: DragEvent, el: HTMLElement): 'before' | 'after' {
-  const rect = el.getBoundingClientRect();
-  const mid = rect.top + rect.height / 2;
-  return e.clientY < mid ? 'before' : 'after';
+  return placeFromClientY(e.clientY, el);
 }
 
-/** before/after 경계 떨림 방지(히스테리시스) */
-export function siblingDropKindFromY(
-  e: DragEvent,
+export function placeFromClientY(
+  clientY: number,
+  el: HTMLElement,
+): 'before' | 'after' {
+  const rect = el.getBoundingClientRect();
+  const mid = rect.top + rect.height / 2;
+  return clientY < mid ? 'before' : 'after';
+}
+
+export function siblingDropKindFromClientY(
+  clientY: number,
   el: HTMLElement,
   stickyKind?: 'before' | 'after' | null,
 ): 'before' | 'after' {
   const rect = el.getBoundingClientRect();
   const h = Math.max(rect.height, 1);
-  const y = e.clientY - rect.top;
+  const y = clientY - rect.top;
   if (y < 0) return 'before';
   if (y > h) return 'after';
   const ratio = y / h;
@@ -123,6 +131,14 @@ export function siblingDropKindFromY(
   if (stickyKind === 'before' && ratio < 0.62) return 'before';
   if (stickyKind === 'after' && ratio > 0.38) return 'after';
   return ratio < 0.5 ? 'before' : 'after';
+}
+
+export function siblingDropKindFromY(
+  e: DragEvent,
+  el: HTMLElement,
+  stickyKind?: 'before' | 'after' | null,
+): 'before' | 'after' {
+  return siblingDropKindFromClientY(e.clientY, el, stickyKind);
 }
 
 export function blockDropKindFromY(
