@@ -67,7 +67,12 @@ export default function LayoutContent({
     useUserControllerMarkTicketGrantNoticeDismissed();
 
   const path = pathname ?? '';
-  const hideNavbar = isCorrectionNewPath(path) || isExperiencePath(path);
+  const isMobileExperienceList =
+    isMobileDevice &&
+    (path === '/experience' || path === '/experience/list');
+  const hideNavbar =
+    isCorrectionNewPath(path) ||
+    (isExperiencePath(path) && !isMobileExperienceList);
 
   useEffect(() => {
     if (!isCorrectionDetailPath(path)) setShowNavbarOnResult(false);
