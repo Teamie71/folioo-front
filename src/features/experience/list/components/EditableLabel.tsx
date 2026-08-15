@@ -10,6 +10,7 @@ type Props = {
   editable: boolean;
   onCommit: (next: string) => void;
   onEnter?: (draft: string, start: number, end: number) => void;
+  onDeleteEmpty?: () => void;
   requestEdit?: boolean;
   requestEditCaret?: number;
   requestEditSelectAll?: boolean;
@@ -62,6 +63,7 @@ export function EditableLabel({
   editable,
   onCommit,
   onEnter,
+  onDeleteEmpty,
   requestEdit = false,
   requestEditCaret = 0,
   requestEditSelectAll = false,
@@ -251,6 +253,21 @@ export function EditableLabel({
             e.preventDefault();
             if (e.shiftKey) redoFromSession();
             else undoFromSession();
+            return;
+          }
+
+          if (
+            e.key === 'Backspace' &&
+            onDeleteEmpty &&
+            draft === '' &&
+            e.currentTarget.selectionStart === 0 &&
+            e.currentTarget.selectionEnd === 0
+          ) {
+            e.preventDefault();
+            skipBlurRef.current = true;
+            clearDraftHistory();
+            setEditing(false);
+            onDeleteEmpty();
             return;
           }
 

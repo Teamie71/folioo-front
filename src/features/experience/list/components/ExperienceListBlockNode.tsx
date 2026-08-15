@@ -26,7 +26,11 @@ import {
 } from '@/features/experience/list/factories';
 import { useBlockNodeDnd } from '@/features/experience/list/hooks/useBlockNodeDnd';
 import type { Block } from '@/features/experience/list/types';
-import { isMeaningfulDrop } from '@/features/experience/list/utils/blockTreeUtils';
+import {
+  findBlockLocation,
+  flattenBlocks,
+  isMeaningfulDrop,
+} from '@/features/experience/list/utils/blockTreeUtils';
 import { getAvailableSectionTemplateOptions } from '@/features/experience/list/utils/sectionTemplateOptions';
 
 const kebabCls =
@@ -395,6 +399,27 @@ export function ExperienceListBlockNode({
                     splitBlockAt(dnd.experienceId, block.id, left, sibling);
                     dnd.setEditRequest({ id: sibling.id, caret: 0 });
                   }}
+                  onDeleteEmpty={
+                    block.children.length > 0
+                      ? undefined
+                      : () => {
+                          const flat = flattenBlocks(dnd.rootBlocks);
+                          const at = flat.findIndex((b) => b.id === block.id);
+                          const prev = at > 0 ? flat[at - 1] : null;
+                          const prevLevel = prev
+                            ? findBlockLocation(dnd.rootBlocks, prev.id)?.level
+                            : undefined;
+
+                          deleteBlock(dnd.experienceId, block.id);
+
+                          if (prev && prevLevel != null && prevLevel >= 4) {
+                            dnd.setEditRequest({
+                              id: prev.id,
+                              caret: prev.text.length,
+                            });
+                          }
+                        }
+                  }
                   requestEdit={dnd.editRequest?.id === block.id}
                   requestEditCaret={
                     dnd.editRequest?.id === block.id ? dnd.editRequest.caret : 0

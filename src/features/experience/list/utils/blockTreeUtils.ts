@@ -26,6 +26,10 @@ export function findBlockLocation(
   return null;
 }
 
+export function flattenBlocks(blocks: Block[]): Block[] {
+  return blocks.flatMap((b) => [b, ...flattenBlocks(b.children)]);
+}
+
 export function findBlock(blocks: Block[], blockId: string): Block | null {
   for (const b of blocks) {
     if (b.id === blockId) return b;
