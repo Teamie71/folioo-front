@@ -37,7 +37,9 @@ export function ProfileEditButton({
   }, [isEditing]);
 
   const handleComplete = () => {
-    const trimmed = editValue.trim() || value;
+    const trimmed = editValue.trim();
+    if (!trimmed) return;
+
     onSave?.(trimmed);
     setEditValue(trimmed);
     setIsEditing(false);
@@ -78,7 +80,8 @@ export function ProfileEditButton({
           <button
             type='button'
             onClick={handleComplete}
-            className='shrink-0 cursor-pointer border-none bg-transparent'
+            disabled={!editValue.trim()}
+            className='shrink-0 cursor-pointer border-none bg-transparent disabled:cursor-not-allowed disabled:opacity-40'
             aria-label='수정 완료'
           >
             <CheckCircleIcon />

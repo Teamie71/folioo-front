@@ -68,6 +68,12 @@
   box-shadow: 0 0.25rem 0.5rem 0 #00000033;
 }
 
+/* Figma 사이드바 활성 상태의 Main 색상 */
+.sidebar-menu-icon-active {
+  filter: brightness(0) saturate(100%) invert(39%) sepia(54%) saturate(1146%)
+    hue-rotate(199deg) brightness(88%) contrast(87%);
+}
+
 /* ==========================================================================
    tokens.json — Typography (Display, Header, Body, caption, Nav, TextField)
    ========================================================================== */

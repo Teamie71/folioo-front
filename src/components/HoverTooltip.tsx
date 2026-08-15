@@ -67,6 +67,22 @@ export function HoverTooltip({
     };
   }, []);
 
+  useEffect(() => {
+    if (!open) return;
+
+    const closeOnOutsidePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      if (target && !triggerRef.current?.contains(target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', closeOnOutsidePointerDown);
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsidePointerDown);
+    };
+  }, [open]);
+
   useLayoutEffect(() => {
     if (!open || disabled || !triggerRef.current) {
       setPos(null);

@@ -1,8 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { FEEDBACK_FORM_URL } from '@/constants/feedback';
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
     <div className='mx-auto hidden w-full bg-[#F6F8FA] pt-[1.25rem] pb-[2.5rem] md:flex'>
       <div className='mx-auto flex min-w-[66rem] flex-col items-start justify-center gap-[2.5rem]'>
@@ -10,9 +11,7 @@ export default function Footer() {
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-[5rem] text-[1rem] leading-[150%]'>
               <p className='font-bold'>서비스</p>
-              <Link href='/log' className='cursor-pointer'>
-                인사이트 로그
-              </Link>
+              <span className='text-[#9EA4A9]'>직무 추천</span>
               <Link href='/experience' className='cursor-pointer'>
                 경험 정리
               </Link>
@@ -29,7 +28,7 @@ export default function Footer() {
             </Link>
           </div>
 
-          <div className='w-full border border-[#CDD0D5]' />
+          <div className='h-px w-full bg-[#CDD0D5]' />
         </div>
 
         <div className='flex w-full justify-between'>
@@ -44,7 +43,15 @@ export default function Footer() {
               </div>
 
               <div className='flex items-center gap-[1.5rem]'>
-                <p>사업자등록번호: 512-16-02706</p>
+                <a
+                  href='https://www.ftc.go.kr/bizCommPop.do?wrkr_no=5121602706'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='cursor-pointer hover:underline'
+                  aria-label='공정거래위원회 사업자정보공개'
+                >
+                  사업자등록번호: 512-16-02706
+                </a>
                 <p>전화번호: 010-5797-0358</p>
                 <p>이메일: teamie0701@gmail.com</p>
               </div>
@@ -81,17 +88,17 @@ export default function Footer() {
             >
               개인정보 처리방침
             </Link>
-            <div className='h-[1.25rem] border border-[#CDD0D5]' />
+            <div className='h-[1.25rem] w-px shrink-0 bg-[#CDD0D5]' />
             <Link href='/tos' className='cursor-pointer hover:underline'>
               서비스 이용약관
             </Link>
-            <div className='h-[1.25rem] border border-[#CDD0D5]' />
+            <div className='h-[1.25rem] w-px shrink-0 bg-[#CDD0D5]' />
             <Link href='/marketing' className='cursor-pointer hover:underline'>
               마케팅 정보 수신
             </Link>
           </div>
           <p className='text-[0.875rem] leading-[150%] text-[#74777D]'>
-            Copyright © 2026 Teamie. All rights reserved.
+            Copyright © {currentYear} Teamie. All rights reserved.
           </p>
         </div>
       </div>
