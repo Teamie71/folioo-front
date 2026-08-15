@@ -40,6 +40,7 @@ export function MobileExperienceListDetailHeader({
           ariaLabel={menuAriaLabel}
           menuPlacement='bottom'
           menuAlign='end'
+          submenuMode='inline'
           className='text-gray9 flex size-[24px] items-center justify-center'
         >
           <span className='relative flex size-[16px] items-center justify-center'>

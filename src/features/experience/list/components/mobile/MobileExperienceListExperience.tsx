@@ -167,6 +167,7 @@ export function MobileExperienceListExperience({
             ariaLabel='활동 메뉴'
             menuPlacement='bottom'
             menuAlign='end'
+            submenuMode='inline'
             className={mobileRowActionCls}
           >
             <span className='relative flex size-[16px] items-center justify-center'>
