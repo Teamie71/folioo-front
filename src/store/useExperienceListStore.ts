@@ -17,7 +17,27 @@ import {
   type DropPosition,
 } from '@/features/experience/list/utils/blockTreeUtils';
 
-const seed = getExperienceListSeed();
+function createSeededListState() {
+  const seed = getExperienceListSeed();
+  return {
+    groups: seed.groups,
+    experiences: seed.experiences,
+    groupCounter: seed.groupCounter,
+    experienceCounter: seed.experienceCounter,
+    selection: {
+      kind: 'experience' as const,
+      id: seed.experiences[0]?.id ?? '',
+    },
+    viewMode: 'list' as const,
+    sidebarOpen: true,
+    agentOpen: true,
+    collapsedGroups: {} as Record<string, boolean>,
+    modal: null as ModalState,
+    isContentLoading: false,
+    past: [] as Snapshot[],
+    future: [] as Snapshot[],
+  };
+}
 
 function insertSiblingsAfter(
   blocks: Block[],
@@ -174,7 +194,6 @@ interface ExperienceListState {
     parentBlockId: string,
     child: Block,
   ) => void;
-  /** undo 스택 1회에 여러 자식 추가 */
   addChildrenBlocks: (
     experienceId: string,
     parentBlockId: string,
@@ -219,24 +238,7 @@ export const useExperienceListStore = create<ExperienceListState>()(
         }));
 
       return {
-        groups: seed.groups,
-        experiences: seed.experiences,
-        groupCounter: seed.groupCounter,
-        experienceCounter: seed.experienceCounter,
-        selection: {
-          kind: 'experience',
-          id: seed.experiences[0]?.id ?? '',
-        },
-
-        viewMode: 'list',
-        sidebarOpen: true,
-        agentOpen: true,
-        collapsedGroups: {},
-        modal: null,
-        isContentLoading: false,
-
-        past: [],
-        future: [],
+        ...createSeededListState(),
 
         setViewMode: (mode) => set({ viewMode: mode }),
         toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
