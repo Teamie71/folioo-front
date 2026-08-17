@@ -1,28 +1,26 @@
 'use client';
 
 import { memo } from 'react';
-import { ListViewIcon } from '@/components/icons/ListViewIcon';
-import {
-  LIST_PREVIEW_BUTTON_HEIGHT,
-  LIST_PREVIEW_BUTTON_WIDTH,
-} from '@/features/experience/map/constants';
+import type { NodeProps } from '@xyflow/react';
+import { useActivityPreview } from '@/features/experience/map/hooks/useActivityPreview';
 
-/**
- * '리스트로 확인하기' 버튼 (6).
- * 활동 미리보기 모달은 아직 연결하지 않는다.
- */
-function MapListPreviewNodeComponent() {
+export type MapListPreviewNodeData = { experienceId: string };
+
+/** '리스트로 확인하기' 버튼 (6). 클릭 시 활동 미리보기 모달(6-1)을 연다. */
+function MapListPreviewNodeComponent({ data }: NodeProps) {
+  const { experienceId } = data as unknown as MapListPreviewNodeData;
+  const { open } = useActivityPreview();
+
   return (
     <button
       type='button'
-      className='border-gray4 hover:bg-gray2 nodrag nopan flex cursor-pointer items-center justify-center gap-[4px] rounded-[6px] border bg-white transition-colors'
-      style={{
-        width: LIST_PREVIEW_BUTTON_WIDTH,
-        height: LIST_PREVIEW_BUTTON_HEIGHT,
+      className='border-gray4 hover:bg-gray2 nodrag nopan cursor-pointer rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors'
+      onClick={(event) => {
+        event.stopPropagation();
+        open(experienceId);
       }}
     >
-      <ListViewIcon className='size-[16px]' />
-      <span className='typo-c1 text-gray9'>리스트로 확인하기</span>
+      <span className='typo-b2 text-gray9'>리스트로 확인하기</span>
     </button>
   );
 }

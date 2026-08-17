@@ -85,7 +85,12 @@ export const BLOCK_MAX_LENGTH = 500;
 export const BLOCK_CONTROL_GAP = 8;
 export const BLOCK_CONTROL_SIZE = 16;
 
-/** '리스트로 확인하기' 버튼 — 활동 영역 우측 상단에 고정 배치한다. */
-export const LIST_PREVIEW_BUTTON_WIDTH = 152;
-export const LIST_PREVIEW_BUTTON_HEIGHT = 30;
+/**
+ * '리스트로 확인하기' 버튼 — 활동 영역 우측 상단에 고정 배치한다.
+ * 아이콘 없이 typo-b2 텍스트 + px-12px py-6px 패딩 크기를 어림한 값으로,
+ * xyflow 노드 배치(우측 정렬 위치 계산)에만 쓰는 힌트다. 실제 렌더 크기는
+ * 버튼 자체의 패딩이 결정한다.
+ */
+export const LIST_PREVIEW_BUTTON_WIDTH = 160;
+export const LIST_PREVIEW_BUTTON_HEIGHT = 36;
 export const LIST_PREVIEW_BUTTON_INSET = 12;

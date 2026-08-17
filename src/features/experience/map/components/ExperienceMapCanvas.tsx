@@ -37,6 +37,7 @@ import {
 } from '@/features/experience/map/utils/mapLayout';
 import { resetMeasureCache } from '@/features/experience/map/utils/measureBlockBox';
 import { MapActivityAreas } from '@/features/experience/map/components/MapActivityAreas';
+import { MapActivityPreviewModal } from '@/features/experience/map/components/MapActivityPreviewModal';
 import { MapBlockNode } from '@/features/experience/map/components/MapBlockNode';
 import { MapDragGhost } from '@/features/experience/map/components/MapDragGhost';
 import { MapDropIndicator } from '@/features/experience/map/components/MapDropIndicator';
@@ -44,6 +45,7 @@ import { MapElbowEdge } from '@/features/experience/map/components/MapElbowEdge'
 import { MapListPreviewNode } from '@/features/experience/map/components/MapListPreviewNode';
 import { MapInteractionProvider } from '@/features/experience/map/components/MapInteractionContext';
 import { useMapBlockDrag } from '@/features/experience/map/hooks/useMapBlockDrag';
+import { experienceNodeId } from '@/features/experience/map/model/mapNodeId';
 import { collectSelectionIds } from '@/features/experience/map/utils/mapSelection';
 
 const nodeTypes = {
@@ -142,7 +144,7 @@ function ExperienceMapCanvasInner() {
           LIST_PREVIEW_BUTTON_WIDTH,
         y: area.y + LIST_PREVIEW_BUTTON_INSET,
       },
-      data: {},
+      data: { experienceId: area.experienceId },
       draggable: false,
       selectable: false,
       initialWidth: LIST_PREVIEW_BUTTON_WIDTH,
@@ -184,6 +186,19 @@ function ExperienceMapCanvasInner() {
       );
     },
     [groups, experiences, setCenter],
+  );
+
+  /**
+   * 활동 미리보기 모달을 닫을 때, 화살표로 마지막까지 보고 있던 활동으로 확대한다.
+   * 표준 수준이 아니었다면(맵 뷰 최소화 상태에서 리스트로 확인하기를 눌렀을 리는
+   * 없지만, 방어적으로) 표준 수준으로 맞춘 뒤 이동한다.
+   */
+  const onPreviewClose = useCallback(
+    (lastExperienceId: string) => {
+      setDetail('standard');
+      focusOnStandard(experienceNodeId(lastExperienceId));
+    },
+    [focusOnStandard],
   );
 
   const onBlockClick = useCallback(
@@ -321,6 +336,7 @@ function ExperienceMapCanvasInner() {
       </ReactFlow>
       {dropTarget && <MapDropIndicator target={dropTarget} />}
       {ghost && <MapDragGhost ghost={ghost} />}
+      <MapActivityPreviewModal onClose={onPreviewClose} />
     </MapInteractionProvider>
   );
 }

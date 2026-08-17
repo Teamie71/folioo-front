@@ -328,6 +328,42 @@ body[data-banner-dismissed='true'] .banner-beta {
   background-clip: padding-box;
 }
 
+/* 활동 프리뷰: 트랙 영역 없이 피그마처럼 thumb만 보이는 스크롤바 */
+.map-preview-scroll {
+  scrollbar-color: #cdd0d5 transparent;
+  scrollbar-width: auto;
+}
+
+.map-preview-scroll::-webkit-scrollbar {
+  width: 16px;
+  background: transparent;
+}
+
+.map-preview-scroll::-webkit-scrollbar-track,
+.map-preview-scroll::-webkit-scrollbar-track-piece {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.map-preview-scroll::-webkit-scrollbar-thumb {
+  min-height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: #cdd0d5;
+  box-shadow: none;
+}
+
+.map-preview-scroll::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.map-preview-scroll::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 /* 확장 프로그램이 비디오 위에 띄우는 재생속도 오버레이 숨김 */
 #vsc-controller,
 #controller,
