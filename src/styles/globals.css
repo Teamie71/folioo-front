@@ -31,6 +31,9 @@
   --color-sub-hover: #eeedf7;
   --color-unactive: #cdd0d5;
 
+  /* global.Sub2 — 단색이 아니라 그라데이션이라 background-image로 사용한다 */
+  --gradient-sub2: linear-gradient(180deg, #93b3f4 0%, #5060c5 100%);
+
   /* global.gray scale (white, Gray1–Gray9) */
   --color-white: #ffffff;
   --color-gray1: #fdfdfd;
@@ -66,6 +69,13 @@
 }
 .shadow-chat-card {
   box-shadow: 0 0.25rem 0.5rem 0 #00000033;
+}
+
+/* ==========================================================================
+   tokens.json — Gradient (유틸 클래스)
+   ========================================================================== */
+.gradient-sub2 {
+  background-image: var(--gradient-sub2);
 }
 
 /* Figma 사이드바 활성 상태의 Main 색상 */
@@ -257,6 +267,37 @@ body[data-banner-dismissed='true'] .banner-beta {
 }
 @media (prefers-reduced-motion: reduce) {
   .animate-shake {
+    animation: none;
+  }
+}
+
+/* 로딩 프로그레스바 채움 (prefers-reduced-motion 시 정적 표시)
+   끝에서 opacity를 떨어뜨려 0%로 되감기는 순간이 튀지 않게 한다. */
+@keyframes progress-fill {
+  0% {
+    width: 0%;
+    opacity: 1;
+  }
+  75% {
+    width: 88%;
+    opacity: 1;
+  }
+  95% {
+    width: 100%;
+    opacity: 1;
+  }
+  100% {
+    width: 100%;
+    opacity: 0;
+  }
+}
+.animate-progress-fill {
+  width: 0%;
+  animation: progress-fill 0.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-progress-fill {
+    width: 60%;
     animation: none;
   }
 }
