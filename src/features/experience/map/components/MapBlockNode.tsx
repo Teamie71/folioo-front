@@ -33,7 +33,8 @@ function MapBlockNodeComponent({ data }: NodeProps) {
   const { node } = data as unknown as MapBlockNodeData;
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { activeId, editingId, onEditingChange } = useMapInteraction();
+  const { activeId, editingId, onEditingChange, menuCloseSignal } =
+    useMapInteraction();
 
   const blockSelectionMode = useExperienceListStore(
     (s) => s.blockSelectionMode,
@@ -130,6 +131,24 @@ function MapBlockNodeComponent({ data }: NodeProps) {
         </span>
       )}
 
+      {node.deletable && isActive && !blockSelectionMode && (
+        <span className='absolute top-0 left-0 z-10 -translate-x-1/2 -translate-y-1/2'>
+          <HoverTooltip label='클릭하여 해당 블록 삭제'>
+            <button
+              type='button'
+              aria-label='블록 삭제'
+              className='nodrag nopan flex size-[18px] cursor-pointer items-center justify-center'
+              onClick={(event) => {
+                event.stopPropagation();
+                requestDelete();
+              }}
+            >
+              <MapBlockRemoveIcon />
+            </button>
+          </HoverTooltip>
+        </span>
+      )}
+
       <div
         className={cn(
           'border-gray3 box-border w-full border bg-white',
@@ -154,22 +173,6 @@ function MapBlockNodeComponent({ data }: NodeProps) {
       </div>
 
       <div className='absolute top-0 left-full flex h-full items-center gap-[4px] pl-[8px]'>
-        {node.deletable && isActive && !blockSelectionMode && (
-          <HoverTooltip label='클릭하여 해당 블록 삭제'>
-            <button
-              type='button'
-              aria-label='블록 삭제'
-              className={cn(controlButtonCls, 'nodrag nopan')}
-              onClick={(event) => {
-                event.stopPropagation();
-                requestDelete();
-              }}
-            >
-              <MapBlockRemoveIcon />
-            </button>
-          </HoverTooltip>
-        )}
-
         {showAddOnHover && addAction?.kind === 'direct' && (
           <HoverTooltip label='클릭하여 하위 블록 추가'>
             <button
@@ -195,7 +198,9 @@ function MapBlockNodeComponent({ data }: NodeProps) {
             ariaLabel='하위 블록 추가'
             tooltip='클릭하여 하위 블록 추가'
             variant='block'
-            menuPlacement='right'
+            menuPlacement='right-bottom'
+            anchorRef={containerRef}
+            closeSignal={menuCloseSignal}
             menuTitle='템플릿 선택'
             className={cn(
               controlButtonCls,

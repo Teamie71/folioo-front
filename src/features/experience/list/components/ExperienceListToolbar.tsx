@@ -215,7 +215,7 @@ export function ExperienceListToolbar({
                       : 'selection-delete',
                   })
                 }
-                className='bg-error-sub flex h-[38px] cursor-pointer items-center rounded-[6px] px-[12px] py-[6px] transition-opacity disabled:pointer-events-none disabled:opacity-50'
+                className='bg-error-sub border-gray4 flex h-[38px] cursor-pointer items-center rounded-[6px] border px-[12px] py-[6px] transition-opacity disabled:pointer-events-none disabled:opacity-50'
               >
                 <span className='typo-b2 text-gray9 text-center'>
                   선택한 {selectedCount}개의 블록 삭제

@@ -12,6 +12,12 @@ export type MapInteraction = {
   /** 최소화 · 중간 수준에서 블록을 클릭했을 때 표준 수준으로 확대한다. */
   onBlockClick: (node: MapLayoutNode) => void;
   onEditingChange: (id: string, editing: boolean) => void;
+  /**
+   * 캔버스를 드래그/휠로 움직이기 시작할 때마다 증가한다.
+   * 블록 추가 템플릿 드롭다운은 이 값이 바뀌면 즉시 닫혀,
+   * 화면에 고정된 채로 캔버스만 움직여 버튼과 어긋나 보이는 상태를 막는다.
+   */
+  menuCloseSignal: number;
 };
 
 const MapInteractionContext = createContext<MapInteraction | null>(null);

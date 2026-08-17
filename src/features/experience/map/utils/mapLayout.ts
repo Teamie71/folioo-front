@@ -62,6 +62,10 @@ export type MapLayoutEdge = {
   id: string;
   source: string;
   target: string;
+  /** 문제해결 계열 블록에서 뻗는 연결선은 직각으로 꺾인 선을 쓴다. */
+  orthogonal: boolean;
+  /** 직각 연결선의 형제 가지가 공유하는 세로 트렁크 x 좌표 */
+  branchX: number | null;
 };
 
 export type MapLayout = {
@@ -85,7 +89,10 @@ function siblingGap(level: MapLevel, maxLevel: MapLevel): number {
   return ROW_GAP;
 }
 
-function measureFor(level: MapLevel, text: string): {
+function measureFor(
+  level: MapLevel,
+  text: string,
+): {
   width: number;
   height: number;
 } {
@@ -267,6 +274,15 @@ function assignColumns(roots: LayoutItem[]) {
 function assignRows(roots: LayoutItem[], maxLevel: MapLevel) {
   let cursorY = 0;
 
+  /**
+   * 문제해결은 Figma 설계처럼 부모와 첫 번째 자식의 중심을 맞추고,
+   * 나머지 자식만 공용 세로 트렁크 아래로 쌓는다.
+   */
+  const alignsWithFirstChild = (item: LayoutItem) =>
+    item.node.kind === 'block' &&
+    ((item.node.level === 3 && item.node.block?.kind === 'problem') ||
+      (item.node.level === 4 && item.node.parentKind === 'problem'));
+
   const place = (item: LayoutItem): { top: number; bottom: number } => {
     if (item.children.length === 0) {
       const top = cursorY;
@@ -288,7 +304,10 @@ function assignRows(roots: LayoutItem[], maxLevel: MapLevel) {
 
     const childrenTop = first!.top;
     const childrenBottom = last!.bottom;
-    item.node.y = (childrenTop + childrenBottom) / 2 - item.node.height / 2;
+    const firstChild = item.children[0];
+    item.node.y = alignsWithFirstChild(item)
+      ? firstChild.node.y + firstChild.node.height / 2 - item.node.height / 2
+      : (childrenTop + childrenBottom) / 2 - item.node.height / 2;
 
     return {
       top: Math.min(item.node.y, childrenTop),
@@ -312,10 +331,23 @@ function collect(roots: LayoutItem[]): {
   const walk = (item: LayoutItem) => {
     nodes.push(item.node);
     for (const child of item.children) {
+      const isProblemFanout =
+        item.node.level === 4 && item.node.parentKind === 'problem';
+      const sourceRight = item.node.x + item.node.width;
+      // 중심 핸들을 쓰더라도 보이는 분기점은 두 카드 사이 여백의 중앙에 고정한다.
+      // 자식 카드 폭과 무관하게 같은 부모의 모든 형제가 같은 x를 공유한다.
+      const branchX = isProblemFanout
+        ? sourceRight + (child.node.x - sourceRight) / 2
+        : null;
+
       edges.push({
         id: `${item.node.id}->${child.node.id}`,
         source: item.node.id,
         target: child.node.id,
+        // 문제해결 에피소드(4단계)에서 질문들(5단계)로 팬아웃하는 엣지만 직각으로 그린다.
+        // 3→4단계(카테고리→에피소드) 엣지까지 포함하면 두 트렁크 선이 겹쳐 꼬여 보인다.
+        orthogonal: isProblemFanout,
+        branchX,
       });
       walk(child);
     }
@@ -354,8 +386,7 @@ function collectAreas(roots: LayoutItem[]): MapLayoutArea[] {
         x: minX - ACTIVITY_AREA_PADDING,
         y: minY - ACTIVITY_AREA_PADDING_TOP,
         width: maxX - minX + ACTIVITY_AREA_PADDING * 2,
-        height:
-          maxY - minY + ACTIVITY_AREA_PADDING_TOP + ACTIVITY_AREA_PADDING,
+        height: maxY - minY + ACTIVITY_AREA_PADDING_TOP + ACTIVITY_AREA_PADDING,
       });
     }
   }

@@ -38,6 +38,7 @@ import {
 import { resetMeasureCache } from '@/features/experience/map/utils/measureBlockBox';
 import { MapActivityAreas } from '@/features/experience/map/components/MapActivityAreas';
 import { MapBlockNode } from '@/features/experience/map/components/MapBlockNode';
+import { MapElbowEdge } from '@/features/experience/map/components/MapElbowEdge';
 import { MapListPreviewNode } from '@/features/experience/map/components/MapListPreviewNode';
 import { MapInteractionProvider } from '@/features/experience/map/components/MapInteractionContext';
 import { collectSelectionIds } from '@/features/experience/map/utils/mapSelection';
@@ -45,6 +46,10 @@ import { collectSelectionIds } from '@/features/experience/map/utils/mapSelectio
 const nodeTypes = {
   mapBlock: MapBlockNode,
   listPreview: MapListPreviewNode,
+};
+
+const edgeTypes = {
+  elbow: MapElbowEdge,
 };
 
 const EDGE_STYLE = { stroke: '#9EA4A9', strokeWidth: 1 };
@@ -76,6 +81,7 @@ function ExperienceMapCanvasInner() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [fontVersion, setFontVersion] = useState(0);
+  const [menuCloseSignal, setMenuCloseSignal] = useState(0);
 
   // 폰트가 늦게 로드되면 canvas 측정값이 달라지므로 한 번 다시 계산한다.
   useEffect(() => {
@@ -149,7 +155,9 @@ function ExperienceMapCanvasInner() {
         id: edge.id,
         source: edge.source,
         target: edge.target,
-        type: 'straight',
+        // 문제해결 계열 블록에서 뻗는 선만 직각으로 꺾어 그린다.
+        type: edge.orthogonal ? 'elbow' : 'straight',
+        data: edge.branchX == null ? undefined : { branchX: edge.branchX },
         style: EDGE_STYLE,
       })),
     [layout],
@@ -236,8 +244,22 @@ function ExperienceMapCanvasInner() {
   }, []);
 
   const interaction = useMemo(
-    () => ({ detail, activeId, editingId, onBlockClick, onEditingChange }),
-    [detail, activeId, editingId, onBlockClick, onEditingChange],
+    () => ({
+      detail,
+      activeId,
+      editingId,
+      onBlockClick,
+      onEditingChange,
+      menuCloseSignal,
+    }),
+    [
+      detail,
+      activeId,
+      editingId,
+      onBlockClick,
+      onEditingChange,
+      menuCloseSignal,
+    ],
   );
 
   return (
@@ -246,6 +268,7 @@ function ExperienceMapCanvasInner() {
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         minZoom={MAP_MIN_ZOOM}
         maxZoom={MAP_MAX_ZOOM}
         nodesDraggable={false}
@@ -267,6 +290,8 @@ function ExperienceMapCanvasInner() {
           if (payload.node) onBlockClick(payload.node);
         }}
         onMove={(_, viewport) => onViewportChange(viewport.zoom)}
+        // 캔버스를 움직이기 시작하면 열려 있는 블록 추가 드롭다운을 닫는다. (화면에 고정된 채로 어긋나 보이는 상태 방지)
+        onMoveStart={() => setMenuCloseSignal((s) => s + 1)}
         onPaneClick={() => {
           setActiveId(null);
           setEditingId(null);
