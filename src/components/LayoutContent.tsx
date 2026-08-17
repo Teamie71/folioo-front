@@ -70,7 +70,9 @@ export default function LayoutContent({
   const path = pathname ?? '';
   const isMobileExperienceList =
     isMobileDevice &&
-    (path === '/experience' || path === '/experience/list');
+    (path === '/experience' ||
+      path === '/experience/list' ||
+      path === '/experience/workspace');
   const hideNavbar =
     isCorrectionNewPath(path) ||
     (isExperiencePath(path) && !isMobileExperienceList);

@@ -28,7 +28,6 @@ function createSeededListState() {
       kind: 'experience' as const,
       id: seed.experiences[0]?.id ?? '',
     },
-    viewMode: 'list' as const,
     sidebarOpen: true,
     agentOpen: true,
     collapsedGroups: {} as Record<string, boolean>,
@@ -67,7 +66,10 @@ function insertSiblingAfter(
 function removeBlockFromTree(blocks: Block[], targetId: string): Block[] {
   return blocks
     .filter((b) => b.id !== targetId)
-    .map((b) => ({ ...b, children: removeBlockFromTree(b.children, targetId) }));
+    .map((b) => ({
+      ...b,
+      children: removeBlockFromTree(b.children, targetId),
+    }));
 }
 
 function setBlockTextInTree(
@@ -117,8 +119,6 @@ type ModalState =
   | { type: 'experience-limit' }
   | null;
 
-type ViewMode = 'map' | 'list';
-
 interface Snapshot {
   groups: Group[];
   experiences: Experience[];
@@ -134,7 +134,6 @@ interface ExperienceListState {
   experienceCounter: number;
   selection: Selection;
 
-  viewMode: ViewMode;
   sidebarOpen: boolean;
   agentOpen: boolean;
   collapsedGroups: Record<string, boolean>;
@@ -144,7 +143,6 @@ interface ExperienceListState {
   past: Snapshot[];
   future: Snapshot[];
 
-  setViewMode: (mode: ViewMode) => void;
   toggleSidebar: () => void;
   toggleAgent: () => void;
   setContentLoading: (loading: boolean) => void;
@@ -158,7 +156,11 @@ interface ExperienceListState {
   renameGroup: (id: string, name: string) => void;
   addGroup: (afterGroupId?: string) => void;
   deleteGroup: (id: string) => void;
-  reorderGroup: (fromId: string, toId: string, place: 'before' | 'after') => void;
+  reorderGroup: (
+    fromId: string,
+    toId: string,
+    place: 'before' | 'after',
+  ) => void;
 
   renameExperience: (id: string, name: string) => void;
   addExperience: (groupId?: string, afterExperienceId?: string) => void;
@@ -171,7 +173,11 @@ interface ExperienceListState {
       | { kind: 'group'; id: string },
   ) => void;
 
-  updateBlockText: (experienceId: string, blockId: string, text: string) => void;
+  updateBlockText: (
+    experienceId: string,
+    blockId: string,
+    text: string,
+  ) => void;
   splitBlockAt: (
     experienceId: string,
     blockId: string,
@@ -223,7 +229,11 @@ function snapshotOf(s: ExperienceListState): Snapshot {
 type MutablePart = Partial<
   Pick<
     ExperienceListState,
-    'groups' | 'experiences' | 'groupCounter' | 'experienceCounter' | 'selection'
+    | 'groups'
+    | 'experiences'
+    | 'groupCounter'
+    | 'experienceCounter'
+    | 'selection'
   >
 >;
 
@@ -240,7 +250,6 @@ export const useExperienceListStore = create<ExperienceListState>()(
       return {
         ...createSeededListState(),
 
-        setViewMode: (mode) => set({ viewMode: mode }),
         toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
         toggleAgent: () => set((s) => ({ agentOpen: !s.agentOpen })),
         setContentLoading: (loading) => set({ isContentLoading: loading }),
@@ -254,7 +263,8 @@ export const useExperienceListStore = create<ExperienceListState>()(
         openModal: (modal) => set({ modal }),
         closeModal: () => set({ modal: null }),
 
-        selectExperience: (id) => set({ selection: { kind: 'experience', id } }),
+        selectExperience: (id) =>
+          set({ selection: { kind: 'experience', id } }),
         selectGroup: (groupId) => {
           const experiences = get().experiences.filter(
             (e) => e.groupId === groupId,
@@ -270,9 +280,7 @@ export const useExperienceListStore = create<ExperienceListState>()(
           const group = get().groups.find((g) => g.id === id);
           if (!group || group.isUnclassified) return;
           commit({
-            groups: get().groups.map((g) =>
-              g.id === id ? { ...g, name } : g,
-            ),
+            groups: get().groups.map((g) => (g.id === id ? { ...g, name } : g)),
           });
         },
 

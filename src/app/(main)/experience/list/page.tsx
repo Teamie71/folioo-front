@@ -1,16 +1,7 @@
-import { headers } from 'next/headers';
-import ExperienceListClient from '@/features/experience/list/components/ExperienceListClient';
-import ExperienceListClientMobile from '@/features/experience/list/components/mobile/ExperienceListClientMobile';
-import { isTopupMobileUserAgent } from '@/utils/device';
+import { redirect } from 'next/navigation';
+import { buildWorkspaceHref } from '@/features/experience/workspace/model/workspaceView';
 
-export default async function ExperienceListPage() {
-  const headersList = await headers();
-  const userAgent = headersList.get('user-agent') || '';
-  const isMobile = isTopupMobileUserAgent(userAgent);
-
-  if (isMobile) {
-    return <ExperienceListClientMobile />;
-  }
-
-  return <ExperienceListClient />;
+/** 이전 경로 하위호환. 워크스페이스 리스트 뷰로 넘긴다. */
+export default function ExperienceListPage() {
+  redirect(buildWorkspaceHref('list'));
 }

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { HoverTooltip } from '@/components/HoverTooltip';
 import { ExperienceListViewSwitchToggle } from '@/features/experience/list/components/ExperienceListViewSwitchToggle';
+import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
 import {
   editSessionCanRedo,
   editSessionCanUndo,
@@ -22,13 +23,20 @@ const SIDEBAR_CLOSE_MS = 300;
 
 type Props = {
   experienceId: string | undefined;
+  /** 뷰 상태의 원본은 URL이다. workspace shell에서 내려준다. */
+  view: WorkspaceView;
+  onViewChange: (view: WorkspaceView) => void;
+  onViewIntent?: () => void;
 };
 
-export function ExperienceListToolbar({ experienceId }: Props) {
-  const viewMode = useExperienceListStore((s) => s.viewMode);
+export function ExperienceListToolbar({
+  experienceId,
+  view,
+  onViewChange,
+  onViewIntent,
+}: Props) {
   const sidebarOpen = useExperienceListStore((s) => s.sidebarOpen);
   const agentOpen = useExperienceListStore((s) => s.agentOpen);
-  const setViewMode = useExperienceListStore((s) => s.setViewMode);
   const toggleSidebar = useExperienceListStore((s) => s.toggleSidebar);
   const toggleAgent = useExperienceListStore((s) => s.toggleAgent);
   const openModal = useExperienceListStore((s) => s.openModal);
@@ -118,8 +126,9 @@ export function ExperienceListToolbar({ experienceId }: Props) {
         )}
 
         <ExperienceListViewSwitchToggle
-          value={viewMode}
-          onValueChange={setViewMode}
+          value={view}
+          onValueChange={onViewChange}
+          onOptionIntent={onViewIntent}
         />
 
         <div className='flex items-center gap-[4px]'>

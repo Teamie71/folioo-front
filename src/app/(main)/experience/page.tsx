@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
+import { buildWorkspaceHref } from '@/features/experience/workspace/model/workspaceView';
 
 export default function ExperiencePage() {
-  redirect('/experience/list');
+  redirect(buildWorkspaceHref('list'));
 }

@@ -1,22 +1,24 @@
 'use client';
 
 import { cn } from '@/utils/utils';
-
-type ViewMode = 'map' | 'list';
+import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
 
 type Props = {
-  value: ViewMode;
-  onValueChange: (value: ViewMode) => void;
+  value: WorkspaceView;
+  onValueChange: (value: WorkspaceView) => void;
+  /** hover/focus 등 "곧 누를 것 같은" 시점. 번들 preload 트리거로 쓴다. */
+  onOptionIntent?: (value: WorkspaceView) => void;
 };
 
-const OPTIONS = [
-  { label: '맵 뷰', value: 'map' as const },
-  { label: '리스트 뷰', value: 'list' as const },
+const OPTIONS: Array<{ label: string; value: WorkspaceView }> = [
+  { label: '맵 뷰', value: 'map' },
+  { label: '리스트 뷰', value: 'list' },
 ];
 
 export function ExperienceListViewSwitchToggle({
   value,
   onValueChange,
+  onOptionIntent,
 }: Props) {
   return (
     <div
@@ -40,8 +42,10 @@ export function ExperienceListViewSwitchToggle({
             role='tab'
             aria-selected={selected}
             onClick={() => onValueChange(option.value)}
+            onPointerEnter={() => onOptionIntent?.(option.value)}
+            onFocus={() => onOptionIntent?.(option.value)}
             className={cn(
-              'typo-c1-b relative z-10 flex h-[29px] w-[79px] cursor-pointer items-center justify-center whitespace-nowrap rounded-[6px] px-[8px] py-[4px] transition-colors',
+              'typo-c1-b relative z-10 flex h-[29px] w-[79px] cursor-pointer items-center justify-center rounded-[6px] px-[8px] py-[4px] whitespace-nowrap transition-colors',
               selected ? 'text-white' : 'text-gray6',
             )}
           >
