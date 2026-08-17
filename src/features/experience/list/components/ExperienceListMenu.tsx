@@ -66,7 +66,7 @@ function KebabTriggerIcon({ className }: { className?: string }) {
   return (
     <span
       className={cn(
-        'relative flex size-[16px] items-center justify-center overflow-hidden',
+        'text-gray9 relative flex size-[16px] items-center justify-center overflow-hidden',
         className,
       )}
     >
@@ -97,23 +97,37 @@ export type MenuItem = {
 
 export type MenuVariant = 'sidebar' | 'block';
 
+export type SubmenuMode = 'cascade' | 'inline';
+
 function MenuPanel({
   items,
   onClose,
   className,
   variant = 'sidebar',
   title,
+  submenuMode = 'cascade',
+  onInlineOpen,
 }: {
   items: MenuItem[];
   onClose: () => void;
   className?: string;
   variant?: MenuVariant;
   title?: string;
+  submenuMode?: SubmenuMode;
+  onInlineOpen?: (itemCount: number, hasTitle: boolean) => void;
 }) {
   const [openSub, setOpenSub] = useState<string | null>(null);
   const [subPos, setSubPos] = useState<MenuPosition | null>(null);
+  const [inlineKey, setInlineKey] = useState<string | null>(null);
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const isBlock = variant === 'block';
+  const isInline = submenuMode === 'inline';
+
+  const inlineParent = inlineKey
+    ? items.find((i) => i.key === inlineKey && i.submenu)
+    : undefined;
+  const visibleItems = inlineParent?.submenu ?? items;
+  const visibleTitle = inlineParent ? inlineParent.submenuTitle : title;
 
   const openSubmenuAt = (key: string) => {
     const el = itemRefs.current[key];
@@ -136,7 +150,9 @@ function MenuPanel({
   return (
     <>
       <div className='flex flex-col gap-[4px]' style={{ width: MENU_WIDTH }}>
-        {title ? <p className='typo-c1 text-gray6'>{title}</p> : null}
+        {visibleTitle ? (
+          <p className='typo-c1 text-gray6'>{visibleTitle}</p>
+        ) : null}
         <div
           className={cn(
             'shadow-chat-card overflow-hidden rounded-[8px] bg-white',
@@ -144,7 +160,7 @@ function MenuPanel({
           )}
           role='menu'
         >
-          {items.map((item, index) => (
+          {visibleItems.map((item, index) => (
             <button
               key={item.key}
               ref={(el) => {
@@ -155,7 +171,7 @@ function MenuPanel({
               className={cn(
                 'typo-b2 text-gray9 hover:bg-gray2 relative flex w-full cursor-pointer items-center text-left whitespace-nowrap',
                 index === 0 && 'rounded-t-[8px]',
-                index === items.length - 1 && 'rounded-b-[8px]',
+                index === visibleItems.length - 1 && 'rounded-b-[8px]',
                 isBlock && item.danger && 'text-error',
                 openSub === item.key && 'bg-gray2',
               )}
@@ -165,12 +181,21 @@ function MenuPanel({
                 boxSizing: 'border-box',
               }}
               onMouseEnter={() => {
+                if (isInline) return;
                 if (item.submenu) openSubmenuAt(item.key);
                 else setOpenSub(null);
               }}
               onClick={(e) => {
                 e.stopPropagation();
                 if (item.submenu) {
+                  if (isInline) {
+                    setInlineKey(item.key);
+                    onInlineOpen?.(
+                      item.submenu.length,
+                      Boolean(item.submenuTitle),
+                    );
+                    return;
+                  }
                   if (openSub === item.key) setOpenSub(null);
                   else openSubmenuAt(item.key);
                   return;
@@ -183,7 +208,7 @@ function MenuPanel({
                 <span>{item.label}</span>
                 {item.submenu && <MenuChevron />}
               </span>
-              {index < items.length - 1 && (
+              {index < visibleItems.length - 1 && (
                 <span
                   aria-hidden
                   className='bg-gray3 pointer-events-none absolute right-0 bottom-0 left-0 h-px'
@@ -247,6 +272,8 @@ function PositionedMenu({
   menuClassName,
   menuTitle,
   contentRef,
+  submenuMode,
+  onInlineOpen,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -256,6 +283,8 @@ function PositionedMenu({
   menuClassName?: string;
   menuTitle?: string;
   contentRef?: RefObject<HTMLDivElement | null>;
+  submenuMode?: SubmenuMode;
+  onInlineOpen?: (itemCount: number, hasTitle: boolean) => void;
 }) {
   return (
     <DropdownMenu open={open} onOpenChange={onOpenChange} modal={false}>
@@ -302,13 +331,15 @@ function PositionedMenu({
           className={menuClassName}
           variant={variant}
           title={menuTitle}
+          submenuMode={submenuMode}
+          onInlineOpen={onInlineOpen}
         />
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
 
-type Placement = 'left' | 'right' | 'bottom';
+type Placement = 'left' | 'right' | 'bottom' | 'inside-end';
 
 type MenuButtonProps = {
   items: MenuItem[];
@@ -320,8 +351,9 @@ type MenuButtonProps = {
   children: ReactNode;
   tooltip?: string;
   menuPlacement?: Placement;
-  menuAlign?: 'start' | 'center';
+  menuAlign?: 'start' | 'center' | 'end';
   menuTitle?: string;
+  submenuMode?: SubmenuMode;
 };
 
 export function MenuButton({
@@ -336,10 +368,19 @@ export function MenuButton({
   menuPlacement = 'left',
   menuAlign = 'center',
   menuTitle,
+  submenuMode = 'cascade',
 }: MenuButtonProps) {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<MenuPosition | null>(null);
+  const [inlineShape, setInlineShape] = useState<{
+    itemCount: number;
+    hasTitle: boolean;
+  } | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+
+  useLayoutEffect(() => {
+    if (!open) setInlineShape(null);
+  }, [open]);
 
   useLayoutEffect(() => {
     if (!open || !triggerRef.current) {
@@ -347,19 +388,35 @@ export function MenuButton({
       return;
     }
     const update = () => {
-      const rect = triggerRef.current!.getBoundingClientRect();
+      const trigger = triggerRef.current!;
+      const rect = trigger.getBoundingClientRect();
       const menuWidth = MENU_WIDTH;
       const gap = MENU_GAP;
       const estimatedHeight = estimateMenuHeight(
-        items.length,
-        Boolean(menuTitle),
+        inlineShape?.itemCount ?? items.length,
+        inlineShape ? inlineShape.hasTitle : Boolean(menuTitle),
       );
+
+      if (menuPlacement === 'inside-end') {
+        const style = window.getComputedStyle(trigger);
+        const padRight = parseFloat(style.paddingRight) || 0;
+        const padTop = parseFloat(style.paddingTop) || 0;
+        let left = rect.right - padRight - menuWidth;
+        if (left < VIEWPORT_PAD) left = VIEWPORT_PAD;
+        if (left + menuWidth > window.innerWidth - VIEWPORT_PAD) {
+          left = window.innerWidth - VIEWPORT_PAD - menuWidth;
+        }
+        setPos(fitMenuInViewport(rect.top + padTop, left, estimatedHeight));
+        return;
+      }
 
       if (menuPlacement === 'bottom') {
         let left =
           menuAlign === 'start'
             ? rect.left
-            : rect.left + (rect.width - menuWidth) / 2;
+            : menuAlign === 'end'
+              ? rect.right - menuWidth
+              : rect.left + (rect.width - menuWidth) / 2;
         if (left < VIEWPORT_PAD) left = VIEWPORT_PAD;
         if (left + menuWidth > window.innerWidth - VIEWPORT_PAD) {
           left = window.innerWidth - VIEWPORT_PAD - menuWidth;
@@ -395,7 +452,7 @@ export function MenuButton({
       window.removeEventListener('scroll', update, true);
       window.removeEventListener('resize', update);
     };
-  }, [open, items.length, menuPlacement, menuAlign, menuTitle]);
+  }, [open, items.length, menuPlacement, menuAlign, menuTitle, inlineShape]);
 
   const button = (
     <button
@@ -438,6 +495,10 @@ export function MenuButton({
             variant={variant}
             menuClassName={menuClassName}
             menuTitle={menuTitle}
+            submenuMode={submenuMode}
+            onInlineOpen={(itemCount, hasTitle) =>
+              setInlineShape({ itemCount, hasTitle })
+            }
           />,
           document.body,
         )}
@@ -537,11 +598,76 @@ export function DragMenuButton({
     };
   }, [open, items.length]);
 
+  const measureSize = () => {
+    const root =
+      triggerRef.current?.closest(measureSelector) ?? triggerRef.current;
+    if (!root) return { width: 0, height: 0 };
+    const rect = root.getBoundingClientRect();
+    return { width: rect.width, height: rect.height };
+  };
+
+  const gatePointer = !open;
+
+  const button = (
+    <button
+      ref={triggerRef}
+      type='button'
+      draggable
+      aria-label={ariaLabel}
+      aria-expanded={open}
+      className={cn(
+        className,
+        '!cursor-grab select-none active:!cursor-grabbing',
+        open && '!pointer-events-auto !opacity-100',
+      )}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (didDragRef.current) {
+          didDragRef.current = false;
+          return;
+        }
+        setOpen((prev) => !prev);
+      }}
+      onDragStart={(e) => {
+        didDragRef.current = true;
+        setDragging(true);
+        setOpen(false);
+        e.dataTransfer.effectAllowed = 'move';
+
+        const size = measureSize();
+
+        const empty = document.createElement('div');
+        empty.style.width = '1px';
+        empty.style.height = '1px';
+        empty.style.opacity = '0';
+        empty.style.position = 'fixed';
+        empty.style.top = '-9999px';
+        document.body.appendChild(empty);
+        e.dataTransfer.setDragImage(empty, 0, 0);
+        requestAnimationFrame(() => {
+          empty.remove();
+        });
+
+        setDragPayload(e, payload);
+        onDragBegin?.(size);
+      }}
+      onDragEnd={() => {
+        setDragging(false);
+        onDragFinish?.();
+        window.setTimeout(() => {
+          didDragRef.current = false;
+        }, 50);
+      }}
+    >
+      {children}
+    </button>
+  );
+
   return (
     <div
       className={cn(
         'relative inline-flex cursor-grab',
-        !open && 'pointer-events-none',
+        gatePointer && 'pointer-events-none',
       )}
       data-no-dnd
     >
@@ -549,63 +675,9 @@ export function DragMenuButton({
         label='드래그해서 옮기기'
         align={tooltipAlign}
         disabled={open || dragging}
-        wrapperClassName={cn('cursor-grab', !open && 'pointer-events-none')}
+        wrapperClassName={cn('cursor-grab', gatePointer && 'pointer-events-none')}
       >
-        <button
-          ref={triggerRef}
-          type='button'
-          draggable
-          aria-label={ariaLabel}
-          aria-expanded={open}
-          className={cn(
-            className,
-            '!cursor-grab select-none active:!cursor-grabbing',
-            open && '!pointer-events-auto !opacity-100',
-          )}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (didDragRef.current) {
-              didDragRef.current = false;
-              return;
-            }
-            setOpen((prev) => !prev);
-          }}
-          onDragStart={(e) => {
-            didDragRef.current = true;
-            setDragging(true);
-            setOpen(false);
-
-            const root =
-              (e.currentTarget as HTMLElement).closest(measureSelector) ??
-              (e.currentTarget as HTMLElement);
-            const rect = root.getBoundingClientRect();
-            const size = { width: rect.width, height: rect.height };
-
-            const empty = document.createElement('div');
-            empty.style.width = '1px';
-            empty.style.height = '1px';
-            empty.style.opacity = '0';
-            empty.style.position = 'fixed';
-            empty.style.top = '-9999px';
-            document.body.appendChild(empty);
-            e.dataTransfer.setDragImage(empty, 0, 0);
-            requestAnimationFrame(() => {
-              empty.remove();
-            });
-
-            setDragPayload(e, payload);
-            onDragBegin?.(size);
-          }}
-          onDragEnd={() => {
-            setDragging(false);
-            onDragFinish?.();
-            window.setTimeout(() => {
-              didDragRef.current = false;
-            }, 50);
-          }}
-        >
-          {children}
-        </button>
+        {button}
       </HoverTooltip>
       {open &&
         pos &&

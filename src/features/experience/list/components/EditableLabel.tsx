@@ -10,8 +10,10 @@ type Props = {
   editable: boolean;
   onCommit: (next: string) => void;
   onEnter?: (draft: string, start: number, end: number) => void;
+  onDeleteEmpty?: () => void;
   requestEdit?: boolean;
   requestEditCaret?: number;
+  requestEditSelectAll?: boolean;
   onRequestEditHandled?: () => void;
   className?: string;
   inputClassName?: string;
@@ -61,8 +63,10 @@ export function EditableLabel({
   editable,
   onCommit,
   onEnter,
+  onDeleteEmpty,
   requestEdit = false,
   requestEditCaret = 0,
+  requestEditSelectAll = false,
   onRequestEditHandled,
   className,
   inputClassName,
@@ -74,6 +78,7 @@ export function EditableLabel({
   const [draft, setDraft] = useState(value);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const caretRef = useRef<number | null>(null);
+  const selectAllRef = useRef(false);
   const skipBlurRef = useRef(false);
   const draftPastRef = useRef<string[]>([]);
   const draftFutureRef = useRef<string[]>([]);
@@ -92,11 +97,12 @@ export function EditableLabel({
 
   useEffect(() => {
     if (!requestEdit || !editable) return;
-    caretRef.current = requestEditCaret;
+    selectAllRef.current = requestEditSelectAll;
+    caretRef.current = requestEditSelectAll ? null : requestEditCaret;
     clearDraftHistory();
     setEditing(true);
     onRequestEditHandled?.();
-  }, [requestEdit, editable, requestEditCaret]);
+  }, [requestEdit, editable, requestEditCaret, requestEditSelectAll]);
 
   useEffect(() => {
     if (!editing) return;
@@ -142,6 +148,12 @@ export function EditableLabel({
     resize();
     const el = inputRef.current;
     if (!el) return;
+    if (selectAllRef.current) {
+      selectAllRef.current = false;
+      el.focus();
+      el.setSelectionRange(0, el.value.length);
+      return;
+    }
     if (caretRef.current != null) {
       const offset = Math.min(Math.max(caretRef.current, 0), el.value.length);
       el.focus();
@@ -241,6 +253,21 @@ export function EditableLabel({
             e.preventDefault();
             if (e.shiftKey) redoFromSession();
             else undoFromSession();
+            return;
+          }
+
+          if (
+            e.key === 'Backspace' &&
+            onDeleteEmpty &&
+            draft === '' &&
+            e.currentTarget.selectionStart === 0 &&
+            e.currentTarget.selectionEnd === 0
+          ) {
+            e.preventDefault();
+            skipBlurRef.current = true;
+            clearDraftHistory();
+            setEditing(false);
+            onDeleteEmpty();
             return;
           }
 

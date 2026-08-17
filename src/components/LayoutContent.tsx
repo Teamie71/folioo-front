@@ -68,7 +68,12 @@ export default function LayoutContent({
     useUserControllerMarkTicketGrantNoticeDismissed();
 
   const path = pathname ?? '';
-  const hideNavbar = isCorrectionNewPath(path) || isExperiencePath(path);
+  const isMobileExperienceList =
+    isMobileDevice &&
+    (path === '/experience' || path === '/experience/list');
+  const hideNavbar =
+    isCorrectionNewPath(path) ||
+    (isExperiencePath(path) && !isMobileExperienceList);
   // 랜딩 페이지만 기존 상단 네브바를 유지하고, 나머지 데스크톱 화면은 공통 사이드바를 사용한다.
   const showDesktopSidebar = !isMobileDevice && path !== '/';
 

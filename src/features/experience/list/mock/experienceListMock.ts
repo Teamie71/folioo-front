@@ -148,8 +148,8 @@ export const MOCK_AGENT_MESSAGES: MockAgentMessage[] = [
 
 export function getExperienceListSeed() {
   return {
-    groups: MOCK_GROUPS,
-    experiences: MOCK_EXPERIENCES,
+    groups: structuredClone(MOCK_GROUPS),
+    experiences: structuredClone(MOCK_EXPERIENCES),
     groupCounter: MOCK_GROUP_COUNTER,
     experienceCounter: MOCK_EXPERIENCE_COUNTER,
   };

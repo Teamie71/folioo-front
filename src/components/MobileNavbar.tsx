@@ -16,6 +16,7 @@ import { MobileTicketIcon } from '@/components/icons/mobile/MobileTicketIcon';
 import { MobileLogoutIcon } from '@/components/icons/mobile/MobileLogoutIcon';
 import { MobileProfileButtonIcon } from '@/components/icons/mobile/MobileProfileButtonIcon';
 import { LogoutModal } from '@/components/LogoutModal';
+import { cn } from '@/utils/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -61,6 +62,9 @@ export default function MobileNavbar() {
       document.body.style.overflow = '';
     }
   }, [isOpen]);
+
+  const hideBorder =
+    pathname === '/experience' || pathname === '/experience/list';
 
   const toggleDrawer = () => setIsOpen((prev) => !prev);
 
@@ -110,7 +114,12 @@ export default function MobileNavbar() {
 
   return (
     <>
-      <nav className='fixed top-0 right-0 left-0 z-[60] flex h-[52px] min-w-[22.5rem] items-center justify-between border-b border-[#F0F0F0] bg-white px-[0.25rem]'>
+      <nav
+        className={cn(
+          'fixed top-0 right-0 left-0 z-[60] flex h-[52px] min-w-[22.5rem] items-center justify-between bg-white px-[0.25rem]',
+          !hideBorder && 'border-b border-[#F0F0F0]',
+        )}
+      >
         <div className='flex items-center'>
           {pathname !== '/' && (
             <button

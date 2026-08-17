@@ -13,6 +13,15 @@ export type AgentPanelMode = 'comingSoon' | 'chat';
 export const AGENT_PANEL_MODE: AgentPanelMode =
   process.env.NEXT_PUBLIC_AGENT_RELEASED === 'true' ? 'chat' : 'comingSoon';
 
+export const AGENT_COMING_SOON_COPY = {
+  titleFirstLine: '경험 정리를 도와주는',
+  titleSecondLine: 'AI 에이전트를 준비 중이에요.',
+  feedbackLead: '경험 정리 과정에서 어렵거나 불편한 점이 있다면',
+  feedbackLinkLabel: '피드백',
+  feedbackTail: '을 통해 알려주세요.',
+  feedbackClosing: '보내주신 의견을 바탕으로 더 나은 서비스를 만들겠습니다.',
+} as const;
+
 export const UNCLASSIFIED_ID = 'unclassified';
 
 export const DEFAULT_BLOCK_PLACEHOLDER = '내용을 입력해 주세요.';

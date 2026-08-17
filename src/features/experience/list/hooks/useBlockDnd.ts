@@ -26,6 +26,8 @@ export type BlockDndCtx = {
   getDropHint: () => BlockDropHint;
   markDropped: () => void;
   finishDrag: (draggedId: string) => void;
+  handlePointerDragMove: (clientX: number, clientY: number) => void;
+  handlePointerDragEnd: (clientX: number, clientY: number) => void;
 };
 
 export const BlockDndContext = createContext<BlockDndCtx | null>(null);
