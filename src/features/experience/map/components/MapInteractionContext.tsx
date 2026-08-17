@@ -18,6 +18,12 @@ export type MapInteraction = {
    * 화면에 고정된 채로 캔버스만 움직여 버튼과 어긋나 보이는 상태를 막는다.
    */
   menuCloseSignal: number;
+  /** long press로 드래그 중인 블록의 노드 id (5-4) */
+  draggingId: string | null;
+  onBlockPressStart: (
+    node: MapLayoutNode,
+    event: React.PointerEvent<HTMLElement>,
+  ) => void;
 };
 
 const MapInteractionContext = createContext<MapInteraction | null>(null);

@@ -33,8 +33,14 @@ function MapBlockNodeComponent({ data }: NodeProps) {
   const { node } = data as unknown as MapBlockNodeData;
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { activeId, editingId, onEditingChange, menuCloseSignal } =
-    useMapInteraction();
+  const {
+    activeId,
+    editingId,
+    onEditingChange,
+    menuCloseSignal,
+    draggingId,
+    onBlockPressStart,
+  } = useMapInteraction();
 
   const blockSelectionMode = useExperienceListStore(
     (s) => s.blockSelectionMode,
@@ -53,6 +59,7 @@ function MapBlockNodeComponent({ data }: NodeProps) {
 
   const isActive = activeId === node.id;
   const isEditing = editingId === node.id;
+  const isDragging = draggingId === node.id;
   const isSection = node.level === 3;
   const isTitle = node.level <= 2;
 
@@ -102,8 +109,15 @@ function MapBlockNodeComponent({ data }: NodeProps) {
     <div
       ref={containerRef}
       tabIndex={0}
-      className='group/blk relative outline-none'
+      className={cn(
+        'group/blk nodrag nopan relative touch-none outline-none',
+        isDragging && 'opacity-40',
+      )}
       style={{ width: node.width }}
+      onPointerDown={(event) => {
+        if (isEditing || blockSelectionMode) return;
+        onBlockPressStart(node, event);
+      }}
       onKeyDown={(event) => {
         if (isEditing) return;
         if (event.key !== 'Backspace' && event.key !== 'Delete') return;
@@ -111,18 +125,22 @@ function MapBlockNodeComponent({ data }: NodeProps) {
         requestDelete();
       }}
     >
-      {/* 연결선을 중심 to 중심으로 그리기 위해 핸들을 박스 중앙에 둔다. */}
+      {/*
+        연결선은 블록의 좌우 가장자리(세로 중앙)에 붙는다.
+        xyflow의 기본 .react-flow__handle-left/-right가 이미 그 위치(edge, top:50%)이므로
+        위치는 건드리지 않고 점만 보이지 않게 지운다.
+      */}
       <Handle
         type='target'
         position={Position.Left}
         isConnectable={false}
-        className='!pointer-events-none !top-1/2 !left-1/2 !size-px !min-h-0 !min-w-0 !-translate-x-1/2 !-translate-y-1/2 !transform !border-0 !bg-transparent'
+        className='!pointer-events-none !size-px !min-h-0 !min-w-0 !border-0 !bg-transparent'
       />
       <Handle
         type='source'
         position={Position.Right}
         isConnectable={false}
-        className='!pointer-events-none !top-1/2 !left-1/2 !size-px !min-h-0 !min-w-0 !-translate-x-1/2 !-translate-y-1/2 !transform !border-0 !bg-transparent'
+        className='!pointer-events-none !size-px !min-h-0 !min-w-0 !border-0 !bg-transparent'
       />
 
       {showCheck && (

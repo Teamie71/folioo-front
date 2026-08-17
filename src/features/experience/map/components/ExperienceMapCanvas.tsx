@@ -38,9 +38,12 @@ import {
 import { resetMeasureCache } from '@/features/experience/map/utils/measureBlockBox';
 import { MapActivityAreas } from '@/features/experience/map/components/MapActivityAreas';
 import { MapBlockNode } from '@/features/experience/map/components/MapBlockNode';
+import { MapDragGhost } from '@/features/experience/map/components/MapDragGhost';
+import { MapDropIndicator } from '@/features/experience/map/components/MapDropIndicator';
 import { MapElbowEdge } from '@/features/experience/map/components/MapElbowEdge';
 import { MapListPreviewNode } from '@/features/experience/map/components/MapListPreviewNode';
 import { MapInteractionProvider } from '@/features/experience/map/components/MapInteractionContext';
+import { useMapBlockDrag } from '@/features/experience/map/hooks/useMapBlockDrag';
 import { collectSelectionIds } from '@/features/experience/map/utils/mapSelection';
 
 const nodeTypes = {
@@ -243,6 +246,14 @@ function ExperienceMapCanvasInner() {
     setEditingId((prev) => (editing ? id : prev === id ? null : prev));
   }, []);
 
+  const {
+    draggingId,
+    dropTarget,
+    ghost,
+    onBlockPressStart,
+    consumeSuppressedClick,
+  } = useMapBlockDrag();
+
   const interaction = useMemo(
     () => ({
       detail,
@@ -251,6 +262,8 @@ function ExperienceMapCanvasInner() {
       onBlockClick,
       onEditingChange,
       menuCloseSignal,
+      draggingId,
+      onBlockPressStart,
     }),
     [
       detail,
@@ -259,6 +272,8 @@ function ExperienceMapCanvasInner() {
       onBlockClick,
       onEditingChange,
       menuCloseSignal,
+      draggingId,
+      onBlockPressStart,
     ],
   );
 
@@ -286,6 +301,7 @@ function ExperienceMapCanvasInner() {
         zoomOnDoubleClick={false}
         proOptions={{ hideAttribution: true }}
         onNodeClick={(_, flowNode) => {
+          if (consumeSuppressedClick()) return;
           const payload = flowNode.data as { node?: MapLayoutNode };
           if (payload.node) onBlockClick(payload.node);
         }}
@@ -303,6 +319,8 @@ function ExperienceMapCanvasInner() {
           areas={detail === 'standard' ? layout.areas : EMPTY_AREAS}
         />
       </ReactFlow>
+      {dropTarget && <MapDropIndicator target={dropTarget} />}
+      {ghost && <MapDragGhost ghost={ghost} />}
     </MapInteractionProvider>
   );
 }
