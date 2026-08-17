@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { CANONICAL_WORKSPACE_HREF } from '@/features/experience/workspace/model/workspaceView';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -12,7 +13,7 @@ export default function Footer() {
             <div className='flex items-center gap-[5rem] text-[1rem] leading-[150%]'>
               <p className='font-bold'>서비스</p>
               <span className='text-[#9EA4A9]'>직무 추천</span>
-              <Link href='/experience' className='cursor-pointer'>
+              <Link href={CANONICAL_WORKSPACE_HREF} className='cursor-pointer'>
                 경험 정리
               </Link>
               <Link href='/correction' className='cursor-pointer'>

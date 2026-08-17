@@ -6,6 +6,7 @@ import {
   useExperienceControllerGetExperience,
   useExperienceControllerGetExperiences,
 } from '@/api/endpoints/experience/experience';
+import { CANONICAL_WORKSPACE_HREF } from '@/features/experience/workspace/model/workspaceView';
 
 /* 타인의 경험 정리 URL로 직접 진입하는 것을 방지. 목록에 없어도 GET /experiences/:id 성공 시 소유로 인정(방금 생성한 경험 포함). */
 export default function ExperienceSettingsIdLayout({
@@ -48,14 +49,14 @@ export default function ExperienceSettingsIdLayout({
 
   useEffect(() => {
     if (!Number.isFinite(experienceId)) {
-      router.replace('/experience');
+      router.replace(CANONICAL_WORKSPACE_HREF);
       return;
     }
     if (!isListFetched || isListLoading) return;
     if (listIncludesId) return;
     if (!isSingleFetched || isSingleLoading) return;
     if (singleSucceeded) return;
-    router.replace('/experience');
+    router.replace(CANONICAL_WORKSPACE_HREF);
   }, [
     experienceId,
     isListFetched,

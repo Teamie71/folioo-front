@@ -39,6 +39,7 @@ import { PortfolioVisualizationSwitchToggle } from '@/features/experience/portfo
 import VisualPortfolioContent from '@/features/experience/portfolio/visualization/VisualPortfolioContent';
 import TextPortfolioCard from '@/features/experience/portfolio/text/TextPortfolioCard';
 import { VisualizationCreateModal } from '@/features/experience/portfolio/visualization/VisualizationCreateModal';
+import { CANONICAL_WORKSPACE_HREF } from '@/features/experience/workspace/model/workspaceView';
 
 export default function ExperienceSettingsPortfolioPage() {
   const params = useParams();
@@ -93,7 +94,7 @@ export default function ExperienceSettingsPortfolioPage() {
     if (!id || !Number.isFinite(experienceId)) return;
     if (experienceData === undefined) return;
     if (!experience) {
-      router.replace('/experience');
+      router.replace(CANONICAL_WORKSPACE_HREF);
       return;
     }
     const status = String(experience.status ?? '').toUpperCase();
@@ -106,7 +107,7 @@ export default function ExperienceSettingsPortfolioPage() {
       router.replace(`/experience/settings/${id}/createloading`);
       return;
     }
-    router.replace('/experience');
+    router.replace(CANONICAL_WORKSPACE_HREF);
   }, [id, experienceId, experienceData, experience, router]);
 
   const { mutateAsync: updatePortfolio } =
@@ -153,7 +154,7 @@ export default function ExperienceSettingsPortfolioPage() {
   const handleDelete = () => {
     if (!Number.isFinite(experienceId)) {
       removeExperience(id);
-      router.push('/experience');
+      router.replace(CANONICAL_WORKSPACE_HREF);
       return;
     }
     deleteExperience({ experienceId })
@@ -164,7 +165,7 @@ export default function ExperienceSettingsPortfolioPage() {
         });
       })
       .then(() => {
-        router.push('/experience');
+        router.replace(CANONICAL_WORKSPACE_HREF);
       })
       .catch(() => {
         setDeleteBlockModalOpen(true);
@@ -205,7 +206,7 @@ export default function ExperienceSettingsPortfolioPage() {
           {/* 헤더 */}
           <div className='flex w-full items-center justify-between'>
             <div className='flex items-center gap-[0.5rem]'>
-              <BackButton href='/experience' />
+              <BackButton href={CANONICAL_WORKSPACE_HREF} replace />
               <InlineEdit
                 title={displayTitle}
                 isEditing={isEditingTitle}
