@@ -47,12 +47,25 @@ export function ExperienceWorkspaceShell() {
         <ExperienceListSidebar />
 
         <section className='relative flex min-w-0 flex-1 flex-col overflow-hidden bg-white'>
-          <ExperienceListToolbar
-            experienceId={experienceId}
-            view={view}
-            onViewChange={setView}
-            onViewIntent={preloadExperienceMapView}
-          />
+          {/*
+            맵 뷰에서는 캔버스가 화면 전체 높이를 쓰고 툴바가 그 위에 떠 있다.
+            툴바가 흐름에서 자리를 차지하면 그만큼 맵이 잘려 보이기 때문이다.
+          */}
+          <div
+            className={
+              view === 'map'
+                ? 'pointer-events-none absolute inset-x-0 top-0 z-10'
+                : undefined
+            }
+          >
+            <ExperienceListToolbar
+              experienceId={experienceId}
+              view={view}
+              onViewChange={setView}
+              onViewIntent={preloadExperienceMapView}
+              overlay={view === 'map'}
+            />
+          </div>
 
           {view === 'map' ? <ExperienceMapView /> : <ExperienceListView />}
         </section>

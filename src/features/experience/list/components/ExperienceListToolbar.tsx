@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { cn } from '@/utils/utils';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { HoverTooltip } from '@/components/HoverTooltip';
 import { ExperienceListViewSwitchToggle } from '@/features/experience/list/components/ExperienceListViewSwitchToggle';
@@ -27,6 +28,12 @@ type Props = {
   view: WorkspaceView;
   onViewChange: (view: WorkspaceView) => void;
   onViewIntent?: () => void;
+  /**
+   * 맵 뷰처럼 본문이 툴바 아래까지 이어지는 경우 true.
+   * 툴바가 배경 없이 본문 위에 떠 있고, 버튼이 없는 빈 영역은
+   * 아래의 맵을 그대로 드래그/스크롤할 수 있도록 클릭을 통과시킨다.
+   */
+  overlay?: boolean;
 };
 
 export function ExperienceListToolbar({
@@ -34,6 +41,7 @@ export function ExperienceListToolbar({
   view,
   onViewChange,
   onViewIntent,
+  overlay = false,
 }: Props) {
   const sidebarOpen = useExperienceListStore((s) => s.sidebarOpen);
   const agentOpen = useExperienceListStore((s) => s.agentOpen);
@@ -44,6 +52,22 @@ export function ExperienceListToolbar({
   const redo = useExperienceListStore((s) => s.redo);
   const pastLen = useExperienceListStore((s) => s.past.length);
   const futureLen = useExperienceListStore((s) => s.future.length);
+  const blockSelectionMode = useExperienceListStore(
+    (s) => s.blockSelectionMode,
+  );
+  const startBlockSelection = useExperienceListStore(
+    (s) => s.startBlockSelection,
+  );
+  const cancelBlockSelection = useExperienceListStore(
+    (s) => s.cancelBlockSelection,
+  );
+  const selectedCount = useExperienceListStore(
+    (s) => Object.keys(s.selectedBlockIds).length,
+  );
+  // 그룹이 포함되면 '미분류로 이동' 안내가 붙은 모달(3-6)을 띄워야 한다.
+  const hasSelectedGroup = useExperienceListStore((s) =>
+    Object.keys(s.selectedBlockIds).some((id) => id.startsWith('g:')),
+  );
   useSyncExternalStore(
     subscribeEditSession,
     getEditSessionVersion,
@@ -105,8 +129,18 @@ export function ExperienceListToolbar({
   }, [undo, redo]);
 
   return (
-    <header className='flex h-[79px] shrink-0 items-center justify-between px-[20px]'>
-      <div className='flex items-center gap-[20px]'>
+    <header
+      className={cn(
+        'flex h-[79px] shrink-0 items-center justify-between px-[20px]',
+        overlay && 'pointer-events-none',
+      )}
+    >
+      <div
+        className={cn(
+          'flex items-center gap-[20px]',
+          overlay && 'pointer-events-auto',
+        )}
+      >
         {showOpenButton && (
           <HoverTooltip
             label='클릭하여 나의 경험 탭 열기'
@@ -153,8 +187,56 @@ export function ExperienceListToolbar({
         </div>
       </div>
 
-      <div className='flex items-center gap-[12px]'>
-        {experienceId ? (
+      <div
+        className={cn(
+          'flex items-center gap-[12px]',
+          overlay && 'pointer-events-auto',
+        )}
+      >
+        {view === 'map' ? (
+          blockSelectionMode ? (
+            <>
+              <button
+                type='button'
+                onClick={cancelBlockSelection}
+                className='border-gray4 hover:bg-gray2 flex h-[38px] cursor-pointer items-center rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors'
+              >
+                <span className='typo-b2 text-gray9 text-center'>
+                  삭제 취소
+                </span>
+              </button>
+              <button
+                type='button'
+                disabled={selectedCount === 0}
+                onClick={() =>
+                  openModal({
+                    type: hasSelectedGroup
+                      ? 'selection-delete-with-group'
+                      : 'selection-delete',
+                  })
+                }
+                className='bg-error-sub flex h-[38px] cursor-pointer items-center rounded-[6px] px-[12px] py-[6px] transition-opacity disabled:pointer-events-none disabled:opacity-50'
+              >
+                <span className='typo-b2 text-gray9 text-center'>
+                  선택한 {selectedCount}개의 블록 삭제
+                </span>
+              </button>
+            </>
+          ) : (
+            <HoverTooltip label='여러 개의 블록을 선택하여 한 번에 삭제'>
+              <button
+                type='button'
+                onClick={startBlockSelection}
+                className='border-gray4 hover:bg-gray2 flex h-[38px] cursor-pointer items-center gap-[4px] rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors'
+              >
+                <ListDeleteIcon className='size-[20px]' />
+                <span className='typo-b2 text-gray9 text-center'>
+                  블록 선택 삭제
+                </span>
+              </button>
+            </HoverTooltip>
+          )
+        ) : experienceId ? (
           <button
             type='button'
             onClick={() =>
