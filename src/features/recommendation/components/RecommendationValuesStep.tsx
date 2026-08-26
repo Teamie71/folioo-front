@@ -7,6 +7,7 @@ import type { ValueChoice } from '@/features/recommendation/types';
 import { RecommendationPrevButton } from '@/features/recommendation/components/RecommendationPrevButton';
 import { RecommendationTestHeader } from '@/features/recommendation/components/RecommendationTestHeader';
 import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
+import { cn } from '@/utils/utils';
 
 const SELECT_ADVANCE_MS = 200;
 
@@ -131,7 +132,12 @@ function BalanceCard({
       type='button'
       onClick={onClick}
       aria-pressed={selected}
-      className='typo-b2 box-border flex min-h-[8.125rem] w-[30.125rem] max-w-[30.125rem] cursor-pointer items-center rounded-[16px] border border-solid border-gray4 bg-gray1 px-[1.25rem] py-[2.5rem] text-left whitespace-pre-line text-gray9 transition-opacity active:opacity-70'
+      className={cn(
+        'typo-b2 box-border flex min-h-[8.125rem] w-[30.125rem] max-w-[30.125rem] cursor-pointer items-center rounded-[16px] border border-solid bg-gray1 px-[1.25rem] py-[2.5rem] text-left whitespace-pre-line text-gray9',
+        selected
+          ? 'border-[1.5px] border-main bg-sub1'
+          : 'border-gray4',
+      )}
     >
       {text}
     </button>
