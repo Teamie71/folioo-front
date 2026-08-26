@@ -89,10 +89,4 @@ export const MOCK_VALUE_QUESTIONS: ValueQuestion[] = [
     right:
       '매일 18시에 퇴근하고 주말은 온전히 쉴 수 있지만, 초봉은 평균의 0.8배예요.',
   },
-  {
-    id: 'value-2',
-    left: '2번질문',
-    right:
-      '테스트용',
-  },
 ];
