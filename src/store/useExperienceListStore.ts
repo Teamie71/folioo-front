@@ -3,7 +3,6 @@ import { devtools } from 'zustand/middleware';
 import {
   MAX_EXPERIENCE_COUNT,
   MAX_GROUP_COUNT,
-  UNCLASSIFIED_ID,
 } from '@/features/experience/list/constants';
 import { uid } from '@/features/experience/list/factories';
 import type {
@@ -11,33 +10,79 @@ import type {
   Experience,
   Group,
 } from '@/features/experience/list/types';
-import { getExperienceListSeed } from '@/features/experience/list/mock';
+import {
+  deriveCounter,
+  type ListStateFromServer,
+} from '@/features/experience/list/api/experienceMapMapper';
+import {
+  configureExperienceMapSync,
+  resolveSyncedId,
+  syncCreateBlocks,
+  syncCreateExperience,
+  syncCreateGroup,
+  syncDeleteBlocks,
+  syncMoveBlock,
+  syncUpdateContent,
+} from '@/features/experience/list/api/experienceMapSync';
 import {
   applyBlockMove,
+  findBlockLocation,
   type DropPosition,
 } from '@/features/experience/list/utils/blockTreeUtils';
 import { parseMapNodeId } from '@/features/experience/map/model/mapNodeId';
 
-function createSeededListState() {
-  const seed = getExperienceListSeed();
+function createInitialListState() {
   return {
-    groups: seed.groups,
-    experiences: seed.experiences,
-    groupCounter: seed.groupCounter,
-    experienceCounter: seed.experienceCounter,
-    selection: {
-      kind: 'experience' as const,
-      id: seed.experiences[0]?.id ?? '',
-    },
+    groups: [] as Group[],
+    experiences: [] as Experience[],
+    groupCounter: 0,
+    experienceCounter: 0,
+    selection: null as Selection,
+    mapVersion: null as string | null,
+    syncError: null as unknown,
     sidebarOpen: true,
     agentOpen: true,
     collapsedGroups: {} as Record<string, boolean>,
     modal: null as ModalState,
-    isContentLoading: false,
+    // 서버에서 맵을 받아오기 전까지는 스켈레톤을 보여준다.
+    isContentLoading: true,
     blockSelectionMode: false,
     selectedBlockIds: {} as Record<string, true>,
     past: [] as Snapshot[],
     future: [] as Snapshot[],
+  };
+}
+
+/** 미분류 그룹은 서버가 자동 생성하므로 id를 고정할 수 없다. 매번 찾아 쓴다. */
+function unclassifiedGroupId(groups: Group[]): string | undefined {
+  return groups.find((g) => g.isUnclassified)?.id;
+}
+
+/** 활동의 서버 position = 같은 그룹 안에서의 순서 */
+function experienceIndexInGroup(
+  experiences: Experience[],
+  experienceId: string,
+  groupId: string,
+): number {
+  return experiences
+    .filter((e) => e.groupId === groupId)
+    .findIndex((e) => e.id === experienceId);
+}
+
+/**
+ * 낙관적으로 갱신한 블록 트리에서 블록의 (부모 id, 순서)를 뽑는다.
+ * 3단계 블록의 부모는 서버 기준으로 활동 블록이다.
+ */
+function serverPositionOf(
+  blocks: Block[],
+  blockId: string,
+  experienceId: string,
+): { parentId: string; position: number } | null {
+  const location = findBlockLocation(blocks, blockId);
+  if (!location) return null;
+  return {
+    parentId: location.parentId ?? experienceId,
+    position: location.index,
   };
 }
 
@@ -96,14 +141,6 @@ function setBlockTextInTree(
   );
 }
 
-function appendChildInTree(
-  blocks: Block[],
-  parentId: string,
-  child: Block,
-): Block[] {
-  return appendChildrenInTree(blocks, parentId, [child]);
-}
-
 function appendChildrenInTree(
   blocks: Block[],
   parentId: string,
@@ -150,6 +187,11 @@ interface ExperienceListState {
   experienceCounter: number;
   selection: Selection;
 
+  /** 서버 낙관적 잠금 버전. 쓰기 동기화 계층이 관리한다. */
+  mapVersion: string | null;
+  /** 마지막 동기화 실패. 실패 후에는 서버 상태로 되돌린다. */
+  syncError: unknown;
+
   sidebarOpen: boolean;
   agentOpen: boolean;
   collapsedGroups: Record<string, boolean>;
@@ -163,6 +205,10 @@ interface ExperienceListState {
 
   past: Snapshot[];
   future: Snapshot[];
+
+  /** GET /experience-map 결과를 반영한다. (선택/펼침 등 화면 상태는 유지) */
+  hydrateFromServer: (snapshot: ListStateFromServer) => void;
+  setSyncError: (error: unknown) => void;
 
   toggleSidebar: () => void;
   toggleAgent: () => void;
@@ -274,7 +320,56 @@ export const useExperienceListStore = create<ExperienceListState>()(
         }));
 
       return {
-        ...createSeededListState(),
+        ...createInitialListState(),
+
+        hydrateFromServer: (snapshot) =>
+          set((s) => {
+            /*
+             * 방금 만든 항목은 아직 임시 id를 들고 있을 수 있다.
+             * 서버 id로 바꿔서 선택 상태를 잃지 않게 한다.
+             */
+            const selection: Selection = s.selection
+              ? { ...s.selection, id: resolveSyncedId(s.selection.id) }
+              : null;
+            const selectionAlive =
+              selection?.kind === 'experience'
+                ? snapshot.experiences.some((e) => e.id === selection.id)
+                : selection?.kind === 'group'
+                  ? snapshot.groups.some((g) => g.id === selection.id)
+                  : false;
+
+            return {
+              groups: snapshot.groups,
+              experiences: snapshot.experiences,
+              mapVersion: snapshot.mapVersion,
+              isContentLoading: false,
+              // 이름 카운터는 서버에 저장되지 않으므로 현재 이름에서 이어 받는다.
+              groupCounter: Math.max(
+                s.groupCounter,
+                deriveCounter(
+                  snapshot.groups.map((g) => g.name),
+                  '새로운 그룹',
+                ),
+              ),
+              experienceCounter: Math.max(
+                s.experienceCounter,
+                deriveCounter(
+                  snapshot.experiences.map((e) => e.name),
+                  '새로운 활동',
+                ),
+              ),
+              selection: selectionAlive
+                ? selection
+                : snapshot.experiences[0]
+                  ? {
+                      kind: 'experience' as const,
+                      id: snapshot.experiences[0].id,
+                    }
+                  : null,
+            };
+          }),
+
+        setSyncError: (error) => set({ syncError: error }),
 
         toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
         toggleAgent: () => set((s) => ({ agentOpen: !s.agentOpen })),
@@ -308,6 +403,7 @@ export const useExperienceListStore = create<ExperienceListState>()(
           commit({
             groups: get().groups.map((g) => (g.id === id ? { ...g, name } : g)),
           });
+          syncUpdateContent(id, name);
         },
 
         addGroup: (afterGroupId) => {
@@ -326,13 +422,9 @@ export const useExperienceListStore = create<ExperienceListState>()(
           const afterIdx = afterGroupId
             ? groups.findIndex((g) => g.id === afterGroupId)
             : -1;
-          if (afterIdx !== -1) {
-            groups.splice(afterIdx + 1, 0, newGroup);
-          } else {
-            const unclassifiedIdx = groups.findIndex((g) => g.isUnclassified);
-            if (unclassifiedIdx === -1) groups.push(newGroup);
-            else groups.splice(unclassifiedIdx, 0, newGroup);
-          }
+          const insertAt = afterIdx === -1 ? groups.length : afterIdx + 1;
+          groups.splice(insertAt, 0, newGroup);
+
           set((prev) => ({
             collapsedGroups: { ...prev.collapsedGroups, [newGroup.id]: false },
           }));
@@ -341,31 +433,43 @@ export const useExperienceListStore = create<ExperienceListState>()(
             groupCounter: nextCounter,
             selection: { kind: 'group', id: newGroup.id },
           });
+
+          syncCreateGroup(newGroup.id, newGroup.name);
+          // 생성 API에는 위치 지정이 없어 항상 마지막에 붙는다. 중간이면 옮긴다.
+          if (insertAt !== groups.length - 1) {
+            syncMoveBlock(newGroup.id, insertAt);
+          }
         },
 
         deleteGroup: (id) => {
           const s = get();
           const group = s.groups.find((g) => g.id === id);
           if (!group || group.isUnclassified) return;
-          const experiences = s.experiences.map((e) =>
-            e.groupId === id ? { ...e, groupId: UNCLASSIFIED_ID } : e,
-          );
+          const fallbackGroupId = unclassifiedGroupId(s.groups);
+          const experiences = fallbackGroupId
+            ? s.experiences.map((e) =>
+                e.groupId === id ? { ...e, groupId: fallbackGroupId } : e,
+              )
+            : s.experiences.filter((e) => e.groupId !== id);
           const groups = s.groups.filter((g) => g.id !== id);
           const selection: Selection =
             s.selection?.kind === 'group' && s.selection.id === id
               ? null
               : s.selection;
           commit({ groups, experiences, selection });
+          syncDeleteBlocks([id]);
         },
 
-        renameExperience: (id, name) =>
+        renameExperience: (id, name) => {
           commit({
             experiences: get().experiences.map((e) =>
               e.id === id ? { ...e, name } : e,
             ),
-          }),
+          });
+          syncUpdateContent(id, name);
+        },
 
-        addExperience: (groupId = UNCLASSIFIED_ID, afterExperienceId) => {
+        addExperience: (groupId, afterExperienceId) => {
           const s = get();
           if (s.experiences.length >= MAX_EXPERIENCE_COUNT) {
             set({ modal: { type: 'experience-limit' } });
@@ -374,7 +478,10 @@ export const useExperienceListStore = create<ExperienceListState>()(
           const after = afterExperienceId
             ? s.experiences.find((e) => e.id === afterExperienceId)
             : undefined;
-          const targetGroupId = after?.groupId ?? groupId;
+          const targetGroupId =
+            after?.groupId ?? groupId ?? unclassifiedGroupId(s.groups);
+          if (!targetGroupId) return;
+
           const nextCounter = s.experienceCounter + 1;
           const newExperience: Experience = {
             id: uid('e'),
@@ -402,6 +509,22 @@ export const useExperienceListStore = create<ExperienceListState>()(
             experienceCounter: nextCounter,
             selection: { kind: 'experience', id: newExperience.id },
           });
+
+          // 활동을 만들면 서버가 5종 SECTION을 함께 만들어 준다. (맵 재조회로 받아온다)
+          syncCreateExperience(
+            newExperience.id,
+            targetGroupId,
+            newExperience.name,
+          );
+          const position = experienceIndexInGroup(
+            experiences,
+            newExperience.id,
+            targetGroupId,
+          );
+          const isLast =
+            position ===
+            experiences.filter((e) => e.groupId === targetGroupId).length - 1;
+          if (!isLast) syncMoveBlock(newExperience.id, position);
         },
 
         deleteExperience: (id) => {
@@ -412,17 +535,22 @@ export const useExperienceListStore = create<ExperienceListState>()(
               ? null
               : s.selection;
           commit({ experiences, selection });
+          syncDeleteBlocks([id]);
         },
 
         moveExperienceToGroup: (experienceId, groupId) => {
+          const experiences = get().experiences.map((e) =>
+            e.id === experienceId ? { ...e, groupId } : e,
+          );
           set((prev) => ({
             collapsedGroups: { ...prev.collapsedGroups, [groupId]: false },
           }));
-          commit({
-            experiences: get().experiences.map((e) =>
-              e.id === experienceId ? { ...e, groupId } : e,
-            ),
-          });
+          commit({ experiences });
+          syncMoveBlock(
+            experienceId,
+            experienceIndexInGroup(experiences, experienceId, groupId),
+            groupId,
+          );
         },
 
         reorderGroup: (fromId, toId, place) => {
@@ -433,17 +561,16 @@ export const useExperienceListStore = create<ExperienceListState>()(
           if (from.isUnclassified || to.isUnclassified) return;
           if (fromId === toId) return;
 
-          const movable = s.groups.filter((g) => !g.isUnclassified);
-          const unclassified = s.groups.filter((g) => g.isUnclassified);
-          const fromIdx = movable.findIndex((g) => g.id === fromId);
-          let toIdx = movable.findIndex((g) => g.id === toId);
+          const fromIdx = s.groups.findIndex((g) => g.id === fromId);
+          let toIdx = s.groups.findIndex((g) => g.id === toId);
           if (fromIdx === -1 || toIdx === -1) return;
           if (place === 'after') toIdx += 1;
-          const without = [...movable];
+          const without = [...s.groups];
           without.splice(fromIdx, 1);
           const insertAt = fromIdx < toIdx ? toIdx - 1 : toIdx;
           without.splice(insertAt, 0, from);
-          commit({ groups: [...without, ...unclassified] });
+          commit({ groups: without });
+          syncMoveBlock(fromId, insertAt);
         },
 
         reorderExperience: (experienceId, target) => {
@@ -498,16 +625,23 @@ export const useExperienceListStore = create<ExperienceListState>()(
             },
           }));
           commit({ experiences: next });
+          syncMoveBlock(
+            experienceId,
+            experienceIndexInGroup(next, experienceId, destGroupId),
+            destGroupId,
+          );
         },
 
-        updateBlockText: (experienceId, blockId, text) =>
+        updateBlockText: (experienceId, blockId, text) => {
           commit({
             experiences: get().experiences.map((e) =>
               e.id === experienceId
                 ? { ...e, blocks: setBlockTextInTree(e.blocks, blockId, text) }
                 : e,
             ),
-          }),
+          });
+          syncUpdateContent(blockId, text);
+        },
 
         splitBlockAt: (experienceId, blockId, leftText, sibling) => {
           const fullText = `${leftText}${sibling.text ?? ''}`;
@@ -521,72 +655,83 @@ export const useExperienceListStore = create<ExperienceListState>()(
                 : e,
             ),
           }));
-          commit({
-            experiences: get().experiences.map((e) => {
-              if (e.id !== experienceId) return e;
-              const withText = setBlockTextInTree(e.blocks, blockId, leftText);
-              return {
-                ...e,
-                blocks: insertSiblingAfter(withText, blockId, sibling),
-              };
-            }),
+          const experiences = get().experiences.map((e) => {
+            if (e.id !== experienceId) return e;
+            const withText = setBlockTextInTree(e.blocks, blockId, leftText);
+            return {
+              ...e,
+              blocks: insertSiblingAfter(withText, blockId, sibling),
+            };
           });
+          commit({ experiences });
+
+          syncUpdateContent(blockId, leftText);
+          const experience = experiences.find((e) => e.id === experienceId);
+          const location = experience
+            ? serverPositionOf(experience.blocks, sibling.id, experienceId)
+            : null;
+          if (location) {
+            syncCreateBlocks(
+              location.parentId,
+              [sibling],
+              location.position,
+            );
+          }
         },
 
         addSiblingBlock: (experienceId, targetBlockId, newBlock) =>
-          commit({
-            experiences: get().experiences.map((e) =>
-              e.id === experienceId
-                ? {
-                    ...e,
-                    blocks: insertSiblingAfter(
-                      e.blocks,
-                      targetBlockId,
-                      newBlock,
-                    ),
-                  }
-                : e,
-            ),
-          }),
+          get().addSiblingBlocks(experienceId, targetBlockId, [newBlock]),
 
-        addSiblingBlocks: (experienceId, targetBlockId, newBlocks) =>
-          commit({
-            experiences: get().experiences.map((e) =>
-              e.id === experienceId
-                ? {
-                    ...e,
-                    blocks: insertSiblingsAfter(
-                      e.blocks,
-                      targetBlockId,
-                      newBlocks,
-                    ),
-                  }
-                : e,
-            ),
-          }),
+        addSiblingBlocks: (experienceId, targetBlockId, newBlocks) => {
+          const experiences = get().experiences.map((e) =>
+            e.id === experienceId
+              ? {
+                  ...e,
+                  blocks: insertSiblingsAfter(
+                    e.blocks,
+                    targetBlockId,
+                    newBlocks,
+                  ),
+                }
+              : e,
+          );
+          commit({ experiences });
 
-        addSectionToExperience: (experienceId, block) =>
+          const experience = experiences.find((e) => e.id === experienceId);
+          const first = newBlocks[0];
+          const location =
+            experience && first
+              ? serverPositionOf(experience.blocks, first.id, experienceId)
+              : null;
+          if (location) {
+            syncCreateBlocks(location.parentId, newBlocks, location.position);
+          }
+        },
+
+        addSectionToExperience: (experienceId, block) => {
           commit({
             experiences: get().experiences.map((e) =>
               e.id === experienceId
                 ? { ...e, blocks: [...e.blocks, block] }
                 : e,
             ),
-          }),
+          });
+          /*
+           * 활동 바로 아래에 붙는 3단계 블록. 서버 기준 부모는 활동 블록이다.
+           *
+           * 주의: POST /experience-map/blocks 문서에는 직접 만들 수 있는 종류가
+           * GROUP(루트) / EXPERIENCE(그룹 하위) / CONTENT(SECTION·CONTENT 하위)로만 적혀 있다.
+           * 즉 (1) 활동 하위의 3단계 자유 블록, (2) 지운 SECTION 다시 만들기는
+           * 서버가 거부할 수 있다. 화면설계서(3단계 템플릿 드롭다운)와 어긋나는 부분이라
+           * 백엔드와 맞춰야 한다.
+           */
+          syncCreateBlocks(experienceId, [block]);
+        },
 
         addChildBlock: (experienceId, parentBlockId, child) =>
-          commit({
-            experiences: get().experiences.map((e) =>
-              e.id === experienceId
-                ? {
-                    ...e,
-                    blocks: appendChildInTree(e.blocks, parentBlockId, child),
-                  }
-                : e,
-            ),
-          }),
+          get().addChildrenBlocks(experienceId, parentBlockId, [child]),
 
-        addChildrenBlocks: (experienceId, parentBlockId, children) =>
+        addChildrenBlocks: (experienceId, parentBlockId, children) => {
           commit({
             experiences: get().experiences.map((e) =>
               e.id === experienceId
@@ -600,16 +745,21 @@ export const useExperienceListStore = create<ExperienceListState>()(
                   }
                 : e,
             ),
-          }),
+          });
+          // 마지막에 덧붙이므로 위치 보정이 필요 없다.
+          syncCreateBlocks(parentBlockId, children);
+        },
 
-        deleteBlock: (experienceId, blockId) =>
+        deleteBlock: (experienceId, blockId) => {
           commit({
             experiences: get().experiences.map((e) =>
               e.id === experienceId
                 ? { ...e, blocks: removeBlockFromTree(e.blocks, blockId) }
                 : e,
             ),
-          }),
+          });
+          syncDeleteBlocks([blockId]);
+        },
 
         moveBlock: (experienceId, draggedId, drop) => {
           const s = get();
@@ -622,6 +772,15 @@ export const useExperienceListStore = create<ExperienceListState>()(
               e.id === experienceId ? { ...e, blocks: nextBlocks } : e,
             ),
           });
+
+          const location = serverPositionOf(
+            nextBlocks,
+            draggedId,
+            experienceId,
+          );
+          if (location) {
+            syncMoveBlock(draggedId, location.position, location.parentId);
+          }
         },
 
         startBlockSelection: () =>
@@ -676,10 +835,14 @@ export const useExperienceListStore = create<ExperienceListState>()(
             if (group.isUnclassified) groupIds.delete(group.id);
           }
 
+          const fallbackGroupId = unclassifiedGroupId(s.groups);
+
           const experiences = s.experiences
             .filter((e) => !experienceIds.has(e.id))
             .map((e) =>
-              groupIds.has(e.groupId) ? { ...e, groupId: UNCLASSIFIED_ID } : e,
+              groupIds.has(e.groupId) && fallbackGroupId
+                ? { ...e, groupId: fallbackGroupId }
+                : e,
             )
             .map((e) => {
               const blockIds = blockIdsByExperience.get(e.id);
@@ -702,8 +865,42 @@ export const useExperienceListStore = create<ExperienceListState>()(
             experiences,
             selection: selectionSurvives ? s.selection : null,
           });
+
+          /*
+           * 서버는 블록을 지울 때 하위를 함께 지운다. (그룹만 하위 활동을 미분류로 옮긴다)
+           * 그래서 선택된 것 중 "가장 위"만 보내야 이미 사라진 id를 다시 지우지 않는다.
+           * - 활동이 선택됐으면 그 활동의 블록은 보내지 않는다.
+           * - 상위 블록이 함께 선택된 블록도 보내지 않는다.
+           */
+          const topLevelBlockIds: string[] = [];
+          for (const [expId, ids] of blockIdsByExperience) {
+            if (experienceIds.has(expId)) continue;
+            const experience = s.experiences.find((e) => e.id === expId);
+            if (!experience) continue;
+
+            const collect = (blocks: Block[], hasSelectedAncestor: boolean) => {
+              for (const block of blocks) {
+                const selected = ids.has(block.id);
+                if (selected && !hasSelectedAncestor) {
+                  topLevelBlockIds.push(block.id);
+                }
+                collect(block.children, hasSelectedAncestor || selected);
+              }
+            };
+            collect(experience.blocks, false);
+          }
+
+          syncDeleteBlocks([
+            ...topLevelBlockIds,
+            ...experienceIds,
+            ...groupIds,
+          ]);
         },
 
+        /*
+         * 실행 취소 / 다시 실행은 화면설계서대로 세션 기반 인메모리 히스토리다.
+         * 서버에는 되돌리기 API가 없어(AI 커밋 전용 revert만 존재한다) 화면 상태만 되돌린다.
+         */
         undo: () =>
           set((s) => {
             if (s.past.length === 0) return {};
@@ -730,3 +927,17 @@ export const useExperienceListStore = create<ExperienceListState>()(
     { name: 'experience-list-store' },
   ),
 );
+
+/**
+ * 동기화 계층이 스토어를 갱신할 수 있도록 연결한다.
+ * (스토어가 sync를 import하고 sync는 스토어를 import하지 않아 순환 참조가 없다)
+ */
+configureExperienceMapSync({
+  onSnapshot: (snapshot) =>
+    useExperienceListStore.getState().hydrateFromServer(snapshot),
+  onError: (error) => {
+    // 실패한 조작은 곧바로 이어지는 맵 재조회로 서버 상태에 맞춰 되돌아간다.
+    console.error('[experience-map] 동기화 실패', error);
+    useExperienceListStore.getState().setSyncError(error);
+  },
+});

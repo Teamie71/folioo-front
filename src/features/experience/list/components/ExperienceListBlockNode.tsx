@@ -11,10 +11,12 @@ import { DropIndicator } from '@/features/experience/list/components/DropIndicat
 import { EmptySectionAddButton } from '@/features/experience/list/components/ExperienceListEmptyStates';
 import {
   DEFAULT_BLOCK_PLACEHOLDER,
-  DUTY_TEMPLATE_OPTIONS,
-  PROBLEM_TEMPLATE_OPTIONS,
   SECTION_TITLE,
 } from '@/features/experience/list/constants';
+import {
+  getDutyTemplateOptions,
+  getProblemTemplateOptions,
+} from '@/features/experience/list/api/templateOptions';
 import {
   createDutyChildFromTemplate,
   createDutyLevel5FromTemplate,
@@ -87,7 +89,7 @@ export function ExperienceListBlockNode({
       : null;
 
   const problemTemplateOptions = usesProblemTemplateAdd
-    ? PROBLEM_TEMPLATE_OPTIONS.map((opt) => ({
+    ? getProblemTemplateOptions().map((opt) => ({
         key: opt.key,
         label: opt.label,
         onSelect: () =>
@@ -100,7 +102,7 @@ export function ExperienceListBlockNode({
     : null;
 
   const dutyTemplateOptions = usesDutyTemplateAdd
-    ? DUTY_TEMPLATE_OPTIONS.map((opt) => ({
+    ? getDutyTemplateOptions().map((opt) => ({
         key: opt.key,
         label: opt.label,
         onSelect: () =>
@@ -114,7 +116,7 @@ export function ExperienceListBlockNode({
 
   const level5TemplateOptions = usesLevel5TemplateAdd
     ? parentKind === 'duty'
-      ? DUTY_TEMPLATE_OPTIONS.map((opt) => ({
+      ? getDutyTemplateOptions().map((opt) => ({
           key: opt.key,
           label: opt.label,
           onSelect: () =>
@@ -124,7 +126,7 @@ export function ExperienceListBlockNode({
               createDutyLevel5FromTemplate(opt.key),
             ),
         }))
-      : PROBLEM_TEMPLATE_OPTIONS.map((opt) => ({
+      : getProblemTemplateOptions().map((opt) => ({
           key: opt.key,
           label: opt.label,
           onSelect: () =>

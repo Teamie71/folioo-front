@@ -2,9 +2,9 @@
 
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import {
-  DUTY_TEMPLATE_OPTIONS,
-  PROBLEM_TEMPLATE_OPTIONS,
-} from '@/features/experience/list/constants';
+  getDutyTemplateOptions,
+  getProblemTemplateOptions,
+} from '@/features/experience/list/api/templateOptions';
 import {
   createDutyChildFromTemplate,
   createDutyLevel5FromTemplate,
@@ -84,7 +84,7 @@ export function useMapBlockAdd(node: MapLayoutNode): MapAddAction {
     if (node.block.kind === 'duty') {
       return {
         kind: 'template',
-        items: DUTY_TEMPLATE_OPTIONS.map((option) => ({
+        items: getDutyTemplateOptions().map((option) => ({
           key: option.key,
           label: option.label,
           onSelect: () =>
@@ -100,7 +100,7 @@ export function useMapBlockAdd(node: MapLayoutNode): MapAddAction {
     if (node.block.kind === 'problem') {
       return {
         kind: 'template',
-        items: PROBLEM_TEMPLATE_OPTIONS.map((option) => ({
+        items: getProblemTemplateOptions().map((option) => ({
           key: option.key,
           label: option.label,
           onSelect: () =>
@@ -131,7 +131,7 @@ export function useMapBlockAdd(node: MapLayoutNode): MapAddAction {
   if (node.parentKind === 'duty') {
     return {
       kind: 'template',
-      items: DUTY_TEMPLATE_OPTIONS.map((option) => ({
+      items: getDutyTemplateOptions().map((option) => ({
         key: option.key,
         label: option.label,
         onSelect: () =>
@@ -147,7 +147,7 @@ export function useMapBlockAdd(node: MapLayoutNode): MapAddAction {
   if (node.parentKind === 'problem') {
     return {
       kind: 'template',
-      items: PROBLEM_TEMPLATE_OPTIONS.map((option) => ({
+      items: getProblemTemplateOptions().map((option) => ({
         key: option.key,
         label: option.label,
         onSelect: () =>

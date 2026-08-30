@@ -8,9 +8,9 @@ import {
   type MenuItem,
 } from '@/features/experience/list/components/ExperienceListMenu';
 import {
-  DUTY_TEMPLATE_OPTIONS,
-  PROBLEM_TEMPLATE_OPTIONS,
-} from '@/features/experience/list/constants';
+  getDutyTemplateOptions,
+  getProblemTemplateOptions,
+} from '@/features/experience/list/api/templateOptions';
 import {
   buildSectionChildren,
   createDutyChildFromTemplate,
@@ -159,7 +159,7 @@ export function EmptySectionAddButton({
     : ({ menuPlacement: 'bottom', menuAlign: 'start' } as const);
 
   if (section.kind === 'problem') {
-    const items: MenuItem[] = PROBLEM_TEMPLATE_OPTIONS.map((opt) => ({
+    const items: MenuItem[] = getProblemTemplateOptions().map((opt) => ({
       key: opt.key,
       label: opt.label,
       onSelect: () =>
@@ -185,7 +185,7 @@ export function EmptySectionAddButton({
   }
 
   if (section.kind === 'duty') {
-    const items: MenuItem[] = DUTY_TEMPLATE_OPTIONS.map((opt) => ({
+    const items: MenuItem[] = getDutyTemplateOptions().map((opt) => ({
       key: opt.key,
       label: opt.label,
       onSelect: () =>

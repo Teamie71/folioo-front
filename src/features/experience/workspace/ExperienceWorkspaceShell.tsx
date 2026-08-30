@@ -8,6 +8,7 @@ import { ExperienceListModals } from '@/features/experience/list/components/Expe
 import { ExperienceListToolbar } from '@/features/experience/list/components/ExperienceListToolbar';
 import { ExperienceListView } from '@/features/experience/workspace/views/ExperienceListView';
 import { MapViewSkeleton } from '@/features/experience/workspace/views/MapViewSkeleton';
+import { useExperienceMap } from '@/features/experience/list/hooks/useExperienceMap';
 import { useWorkspaceView } from '@/features/experience/workspace/hooks/useWorkspaceView';
 import { usePreloadMapView } from '@/features/experience/workspace/hooks/usePreloadMapView';
 import { preloadExperienceMapView } from '@/features/experience/workspace/model/mapViewLoader';
@@ -29,6 +30,9 @@ const ExperienceMapView = dynamic(
  */
 export function ExperienceWorkspaceShell() {
   const { view, setView } = useWorkspaceView();
+
+  // GET /experience-map 으로 그룹·활동·블록 트리를 채운다.
+  useExperienceMap();
 
   // 툴바의 "활동 삭제" 노출 조건. 원시값만 구독해 shell 리렌더를 최소화한다.
   const experienceId = useExperienceListStore((s) => {

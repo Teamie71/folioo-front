@@ -12,6 +12,10 @@ import type {
   SectionKind,
   SectionTemplateKey,
 } from '@/features/experience/list/types';
+import {
+  catalogSlotPlaceholders,
+  catalogSubTemplateSlots,
+} from '@/features/experience/list/api/templateCatalog';
 
 const SECTION_TEMPLATE_CHILDREN: Record<
   Exclude<SectionKind, 'free'>,
@@ -136,7 +140,10 @@ function placeholderBlock(
 
 function sectionBlockPlaceholders(kind: SectionKind): string[] {
   if (kind === 'free' || kind === 'problem' || kind === 'duty') return [];
-  return SECTION_TEMPLATE_CHILDREN[kind].map((n) => n.placeholder);
+  return (
+    catalogSlotPlaceholders(kind) ??
+    SECTION_TEMPLATE_CHILDREN[kind].map((n) => n.placeholder)
+  );
 }
 
 export function sectionBlockPlaceholderAt(
@@ -149,11 +156,19 @@ export function sectionBlockPlaceholderAt(
 export function buildSectionChildren(
   kind: Exclude<SectionKind, 'free'>,
 ): Block[] {
+  const childKind = kind === 'problem' || kind === 'duty' ? kind : 'free';
+  const fromCatalog = catalogSlotPlaceholders(kind);
+  if (fromCatalog) {
+    return fromCatalog.map((placeholder) =>
+      placeholderBlock(placeholder, [], childKind),
+    );
+  }
+
   return SECTION_TEMPLATE_CHILDREN[kind].map((node) =>
     placeholderBlock(
       node.placeholder,
       (node.children ?? []).map((p) => placeholderBlock(p)),
-      kind === 'problem' || kind === 'duty' ? kind : 'free',
+      childKind,
     ),
   );
 }
@@ -173,10 +188,25 @@ export function createSectionFromTemplate(key: SectionTemplateKey): Block {
   return sectionBlock(key, []);
 }
 
+/** 하위 템플릿의 level 5 placeholder. 서버 카탈로그를 우선 쓰고 없으면 기본 문구를 쓴다. */
+function level5Placeholders(
+  kind: 'duty' | 'problem',
+  key: string,
+): string[] | undefined {
+  const fromCatalog = catalogSubTemplateSlots(kind, key);
+  if (fromCatalog) return fromCatalog;
+
+  const fallback =
+    kind === 'duty'
+      ? DUTY_TEMPLATE_LEVEL5[key as keyof typeof DUTY_TEMPLATE_LEVEL5]
+      : PROBLEM_TEMPLATE_LEVEL5[key as keyof typeof PROBLEM_TEMPLATE_LEVEL5];
+  return fallback;
+}
+
 export function createProblemChildFromTemplate(key: ProblemTemplateKey): Block {
   if (key === 'free') return freeBlock();
 
-  const level5 = PROBLEM_TEMPLATE_LEVEL5[key];
+  const level5 = level5Placeholders('problem', key) ?? [];
   return placeholderBlock(
     PROBLEM_EPISODE_PLACEHOLDER,
     level5.map((p) => placeholderBlock(p)),
@@ -189,7 +219,7 @@ export function createDutyChildFromTemplate(key: DutyTemplateKey): Block {
     return placeholderBlock(DUTY_EPISODE_PLACEHOLDER, [], 'duty');
   }
 
-  const level5 = DUTY_TEMPLATE_LEVEL5[key];
+  const level5 = level5Placeholders('duty', key) ?? [];
   return placeholderBlock(
     DUTY_EPISODE_PLACEHOLDER,
     level5.map((p) => placeholderBlock(p)),
@@ -199,14 +229,16 @@ export function createDutyChildFromTemplate(key: DutyTemplateKey): Block {
 
 export function createDutyLevel5FromTemplate(key: DutyTemplateKey): Block[] {
   if (key === 'free') return [freeBlock()];
-  return DUTY_TEMPLATE_LEVEL5[key].map((p) => placeholderBlock(p));
+  const level5 = level5Placeholders('duty', key);
+  return level5 ? level5.map((p) => placeholderBlock(p)) : [freeBlock()];
 }
 
 export function createProblemLevel5FromTemplate(
   key: ProblemTemplateKey,
 ): Block[] {
   if (key === 'free') return [freeBlock()];
-  return PROBLEM_TEMPLATE_LEVEL5[key].map((p) => placeholderBlock(p));
+  const level5 = level5Placeholders('problem', key);
+  return level5 ? level5.map((p) => placeholderBlock(p)) : [freeBlock()];
 }
 
 export function createExperienceTemplateBlocks(): Block[] {

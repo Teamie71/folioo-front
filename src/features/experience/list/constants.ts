@@ -61,6 +61,9 @@ export const SECTION_TEMPLATE_OPTIONS: Array<{
   { key: 'free', label: '자유 블록' },
 ];
 
+export const FREE_BLOCK_OPTION = { key: 'free', label: '자유 블록' } as const;
+
+/** GET /templates 응답이 오기 전에 쓰는 기본 목록. */
 export const PROBLEM_TEMPLATE_OPTIONS: Array<{
   key: ProblemTemplateKey;
   label: string;
@@ -71,13 +74,11 @@ export const PROBLEM_TEMPLATE_OPTIONS: Array<{
   { key: 'troubleshooting', label: '기술 트러블슈팅' },
   { key: 'feedback', label: '피드백 대응' },
   { key: 'recovery', label: '실패 회복' },
-  { key: 'free', label: '자유 블록' },
+  FREE_BLOCK_OPTION,
 ];
 
+/** GET /templates 응답이 오기 전에 쓰는 기본 목록. */
 export const DUTY_TEMPLATE_OPTIONS: Array<{
   key: DutyTemplateKey;
   label: string;
-}> = [
-  { key: 'basic', label: '기본' },
-  { key: 'free', label: '자유 블록' },
-];
+}> = [{ key: 'basic', label: '기본' }, FREE_BLOCK_OPTION];

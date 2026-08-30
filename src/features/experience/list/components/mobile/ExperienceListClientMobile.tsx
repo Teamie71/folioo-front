@@ -7,8 +7,12 @@ import { MobileExperienceListModals } from '@/features/experience/list/component
 import { MobileExperienceDetail } from '@/features/experience/list/components/mobile/MobileExperienceDetail';
 import { MobileGroupDetail } from '@/features/experience/list/components/mobile/MobileGroupDetail';
 import { useSidebarDnd } from '@/features/experience/list/hooks/useSidebarDnd';
+import { useExperienceMap } from '@/features/experience/list/hooks/useExperienceMap';
 
 export default function ExperienceListClientMobile() {
+  // GET /experience-map 으로 그룹·활동·블록 트리를 채운다.
+  useExperienceMap();
+
   const groups = useExperienceListStore((s) => s.groups);
   const experiences = useExperienceListStore((s) => s.experiences);
   const collapsedGroups = useExperienceListStore((s) => s.collapsedGroups);
