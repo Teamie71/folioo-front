@@ -223,18 +223,16 @@ export function ExperienceListToolbar({
               </button>
             </>
           ) : (
-            <HoverTooltip label='여러 개의 블록을 선택하여 한 번에 삭제'>
-              <button
-                type='button'
-                onClick={startBlockSelection}
-                className='border-gray4 hover:bg-gray2 flex h-[38px] cursor-pointer items-center gap-[4px] rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors'
-              >
-                <ListDeleteIcon className='size-[20px]' />
-                <span className='typo-b2 text-gray9 text-center'>
-                  블록 선택 삭제
-                </span>
-              </button>
-            </HoverTooltip>
+            <button
+              type='button'
+              onClick={startBlockSelection}
+              className='border-gray4 hover:bg-gray2 flex h-[38px] cursor-pointer items-center gap-[4px] rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors'
+            >
+              <ListDeleteIcon className='size-[20px]' />
+              <span className='typo-b2 text-gray9 text-center'>
+                블록 선택 삭제
+              </span>
+            </button>
           )
         ) : experienceId ? (
           <button
