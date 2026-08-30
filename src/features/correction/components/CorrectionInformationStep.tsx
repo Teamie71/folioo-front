@@ -47,6 +47,7 @@ export function CorrectionInformationStep({
         jobDescription={jobDescription}
         onJobDescriptionChange={onJobDescriptionChange}
         informationErrors={informationErrors}
+        limitAllowedInput={limitAllowedInput}
       />
 
       {/* 첨삭 시작하기 버튼 */}

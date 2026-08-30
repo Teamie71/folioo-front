@@ -33,9 +33,11 @@ import { useRouter } from 'next/navigation';
 import { useCorrectionNavbar } from '@/contexts/CorrectionNavbarContext';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
+  getPdfCategoryCharLimit,
   getPdfActivityPlaceholderLabel,
+  getNextPdfPlaceholderLabelIndex,
   INITIAL_PDF_ACTIVITIES,
-  PDF_CATEGORY_CHAR_LIMIT,
+  PDF_MAX_ACTIVITY_COUNT,
 } from '@/features/correction/constants';
 import { getHopeJobLabel } from '@/constants/hopeJob';
 import type {
@@ -129,6 +131,8 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [pdfExtractNonce, setPdfExtractNonce] = useState(0);
   const [isPdfExtractConfirmModalOpen, setIsPdfExtractConfirmModalOpen] =
     useState(false);
+  const [isPdfLoginRequiredModalOpen, setIsPdfLoginRequiredModalOpen] =
+    useState(false);
   const [pdfUploadedFile, setPdfUploadedFile] = useState<{
     name: string;
     /** 직접 업로드한 경우에만 존재. 재진입 복원 시에는 없을 수 있음 */
@@ -140,8 +144,6 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [pdfShakeKey, setPdfShakeKey] = useState(0);
   const [isPdfDropOverlayActive, setIsPdfDropOverlayActive] = useState(false);
   const pdfFileInputRef = useRef<HTMLInputElement>(null);
-  /** + 로 추가한 블록만 순서대로 활동 A, B… (리스트 인덱스와 무관) */
-  const pdfManualAddLabelSeqRef = useRef(0);
   const bulletTextareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
   const lastBulletEnterAt = useRef<number>(0);
   const [showTextPortfolioWarning, setShowTextPortfolioWarning] =
@@ -154,14 +156,18 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [isInitializing, setIsInitializing] = useState(true);
 
   const accessToken = useAuthStore((s) => s.accessToken);
-  const { data: portfoliosData, isLoading: isTextPortfoliosLoading } = usePortfolioControllerGetPortfolios({
-    query: {
-      enabled:
-        !!accessToken &&
-        step === 'portfolio' &&
-        selectedPortfolioType === 'text',
-    },
-  });
+  const sessionRestoreAttempted = useAuthStore(
+    (s) => s.sessionRestoreAttempted,
+  );
+  const { data: portfoliosData, isLoading: isTextPortfoliosLoading } =
+    usePortfolioControllerGetPortfolios({
+      query: {
+        enabled:
+          !!accessToken &&
+          step === 'portfolio' &&
+          selectedPortfolioType === 'text',
+      },
+    });
   const portfoliosList = portfoliosData?.result ?? [];
   const textPortfolios = portfoliosList.map((p) => ({
     id: String(p.id),
@@ -185,6 +191,17 @@ export function useCorrectionState(correctionId: string | undefined) {
 
   // correctionId 있을 때 GET /status로 step·status 복원
   useEffect(() => {
+    if (!sessionRestoreAttempted) return;
+
+    // 비로그인 사용자는 PDF 업로드 화면까지 접근할 수 있다.
+    // 실제 첨삭 데이터 조회와 생성은 로그인 후에만 수행한다.
+    if (!accessToken) {
+      setIsInitializing(false);
+      return;
+    }
+
+    setIsInitializing(true);
+
     const id = effectiveId ? Number(effectiveId) : null;
     if (id == null || Number.isNaN(id)) {
       setIsInitializing(false);
@@ -225,7 +242,7 @@ export function useCorrectionState(correctionId: string | undefined) {
         // 에러 발생 시에도 일단 메인으로
         router.replace('/correction');
       });
-  }, [effectiveId, router]);
+  }, [accessToken, effectiveId, router, sessionRestoreAttempted]);
 
   useEffect(() => {
     setShowNavbarOnResult?.(step === 'result');
@@ -273,9 +290,12 @@ export function useCorrectionState(correctionId: string | undefined) {
 
   const handlePdfPortfoliosHydratedFromQuery = useCallback(
     (activities: PdfActivityBlock[]) => {
-      pdfManualAddLabelSeqRef.current = 0;
       setIsPdfTextExtracting(false);
-      if (activities[0]) setSelectedActivityId(activities[0].id);
+      setSelectedActivityId((currentId) =>
+        activities.some((activity) => activity.id === currentId)
+          ? currentId
+          : (activities[0]?.id ?? currentId),
+      );
     },
     [],
   );
@@ -313,7 +333,10 @@ export function useCorrectionState(correctionId: string | undefined) {
         if (res?.isSuccess === false) return;
 
         const extractionStatus = res?.result?.status;
-        const originalFileName = res?.result?.originalFileName as string | null | undefined;
+        const originalFileName = res?.result?.originalFileName as
+          | string
+          | null
+          | undefined;
         const portfolios = res?.result?.portfolios ?? [];
 
         // NONE → 추출 요청 전 → 타입 선택 화면 유지
@@ -384,9 +407,40 @@ export function useCorrectionState(correctionId: string | undefined) {
       /* 구조화 결과는 비동기 — CorrectionPdfTextSection 조회 폴링 후 반영 */
     } catch {
       setIsPdfTextExtracting(false);
-      setIsPdfTextExtracted(false);
+      // 즉시 요청 실패도 텍스트 추출 실패 화면에서 다시 시도할 수 있게 유지한다.
+      setIsPdfTextExtracted(true);
     }
   }, [pdfUploadedFile, effectiveId, queryClient]);
+
+  const handleRequestPdfExtract = useCallback(() => {
+    if (!sessionRestoreAttempted || !accessToken) {
+      setIsPdfLoginRequiredModalOpen(true);
+      return;
+    }
+    setIsPdfExtractConfirmModalOpen(true);
+  }, [accessToken, sessionRestoreAttempted]);
+
+  useEffect(() => {
+    if (!isPdfLoginRequiredModalOpen) return;
+    const timer = window.setTimeout(() => {
+      const numericId = Number(effectiveId);
+      const redirectTo = Number.isNaN(numericId)
+        ? '/correction/new'
+        : `${window.location.pathname}${window.location.search}`;
+      router.push(`/login?redirect_to=${encodeURIComponent(redirectTo)}`);
+    }, 2000);
+    return () => window.clearTimeout(timer);
+  }, [effectiveId, isPdfLoginRequiredModalOpen, router]);
+
+  const handleRetryPdfExtract = useCallback(() => {
+    if (!pdfUploadedFile?.file) {
+      // 페이지 재진입 후에는 브라우저가 파일 객체를 복원할 수 없으므로 재업로드를 유도한다.
+      setIsPdfTextExtracted(false);
+      setPdfUploadedFile(null);
+      return;
+    }
+    void handlePdfExtractConfirm();
+  }, [handlePdfExtractConfirm, pdfUploadedFile]);
 
   const handleDeletePdfActivity = useCallback(async () => {
     const targetId = activityDeleteTargetId;
@@ -414,7 +468,7 @@ export function useCorrectionState(correctionId: string | undefined) {
   const handleAddPdfActivity = useCallback(async () => {
     const id = effectiveId ? Number(effectiveId) : null;
     if (id == null || Number.isNaN(id)) return;
-    if (pdfActivities.length >= 5) return;
+    if (pdfActivities.length >= PDF_MAX_ACTIVITY_COUNT) return;
     try {
       const res = await externalPortfolioControllerCreateExternalPortfolioBlock(
         {
@@ -426,12 +480,11 @@ export function useCorrectionState(correctionId: string | undefined) {
       ).result;
       if (!result) throw new Error();
       const insertIndex = pdfActivities.length;
-      const addSeq = pdfManualAddLabelSeqRef.current;
-      if (addSeq >= 5) return;
-      pdfManualAddLabelSeqRef.current = addSeq + 1;
+      const placeholderIndex = getNextPdfPlaceholderLabelIndex(pdfActivities);
+      if (placeholderIndex == null) return;
       const newBlock: PdfActivityBlock = {
         ...mapToPdfActivityBlock(result, insertIndex),
-        label: getPdfActivityPlaceholderLabel(addSeq),
+        label: getPdfActivityPlaceholderLabel(placeholderIndex),
       };
       setPdfActivities((prev) => [...prev, newBlock]);
       setSelectedActivityId(newBlock.id);
@@ -556,6 +609,12 @@ export function useCorrectionState(correctionId: string | undefined) {
     }
   }, [effectiveId]);
 
+  const handleRetryCompanyInsight = useCallback(async () => {
+    const id = effectiveId ? Number(effectiveId) : null;
+    if (id == null || Number.isNaN(id)) return;
+    await portfolioCorrectionControllerCreateCompanyInsight(id);
+  }, [effectiveId]);
+
   const handlePortfolioSelect = useCallback((type: PortfolioType) => {
     setSelectedPortfolioType(type);
     setShowTextPortfolioWarning(false);
@@ -589,7 +648,8 @@ export function useCorrectionState(correctionId: string | undefined) {
     pdfUploadError === 'too_large' || pdfUploadError === 'too_many'
       ? `pdf-shake-${pdfShakeKey}`
       : 'no-shake';
-  const layoutWidth = step === 'result' ? 'w-[87rem] min-w-[87rem]' : 'w-[66rem] min-w-[66rem]';
+  const layoutWidth =
+    step === 'result' ? 'w-[87rem] min-w-[87rem]' : 'w-[66rem] min-w-[66rem]';
   const layoutClassName = `mx-auto mt-[2.5rem] ${layoutWidth} ${pdfUploadError === 'too_large' || pdfUploadError === 'too_many' ? 'animate-shake' : ''}`;
 
   const pdfCategoryOverLimit =
@@ -597,7 +657,8 @@ export function useCorrectionState(correctionId: string | undefined) {
     pdfActivities.some((a) =>
       a.categories.some(
         (c) =>
-          c.bullets.reduce((s, b) => s + b.length, 0) > PDF_CATEGORY_CHAR_LIMIT,
+          c.bullets.reduce((s, b) => s + b.length, 0) >
+          getPdfCategoryCharLimit(c.name),
       ),
     );
 
@@ -645,6 +706,7 @@ export function useCorrectionState(correctionId: string | undefined) {
     handlePdfPortfoliosHydratedFromQuery,
     isPdfExtractConfirmModalOpen,
     setIsPdfExtractConfirmModalOpen,
+    isPdfLoginRequiredModalOpen,
     pdfUploadedFile,
     setPdfUploadedFile,
     pdfUploadError,
@@ -668,9 +730,12 @@ export function useCorrectionState(correctionId: string | undefined) {
     handleNextStep,
     handleStartNewExperience,
     handleRetryAnalyzing,
+    handleRetryCompanyInsight,
     handlePortfolioSelect,
     handlePdfFile,
+    handleRequestPdfExtract,
     handlePdfExtractConfirm,
+    handleRetryPdfExtract,
     handleDeletePdfActivity,
     handleAddPdfActivity,
     handlePdfActivityChange,

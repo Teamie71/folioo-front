@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { redirect } from 'next/navigation';
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
+import { LoginRequiredModal } from '@/components/LoginRequiredModal';
 import { CorrectionAnalyzingView } from '@/features/correction/components/CorrectionAnalyzingView';
 import { CorrectionAnalysisStep } from '@/features/correction/components/CorrectionAnalysisStep';
 import { CorrectionLayout } from '@/features/correction/components/CorrectionLayout';
@@ -187,7 +188,7 @@ export default function CorrectionSettingsPage() {
             onRequestPdfFileDelete={() =>
               s.setFileDeleteConfirmTarget({ type: 'pdf' })
             }
-            onRequestPdfExtract={() => s.setIsPdfExtractConfirmModalOpen(true)}
+            onRequestPdfExtract={s.handleRequestPdfExtract}
             isPdfTextExtracted={s.isPdfTextExtracted}
             isPdfTextExtracting={s.isPdfTextExtracting}
             pdfActivities={s.pdfActivities}
@@ -206,7 +207,10 @@ export default function CorrectionSettingsPage() {
                 : null
             }
             pdfExtractNonce={s.pdfExtractNonce}
-            onPdfPortfoliosHydratedFromQuery={s.handlePdfPortfoliosHydratedFromQuery}
+            onPdfPortfoliosHydratedFromQuery={
+              s.handlePdfPortfoliosHydratedFromQuery
+            }
+            onRetryPdfExtract={s.handleRetryPdfExtract}
             onRequestActivityDelete={s.setActivityDeleteTargetId}
             pdfActivityHoverId={s.pdfActivityHoverId}
             setPdfActivityHoverId={s.setPdfActivityHoverId}
@@ -227,6 +231,7 @@ export default function CorrectionSettingsPage() {
             onEmphasisPointsChange={s.setEmphasisPointsValue}
             limitAllowedInput={s.limitAllowedInput}
             onNextStep={s.handleNextStep}
+            onRetryCompanyInsight={s.handleRetryCompanyInsight}
           />
         ) : (
           <CorrectionResultStep
@@ -247,9 +252,11 @@ export default function CorrectionSettingsPage() {
         )}
       </div>
 
-      {s.step === 'result' && s.status === 'DONE' && (
-        <FeedbackFloatingButton />
-      )}
+      {s.step === 'result' && s.status === 'DONE' && <FeedbackFloatingButton />}
+      <LoginRequiredModal
+        open={s.isPdfLoginRequiredModalOpen}
+        onOpenChange={() => {}}
+      />
     </CorrectionLayout>
   );
 }

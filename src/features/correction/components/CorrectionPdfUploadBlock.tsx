@@ -4,6 +4,7 @@ import { type RefObject } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import { FileCloseIcon } from '@/components/icons/FileCloseIcon';
 import { PdfIcon } from '@/components/icons/PdfIcon';
+import { PDF_MAX_ACTIVITY_COUNT } from '@/features/correction/constants';
 
 export interface CorrectionPdfUploadBlockProps {
   pdfUploadedFile: { name: string } | null;
@@ -35,7 +36,7 @@ export function CorrectionPdfUploadBlock({
   return (
     <div className='mt-[4.75rem] flex flex-col gap-[1.25rem]'>
       <div>
-        <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
+        <div className='flex items-center gap-[0.25rem] text-[1.125rem] leading-[1.3] font-bold'>
           <span>PDF 포트폴리오 업로드</span>
           <span className='text-[#DC0000]'>*</span>
         </div>
@@ -50,11 +51,11 @@ export function CorrectionPdfUploadBlock({
           <div className='flex flex-col justify-center gap-[1.5rem]'>
             <div className='flex flex-col'>
               <span className='text-[0.875rem] text-[#1A1A1A]'>
-                업로드하신 포트폴리오 파일의 텍스트를 추출하여 첨삭을
-                진행해요.
+                업로드하신 포트폴리오 파일의 텍스트를 추출하여 첨삭을 진행해요.
               </span>
               <span className='text-[0.875rem] text-[#1A1A1A]'>
-                최대 10MB의 파일, 최대 5개의 활동 첨삭이 가능해요.
+                최대 10MB의 파일, 최대 {PDF_MAX_ACTIVITY_COUNT}개의 활동 첨삭이
+                가능해요.
               </span>
             </div>
             <CommonButton
@@ -83,17 +84,12 @@ export function CorrectionPdfUploadBlock({
           <div
             role='button'
             tabIndex={0}
-            className='group relative flex flex-col items-center justify-center gap-[0.75rem] rounded-[1rem] border border-[#CDD0D5] bg-[#FFFFFF] p-[3rem] cursor-pointer'
+            className='group relative flex cursor-pointer flex-col items-center justify-center gap-[0.75rem] rounded-[1rem] border border-[#CDD0D5] bg-[#FFFFFF] p-[3rem]'
             onClick={() =>
-              pdfUploadedFile
-                ? undefined
-                : pdfFileInputRef.current?.click()
+              pdfUploadedFile ? undefined : pdfFileInputRef.current?.click()
             }
             onKeyDown={(e) => {
-              if (
-                !pdfUploadedFile &&
-                (e.key === 'Enter' || e.key === ' ')
-              ) {
+              if (!pdfUploadedFile && (e.key === 'Enter' || e.key === ' ')) {
                 e.preventDefault();
                 pdfFileInputRef.current?.click();
               }

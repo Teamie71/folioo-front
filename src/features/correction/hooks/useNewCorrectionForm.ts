@@ -8,6 +8,7 @@ import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAuthStore } from '@/store/useAuthStore';
 import type {
   FileDeleteConfirmTarget,
   InformationErrors,
@@ -29,12 +30,13 @@ export function useNewCorrectionForm() {
   const [companyName, setCompanyName] = useState('');
   const [jobTitle, setJobTitle] = useState('');
   const [jobDescription, setJobDescription] = useState('');
-  const [informationErrors, setInformationErrors] =
-    useState<InformationErrors>({
+  const [informationErrors, setInformationErrors] = useState<InformationErrors>(
+    {
       companyName: false,
       jobTitle: false,
       jobDescription: false,
-    });
+    },
+  );
   const [fileDeleteConfirmTarget, setFileDeleteConfirmTarget] =
     useState<FileDeleteConfirmTarget>(null);
   const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
@@ -44,8 +46,14 @@ export function useNewCorrectionForm() {
     useState(false);
   const [isCorrectionLimitModalOpen, setIsCorrectionLimitModalOpen] =
     useState(false);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const sessionRestoreAttempted = useAuthStore(
+    (state) => state.sessionRestoreAttempted,
+  );
 
-  const { data: ticketBalance } = useUserControllerGetTicketBalance();
+  const { data: ticketBalance } = useUserControllerGetTicketBalance({
+    query: { enabled: sessionRestoreAttempted && accessToken != null },
+  });
   const portfolioCount = ticketBalance?.result?.portfolioCorrection?.count ?? 0;
 
   const handleStartCorrectionClick = useCallback(() => {
@@ -58,18 +66,40 @@ export function useNewCorrectionForm() {
       jobTitle: jobTitleEmpty,
       jobDescription: jobDescriptionEmpty,
     });
-    if (!hasError) {
-      if (portfolioCount < 1) {
-        setIsTicketExhaustedModalOpen(true);
-      } else {
-        setIsStartCorrectionModalOpen(true);
-      }
+    if (hasError) return;
+
+    if (sessionRestoreAttempted && !accessToken) {
+      router.push('/correction/preview');
+      return;
     }
+
+    void portfolioCorrectionControllerGetCorrections()
+      .then((response) => {
+        if ((response?.result?.length ?? 0) >= 30) {
+          setIsCorrectionLimitModalOpen(true);
+          return;
+        }
+        if (portfolioCount < 1) {
+          setIsTicketExhaustedModalOpen(true);
+          return;
+        }
+        setIsStartCorrectionModalOpen(true);
+      })
+      .catch(() => {
+        if (portfolioCount < 1) {
+          setIsTicketExhaustedModalOpen(true);
+          return;
+        }
+        setIsStartCorrectionModalOpen(true);
+      });
   }, [
     companyName,
     jobTitle,
     jobDescription,
     portfolioCount,
+    accessToken,
+    router,
+    sessionRestoreAttempted,
   ]);
 
   const queryClient = useQueryClient();
@@ -85,12 +115,12 @@ export function useNewCorrectionForm() {
     try {
       await portfolioCorrectionControllerCreateCorrection(body);
       const listRes = await portfolioCorrectionControllerGetCorrections();
-      
+
       // 새 첨삭이 생성되었으므로 목록 쿼리 무효화 (새로고침 없이 목록 업데이트)
       queryClient.invalidateQueries({
         queryKey: ['/portfolio-corrections'],
       });
-      
+
       const list = listRes?.result ?? [];
       const newId = list[0]?.id;
       setIsStartCorrectionModalOpen(false);
@@ -98,7 +128,9 @@ export function useNewCorrectionForm() {
         router.replace(`/correction/${newId}`);
       }
     } catch (err: unknown) {
-      const errObj = err as { response?: { data?: { error?: { errorCode?: string } } } };
+      const errObj = err as {
+        response?: { data?: { error?: { errorCode?: string } } };
+      };
       const code = errObj?.response?.data?.error?.errorCode ?? '';
       if (code === 'CORRECTION4091') {
         setIsStartCorrectionModalOpen(false);
@@ -136,4 +168,6 @@ export function useNewCorrectionForm() {
   };
 }
 
-export type UseNewCorrectionFormReturn = ReturnType<typeof useNewCorrectionForm>;
+export type UseNewCorrectionFormReturn = ReturnType<
+  typeof useNewCorrectionForm
+>;

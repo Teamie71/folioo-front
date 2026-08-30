@@ -6,6 +6,7 @@ import { CorrectionLoadingSpinner } from '@/features/correction/components/Corre
 import type { PortfolioCorrectionControllerGetCorrections200 } from '@/api/models';
 import { usePortfolioCorrectionControllerGetCorrections } from '@/api/endpoints/portfolio-correction/portfolio-correction';
 import { PortfolioCard } from '@/components/PortfolioCard';
+import { useAuthStore } from '@/store/useAuthStore';
 
 function formatDate(createdAt: string): string {
   return createdAt.slice(0, 10);
@@ -15,6 +16,11 @@ export default function CorrectionClientMobile() {
   const router = useRouter();
   const [keyword, setKeyword] = useState('');
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const sessionRestoreAttempted = useAuthStore(
+    (state) => state.sessionRestoreAttempted,
+  );
+  const isLoggedIn = accessToken != null;
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedKeyword(keyword), 300);
@@ -23,7 +29,7 @@ export default function CorrectionClientMobile() {
 
   const { data, isLoading } = usePortfolioCorrectionControllerGetCorrections(
     { keyword: debouncedKeyword.trim() || undefined },
-    { query: { enabled: true } },
+    { query: { enabled: sessionRestoreAttempted && isLoggedIn } },
   );
 
   const responseData = data as
@@ -81,7 +87,7 @@ export default function CorrectionClientMobile() {
         </div>
 
         {/* List */}
-        {isLoading ? (
+        {!sessionRestoreAttempted || (isLoggedIn && isLoading) ? (
           <div className='mt-8 flex justify-center'>
             <CorrectionLoadingSpinner />
           </div>

@@ -172,7 +172,7 @@ export default function Navbar() {
             {/* 네비게이션 링크 — hover 시 bold만 적용, 레이아웃 시프트 없음 */}
             <HoverTooltip label='준비 중이에요.' wrapperClassName='inline-flex'>
               <span className='inline-block py-[8px] text-[16px] text-[#1A1A1A]'>
-                직무 추천
+                직무 찾기
               </span>
             </HoverTooltip>
             {navLink(
