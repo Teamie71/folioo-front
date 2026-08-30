@@ -387,7 +387,7 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
       }}
       transition={SIDEBAR_TRANSITION}
       className={cn(
-        'h-[100dvh] shrink-0 overflow-hidden bg-white',
+        'sticky top-0 h-[100dvh] shrink-0 self-start overflow-hidden bg-white',
         isExpanded
           ? 'shadow-[0px_6px_20px_-2px_rgba(0,0,0,0.15)]'
           : 'border-gray3 border-r',
