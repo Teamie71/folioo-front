@@ -41,7 +41,7 @@ type SidebarMenuItem = {
 
 const MENU_ITEMS: SidebarMenuItem[] = [
   {
-    label: '직무 추천',
+    label: '직무 찾기',
     expandedIcon: '/sidebar/job-recommendation.svg',
     collapsedIcon: '/sidebar/job-recommendation-hover.svg',
     collapsedActiveIcon: '/sidebar/job-recommendation-active.svg',
@@ -118,7 +118,7 @@ function MenuIcon({
       ? 'sidebar-menu-icon-active'
       : undefined;
 
-  if (collapsed && item.label === '직무 추천') {
+  if (collapsed && item.label === '직무 찾기') {
     return (
       <span className='relative block size-[24px] shrink-0 overflow-hidden'>
         <Image
