@@ -17,7 +17,7 @@ export const PDF_MAX_ACTIVITY_COUNT = 4;
 
 /** PDF 카테고리별 글자 수 제한 */
 export const PDF_CATEGORY_CHAR_LIMIT: Record<PdfCategoryName, number> = {
-  상세정보: 300,
+  상세정보: 400,
   담당업무: 700,
   문제해결: 700,
   '배운 점': 300,

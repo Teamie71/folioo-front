@@ -54,14 +54,9 @@ import type {
   Step,
 } from '@/types/correction';
 
-/** 한국어·영어·숫자·공백·특수문자만 허용, 최대 길이 적용 */
+/** 입력 문자를 제한하지 않고 최대 길이만 적용 */
 function limitAllowedInput(value: string, maxLength: number): string {
-  return value
-    .replace(
-      /[^\uAC00-\uD7A3\u3130-\u318Ea-zA-Z0-9\s.,\-'()\/&·!?@#%+*<>]/g,
-      '',
-    )
-    .slice(0, maxLength);
+  return value.slice(0, maxLength);
 }
 
 const EMPTY_CORRECTION_ID = '';
@@ -388,7 +383,9 @@ export function useCorrectionState(correctionId: string | undefined) {
         // GENERATED: 구조화 데이터 복원
         if (portfolios.length > 0) {
           const activities = assignPlaceholderLabelsForEmptyPdfNames(
-            portfolios.map((dto, i) => mapToPdfActivityBlock(dto, i)),
+            portfolios
+              .slice(0, PDF_MAX_ACTIVITY_COUNT)
+              .map((dto, i) => mapToPdfActivityBlock(dto, i)),
           );
           setPdfActivities(activities);
           setPdfExtractNonce((n) => n + 1);

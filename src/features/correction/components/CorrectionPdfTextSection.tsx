@@ -8,6 +8,7 @@ import {
   assignPlaceholderLabelsForEmptyPdfNames,
   mapToPdfActivityBlock,
 } from '@/services/correction';
+import { PDF_MAX_ACTIVITY_COUNT } from '@/features/correction/constants';
 import type { PdfActivityBlock, PdfCategoryName } from '@/types/correction';
 import { CorrectionPdfActivityTabs } from './CorrectionPdfActivityTabs';
 import { CorrectionPdfBulletEditor } from './CorrectionPdfBulletEditor';
@@ -109,11 +110,12 @@ export function CorrectionPdfTextSection({
     if (!enabled) return;
     const list = data?.result?.portfolios;
     if (!Array.isArray(list) || list.length === 0) return;
-    const nextPortfolios = JSON.stringify(list);
+    const limitedPortfolios = list.slice(0, PDF_MAX_ACTIVITY_COUNT);
+    const nextPortfolios = JSON.stringify(limitedPortfolios);
     if (lastSyncedPortfoliosRef.current === nextPortfolios) return;
 
     const activities = assignPlaceholderLabelsForEmptyPdfNames(
-      list.map((dto, i) => mapToPdfActivityBlock(dto, i)),
+      limitedPortfolios.map((dto, i) => mapToPdfActivityBlock(dto, i)),
     );
     setPdfActivities(activities);
     lastSyncedPortfoliosRef.current = nextPortfolios;

@@ -4,11 +4,9 @@ import { BackButton } from '@/components/BackButton';
 import { CommonModal } from '@/components/CommonModal';
 import { DeleteButton } from '@/components/DeleteButton';
 import { InlineEdit } from '@/components/InlineEdit';
-import type { Step } from '@/types/correction';
+import type { FileDeleteConfirmTarget, Step } from '@/types/correction';
 
-export type FileDeleteConfirmTarget =
-  | { type: 'pdf' }
-  | null;
+export type { FileDeleteConfirmTarget } from '@/types/correction';
 
 interface CorrectionPageHeaderProps {
   step: Step;
@@ -51,6 +49,10 @@ interface CorrectionPageHeaderProps {
     onOpenChange: (open: boolean) => void;
     onConfirm: () => void;
   };
+  jdViewer?: {
+    previewUrl: string | null;
+    onClose: () => void;
+  };
 }
 
 export function CorrectionPageHeader({
@@ -64,6 +66,7 @@ export function CorrectionPageHeader({
   deleteModal,
   startCorrectionModal,
   pdfExtractModal,
+  jdViewer,
 }: CorrectionPageHeaderProps) {
   return (
     <div className='flex items-center justify-between'>
@@ -88,7 +91,9 @@ export function CorrectionPageHeader({
         />
         <CommonModal
           open={activityDeleteModal.targetId !== null}
-          onOpenChange={(open) => !open && activityDeleteModal.onOpenChange(false)}
+          onOpenChange={(open) =>
+            !open && activityDeleteModal.onOpenChange(false)
+          }
           title='이 활동을 정말 삭제하시겠습니까?'
           cancelBtnText='취소'
           secondaryBtnText='삭제'
@@ -137,6 +142,26 @@ export function CorrectionPageHeader({
         primaryBtnText='추출'
         onPrimaryClick={pdfExtractModal.onConfirm}
       />
+      {jdViewer?.previewUrl && (
+        <div
+          role='dialog'
+          aria-modal='true'
+          aria-label='JD 이미지 전체보기'
+          className='fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4'
+          onClick={jdViewer.onClose}
+        >
+          <div
+            className='flex max-h-full max-w-full items-center justify-center'
+            onClick={(event) => event.stopPropagation()}
+          >
+            <img
+              src={jdViewer.previewUrl}
+              alt='JD 이미지 전체보기'
+              className='max-h-[90vh] max-w-full object-contain'
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
