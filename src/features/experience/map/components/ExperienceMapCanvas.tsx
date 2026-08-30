@@ -67,7 +67,12 @@ const FIT_VIEW_OPTIONS = {
   maxZoom: DETAIL_RESET_ZOOM,
 };
 
-function ExperienceMapCanvasInner() {
+type CanvasProps = {
+  /** 진입 직후 화면 중앙에 두고 표준 수준으로 확대할 활동 id. (모바일 진입용) */
+  focusExperienceId?: string;
+};
+
+function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
   const groups = useExperienceListStore((s) => s.groups);
   const experiences = useExperienceListStore((s) => s.experiences);
   const blockSelectionMode = useExperienceListStore(
@@ -102,12 +107,14 @@ function ExperienceMapCanvasInner() {
     };
   }, []);
 
-  // 노드 크기가 잡힌 뒤 한 번만 화면에 맞춘다. (이후 확대/축소는 사용자 조작을 따른다)
-  useEffect(() => {
-    if (!nodesInitialized || didFitRef.current) return;
-    didFitRef.current = true;
-    void fitView(FIT_VIEW_OPTIONS);
-  }, [nodesInitialized, fitView]);
+  // 터치 기기에서는 스크롤 팬(트랙패드용) 대신 한 손가락 드래그 팬을 쓴다.
+  const isCoarsePointer = useMemo(
+    () =>
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(pointer: coarse)').matches,
+    [],
+  );
 
   const layout = useMemo(
     () => buildMapLayout(groups, experiences, maxVisibleLevel(detail)),
@@ -200,6 +207,37 @@ function ExperienceMapCanvasInner() {
     },
     [focusOnStandard],
   );
+
+  // 노드 크기가 잡힌 뒤 한 번만 화면에 맞춘다. (이후 확대/축소는 사용자 조작을 따른다)
+  // focusExperienceId가 있으면(모바일 진입) 전체 맞춤 대신 해당 활동을 중앙에 두고 확대한다.
+  useEffect(() => {
+    if (!nodesInitialized || didFitRef.current) return;
+    didFitRef.current = true;
+
+    if (focusExperienceId) {
+      const standardLayout = buildMapLayout(groups, experiences, 5);
+      const targetId = experienceNodeId(focusExperienceId);
+      const target = standardLayout.nodes.find((n) => n.id === targetId);
+      if (target) {
+        setDetail('standard');
+        void setCenter(
+          target.x + target.width / 2,
+          target.y + target.height / 2,
+          { zoom: FOCUS_ZOOM },
+        );
+        return;
+      }
+    }
+
+    void fitView(FIT_VIEW_OPTIONS);
+  }, [
+    nodesInitialized,
+    fitView,
+    focusExperienceId,
+    groups,
+    experiences,
+    setCenter,
+  ]);
 
   const onBlockClick = useCallback(
     (node: MapLayoutNode) => {
@@ -309,8 +347,11 @@ function ExperienceMapCanvasInner() {
          * 휠 = 상하 스크롤, Shift + 휠 = 좌우 스크롤,
          * Ctrl/Cmd + 휠 = 확대/축소 (zoomOnPinch가 ctrlKey 휠을 처리한다)
          */
-        panOnScroll
+        panOnScroll={!isCoarsePointer}
         panOnScrollMode={PanOnScrollMode.Free}
+        // 터치 기기: 한 손가락 드래그로 캔버스 이동, 두 손가락으로 확대/축소.
+        // (데스크톱도 react-flow 기본값이 드래그 팬 허용이라 동작은 그대로다)
+        panOnDrag
         zoomOnScroll={false}
         zoomOnPinch
         zoomOnDoubleClick={false}
@@ -341,10 +382,10 @@ function ExperienceMapCanvasInner() {
   );
 }
 
-export function ExperienceMapCanvas() {
+export function ExperienceMapCanvas({ focusExperienceId }: CanvasProps = {}) {
   return (
     <ReactFlowProvider>
-      <ExperienceMapCanvasInner />
+      <ExperienceMapCanvasInner focusExperienceId={focusExperienceId} />
     </ReactFlowProvider>
   );
 }
