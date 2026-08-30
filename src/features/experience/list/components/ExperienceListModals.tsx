@@ -17,6 +17,9 @@ export function ExperienceListModals() {
   const closeModal = useExperienceListStore((s) => s.closeModal);
   const deleteGroup = useExperienceListStore((s) => s.deleteGroup);
   const deleteExperience = useExperienceListStore((s) => s.deleteExperience);
+  const deleteSelectedBlocks = useExperienceListStore(
+    (s) => s.deleteSelectedBlocks,
+  );
 
   const groupName =
     modal?.type === 'group-delete'
@@ -79,6 +82,41 @@ export function ExperienceListModals() {
             deleteExperience(modal.experienceId);
           closeModal();
         }}
+        onCancelClick={closeModal}
+      />
+
+      <CommonModal
+        open={modal?.type === 'selection-delete'}
+        onOpenChange={(open) => !open && closeModal()}
+        title={
+          <span className='typo-h5 text-gray9 text-center'>
+            선택한 모든 블록을 정말 삭제하시겠습니까?
+          </span>
+        }
+        className={MODAL_CLS}
+        cancelBtnText='취소'
+        secondaryBtnText='삭제'
+        onSecondaryClick={deleteSelectedBlocks}
+        onCancelClick={closeModal}
+      />
+
+      <CommonModal
+        open={modal?.type === 'selection-delete-with-group'}
+        onOpenChange={(open) => !open && closeModal()}
+        title={
+          <span className='typo-h5 text-gray9 text-center'>
+            선택한 모든 블록을 정말 삭제하시겠습니까?
+          </span>
+        }
+        description={
+          <span className='typo-c1 text-gray6 whitespace-nowrap'>
+            선택한 그룹 아래의 활동은 미분류 그룹으로 이동해요.
+          </span>
+        }
+        className={MODAL_CLS}
+        cancelBtnText='취소'
+        secondaryBtnText='삭제'
+        onSecondaryClick={deleteSelectedBlocks}
         onCancelClick={closeModal}
       />
 

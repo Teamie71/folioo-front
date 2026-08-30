@@ -13,6 +13,10 @@ import { LogoutModal } from '@/components/LogoutModal';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useAuthControllerHandleLogout } from '@/api/endpoints/auth/auth';
 import { cn } from '@/utils/utils';
+import {
+  CANONICAL_WORKSPACE_HREF,
+  EXPERIENCE_ACTIVE_PATH,
+} from '@/features/experience/workspace/model/workspaceView';
 
 const LOGIN_REQUIRED_AUTO_CLOSE_MS = 2000;
 
@@ -27,9 +31,12 @@ export default function Navbar() {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  const [isLoginRequiredModalOpen, setIsLoginRequiredModalOpen] = useState(false);
+  const [isLoginRequiredModalOpen, setIsLoginRequiredModalOpen] =
+    useState(false);
   const myButtonRef = useRef<HTMLButtonElement>(null);
-  const loginRequiredTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const loginRequiredTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const { mutate: logout } = useAuthControllerHandleLogout({
     mutation: {
@@ -97,12 +104,17 @@ export default function Navbar() {
     };
   }, [isLoginRequiredModalOpen, router]);
 
-  const navLink = (href: string, label: string, requireLogin = false) => {
+  const navLink = (
+    href: string,
+    label: string,
+    requireLogin = false,
+    activePath: string = href,
+  ) => {
     const content = (
-      <span className={linkClass(href)}>
+      <span className={linkClass(activePath)}>
         <span className='relative inline-block'>
           <span
-            className='invisible inline-block whitespace-nowrap font-bold'
+            className='invisible inline-block font-bold whitespace-nowrap'
             aria-hidden
           >
             {label}
@@ -110,7 +122,7 @@ export default function Navbar() {
           <span
             className={cn(
               'absolute top-0 left-0 whitespace-nowrap',
-              isActive(href) && 'font-bold',
+              isActive(activePath) && 'font-bold',
               'group-hover:font-bold',
             )}
           >
@@ -123,7 +135,7 @@ export default function Navbar() {
       return (
         <button
           type='button'
-          className='group inline-block py-[8px] font-[16px] no-underline transition-colors bg-transparent border-none cursor-pointer p-0'
+          className='group inline-block cursor-pointer border-none bg-transparent p-0 py-[8px] font-[16px] no-underline transition-colors'
           onClick={(e) => {
             e.preventDefault();
             setIsLoginRequiredModalOpen(true);
@@ -138,7 +150,12 @@ export default function Navbar() {
 
   return (
     <nav className='fixed top-0 right-0 left-0 z-50 w-full bg-white'>
-      <div className={cn('mx-auto', pathname?.includes('/portfolio') ? 'w-[1392px]' : 'w-[1056px]')}>
+      <div
+        className={cn(
+          'mx-auto',
+          pathname?.includes('/portfolio') ? 'w-[1392px]' : 'w-[1056px]',
+        )}
+      >
         <div className='flex h-[80px] items-center justify-between'>
           <div className='flex items-center gap-[60px]'>
             <Link href='/'>
@@ -152,8 +169,13 @@ export default function Navbar() {
             </Link>
 
             {/* 네비게이션 링크 — hover 시 bold만 적용, 레이아웃 시프트 없음 */}
-            {navLink('/recommendation', '직무 추천', true)}
-            {navLink('/experience', '경험 정리', true)}
+            {navLink('/recommendation', '직무 찾기', true)}
+            {navLink(
+              CANONICAL_WORKSPACE_HREF,
+              '경험 정리',
+              true,
+              EXPERIENCE_ACTIVE_PATH,
+            )}
             {navLink('/correction', '포트폴리오 첨삭', true)}
           </div>
 
@@ -165,7 +187,7 @@ export default function Navbar() {
                 <Link href='/topup' className={linkClass('/topup')}>
                   <span className='relative inline-block'>
                     <span
-                      className='invisible inline-block whitespace-nowrap font-bold'
+                      className='invisible inline-block font-bold whitespace-nowrap'
                       aria-hidden
                     >
                       이용권 구매
@@ -199,7 +221,7 @@ export default function Navbar() {
                 <Link href='/topup' className={linkClass('/topup')}>
                   <span className='relative inline-block'>
                     <span
-                      className='invisible inline-block whitespace-nowrap font-bold'
+                      className='invisible inline-block font-bold whitespace-nowrap'
                       aria-hidden
                     >
                       이용권 구매

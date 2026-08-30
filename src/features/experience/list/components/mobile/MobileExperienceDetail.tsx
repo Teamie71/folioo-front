@@ -5,7 +5,6 @@ import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { type MenuItem } from '@/features/experience/list/components/ExperienceListMenu';
 import { EditableLabel } from '@/features/experience/list/components/EditableLabel';
 import { EmptyExperienceState } from '@/features/experience/list/components/ExperienceListEmptyStates';
-import { ExperienceListViewSwitchToggle } from '@/features/experience/list/components/ExperienceListViewSwitchToggle';
 import { MobileExperienceBlockTree } from '@/features/experience/list/components/mobile/MobileExperienceBlockTree';
 import { MobileExperienceContentSkeleton } from '@/features/experience/list/components/mobile/MobileExperienceContentSkeleton';
 import { MobileExperienceAgentSheet } from '@/features/experience/list/components/mobile/MobileExperienceAgentSheet';
@@ -20,8 +19,6 @@ type Props = {
 export function MobileExperienceDetail({ experienceId, onBack }: Props) {
   const groups = useExperienceListStore((s) => s.groups);
   const experiences = useExperienceListStore((s) => s.experiences);
-  const viewMode = useExperienceListStore((s) => s.viewMode);
-  const setViewMode = useExperienceListStore((s) => s.setViewMode);
   const renameExperience = useExperienceListStore((s) => s.renameExperience);
   const moveExperienceToGroup = useExperienceListStore(
     (s) => s.moveExperienceToGroup,
@@ -86,19 +83,9 @@ export function MobileExperienceDetail({ experienceId, onBack }: Props) {
           />
         </div>
 
-        <div className='mt-[24px]'>
-          <ExperienceListViewSwitchToggle
-            value={viewMode}
-            onValueChange={setViewMode}
-          />
-        </div>
-
-        <div className='mt-[20px] flex flex-1 flex-col'>
-          {viewMode === 'map' ? (
-            <p className='typo-b2 text-gray6 py-[40px] text-center'>
-              맵 뷰는 준비 중이에요.
-            </p>
-          ) : isContentLoading ? (
+        {/* 맵 뷰는 데스크톱 전용이다. proxy에서도 모바일의 ?view=map 을 list로 정규화한다. */}
+        <div className='mt-[24px] flex flex-1 flex-col'>
+          {isContentLoading ? (
             <MobileExperienceContentSkeleton />
           ) : experience.blocks.length === 0 ? (
             <EmptyExperienceState experienceId={experience.id} />

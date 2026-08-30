@@ -1,8 +1,20 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { isMobilePhone, isTablet } from '@/utils/device';
+import { isMobileLayoutUserAgent, isMobilePhone } from '@/utils/device';
+import {
+  DEFAULT_WORKSPACE_VIEW,
+  WORKSPACE_PATH,
+  WORKSPACE_VIEW_PARAM,
+  parseWorkspaceView,
+} from '@/features/experience/workspace/model/workspaceView';
 
-export function middleware(request: NextRequest) {
+/** 모바일에서 접근을 허용하는 experience 하위 경로 */
+const MOBILE_ALLOWED_EXPERIENCE_PATHS = new Set([
+  '/experience/list',
+  WORKSPACE_PATH,
+]);
+
+export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   const userAgent = request.headers.get('user-agent');
@@ -20,10 +32,29 @@ export function middleware(request: NextRequest) {
   // experience 하위 페이지 모바일 접근 시 차단 (모바일 전용은 목록만)
   if (
     pathname.startsWith('/experience/') &&
-    pathname !== '/experience/list' &&
+    !MOBILE_ALLOWED_EXPERIENCE_PATHS.has(pathname) &&
     isMobilePhone(userAgent)
   ) {
     return NextResponse.redirect(new URL('/mobile-blocked', request.url));
+  }
+
+  // 워크스페이스 view 파라미터 정규화.
+  //
+  // 클라이언트(useWorkspaceView)는 데스크톱에서만 마운트되므로
+  // 누락/잘못된 값/모바일의 map 접근을 서버 단계에서 한 번에 정리한다.
+  // 판별 기준은 workspace/page.tsx의 렌더링 분기와 동일한 함수를 쓴다.
+  if (pathname === WORKSPACE_PATH) {
+    const rawView = request.nextUrl.searchParams.get(WORKSPACE_VIEW_PARAM);
+    // 맵은 데스크톱 전용이다.
+    const nextView = isMobileLayoutUserAgent(userAgent)
+      ? DEFAULT_WORKSPACE_VIEW
+      : parseWorkspaceView(rawView);
+
+    if (rawView !== nextView) {
+      const url = request.nextUrl.clone();
+      url.searchParams.set(WORKSPACE_VIEW_PARAM, nextView);
+      return NextResponse.redirect(url);
+    }
   }
 
   // 데스크톱에서 모바일 전용 페이지(/profile) 접근 시 홈으로 리다이렉트
@@ -46,6 +77,7 @@ export function middleware(request: NextRequest) {
     '/log',
     '/experience',
     '/experience/list',
+    WORKSPACE_PATH,
     '/correction',
     '/topup',
     '/profile',

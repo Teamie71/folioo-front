@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -24,6 +25,8 @@ import { KebabIcon } from '@/components/icons/KebabIcon';
 import { ListChevronIcon } from '@/components/icons/ListChevronIcon';
 
 const MENU_GAP = 4;
+/** 맵 뷰 블록 추가 버튼 오른쪽에 붙는 템플릿 드롭다운의 간격 */
+const RIGHT_BOTTOM_GAP = 6;
 const MENU_WIDTH = 120;
 const MENU_ITEM_HEIGHT = 32;
 const MENU_TITLE_HEIGHT = 18;
@@ -339,7 +342,7 @@ function PositionedMenu({
   );
 }
 
-type Placement = 'left' | 'right' | 'bottom' | 'inside-end';
+type Placement = 'left' | 'right' | 'right-bottom' | 'bottom' | 'inside-end';
 
 type MenuButtonProps = {
   items: MenuItem[];
@@ -354,6 +357,14 @@ type MenuButtonProps = {
   menuAlign?: 'start' | 'center' | 'end';
   menuTitle?: string;
   submenuMode?: SubmenuMode;
+  /**
+   * 'right-bottom' 배치에서 세로 위치의 기준이 되는 요소.
+   * 생략하면 트리거 버튼 자신을 기준으로 삼는다.
+   * 메뉴의 아래쪽 끝을 이 요소의 아래쪽 끝에 맞추고 위로 펼친다.
+   */
+  anchorRef?: RefObject<HTMLElement | null>;
+  /** 값이 바뀔 때마다 열려 있는 메뉴를 닫는다. (예: 맵 캔버스를 움직이기 시작했을 때) */
+  closeSignal?: number;
 };
 
 export function MenuButton({
@@ -369,6 +380,8 @@ export function MenuButton({
   menuAlign = 'center',
   menuTitle,
   submenuMode = 'cascade',
+  anchorRef,
+  closeSignal,
 }: MenuButtonProps) {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<MenuPosition | null>(null);
@@ -381,6 +394,12 @@ export function MenuButton({
   useLayoutEffect(() => {
     if (!open) setInlineShape(null);
   }, [open]);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- closeSignal 변경 자체가 트리거다.
+  useEffect(() => {
+    if (closeSignal == null) return;
+    setOpen(false);
+  }, [closeSignal]);
 
   useLayoutEffect(() => {
     if (!open || !triggerRef.current) {
@@ -407,6 +426,22 @@ export function MenuButton({
           left = window.innerWidth - VIEWPORT_PAD - menuWidth;
         }
         setPos(fitMenuInViewport(rect.top + padTop, left, estimatedHeight));
+        return;
+      }
+
+      if (menuPlacement === 'right-bottom') {
+        const anchorRect = (
+          anchorRef?.current ?? trigger
+        ).getBoundingClientRect();
+        let left = rect.right + RIGHT_BOTTOM_GAP;
+        if (left + menuWidth > window.innerWidth - VIEWPORT_PAD) {
+          left = Math.max(
+            VIEWPORT_PAD,
+            rect.left - menuWidth - RIGHT_BOTTOM_GAP,
+          );
+        }
+        const top = anchorRect.bottom - estimatedHeight;
+        setPos(fitMenuInViewport(top, left, estimatedHeight));
         return;
       }
 
@@ -446,6 +481,18 @@ export function MenuButton({
       setPos(fitMenuInViewport(rect.top, left, estimatedHeight));
     };
     update();
+
+    /*
+     * 'right-bottom'(맵 뷰 블록 추가 템플릿 드롭다운)은 트리거가 xyflow 캔버스 위에 있다.
+     * 캔버스를 드래그/휠로 이동해도 실제 window 'scroll' 이벤트가 발생하는데,
+     * 이때마다 트리거의 새 화면 좌표로 다시 계산하면 드롭다운이 캔버스를 따라
+     * 계속 움직이는 것처럼 보인다. 열린 시점의 위치에 고정해 따라오지 않게 한다.
+     */
+    if (menuPlacement === 'right-bottom') {
+      window.addEventListener('resize', update);
+      return () => window.removeEventListener('resize', update);
+    }
+
     window.addEventListener('scroll', update, true);
     window.addEventListener('resize', update);
     return () => {

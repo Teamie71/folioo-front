@@ -19,6 +19,7 @@ import { LogoutModal } from '@/components/LogoutModal';
 import { cn } from '@/utils/utils';
 import Image from 'next/image';
 import Link from 'next/link';
+import { CANONICAL_WORKSPACE_HREF } from '@/features/experience/workspace/model/workspaceView';
 
 export default function MobileNavbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -64,7 +65,9 @@ export default function MobileNavbar() {
   }, [isOpen]);
 
   const hideBorder =
-    pathname === '/experience' || pathname === '/experience/list';
+    pathname === '/experience' ||
+    pathname === '/experience/list' ||
+    pathname === '/experience/workspace';
 
   const toggleDrawer = () => setIsOpen((prev) => !prev);
 
@@ -97,7 +100,7 @@ export default function MobileNavbar() {
     },
     {
       label: '경험 정리',
-      href: '/experience',
+      href: CANONICAL_WORKSPACE_HREF,
       icon: <MobileExperienceIcon />,
     },
     {

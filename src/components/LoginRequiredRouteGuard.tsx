@@ -27,7 +27,12 @@ export function LoginRequiredRouteGuard({
     if (!isUnauthenticated) return;
     timerRef.current = setTimeout(() => {
       timerRef.current = null;
-      router.push('/login?redirect_to=' + encodeURIComponent(pathname ?? '/'));
+      // query까지 보존해야 ?view=map, ?selected=... 같은 상태가 로그인 후에도 살아남는다.
+      const redirectTo =
+        typeof window !== 'undefined'
+          ? `${window.location.pathname}${window.location.search}`
+          : (pathname ?? '/');
+      router.push('/login?redirect_to=' + encodeURIComponent(redirectTo));
     }, LOGIN_REQUIRED_REDIRECT_MS);
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);

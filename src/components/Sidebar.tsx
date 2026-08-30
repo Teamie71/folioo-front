@@ -12,6 +12,10 @@ import { LogoutModal } from '@/components/LogoutModal';
 import { ProfileModal } from '@/components/ProfileModal';
 import { useAuthStore } from '@/store/useAuthStore';
 import { cn } from '@/utils/utils';
+import {
+  CANONICAL_WORKSPACE_HREF,
+  EXPERIENCE_ACTIVE_PATH,
+} from '@/features/experience/workspace/model/workspaceView';
 
 const SIDEBAR_WIDTH = {
   expanded: 240,
@@ -26,6 +30,8 @@ const SIDEBAR_TRANSITION = {
 type SidebarMenuItem = {
   label: string;
   href?: string;
+  /** href에 query가 붙는 경우 활성 상태 판정에 쓸 경로 */
+  activePath?: string;
   expandedIcon: string;
   collapsedIcon: string;
   collapsedActiveIcon?: string;
@@ -43,7 +49,8 @@ const MENU_ITEMS: SidebarMenuItem[] = [
   },
   {
     label: '경험 정리',
-    href: '/experience',
+    href: CANONICAL_WORKSPACE_HREF,
+    activePath: EXPERIENCE_ACTIVE_PATH,
     expandedIcon: '/sidebar/experience.svg',
     collapsedIcon: '/sidebar/experience-collapsed.svg',
   },
@@ -396,7 +403,7 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
                 key={item.label}
                 item={item}
                 top={EXPANDED_MENU_TOPS[index]}
-                active={isActive(item.href)}
+                active={isActive(item.activePath ?? item.href)}
               />
             ))}
           </nav>
@@ -502,7 +509,7 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
                 key={item.label}
                 item={item}
                 top={COLLAPSED_MENU_TOPS[index]}
-                active={isActive(item.href)}
+                active={isActive(item.activePath ?? item.href)}
               />
             ))}
           </nav>

@@ -24,6 +24,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { CommonButton } from '@/components/CommonButton';
 import Link from 'next/link';
+import { CANONICAL_WORKSPACE_HREF } from '@/features/experience/workspace/model/workspaceView';
 
 const EXPERIENCE_STATUS_ON_CHAT = 'ON_CHAT';
 const EXPERIENCE_STATUS_GENERATE_FAILED = 'GENERATE_FAILED';
@@ -91,7 +92,7 @@ export default function ExperienceSettingsChatLoadingPage() {
     if (!id) return;
     if (experienceData === undefined) return;
     if (!experience) {
-      router.replace('/experience');
+      router.replace(CANONICAL_WORKSPACE_HREF);
       return;
     }
     const status = String(experience.status ?? '').toUpperCase();
@@ -104,7 +105,7 @@ export default function ExperienceSettingsChatLoadingPage() {
       router.replace(`/experience/settings/${id}/portfolio`);
       return;
     }
-    router.replace('/experience');
+    router.replace(CANONICAL_WORKSPACE_HREF);
   }, [id, experienceData, experience, router]);
 
   useEffect(() => {
@@ -123,7 +124,7 @@ export default function ExperienceSettingsChatLoadingPage() {
   const handleDelete = () => {
     if (!Number.isFinite(experienceId)) {
       removeExperience(id);
-      router.push('/experience');
+      router.replace(CANONICAL_WORKSPACE_HREF);
       return;
     }
     deleteExperience({ experienceId })
@@ -134,7 +135,7 @@ export default function ExperienceSettingsChatLoadingPage() {
         });
       })
       .then(() => {
-        router.push('/experience');
+        router.replace(CANONICAL_WORKSPACE_HREF);
       })
       .catch(() => {
         alert('삭제에 실패했어요. 다시 시도해주세요.');
@@ -147,7 +148,7 @@ export default function ExperienceSettingsChatLoadingPage() {
         {/* 헤더 */}
         <div className='flex w-full shrink-0 items-center justify-between'>
           <div className='flex items-center gap-[0.5rem]'>
-            <BackButton href='/experience' />
+            <BackButton href={CANONICAL_WORKSPACE_HREF} replace />
             {titleReady && (
               <InlineEdit
                 title={displayTitle}
@@ -243,7 +244,7 @@ export default function ExperienceSettingsChatLoadingPage() {
                 페이지를 떠나도 작업은 계속돼요.
               </span>
 
-              <Link href='/experience'>
+              <Link href={CANONICAL_WORKSPACE_HREF}>
                 <CommonButton variantType='Outline' px='2.25rem' py='0.5rem'>
                   나가기
                 </CommonButton>
