@@ -50,6 +50,7 @@ import {
 import { ExperienceStateResDTOStatus } from '@/api/models/experienceStateResDTOStatus';
 import { getExperienceReturnPath } from '@/features/experience/utils/experienceReturnPath';
 import ChatCompleteBubble from '@/features/experience/chat/components/ChatCompleteBubble';
+import { CANONICAL_WORKSPACE_HREF } from '@/features/experience/workspace/model/workspaceView';
 
 const SESSION_STREAM_PATH = (experienceId: number) =>
   `/interview/experiences/${experienceId}/session/stream`;
@@ -134,7 +135,11 @@ function ExperienceSettingsChatContent() {
     }
     const storageKey = `folioo-max-stage-${experienceId}`;
     const savedMax = parseInt(localStorage.getItem(storageKey) || '0', 10);
-    const finalStage = Math.max(calculatedStage, savedMax, prevStageRef.current);
+    const finalStage = Math.max(
+      calculatedStage,
+      savedMax,
+      prevStageRef.current,
+    );
     localStorage.setItem(storageKey, finalStage.toString());
     return finalStage;
   };
@@ -204,7 +209,7 @@ function ExperienceSettingsChatContent() {
     if (experienceData === undefined) return;
     const experience = experienceData?.result;
     if (!experience) {
-      router.replace('/experience');
+      router.replace(CANONICAL_WORKSPACE_HREF);
       return;
     }
     const status = experience.status;
@@ -226,7 +231,7 @@ function ExperienceSettingsChatContent() {
       return;
     }
     clearCreateloadingEntered(id);
-    router.replace('/experience');
+    router.replace(CANONICAL_WORKSPACE_HREF);
   }, [id, experienceId, experienceData, router]);
 
   const syncStageFromServer = async (skipStageUpdate?: boolean) => {
@@ -254,7 +259,7 @@ function ExperienceSettingsChatContent() {
     isExtendedSessionRef.current = false;
     extendedTurnCountRef.current = 0;
     extendedSessionRoundsRef.current += 1;
-    
+
     prevStageRef.current = 4;
     setCurrentStage(4); /* 대화 완료 상태 유지 */
     return true;
@@ -730,7 +735,7 @@ function ExperienceSettingsChatContent() {
         setIsStreaming(false);
         await syncStageFromServer(isExtendedSessionRef.current);
         const cycleFinished = handleExtendedTurnDone();
-        
+
         if (is18thTurn) {
           setIsPortfolioCreateModalOpen(true);
         } else if (transitionedToStage4 && !isExtendedSessionRef.current) {
@@ -783,7 +788,7 @@ function ExperienceSettingsChatContent() {
   const handleDelete = () => {
     if (!Number.isFinite(experienceId)) {
       removeExperience(id);
-      router.push('/experience');
+      router.replace(CANONICAL_WORKSPACE_HREF);
       return;
     }
     deleteExperience({ experienceId })
@@ -795,7 +800,7 @@ function ExperienceSettingsChatContent() {
         });
       })
       .then(() => {
-        router.push('/experience');
+        router.replace(CANONICAL_WORKSPACE_HREF);
       })
       .catch(() => {
         alert('삭제에 실패했어요. 다시 시도해주세요.');
@@ -887,7 +892,7 @@ function ExperienceSettingsChatContent() {
         handleExtendedTurnDone();
       },
     });
-  };
+  }
 
   /* 실패한 AI 메시지에 대해 마지막 사용자 메시지로 재요청 */
   const handleRetryAIMessage = (aiMessageIndex: number) => {
@@ -1001,7 +1006,7 @@ function ExperienceSettingsChatContent() {
         {/* 헤더 */}
         <div className='flex w-full shrink-0 items-center justify-between'>
           <div className='flex items-center gap-[0.5rem]'>
-            <BackButton href='/experience' />
+            <BackButton href={CANONICAL_WORKSPACE_HREF} replace />
             {titleReady && (
               <InlineEdit
                 title={displayTitle}
@@ -1078,7 +1083,6 @@ function ExperienceSettingsChatContent() {
           onCompletePortfolio={() => setIsPortfolioCreateModalOpen(true)}
         />
       </div>
-
 
       {/* 3턴 연장 후: 안내 모달 → 포트폴리오 생성 API 호출 후 createloading 이동 (3턴은 한 번만) */}
       <PortfolioCreateModal

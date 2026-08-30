@@ -6,6 +6,7 @@ import { CommonButton } from '@/components/CommonButton';
 import InputArea from '@/components/InputArea';
 import { OBTEventModal } from '@/components/OBT/OBTEventModal';
 import { useRouter } from 'next/navigation';
+import { CANONICAL_WORKSPACE_HREF } from '@/features/experience/workspace/model/workspaceView';
 
 const TIMER_INITIAL = 299; // 04:59
 const OTP_LENGTH = 6;
@@ -72,7 +73,7 @@ export default function VerifyPage() {
               value={formatPhoneDisplay(phoneNumber)}
               onChange={(e) => setPhoneNumber(parsePhoneDigits(e.target.value))}
               variant='default'
-              className='w-full max-w-[28rem] font-semibold text-center'
+              className='w-full max-w-[28rem] text-center font-semibold'
             />
             <CommonButton
               variantType='Execute'
@@ -82,7 +83,9 @@ export default function VerifyPage() {
               disabled={phoneNumber.length !== PHONE_MAX_LENGTH}
               onClick={async () => {
                 try {
-                  await sendSmsMutation.mutateAsync({ data: { phoneNum: phoneNumber } });
+                  await sendSmsMutation.mutateAsync({
+                    data: { phoneNum: phoneNumber },
+                  });
                   setCodeSent(true);
                   setTimer(TIMER_INITIAL);
                   setOtp(Array(OTP_LENGTH).fill(''));
@@ -138,7 +141,9 @@ function VerifyOtpStep({
   setIsError: React.Dispatch<React.SetStateAction<boolean>>;
   formatTime: (seconds: number) => string;
   onResend: (variables: { data: { phoneNum: string } }) => Promise<unknown>;
-  onVerify: (variables: { data: { phoneNum: string; verifyToken: string } }) => Promise<unknown>;
+  onVerify: (variables: {
+    data: { phoneNum: string; verifyToken: string };
+  }) => Promise<unknown>;
 }) {
   const [eventModalOpen, setEventModalOpen] = useState(false);
   const router = useRouter();
@@ -165,7 +170,10 @@ function VerifyOtpStep({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    index: number,
+  ) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       e.preventDefault();
       const newOtp = [...otp];
@@ -191,7 +199,9 @@ function VerifyOtpStep({
     const fullCode = otp.join('');
     if (fullCode.length !== OTP_LENGTH) return;
     try {
-      await onVerify({ data: { phoneNum: phoneNumber, verifyToken: fullCode } });
+      await onVerify({
+        data: { phoneNum: phoneNumber, verifyToken: fullCode },
+      });
       setIsError(false);
       setEventModalOpen(true);
     } catch {
@@ -225,7 +235,7 @@ function VerifyOtpStep({
                   value={digit}
                   onChange={(e) => handleChange(e.target.value, index)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
-                  className='h-[3rem] w-[3rem] rounded-[6px] border font-bold border-[#74777D] text-center text-[20px] outline-none focus:border-[#5060C5]'
+                  className='h-[3rem] w-[3rem] rounded-[6px] border border-[#74777D] text-center text-[20px] font-bold outline-none focus:border-[#5060C5]'
                 />
               ))}
             </div>
@@ -268,7 +278,7 @@ function VerifyOtpStep({
       reward='경험 정리 1회권 + 포트폴리오 첨삭 1회권'
       buttonText='경험 정리하기'
       onButtonClick={() => {
-        router.push('/experience');
+        router.push(CANONICAL_WORKSPACE_HREF);
       }}
     /> */}
       <OBTEventModal

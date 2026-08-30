@@ -16,6 +16,7 @@ import {
   applyBlockMove,
   type DropPosition,
 } from '@/features/experience/list/utils/blockTreeUtils';
+import { parseMapNodeId } from '@/features/experience/map/model/mapNodeId';
 
 function createSeededListState() {
   const seed = getExperienceListSeed();
@@ -28,12 +29,13 @@ function createSeededListState() {
       kind: 'experience' as const,
       id: seed.experiences[0]?.id ?? '',
     },
-    viewMode: 'list' as const,
     sidebarOpen: true,
     agentOpen: true,
     collapsedGroups: {} as Record<string, boolean>,
     modal: null as ModalState,
     isContentLoading: false,
+    blockSelectionMode: false,
+    selectedBlockIds: {} as Record<string, true>,
     past: [] as Snapshot[],
     future: [] as Snapshot[],
   };
@@ -67,7 +69,19 @@ function insertSiblingAfter(
 function removeBlockFromTree(blocks: Block[], targetId: string): Block[] {
   return blocks
     .filter((b) => b.id !== targetId)
-    .map((b) => ({ ...b, children: removeBlockFromTree(b.children, targetId) }));
+    .map((b) => ({
+      ...b,
+      children: removeBlockFromTree(b.children, targetId),
+    }));
+}
+
+function removeBlocksFromTree(blocks: Block[], targetIds: Set<string>): Block[] {
+  return blocks
+    .filter((b) => !targetIds.has(b.id))
+    .map((b) => ({
+      ...b,
+      children: removeBlocksFromTree(b.children, targetIds),
+    }));
 }
 
 function setBlockTextInTree(
@@ -115,9 +129,11 @@ type ModalState =
   | { type: 'experience-delete'; experienceId: string }
   | { type: 'group-limit' }
   | { type: 'experience-limit' }
+  /** 선택 삭제 확인 (3-5) */
+  | { type: 'selection-delete' }
+  /** 그룹을 포함한 선택 삭제 확인 (3-6) */
+  | { type: 'selection-delete-with-group' }
   | null;
-
-type ViewMode = 'map' | 'list';
 
 interface Snapshot {
   groups: Group[];
@@ -134,17 +150,20 @@ interface ExperienceListState {
   experienceCounter: number;
   selection: Selection;
 
-  viewMode: ViewMode;
   sidebarOpen: boolean;
   agentOpen: boolean;
   collapsedGroups: Record<string, boolean>;
   modal: ModalState;
   isContentLoading: boolean;
 
+  /** 맵 뷰 '블록 선택 삭제' 모드 (3) */
+  blockSelectionMode: boolean;
+  /** 선택된 맵 노드 id 집합. 키 규칙은 map/model/mapNodeId를 따른다. */
+  selectedBlockIds: Record<string, true>;
+
   past: Snapshot[];
   future: Snapshot[];
 
-  setViewMode: (mode: ViewMode) => void;
   toggleSidebar: () => void;
   toggleAgent: () => void;
   setContentLoading: (loading: boolean) => void;
@@ -158,7 +177,11 @@ interface ExperienceListState {
   renameGroup: (id: string, name: string) => void;
   addGroup: (afterGroupId?: string) => void;
   deleteGroup: (id: string) => void;
-  reorderGroup: (fromId: string, toId: string, place: 'before' | 'after') => void;
+  reorderGroup: (
+    fromId: string,
+    toId: string,
+    place: 'before' | 'after',
+  ) => void;
 
   renameExperience: (id: string, name: string) => void;
   addExperience: (groupId?: string, afterExperienceId?: string) => void;
@@ -171,7 +194,11 @@ interface ExperienceListState {
       | { kind: 'group'; id: string },
   ) => void;
 
-  updateBlockText: (experienceId: string, blockId: string, text: string) => void;
+  updateBlockText: (
+    experienceId: string,
+    blockId: string,
+    text: string,
+  ) => void;
   splitBlockAt: (
     experienceId: string,
     blockId: string,
@@ -206,6 +233,11 @@ interface ExperienceListState {
     drop: DropPosition,
   ) => void;
 
+  startBlockSelection: () => void;
+  cancelBlockSelection: () => void;
+  setBlockSelection: (nodeIds: string[], selected: boolean) => void;
+  deleteSelectedBlocks: () => void;
+
   undo: () => void;
   redo: () => void;
 }
@@ -223,7 +255,11 @@ function snapshotOf(s: ExperienceListState): Snapshot {
 type MutablePart = Partial<
   Pick<
     ExperienceListState,
-    'groups' | 'experiences' | 'groupCounter' | 'experienceCounter' | 'selection'
+    | 'groups'
+    | 'experiences'
+    | 'groupCounter'
+    | 'experienceCounter'
+    | 'selection'
   >
 >;
 
@@ -240,7 +276,6 @@ export const useExperienceListStore = create<ExperienceListState>()(
       return {
         ...createSeededListState(),
 
-        setViewMode: (mode) => set({ viewMode: mode }),
         toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
         toggleAgent: () => set((s) => ({ agentOpen: !s.agentOpen })),
         setContentLoading: (loading) => set({ isContentLoading: loading }),
@@ -254,7 +289,8 @@ export const useExperienceListStore = create<ExperienceListState>()(
         openModal: (modal) => set({ modal }),
         closeModal: () => set({ modal: null }),
 
-        selectExperience: (id) => set({ selection: { kind: 'experience', id } }),
+        selectExperience: (id) =>
+          set({ selection: { kind: 'experience', id } }),
         selectGroup: (groupId) => {
           const experiences = get().experiences.filter(
             (e) => e.groupId === groupId,
@@ -270,9 +306,7 @@ export const useExperienceListStore = create<ExperienceListState>()(
           const group = get().groups.find((g) => g.id === id);
           if (!group || group.isUnclassified) return;
           commit({
-            groups: get().groups.map((g) =>
-              g.id === id ? { ...g, name } : g,
-            ),
+            groups: get().groups.map((g) => (g.id === id ? { ...g, name } : g)),
           });
         },
 
@@ -587,6 +621,86 @@ export const useExperienceListStore = create<ExperienceListState>()(
             experiences: s.experiences.map((e) =>
               e.id === experienceId ? { ...e, blocks: nextBlocks } : e,
             ),
+          });
+        },
+
+        startBlockSelection: () =>
+          set({ blockSelectionMode: true, selectedBlockIds: {} }),
+
+        cancelBlockSelection: () =>
+          set({ blockSelectionMode: false, selectedBlockIds: {} }),
+
+        setBlockSelection: (nodeIds, selected) =>
+          set((s) => {
+            const next = { ...s.selectedBlockIds };
+            for (const id of nodeIds) {
+              if (selected) next[id] = true;
+              else delete next[id];
+            }
+            return { selectedBlockIds: next };
+          }),
+
+        /**
+         * 선택한 블록을 한 번에 삭제한다. (3-3)
+         * 삭제된 그룹 하위의 활동은 함께 지우지 않고 '미분류' 그룹으로 옮긴다.
+         */
+        deleteSelectedBlocks: () => {
+          const s = get();
+
+          const groupIds = new Set<string>();
+          const experienceIds = new Set<string>();
+          const blockIdsByExperience = new Map<string, Set<string>>();
+
+          for (const nodeId of Object.keys(s.selectedBlockIds)) {
+            const parsed = parseMapNodeId(nodeId);
+            if (!parsed) continue;
+
+            if (parsed.kind === 'group') {
+              groupIds.add(parsed.groupId);
+            } else if (parsed.kind === 'experience') {
+              experienceIds.add(parsed.experienceId);
+            } else {
+              const set = blockIdsByExperience.get(parsed.experienceId);
+              if (set) set.add(parsed.blockId);
+              else {
+                blockIdsByExperience.set(
+                  parsed.experienceId,
+                  new Set([parsed.blockId]),
+                );
+              }
+            }
+          }
+
+          // 미분류 그룹은 삭제 대상에서 제외한다.
+          for (const group of s.groups) {
+            if (group.isUnclassified) groupIds.delete(group.id);
+          }
+
+          const experiences = s.experiences
+            .filter((e) => !experienceIds.has(e.id))
+            .map((e) =>
+              groupIds.has(e.groupId) ? { ...e, groupId: UNCLASSIFIED_ID } : e,
+            )
+            .map((e) => {
+              const blockIds = blockIdsByExperience.get(e.id);
+              if (!blockIds) return e;
+              return { ...e, blocks: removeBlocksFromTree(e.blocks, blockIds) };
+            });
+
+          const groups = s.groups.filter((g) => !groupIds.has(g.id));
+
+          const selectionSurvives =
+            s.selection?.kind === 'experience'
+              ? experiences.some((e) => e.id === s.selection?.id)
+              : s.selection?.kind === 'group'
+                ? groups.some((g) => g.id === s.selection?.id)
+                : false;
+
+          set({ blockSelectionMode: false, selectedBlockIds: {}, modal: null });
+          commit({
+            groups,
+            experiences,
+            selection: selectionSurvives ? s.selection : null,
           });
         },
 
