@@ -5,10 +5,16 @@ import {
   portfolioCorrectionControllerGetCorrections,
 } from '@/api/endpoints/portfolio-correction/portfolio-correction';
 import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/useAuthStore';
+import {
+  clearPendingCorrectionDraft,
+  getPendingCorrectionDraft,
+  markPendingCorrectionId,
+  savePendingCorrectionDraft,
+} from '@/features/correction/utils/pendingCorrectionDraft';
 import type {
   FileDeleteConfirmTarget,
   InformationErrors,
@@ -46,6 +52,7 @@ export function useNewCorrectionForm() {
     useState(false);
   const [isCorrectionLimitModalOpen, setIsCorrectionLimitModalOpen] =
     useState(false);
+  const hasRestoredDraftRef = useRef(false);
   const accessToken = useAuthStore((state) => state.accessToken);
   const sessionRestoreAttempted = useAuthStore(
     (state) => state.sessionRestoreAttempted,
@@ -55,6 +62,18 @@ export function useNewCorrectionForm() {
     query: { enabled: sessionRestoreAttempted && accessToken != null },
   });
   const portfolioCount = ticketBalance?.result?.portfolioCorrection?.count ?? 0;
+
+  useEffect(() => {
+    if (!sessionRestoreAttempted || !accessToken || hasRestoredDraftRef.current)
+      return;
+    const draft = getPendingCorrectionDraft();
+    if (!draft) return;
+
+    setCompanyName(draft.companyName);
+    setJobTitle(draft.jobTitle);
+    setJobDescription(draft.jobDescription);
+    hasRestoredDraftRef.current = true;
+  }, [accessToken, sessionRestoreAttempted]);
 
   const handleStartCorrectionClick = useCallback(() => {
     const companyNameEmpty = !companyName.trim();
@@ -69,6 +88,7 @@ export function useNewCorrectionForm() {
     if (hasError) return;
 
     if (sessionRestoreAttempted && !accessToken) {
+      savePendingCorrectionDraft({ companyName, jobTitle, jobDescription });
       router.push('/correction/preview');
       return;
     }
@@ -125,6 +145,10 @@ export function useNewCorrectionForm() {
       const newId = list[0]?.id;
       setIsStartCorrectionModalOpen(false);
       if (newId != null) {
+        if (getPendingCorrectionDraft()) {
+          markPendingCorrectionId(newId);
+          clearPendingCorrectionDraft();
+        }
         router.replace(`/correction/${newId}`);
       }
     } catch (err: unknown) {

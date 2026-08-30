@@ -45,6 +45,11 @@ export function CorrectionPdfUploadBlock({
             최대 10MB의 PDF 파일만 업로드 가능해요.
           </p>
         )}
+        {pdfUploadError === 'too_many' && (
+          <p className='mt-[0.5rem] text-[0.875rem] text-[#DC0000]'>
+            PDF 파일은 1개만 업로드할 수 있어요.
+          </p>
+        )}
       </div>
       <div className='rounded-[1rem] border border-[#E9EAEC] bg-[#FDFDFD] p-[1rem] shadow-[0_0.25rem_0.5rem_0_#00000033]'>
         <div className='grid grid-cols-2 gap-[4rem] pl-[2.75rem]'>

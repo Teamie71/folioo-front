@@ -46,6 +46,8 @@ export interface CorrectionPortfolioStepProps {
   pdfExtractNonce: number;
   onPdfPortfoliosHydratedFromQuery: (activities: PdfActivityBlock[]) => void;
   onRetryPdfExtract: () => void;
+  isPdfExtractFailed: boolean;
+  onPdfExtractFailureChange: (isFailed: boolean) => void;
   onRequestActivityDelete: (activityId: string) => void;
   pdfActivityHoverId: string | null;
   setPdfActivityHoverId: (id: string | null) => void;
@@ -83,6 +85,8 @@ export function CorrectionPortfolioStep({
   pdfExtractNonce,
   onPdfPortfoliosHydratedFromQuery,
   onRetryPdfExtract,
+  isPdfExtractFailed,
+  onPdfExtractFailureChange,
   onRequestActivityDelete,
   pdfActivityHoverId,
   setPdfActivityHoverId,
@@ -152,6 +156,7 @@ export function CorrectionPortfolioStep({
                   onPdfPortfoliosHydratedFromQuery
                 }
                 onRetryExtract={onRetryPdfExtract}
+                onExtractFailureChange={onPdfExtractFailureChange}
               />
             )}
           </div>
@@ -162,7 +167,7 @@ export function CorrectionPortfolioStep({
       {selectedPortfolioType &&
         !(
           selectedPortfolioType === 'pdf' &&
-          (!isPdfTextExtracted || isPdfTextExtracting)
+          (!isPdfTextExtracted || isPdfTextExtracting || isPdfExtractFailed)
         ) && (
           <div className='flex justify-center pb-[6.25rem]'>
             <CommonButton

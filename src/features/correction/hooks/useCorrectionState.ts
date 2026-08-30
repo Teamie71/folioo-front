@@ -40,6 +40,11 @@ import {
   PDF_MAX_ACTIVITY_COUNT,
 } from '@/features/correction/constants';
 import { getHopeJobLabel } from '@/constants/hopeJob';
+import {
+  clearPendingCorrectionPdf,
+  consumePendingCorrectionPdf,
+  savePendingCorrectionPdf,
+} from '@/features/correction/utils/pendingCorrectionDraft';
 import type {
   FileDeleteConfirmTarget,
   PdfActivityBlock,
@@ -127,6 +132,7 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
   const [isPdfTextExtracted, setIsPdfTextExtracted] = useState(false);
   const [isPdfTextExtracting, setIsPdfTextExtracting] = useState(false);
+  const [isPdfExtractFailed, setIsPdfExtractFailed] = useState(false);
   /** 추출 요청마다 증가 — 조회 API로 동기화할 때마다 한 번만 상태 반영 */
   const [pdfExtractNonce, setPdfExtractNonce] = useState(0);
   const [isPdfExtractConfirmModalOpen, setIsPdfExtractConfirmModalOpen] =
@@ -154,6 +160,7 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [fileDeleteConfirmTarget, setFileDeleteConfirmTarget] =
     useState<FileDeleteConfirmTarget>(null);
   const [isInitializing, setIsInitializing] = useState(true);
+  const pendingPdfRestoreAttemptedForIdRef = useRef<string>('');
 
   const accessToken = useAuthStore((s) => s.accessToken);
   const sessionRestoreAttempted = useAuthStore(
@@ -245,6 +252,21 @@ export function useCorrectionState(correctionId: string | undefined) {
   }, [accessToken, effectiveId, router, sessionRestoreAttempted]);
 
   useEffect(() => {
+    if (!accessToken || isInitializing) return;
+    if (pendingPdfRestoreAttemptedForIdRef.current === effectiveId) return;
+
+    const id = Number(effectiveId);
+    if (Number.isNaN(id) || id <= 0) return;
+    pendingPdfRestoreAttemptedForIdRef.current = effectiveId;
+
+    void consumePendingCorrectionPdf(id).then((file) => {
+      if (!file) return;
+      setSelectedPortfolioType('pdf');
+      setPdfUploadedFile({ name: file.name, file });
+    });
+  }, [accessToken, effectiveId, isInitializing]);
+
+  useEffect(() => {
     setShowNavbarOnResult?.(step === 'result');
   }, [step, setShowNavbarOnResult]);
 
@@ -291,6 +313,7 @@ export function useCorrectionState(correctionId: string | undefined) {
   const handlePdfPortfoliosHydratedFromQuery = useCallback(
     (activities: PdfActivityBlock[]) => {
       setIsPdfTextExtracting(false);
+      setIsPdfExtractFailed(false);
       setSelectedActivityId((currentId) =>
         activities.some((activity) => activity.id === currentId)
           ? currentId
@@ -358,6 +381,7 @@ export function useCorrectionState(correctionId: string | undefined) {
 
         if (extractionStatus === 'FAILED') {
           // 추출 실패: nonce 올리지 않음 → CorrectionPdfTextSection의 isFailed 표시
+          setIsPdfExtractFailed(true);
           return;
         }
 
@@ -391,6 +415,7 @@ export function useCorrectionState(correctionId: string | undefined) {
     const correctionId = id;
     setIsPdfExtractConfirmModalOpen(false);
     setIsPdfTextExtracting(true);
+    setIsPdfExtractFailed(false);
     /* POST 전에 영역을 띄워야 스피너·조회 폴링 UI가 보임 (실패 시 아래 catch에서 되돌림) */
     setIsPdfTextExtracted(true);
     try {
@@ -407,6 +432,7 @@ export function useCorrectionState(correctionId: string | undefined) {
       /* 구조화 결과는 비동기 — CorrectionPdfTextSection 조회 폴링 후 반영 */
     } catch {
       setIsPdfTextExtracting(false);
+      setIsPdfExtractFailed(true);
       // 즉시 요청 실패도 텍스트 추출 실패 화면에서 다시 시도할 수 있게 유지한다.
       setIsPdfTextExtracted(true);
     }
@@ -436,6 +462,7 @@ export function useCorrectionState(correctionId: string | undefined) {
     if (!pdfUploadedFile?.file) {
       // 페이지 재진입 후에는 브라우저가 파일 객체를 복원할 수 없으므로 재업로드를 유도한다.
       setIsPdfTextExtracted(false);
+      setIsPdfExtractFailed(false);
       setPdfUploadedFile(null);
       return;
     }
@@ -621,28 +648,37 @@ export function useCorrectionState(correctionId: string | undefined) {
     setSelectedTextPortfolioIds([]);
     if (type !== 'pdf') {
       setIsPdfTextExtracted(false);
+      setIsPdfExtractFailed(false);
       setPdfUploadedFile(null);
       setPdfUploadError(null);
     }
   }, []);
 
-  const handlePdfFile = useCallback((file: File) => {
-    if (file.type !== 'application/pdf') return;
-    if (file.size > 10 * 1024 * 1024) {
-      setPdfUploadError('too_large');
-      setPdfShakeKey((k) => k + 1);
-      return;
-    }
-    setPdfUploadedFile((prev) => {
-      if (prev) {
+  const handlePdfFile = useCallback(
+    (file: File) => {
+      if (file.type !== 'application/pdf') return;
+      if (file.size > 10 * 1024 * 1024) {
+        setPdfUploadError('too_large');
+        setPdfShakeKey((k) => k + 1);
+        return;
+      }
+      if (pdfUploadedFile) {
         setPdfUploadError('too_many');
         setPdfShakeKey((k) => k + 1);
-        return prev;
+        return;
       }
       setPdfUploadError(null);
-      return { name: file.name, file };
-    });
-  }, []);
+      setPdfUploadedFile({ name: file.name, file });
+      if (!accessToken) void savePendingCorrectionPdf(file);
+    },
+    [accessToken, pdfUploadedFile],
+  );
+
+  const handlePdfFileDelete = useCallback(() => {
+    setPdfUploadedFile(null);
+    setPdfUploadError(null);
+    if (!accessToken) void clearPendingCorrectionPdf();
+  }, [accessToken]);
 
   const layoutKey =
     pdfUploadError === 'too_large' || pdfUploadError === 'too_many'
@@ -702,6 +738,8 @@ export function useCorrectionState(correctionId: string | undefined) {
     setIsPdfTextExtracted,
     isPdfTextExtracting,
     setIsPdfTextExtracting,
+    isPdfExtractFailed,
+    setIsPdfExtractFailed,
     pdfExtractNonce,
     handlePdfPortfoliosHydratedFromQuery,
     isPdfExtractConfirmModalOpen,
@@ -733,6 +771,7 @@ export function useCorrectionState(correctionId: string | undefined) {
     handleRetryCompanyInsight,
     handlePortfolioSelect,
     handlePdfFile,
+    handlePdfFileDelete,
     handleRequestPdfExtract,
     handlePdfExtractConfirm,
     handleRetryPdfExtract,

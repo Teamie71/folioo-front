@@ -31,6 +31,7 @@ export interface CorrectionPdfTextSectionProps {
   pdfExtractNonce: number;
   onPdfPortfoliosHydratedFromQuery: (activities: PdfActivityBlock[]) => void;
   onRetryExtract: () => void;
+  onExtractFailureChange: (isFailed: boolean) => void;
 }
 
 export function CorrectionPdfTextSection({
@@ -52,6 +53,7 @@ export function CorrectionPdfTextSection({
   pdfExtractNonce,
   onPdfPortfoliosHydratedFromQuery,
   onRetryExtract,
+  onExtractFailureChange,
 }: CorrectionPdfTextSectionProps) {
   const lastSyncedPortfoliosRef = useRef<string | null>(null);
 
@@ -98,6 +100,10 @@ export function CorrectionPdfTextSection({
     enabled && !isFailed && !isWaitingForData && listLen === 0;
   const showPortfolioBlock =
     enabled && listLen > 0 && !isFailed && !isWaitingForData;
+
+  useEffect(() => {
+    onExtractFailureChange(isFailed || showEmptyRetry);
+  }, [isFailed, onExtractFailureChange, showEmptyRetry]);
 
   useEffect(() => {
     if (!enabled) return;

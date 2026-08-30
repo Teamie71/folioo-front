@@ -81,8 +81,7 @@ export default function CorrectionSettingsPage() {
             onOpenChange: (open) => !open && s.setFileDeleteConfirmTarget(null),
             onConfirm: () => {
               if (s.fileDeleteConfirmTarget === null) return;
-              s.setPdfUploadedFile(null);
-              s.setPdfUploadError(null);
+              s.handlePdfFileDelete();
               s.setFileDeleteConfirmTarget(null);
             },
           }}
@@ -211,6 +210,8 @@ export default function CorrectionSettingsPage() {
               s.handlePdfPortfoliosHydratedFromQuery
             }
             onRetryPdfExtract={s.handleRetryPdfExtract}
+            isPdfExtractFailed={s.isPdfExtractFailed}
+            onPdfExtractFailureChange={s.setIsPdfExtractFailed}
             onRequestActivityDelete={s.setActivityDeleteTargetId}
             pdfActivityHoverId={s.pdfActivityHoverId}
             setPdfActivityHoverId={s.setPdfActivityHoverId}
