@@ -26,17 +26,24 @@ const steps: StepItem[] = [
     number: 1,
     label: '지원 정보',
     isActive: (step, status) =>
-      isAnalyzingOrFailed(status) || step === 'information' || step === 'portfolio' || step === 'analysis',
+      isAnalyzingOrFailed(status) ||
+      step === 'information' ||
+      step === 'portfolio' ||
+      step === 'analysis',
   },
   {
     number: 2,
-    label: '포트폴리오 선택',
-    isActive: (step, status) => isAnalyzingOrFailed(status) || step === 'portfolio' || step === 'analysis',
+    label: '포트폴리오 업로드',
+    isActive: (step, status) =>
+      isAnalyzingOrFailed(status) ||
+      step === 'portfolio' ||
+      step === 'analysis',
   },
   {
     number: 3,
     label: '기업 분석',
-    isActive: (step, status) => isAnalyzingOrFailed(status) || step === 'analysis',
+    isActive: (step, status) =>
+      isAnalyzingOrFailed(status) || step === 'analysis',
   },
   {
     number: 4,
@@ -49,7 +56,7 @@ const getProgressWidth = (step: Step, status?: Status): string => {
   if (isAnalyzingOrFailed(status)) {
     return '100%';
   }
-  
+
   switch (step) {
     case 'result':
       return '0%';
@@ -89,7 +96,10 @@ export function CorrectionProgressBar({
             const isActive = stepItem.isActive(step, status);
 
             return (
-              <div key={stepItem.number} className='flex items-center gap-[0.5rem]'>
+              <div
+                key={stepItem.number}
+                className='flex items-center gap-[0.5rem]'
+              >
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   width='20'

@@ -16,7 +16,22 @@ export default function NewCorrectionPage() {
 
   return (
     <CorrectionLayout
+      layoutKey={s.layoutKey}
       layoutClassName={s.layoutClassName}
+      onDragEnter={
+        s.jdMode === 'image'
+          ? (event) => {
+              if (event.dataTransfer?.types.includes('Files')) {
+                s.setIsJdDropOverlayActive(true);
+              }
+            }
+          : undefined
+      }
+      jdDropOverlay={{
+        active: s.jdMode === 'image' && s.isJdDropOverlayActive,
+        onDrop: s.handleJdImageFile,
+        onClose: () => s.setIsJdDropOverlayActive(false),
+      }}
       pdfDropOverlay={{ active: false, onDrop: () => {}, onClose: () => {} }}
       header={
         <CorrectionPageHeader
@@ -34,6 +49,9 @@ export default function NewCorrectionPage() {
             target: s.fileDeleteConfirmTarget,
             onOpenChange: (open) => !open && s.setFileDeleteConfirmTarget(null),
             onConfirm: () => {
+              if (s.fileDeleteConfirmTarget?.type === 'jd') {
+                s.removeJdFileAt(s.fileDeleteConfirmTarget.index);
+              }
               s.setFileDeleteConfirmTarget(null);
             },
           }}
@@ -65,6 +83,13 @@ export default function NewCorrectionPage() {
             onOpenChange: () => {},
             onConfirm: () => {},
           }}
+          jdViewer={{
+            previewUrl:
+              s.jdViewerFileIndex == null
+                ? null
+                : (s.jdUploadedFiles[s.jdViewerFileIndex]?.previewUrl ?? null),
+            onClose: () => s.setJdViewerFileIndex(null),
+          }}
         />
       }
       progressOrDivider={
@@ -77,7 +102,10 @@ export default function NewCorrectionPage() {
           onCompanyNameChange={(next) => {
             s.setCompanyName(next);
             if (s.informationErrors.companyName)
-              s.setInformationErrors((prev) => ({ ...prev, companyName: false }));
+              s.setInformationErrors((prev) => ({
+                ...prev,
+                companyName: false,
+              }));
           }}
           jobTitle={s.jobTitle}
           onJobTitleChange={(next) => {
@@ -89,11 +117,25 @@ export default function NewCorrectionPage() {
           onJobDescriptionChange={(next) => {
             s.setJobDescription(next);
             if (s.informationErrors.jobDescription)
-              s.setInformationErrors((prev) => ({ ...prev, jobDescription: false }));
+              s.setInformationErrors((prev) => ({
+                ...prev,
+                jobDescription: false,
+              }));
           }}
+          jdMode={s.jdMode}
+          onJdModeChange={s.handleJdModeChange}
           informationErrors={s.informationErrors}
+          jdImageError={s.jdImageError}
+          jdUploadedFiles={s.jdUploadedFiles}
           limitAllowedInput={s.limitAllowedInput}
           onStartCorrectionClick={s.handleStartCorrectionClick}
+          jdFileInputRef={s.jdFileInputRef}
+          onRequestFileDelete={(index) =>
+            s.setFileDeleteConfirmTarget({ type: 'jd', index })
+          }
+          onRequestJdViewer={s.setJdViewerFileIndex}
+          onJdImageFile={s.handleJdImageFile}
+          onPasteJdImage={s.handlePasteJdImageFromClipboard}
         />
       </div>
 

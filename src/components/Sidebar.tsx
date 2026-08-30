@@ -41,7 +41,7 @@ type SidebarMenuItem = {
 
 const MENU_ITEMS: SidebarMenuItem[] = [
   {
-    label: '직무 추천',
+    label: '직무 찾기',
     expandedIcon: '/sidebar/job-recommendation.svg',
     collapsedIcon: '/sidebar/job-recommendation-hover.svg',
     collapsedActiveIcon: '/sidebar/job-recommendation-active.svg',
@@ -118,7 +118,7 @@ function MenuIcon({
       ? 'sidebar-menu-icon-active'
       : undefined;
 
-  if (collapsed && item.label === '직무 추천') {
+  if (collapsed && item.label === '직무 찾기') {
     return (
       <span className='relative block size-[24px] shrink-0 overflow-hidden'>
         <Image
@@ -387,7 +387,7 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
       }}
       transition={SIDEBAR_TRANSITION}
       className={cn(
-        'h-[100dvh] shrink-0 overflow-hidden bg-white',
+        'sticky top-0 h-[100dvh] shrink-0 self-start overflow-hidden bg-white',
         isExpanded
           ? 'shadow-[0px_6px_20px_-2px_rgba(0,0,0,0.15)]'
           : 'border-gray3 border-r',

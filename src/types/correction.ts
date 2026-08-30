@@ -8,11 +8,7 @@ export type Status = 'DRAFT' | 'ANALYZING' | 'ANALYZING_FAILED' | 'DONE';
 export type PortfolioType = 'text' | 'pdf';
 
 /** PDF 활동 카테고리명 (상세정보, 담당업무, 문제해결, 배운 점) */
-export type PdfCategoryName =
-  | '상세정보'
-  | '담당업무'
-  | '문제해결'
-  | '배운 점';
+export type PdfCategoryName = '상세정보' | '담당업무' | '문제해결' | '배운 점';
 
 /** PDF 활동 내 한 카테고리 (이름 + 불릿 목록) */
 export type PdfActivityCategory = {
@@ -29,8 +25,20 @@ export type PdfActivityBlock = {
   portfolioId?: number;
 };
 
+/** JD 입력 방식 */
+export type JdMode = 'text' | 'image';
+
+/** JD 이미지 업로드 메타 */
+export interface JdUploadedFile {
+  name: string;
+  size: number;
+  file: File;
+  previewUrl: string;
+}
+
 /** 파일 삭제 확인 모달 타겟 (프론트 전용) */
 export type FileDeleteConfirmTarget =
+  | { type: 'jd'; index: number }
   | { type: 'pdf' }
   | null;
 

@@ -152,7 +152,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='flex h-auto w-auto flex-col gap-[1.5rem] p-[2.5rem]'>
+      <DialogContent className='flex h-auto w-auto flex-col gap-[1.5rem] rounded-[1.75rem] bg-white p-[2.5rem] [&>button]:top-[1rem] [&>button]:right-[1rem] [&>button>svg]:h-[1.75rem] [&>button>svg]:w-[1.75rem]'>
         <DialogTitle className='text-[1.25rem] leading-[130%] font-bold text-[#1A1A1A]'>
           프로필
         </DialogTitle>
@@ -177,22 +177,6 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
           </div>
 
           <div className='flex flex-col gap-[1.5rem] rounded-[1.25rem] bg-[#FDFDFD] px-[1.75rem] py-[1.5rem]'>
-            <div className='flex items-center justify-between'>
-              <p className='text-[1.125rem] leading-[150%] text-[#1A1A1A]'>
-                이용권 거래 내역
-              </p>
-              <Link
-                href='/invoice'
-                className='scale-x-[-1] cursor-pointer'
-                aria-label='이용권 거래 내역'
-                onClick={() => onOpenChange(false)}
-              >
-                <ChevronLeftIcon />
-              </Link>
-            </div>
-
-            <div className='w-full border border-[#CDD0D5]' />
-
             <div className='flex flex-col gap-[2rem]'>
               <div className='flex items-center justify-between'>
                 <p className='text-[1.125rem] leading-[150%] text-[#1A1A1A]'>
