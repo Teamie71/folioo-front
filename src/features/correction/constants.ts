@@ -12,8 +12,21 @@ export const PDF_CATEGORY_NAMES: readonly PdfCategoryName[] = [
   '배운 점',
 ];
 
-/** PDF 카테고리당 글자 수 제한 */
-export const PDF_CATEGORY_CHAR_LIMIT = 400;
+/** PDF에서 첨삭할 수 있는 최대 활동 수 */
+export const PDF_MAX_ACTIVITY_COUNT = 4;
+
+/** PDF 카테고리별 글자 수 제한 */
+export const PDF_CATEGORY_CHAR_LIMIT: Record<PdfCategoryName, number> = {
+  상세정보: 400,
+  담당업무: 700,
+  문제해결: 700,
+  '배운 점': 300,
+};
+
+/** 카테고리별 글자 수 제한 조회 */
+export function getPdfCategoryCharLimit(name: PdfCategoryName): number {
+  return PDF_CATEGORY_CHAR_LIMIT[name];
+}
 
 /** 강조 포인트 최대 길이 */
 export const EMPHASIS_POINTS_MAX_LENGTH = 200;
@@ -33,10 +46,10 @@ export function createPdfActivityBlock(
   };
 }
 
-/** `활동 A` ~ `활동 E` 형식만 슬롯 점유로 인식 (공백 생략·전각 A–E 허용) */
-const PDF_PLACEHOLDER_LABEL_RE = /^활동\s*([A-EＡ-Ｅ])$/;
+/** `활동 A` ~ `활동 D` 형식만 슬롯 점유로 인식 (공백 생략·전각 A–D 허용) */
+const PDF_PLACEHOLDER_LABEL_RE = /^활동\s*([A-DＡ-Ｄ])$/;
 
-/** 활동 A~E 중 목록에 없는 가장 작은 인덱스(0=A). 모두 사용 중이면 null */
+/** 활동 A~D 중 목록에 없는 가장 작은 인덱스(0=A). 모두 사용 중이면 null */
 export function getNextPdfPlaceholderLabelIndex(
   activities: ReadonlyArray<{ label: string }>,
 ): number | null {
@@ -47,21 +60,21 @@ export function getNextPdfPlaceholderLabelIndex(
       const ch = m[1];
       const code = ch.charCodeAt(0);
       const i =
-        code >= 0xff21 && code <= 0xff25
-          ? code - 0xff21 /* Ａ–Ｅ */
+        code >= 0xff21 && code <= 0xff24
+          ? code - 0xff21 /* Ａ–Ｄ */
           : code - 65;
-      if (i >= 0 && i <= 4) used.add(i);
+      if (i >= 0 && i < PDF_MAX_ACTIVITY_COUNT) used.add(i);
     }
   }
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < PDF_MAX_ACTIVITY_COUNT; i++) {
     if (!used.has(i)) return i;
   }
   return null;
 }
 
-/** 활동 탭 기본 라벨 (순서대로 활동 A ~ 활동 E, 최대 5블록) */
+/** 활동 탭 기본 라벨 (순서대로 활동 A ~ 활동 D, 최대 4블록) */
 export function getPdfActivityPlaceholderLabel(index: number): string {
-  const i = Math.min(Math.max(index, 0), 4);
+  const i = Math.min(Math.max(index, 0), PDF_MAX_ACTIVITY_COUNT - 1);
   return `활동 ${String.fromCharCode(65 + i)}`;
 }
 

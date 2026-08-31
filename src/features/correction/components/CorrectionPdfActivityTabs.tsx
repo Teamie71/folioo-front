@@ -2,7 +2,10 @@
 
 import ActivityDeleteIcon from '@/components/icons/ActivityDeleteIcon';
 import RedDotIcon from '@/components/icons/RedDotIcon';
-import { PDF_CATEGORY_CHAR_LIMIT } from '@/features/correction/constants';
+import {
+  getPdfCategoryCharLimit,
+  PDF_MAX_ACTIVITY_COUNT,
+} from '@/features/correction/constants';
 import type { PdfActivityBlock } from '@/types/correction';
 
 export interface CorrectionPdfActivityTabsProps {
@@ -49,7 +52,7 @@ export function CorrectionPdfActivityTabs({
               {activity.categories.some(
                 (c) =>
                   c.bullets.reduce((s, b) => s + b.length, 0) >
-                  PDF_CATEGORY_CHAR_LIMIT,
+                  getPdfCategoryCharLimit(c.name),
               ) && (
                 <span className='absolute -right-2'>
                   <RedDotIcon />
@@ -72,7 +75,7 @@ export function CorrectionPdfActivityTabs({
           </button>
         </div>
       ))}
-      {pdfActivities.length < 5 && (
+      {pdfActivities.length < PDF_MAX_ACTIVITY_COUNT && (
         <button
           type='button'
           className='cursor-pointer rounded-t-[1.25rem] border-none bg-[#F6F8FA] px-[3rem] py-[1rem] text-[0.875rem] font-medium text-[#9EA4A9] transition-all'

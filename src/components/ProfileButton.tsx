@@ -21,23 +21,20 @@ export const ProfileButton = forwardRef<HTMLButtonElement, ProfileButtonProps>(
         type='button'
         onClick={onClick}
         className={cn(
-          'group inline-flex cursor-pointer items-center gap-[0.25rem] border-none bg-transparent py-[8px] font-[16px] no-underline transition-colors outline-none focus:outline-none',
-          isOpen ? 'font-bold text-[#5060C5]' : 'text-[#333333]',
+          'group inline-flex cursor-pointer items-center gap-[0.25rem] border-none bg-transparent py-[8px] text-[16px] no-underline transition-colors outline-none focus:outline-none',
+          isOpen ? 'font-bold text-[#5060C5]' : 'text-[#1A1A1A]',
           className,
         )}
       >
         <ProfileIcon />
         {/* hover 시 bold만 적용, 레이아웃 시프트 없음 */}
         <span className='relative inline-block'>
-          <span
-            className='invisible inline-block font-bold'
-            aria-hidden
-          >
+          <span className='invisible inline-block font-bold' aria-hidden>
             {MY_LABEL}
           </span>
           <span
             className={cn(
-              'absolute left-0 top-0',
+              'absolute top-0 left-0',
               isOpen && 'font-bold',
               'group-hover:font-bold',
             )}

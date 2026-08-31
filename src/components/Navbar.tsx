@@ -66,10 +66,10 @@ export default function Navbar() {
 
   const linkClass = (href: string) =>
     cn(
-      'group inline-block py-[8px] font-[16px] no-underline transition-colors',
+      'group inline-block py-[8px] text-[16px] no-underline transition-colors',
       pathname === href || (href !== '/' && pathname.startsWith(href))
         ? 'font-bold text-[#5060C5]'
-        : 'text-[#333333]',
+        : 'text-[#1A1A1A]',
     );
 
   const isActive = (href: string) =>
@@ -150,12 +150,7 @@ export default function Navbar() {
 
   return (
     <nav className='fixed top-0 right-0 left-0 z-50 w-full bg-white'>
-      <div
-        className={cn(
-          'mx-auto',
-          pathname?.includes('/portfolio') ? 'w-[1392px]' : 'w-[1056px]',
-        )}
-      >
+      <div className={cn('mx-auto', 'w-[1056px]')}>
         <div className='flex h-[80px] items-center justify-between'>
           <div className='flex items-center gap-[60px]'>
             <Link href='/'>
@@ -176,33 +171,15 @@ export default function Navbar() {
               true,
               EXPERIENCE_ACTIVE_PATH,
             )}
-            {navLink('/correction', '포트폴리오 첨삭', true)}
+            {navLink('/correction', '포트폴리오 첨삭')}
           </div>
 
-          <div className='flex items-center'>
+          <div className='flex items-center gap-[2.5rem]'>
+            {navLink('/feedback', '피드백')}
             {!showAuthArea ? (
               <div className='h-[36px] w-[80px]' aria-hidden />
             ) : isLoggedIn ? (
-              <div className='flex items-center gap-[2.5rem]'>
-                <Link href='/topup' className={linkClass('/topup')}>
-                  <span className='relative inline-block'>
-                    <span
-                      className='invisible inline-block font-bold whitespace-nowrap'
-                      aria-hidden
-                    >
-                      이용권 구매
-                    </span>
-                    <span
-                      className={cn(
-                        'absolute top-0 left-0 whitespace-nowrap',
-                        isActive('/topup') && 'font-bold',
-                        'group-hover:font-bold',
-                      )}
-                    >
-                      이용권 구매
-                    </span>
-                  </span>
-                </Link>
+              <>
                 <ProfileButton
                   ref={myButtonRef}
                   onClick={() => setIsProfileDropdownOpen((prev) => !prev)}
@@ -215,37 +192,16 @@ export default function Navbar() {
                   onProfileClick={() => setIsProfileModalOpen(true)}
                   onLogoutClick={handleLogoutClick}
                 />
-              </div>
+              </>
             ) : (
-              <div className='flex items-center gap-[2.5rem]'>
-                <Link href='/topup' className={linkClass('/topup')}>
-                  <span className='relative inline-block'>
-                    <span
-                      className='invisible inline-block font-bold whitespace-nowrap'
-                      aria-hidden
-                    >
-                      이용권 구매
-                    </span>
-                    <span
-                      className={cn(
-                        'absolute top-0 left-0 whitespace-nowrap',
-                        isActive('/topup') && 'font-bold',
-                        'group-hover:font-bold',
-                      )}
-                    >
-                      이용권 구매
-                    </span>
-                  </span>
-                </Link>
-                <CommonButton
-                  variantType='Primary'
-                  px={28}
-                  py={8}
-                  onClick={handleLogin}
-                >
-                  로그인
-                </CommonButton>
-              </div>
+              <CommonButton
+                variantType='Primary'
+                px={28}
+                py={8}
+                onClick={handleLogin}
+              >
+                로그인
+              </CommonButton>
             )}
           </div>
         </div>

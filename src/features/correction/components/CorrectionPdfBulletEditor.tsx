@@ -3,7 +3,7 @@
 import { type MutableRefObject } from 'react';
 import RedDotIcon from '@/components/icons/RedDotIcon';
 import {
-  PDF_CATEGORY_CHAR_LIMIT,
+  getPdfCategoryCharLimit,
   PDF_CATEGORY_NAMES,
 } from '@/features/correction/constants';
 import type { PdfActivityBlock, PdfCategoryName } from '@/types/correction';
@@ -32,6 +32,7 @@ export function CorrectionPdfBulletEditor({
   const activity = pdfActivities.find((a) => a.id === selectedActivityId);
   const category = activity?.categories.find((c) => c.name === selectedTab);
   const bullets = category?.bullets ?? [''];
+  const categoryCharLimit = getPdfCategoryCharLimit(selectedTab);
 
   const setBullets = (next: string[]) => {
     if (!activity || !category) return;
@@ -61,7 +62,7 @@ export function CorrectionPdfBulletEditor({
           const cat = selectedActivity?.categories.find((c) => c.name === name);
           const categoryOverLimit =
             (cat?.bullets.reduce((s, b) => s + b.length, 0) ?? 0) >
-            PDF_CATEGORY_CHAR_LIMIT;
+            getPdfCategoryCharLimit(name);
           return (
             <button
               key={name}
@@ -122,11 +123,22 @@ export function CorrectionPdfBulletEditor({
                     const now = Date.now();
                     if (now - lastBulletEnterAt.current < 150) return;
                     lastBulletEnterAt.current = now;
+                    const textarea = e.currentTarget;
+                    const selectionStart = textarea.selectionStart;
+                    const selectionEnd = textarea.selectionEnd;
                     const next = [...bullets];
-                    next.splice(idx + 1, 0, '');
+                    next.splice(
+                      idx,
+                      1,
+                      text.slice(0, selectionStart),
+                      text.slice(selectionEnd),
+                    );
                     setBullets(next);
                     setTimeout(() => {
-                      bulletTextareaRefs.current?.[idx + 1]?.focus();
+                      const nextTextarea =
+                        bulletTextareaRefs.current?.[idx + 1];
+                      nextTextarea?.focus();
+                      nextTextarea?.setSelectionRange(0, 0);
                     }, 0);
                   } else if (
                     e.key === 'Backspace' &&
@@ -146,6 +158,26 @@ export function CorrectionPdfBulletEditor({
                         prev.setSelectionRange(len, len);
                       }
                     }, 0);
+                  } else if (
+                    e.key === 'Delete' &&
+                    e.currentTarget.selectionStart === text.length &&
+                    e.currentTarget.selectionEnd === text.length &&
+                    idx < bullets.length - 1
+                  ) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const cursorPosition = text.length;
+                    const next = [...bullets];
+                    next.splice(idx, 2, `${text}${bullets[idx + 1]}`);
+                    setBullets(next);
+                    setTimeout(() => {
+                      const current = bulletTextareaRefs.current?.[idx];
+                      current?.focus();
+                      current?.setSelectionRange(
+                        cursorPosition,
+                        cursorPosition,
+                      );
+                    }, 0);
                   } else if (e.key === 'ArrowUp') {
                     e.preventDefault();
                     e.stopPropagation();
@@ -164,6 +196,34 @@ export function CorrectionPdfBulletEditor({
                     }, 0);
                   }
                 }}
+                onPaste={(e) => {
+                  const pastedText = e.clipboardData.getData('text');
+                  if (!/[\r\n]/.test(pastedText)) return;
+
+                  e.preventDefault();
+                  const textarea = e.currentTarget;
+                  const selectionStart = textarea.selectionStart;
+                  const selectionEnd = textarea.selectionEnd;
+                  const splitBullets =
+                    `${text.slice(0, selectionStart)}${pastedText}${text.slice(selectionEnd)}`.split(
+                      /\r?\n/,
+                    );
+                  const next = [...bullets];
+                  next.splice(idx, 1, ...splitBullets);
+                  setBullets(next);
+
+                  setTimeout(() => {
+                    const lastIndex = idx + splitBullets.length - 1;
+                    const lastTextarea =
+                      bulletTextareaRefs.current?.[lastIndex];
+                    lastTextarea?.focus();
+                    const cursorPosition = splitBullets.at(-1)?.length ?? 0;
+                    lastTextarea?.setSelectionRange(
+                      cursorPosition,
+                      cursorPosition,
+                    );
+                  }, 0);
+                }}
                 rows={1}
               />
             </div>
@@ -172,10 +232,12 @@ export function CorrectionPdfBulletEditor({
         <div className='mt-[0.5rem] flex justify-end'>
           <span
             className={`text-[0.875rem] ${
-              categoryCharCount > 390 ? 'text-[#DC0000]' : 'text-[#74777D]'
+              categoryCharCount >= categoryCharLimit - 10
+                ? 'text-[#DC0000]'
+                : 'text-[#74777D]'
             }`}
           >
-            {categoryCharCount} / {PDF_CATEGORY_CHAR_LIMIT}
+            {categoryCharCount} / {categoryCharLimit}
           </span>
         </div>
       </div>

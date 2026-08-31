@@ -45,6 +45,9 @@ export interface CorrectionPortfolioStepProps {
   correctionNumericId: number | null;
   pdfExtractNonce: number;
   onPdfPortfoliosHydratedFromQuery: (activities: PdfActivityBlock[]) => void;
+  onRetryPdfExtract: () => void;
+  isPdfExtractFailed: boolean;
+  onPdfExtractFailureChange: (isFailed: boolean) => void;
   onRequestActivityDelete: (activityId: string) => void;
   pdfActivityHoverId: string | null;
   setPdfActivityHoverId: (id: string | null) => void;
@@ -81,6 +84,9 @@ export function CorrectionPortfolioStep({
   correctionNumericId,
   pdfExtractNonce,
   onPdfPortfoliosHydratedFromQuery,
+  onRetryPdfExtract,
+  isPdfExtractFailed,
+  onPdfExtractFailureChange,
   onRequestActivityDelete,
   pdfActivityHoverId,
   setPdfActivityHoverId,
@@ -93,7 +99,7 @@ export function CorrectionPortfolioStep({
       <div
         className={`flex flex-col gap-[1.25rem] ${!selectedPortfolioType ? 'pb-[6.25rem]' : ''}`}
       >
-        <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
+        <div className='flex items-center gap-[0.25rem] text-[1.125rem] leading-[1.3] font-bold'>
           <span>포트폴리오 종류 선택</span>
           <span className='text-[#DC0000]'>*</span>
         </div>
@@ -119,15 +125,15 @@ export function CorrectionPortfolioStep({
             className={`flex flex-col gap-[1.25rem] ${!isPdfTextExtracted || isPdfTextExtracting ? 'pb-[6.25rem]' : ''}`}
           >
             <CorrectionPdfUploadBlock
-                pdfUploadedFile={pdfUploadedFile}
-                pdfUploadError={pdfUploadError}
-                pdfFileInputRef={pdfFileInputRef}
-                onPdfFileSelect={onPdfFileSelect}
-                onRequestPdfFileDelete={onRequestPdfFileDelete}
-                onRequestPdfExtract={onRequestPdfExtract}
-                isPdfTextExtracted={isPdfTextExtracted}
-                isPdfTextExtracting={isPdfTextExtracting}
-              />
+              pdfUploadedFile={pdfUploadedFile}
+              pdfUploadError={pdfUploadError}
+              pdfFileInputRef={pdfFileInputRef}
+              onPdfFileSelect={onPdfFileSelect}
+              onRequestPdfFileDelete={onRequestPdfFileDelete}
+              onRequestPdfExtract={onRequestPdfExtract}
+              isPdfTextExtracted={isPdfTextExtracted}
+              isPdfTextExtracting={isPdfTextExtracting}
+            />
             {isPdfTextExtracted && (
               <CorrectionPdfTextSection
                 isPdfTextExtracting={isPdfTextExtracting}
@@ -149,6 +155,8 @@ export function CorrectionPortfolioStep({
                 onPdfPortfoliosHydratedFromQuery={
                   onPdfPortfoliosHydratedFromQuery
                 }
+                onRetryExtract={onRetryPdfExtract}
+                onExtractFailureChange={onPdfExtractFailureChange}
               />
             )}
           </div>
@@ -159,7 +167,7 @@ export function CorrectionPortfolioStep({
       {selectedPortfolioType &&
         !(
           selectedPortfolioType === 'pdf' &&
-          (!isPdfTextExtracted || isPdfTextExtracting)
+          (!isPdfTextExtracted || isPdfTextExtracting || isPdfExtractFailed)
         ) && (
           <div className='flex justify-center pb-[6.25rem]'>
             <CommonButton
@@ -168,13 +176,14 @@ export function CorrectionPortfolioStep({
               py='0.75rem'
               disabled={
                 pdfCategoryOverLimit ||
-                (selectedPortfolioType === 'text' && textPortfolios.length === 0)
+                (selectedPortfolioType === 'text' &&
+                  textPortfolios.length === 0)
               }
               className={
                 pdfCategoryOverLimit ||
                 (selectedPortfolioType === 'text' &&
                   textPortfolios.length === 0)
-                  ? 'rounded-[3.75rem] cursor-not-allowed !bg-[#CDD0D5] hover:!bg-[#CDD0D5]'
+                  ? 'cursor-not-allowed rounded-[3.75rem] !bg-[#CDD0D5] hover:!bg-[#CDD0D5]'
                   : 'rounded-[3.75rem]'
               }
               onClick={handleNextStep}

@@ -10,6 +10,7 @@ import { CorrectionLoadingSpinner } from '@/features/correction/components/Corre
 import { CorrectionListSearch } from '@/features/correction/components/CorrectionListSearch';
 import type { PortfolioCorrectionControllerGetCorrections200 } from '@/api/models';
 import { usePortfolioCorrectionControllerGetCorrections } from '@/api/endpoints/portfolio-correction/portfolio-correction';
+import { useAuthStore } from '@/store/useAuthStore';
 
 function formatDate(createdAt: string): string {
   return createdAt.slice(0, 10);
@@ -18,6 +19,11 @@ function formatDate(createdAt: string): string {
 export default function CorrectionClient() {
   const [keyword, setKeyword] = useState('');
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const sessionRestoreAttempted = useAuthStore(
+    (state) => state.sessionRestoreAttempted,
+  );
+  const isLoggedIn = accessToken != null;
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedKeyword(keyword), 300);
@@ -26,7 +32,7 @@ export default function CorrectionClient() {
 
   const { data, isLoading } = usePortfolioCorrectionControllerGetCorrections(
     { keyword: debouncedKeyword.trim() || undefined },
-    { query: { enabled: true } },
+    { query: { enabled: sessionRestoreAttempted && isLoggedIn } },
   );
 
   const responseData = data as
@@ -45,10 +51,10 @@ export default function CorrectionClient() {
       <CorrectionListHeader />
       <div className='mx-auto flex w-[66rem] flex-col gap-[3rem]'>
         <CorrectionListSearch value={keyword} onChange={setKeyword} />
-        {isLoading ? (
+        {!sessionRestoreAttempted || (isLoggedIn && isLoading) ? (
           <CorrectionLoadingSpinner />
         ) : items.length === 0 ? (
-          <p className='whitespace-pre-line text-[1.125rem] text-center font-bold mt-[3.25rem] text-[#9EA4A9]'>
+          <p className='mt-[3.25rem] text-center text-[1.125rem] font-bold whitespace-pre-line text-[#9EA4A9]'>
             {debouncedKeyword.trim()
               ? '앗, 일치하는 결과가 없어요.'
               : '아직 진행된 첨삭이 없어요.\n지원 상황에 딱 맞는 첨삭을 경험해보세요!'}

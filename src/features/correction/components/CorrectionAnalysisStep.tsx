@@ -5,9 +5,7 @@ import TextField from '@/components/TextField';
 import { MarkdownEditor } from '@/components/MarkdownEditor';
 import { CorrectionIcon } from '@/components/icons/CorrectionIcon';
 import { CorrectionLoadingSpinner } from '@/features/correction/components/CorrectionLoadingSpinner';
-import {
-  usePortfolioCorrectionControllerGetCompanyInsight,
-} from '@/api/endpoints/portfolio-correction/portfolio-correction';
+import { usePortfolioCorrectionControllerGetCompanyInsight } from '@/api/endpoints/portfolio-correction/portfolio-correction';
 import { useEffect, useState } from 'react';
 import { EMPHASIS_POINTS_MAX_LENGTH } from '@/features/correction/constants';
 
@@ -20,6 +18,7 @@ interface CorrectionAnalysisStepProps {
   onEmphasisPointsChange: (value: string) => void;
   limitAllowedInput: (value: string, maxLength: number) => string;
   onNextStep: () => void;
+  onRetryCompanyInsight: () => Promise<void>;
 }
 
 export function CorrectionAnalysisStep({
@@ -31,11 +30,10 @@ export function CorrectionAnalysisStep({
   onEmphasisPointsChange,
   limitAllowedInput,
   onNextStep,
+  onRetryCompanyInsight,
 }: CorrectionAnalysisStepProps) {
   const numId =
-    correctionId != null && correctionId !== ''
-      ? Number(correctionId)
-      : 0;
+    correctionId != null && correctionId !== '' ? Number(correctionId) : 0;
   const enabled = numId > 0 && !Number.isNaN(numId);
 
   const { data, isLoading, isError, refetch } =
@@ -44,9 +42,7 @@ export function CorrectionAnalysisStep({
         enabled,
         refetchInterval: (query) => {
           const status = query.state.data?.result?.status;
-          const isPending =
-            status === 'NOT_STARTED' ||
-            status === 'DOING_RAG';
+          const isPending = status === 'NOT_STARTED' || status === 'DOING_RAG';
           return isPending ? 3000 : false;
         },
       },
@@ -59,6 +55,8 @@ export function CorrectionAnalysisStep({
     generationStatus === 'DOING_RAG';
   const isGenerationFailed =
     generationStatus === 'RAG_FAILED' || generationStatus === 'FAILED';
+  const hasGenerationError =
+    isError || data?.isSuccess === false || isGenerationFailed;
 
   const companyInsightRaw = data?.result?.companyInsight;
   const companyInsightText =
@@ -96,7 +94,7 @@ export function CorrectionAnalysisStep({
     <>
       <div className='flex flex-col gap-[5rem]'>
         <div className='flex flex-col gap-[0.375rem]'>
-          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
+          <div className='flex items-center gap-[0.25rem] text-[1.125rem] leading-[1.3] font-bold'>
             <span>기업 분석 정보</span>
             <span className='text-[#DC0000]'>*</span>
           </div>
@@ -107,14 +105,27 @@ export function CorrectionAnalysisStep({
               }`}
             >
               <div className='flex flex-col'>
-                <span className='text-[0.875rem] text-[#74777D]'>
-                  지원 정보를 바탕으로 AI 컨설턴트가 기업 분석 정보를
-                  생성했어요.
-                </span>
-                <span className='text-[0.875rem] text-[#74777D]'>
-                  추가하고 싶은 내용이 있으시면, 수정 후 첨삭을
-                  의뢰해주세요.
-                </span>
+                {hasGenerationError ? (
+                  <>
+                    <span className='text-[0.875rem] text-[#74777D]'>
+                      기업 분석 정보 생성 중 오류가 발생했어요.
+                    </span>
+                    <span className='text-[0.875rem] text-[#74777D]'>
+                      아래 버튼을 눌러 다시 시도해주세요.
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className='text-[0.875rem] text-[#74777D]'>
+                      지원 정보를 바탕으로 AI 컨설턴트가 기업 분석 정보를
+                      {isGenerating ? ' 생성 중이에요.' : ' 생성했어요.'}
+                    </span>
+                    <span className='text-[0.875rem] text-[#74777D]'>
+                      추가하고 싶은 내용이 있으시면, 수정 후 첨삭을
+                      의뢰해주세요.
+                    </span>
+                  </>
+                )}
                 {showAnalysisInfoWarning && (
                   <span className='mt-[0.5rem] text-[0.875rem] text-[#DC0000]'>
                     기업 분석 정보를 입력해주세요
@@ -126,13 +137,17 @@ export function CorrectionAnalysisStep({
               <div className='flex min-h-[17.125rem] items-center justify-center rounded-[1.25rem] border border-[#74777D]'>
                 <CorrectionLoadingSpinner />
               </div>
-            ) : enabled && (isError || data?.isSuccess === false || isGenerationFailed) ? (
+            ) : enabled && hasGenerationError ? (
               <div className='flex min-h-[17.125rem] items-center justify-center rounded-[1.25rem] border border-[#74777D]'>
                 <CommonButton
                   variantType='Outline'
                   px='1.5rem'
                   py='0.5rem'
-                  onClick={() => refetch()}
+                  onClick={() => {
+                    void onRetryCompanyInsight()
+                      .then(() => refetch())
+                      .catch(() => {});
+                  }}
                 >
                   다시 시도하기
                 </CommonButton>
@@ -151,13 +166,13 @@ export function CorrectionAnalysisStep({
         </div>
 
         <div className='flex flex-col gap-[0.375rem]'>
-          <div className='flex items-center gap-[0.25rem] text-[1.125rem] font-bold leading-[1.3]'>
+          <div className='flex items-center gap-[0.25rem] text-[1.125rem] leading-[1.3] font-bold'>
             <span>강조 포인트</span>
           </div>
           <div className='flex flex-col'>
             <span className='mb-[1rem] text-[0.875rem] text-[#74777D]'>
-              기업 분석 정보를 바탕으로, 이번 서류에서 강조하고 싶은
-              역량이나 기술 등이 있다면 작성해주세요.
+              기업 분석 정보를 바탕으로, 이번 서류에서 강조하고 싶은 역량이나
+              기술 등이 있다면 작성해주세요.
             </span>
             <TextField
               variant='wide'
@@ -167,10 +182,7 @@ export function CorrectionAnalysisStep({
               maxLength={EMPHASIS_POINTS_MAX_LENGTH}
               onChange={(e) =>
                 onEmphasisPointsChange(
-                  limitAllowedInput(
-                    e.target.value,
-                    EMPHASIS_POINTS_MAX_LENGTH,
-                  ),
+                  limitAllowedInput(e.target.value, EMPHASIS_POINTS_MAX_LENGTH),
                 )
               }
             />
