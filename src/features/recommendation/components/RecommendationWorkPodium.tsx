@@ -1,4 +1,5 @@
 import type { WorkConditionRank } from '@/features/recommendation/types';
+import { RecommendationPodiumStarIcon } from '@/components/icons/RecommendationPodiumStarIcon';
 import { cn } from '@/utils/utils';
 
 const PODIUM_SLOTS = [
@@ -62,29 +63,13 @@ export function RecommendationWorkPodium({
             </span>
             <div className='flex h-full w-full flex-col items-center rounded-t-[100px] rounded-b-[12px] bg-gradient-to-t from-white to-[#dae6ff] pt-[1.375rem]'>
               <p className='typo-b2-sb text-gray9'>{item.label}</p>
-              {slot.place === 1 && <PodiumStar />}
+              {slot.place === 1 && (
+                <RecommendationPodiumStarIcon className='mt-[0.25rem]' />
+              )}
             </div>
           </div>
         );
       })}
     </div>
-  );
-}
-
-function PodiumStar() {
-  return (
-    <svg
-      className='mt-[0.25rem]'
-      width='32'
-      height='32'
-      viewBox='0 0 32 32'
-      fill='none'
-      aria-hidden
-    >
-      <path
-        d='M16 4.5L18.94 12.16L27.2 12.64L20.9 17.74L22.94 25.86L16 21.5L9.06 25.86L11.1 17.74L4.8 12.64L13.06 12.16L16 4.5Z'
-        fill='#93B3F4'
-      />
-    </svg>
   );
 }

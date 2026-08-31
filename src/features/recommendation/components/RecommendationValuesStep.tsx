@@ -4,10 +4,10 @@ import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useValueQuestions } from '@/features/recommendation/hooks/useValueQuestions';
 import type { ValueChoice } from '@/features/recommendation/types';
+import { RecommendationBalanceCard } from '@/features/recommendation/components/RecommendationBalanceCard';
 import { RecommendationPrevButton } from '@/features/recommendation/components/RecommendationPrevButton';
 import { RecommendationTestHeader } from '@/features/recommendation/components/RecommendationTestHeader';
 import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
-import { cn } from '@/utils/utils';
 
 const SELECT_ADVANCE_MS = 200;
 
@@ -80,7 +80,7 @@ export function RecommendationValuesStep() {
               어떤 근무 조건을 중요하게 생각하나요?
             </h2>
             <p className='typo-c2 text-gray6'>
-              밸런스게임으로 파악한 가치관을 기업 형태 찾기에 반영해요.
+              밸런스게임으로 파악한 가치관을 기업 형태 추천에 반영해요.
             </p>
           </div>
 
@@ -92,7 +92,7 @@ export function RecommendationValuesStep() {
           </p>
 
           <div className='relative mt-[1.75rem] flex items-center gap-[3.75rem]'>
-            <BalanceCard
+            <RecommendationBalanceCard
               text={question.left}
               selected={selected === 'left'}
               onClick={() => handleSelect('left')}
@@ -100,7 +100,7 @@ export function RecommendationValuesStep() {
             <span className='typo-h5 absolute left-1/2 -translate-x-1/2 text-gray9'>
               vs
             </span>
-            <BalanceCard
+            <RecommendationBalanceCard
               text={question.right}
               selected={selected === 'right'}
               onClick={() => handleSelect('right')}
@@ -115,31 +115,5 @@ export function RecommendationValuesStep() {
         </div>
       </div>
     </div>
-  );
-}
-
-function BalanceCard({
-  text,
-  selected,
-  onClick,
-}: {
-  text: string;
-  selected: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type='button'
-      onClick={onClick}
-      aria-pressed={selected}
-      className={cn(
-        'typo-b2 box-border flex min-h-[8.125rem] w-[30.125rem] max-w-[30.125rem] cursor-pointer items-center rounded-[16px] border border-solid bg-gray1 px-[1.25rem] py-[2.5rem] text-left whitespace-pre-line text-gray9',
-        selected
-          ? 'border-[1.5px] border-main bg-sub1'
-          : 'border-gray4',
-      )}
-    >
-      {text}
-    </button>
   );
 }
