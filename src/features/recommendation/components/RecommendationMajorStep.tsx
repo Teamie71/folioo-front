@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/ToggleGroup';
 import { cn } from '@/utils/utils';
+import { RECOMMENDATION_WHITE_BUTTON_HOVER } from '@/features/recommendation/constants';
 import { useRecommendationMajors } from '@/features/recommendation/hooks/useRecommendationMajors';
 import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
 import { RecommendationNextButton } from '@/features/recommendation/components/RecommendationNextButton';
@@ -40,7 +41,8 @@ export function RecommendationMajorStep() {
                 key={major.id}
                 value={major.id}
                 className={cn(
-                  'typo-b2 box-border h-auto min-h-0 min-w-0 rounded-[8px] border-[1.5px] border-gray4 bg-white px-[0.75rem] py-[0.375rem] font-normal text-gray9 shadow-none hover:bg-white hover:text-gray9',
+                  'typo-b2 box-border h-auto min-h-0 min-w-0 rounded-[8px] border-[1.5px] border-gray4 bg-white px-[0.75rem] py-[0.375rem] font-normal text-gray9 shadow-none hover:text-gray9',
+                  RECOMMENDATION_WHITE_BUTTON_HOVER,
                   'data-[state=on]:border-main data-[state=on]:bg-sub1 data-[state=on]:font-semibold data-[state=on]:text-main',
                 )}
               >

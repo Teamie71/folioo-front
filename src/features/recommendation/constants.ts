@@ -10,6 +10,14 @@ export const RECOMMENDATION_QUERY_KEYS = {
 
 export const RECOMMENDATION_TEST_STEPS = ['전공', '흥미', '가치관'] as const;
 
+export const RECOMMENDATION_MAJOR_MOBILE_ROWS = [
+  ['humanities-social', 'language', 'business', 'economics'],
+  ['media-communication', 'natural-science'],
+  ['math-stats', 'engineering', 'computer-science'],
+  ['art-design', 'other'],
+  ['any'],
+] as const;
+
 export const INTEREST_LIKERT_OPTIONS = [
   { value: 1, tone: 'agree', size: 44 },
   { value: 2, tone: 'agree', size: 36 },
@@ -69,3 +77,9 @@ export const HOLLAND_TYPES: HollandTypeResult[] = [
       '정해진 원칙과 계획에 따라 자료를 기록, 정리, 조직하는 일을 좋아하고 체계적인 작업환경에서 사무적, 계산적 능력을 발휘하는 활동에 흥미가 있어요.',
   },
 ];
+
+export const RECOMMENDATION_WHITE_BUTTON_HOVER =
+  'transition-colors [@media(hover:hover)_and_(pointer:fine)]:hover:bg-sub-hover';
+
+export const RECOMMENDATION_SUB_BUTTON_CLASS =
+  'bg-sub1 [@media(hover:hover)_and_(pointer:fine)]:hover:bg-sub-hover [@media(hover:hover)_and_(pointer:fine)]:transition-colors';
