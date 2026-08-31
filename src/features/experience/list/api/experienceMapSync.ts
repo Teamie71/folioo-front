@@ -83,6 +83,33 @@ export function resetExperienceMapSync() {
   idAliases.clear();
 }
 
+/**
+ * 서버가 준 실패 사유를 읽을 수 있는 에러로 바꾼다.
+ *
+ * 공통 응답(CommonResponse)의 error.errorCode / reason이 실제 원인인데,
+ * 그대로 두면 "Request failed with status code 400"만 남아 무엇이 잘못됐는지 알 수 없다.
+ * 예) 블록 생성 실패 (kind=CONTENT, parentId=12) · HTTP 400 · BLOCK4001 · 해당 위치에 …
+ */
+function describeApiError(error: unknown, context: string): Error {
+  const response = (
+    error as { response?: { status?: number; data?: unknown } } | undefined
+  )?.response;
+  const detail = (
+    response?.data as
+      | { error?: { errorCode?: string; reason?: string } }
+      | undefined
+  )?.error;
+
+  const parts = [context];
+  if (response?.status) parts.push(`HTTP ${response.status}`);
+  if (detail?.errorCode) parts.push(detail.errorCode);
+  if (detail?.reason) parts.push(detail.reason);
+
+  const wrapped = new Error(parts.join(' · '));
+  wrapped.cause = error;
+  return wrapped;
+}
+
 /** 임시 id로 시작된 작업이라도 서버 id로 바꿔서 요청한다. */
 function serverId(clientId: string): string {
   let id = clientId;
@@ -176,14 +203,20 @@ async function createBlock(params: {
   parentId?: string;
   content: string | null;
 }): Promise<string> {
+  const parentId = params.parentId ? serverId(params.parentId) : undefined;
   const response = await write((expectedMapVersion) =>
     experienceMapControllerCreateBlock({
       kind: params.kind,
-      ...(params.parentId ? { parentId: serverId(params.parentId) } : {}),
+      ...(parentId ? { parentId } : {}),
       content: toContentPayload<CreateBlockReqDTOContent>(params.content),
       expectedMapVersion,
     }),
-  );
+  ).catch((error) => {
+    throw describeApiError(
+      error,
+      `블록 생성 실패 (kind=${params.kind}, parentId=${parentId ?? '루트'})`,
+    );
+  });
 
   const created = response.result;
   if (!created?.id) throw new Error('블록 생성 응답에 id가 없습니다.');
@@ -203,7 +236,9 @@ async function moveBlockTo(
       position,
       expectedMapVersion,
     }),
-  );
+  ).catch((error) => {
+    throw describeApiError(error, `블록 이동 실패 (blockId=${blockId})`);
+  });
 }
 
 /**
@@ -299,7 +334,14 @@ export function syncUpdateContent(blockId: string, text: string) {
         content: toContentPayload<UpdateBlockContentReqDTOContent>(text),
         expectedMapVersion,
       }),
-    ).then(() => undefined),
+    )
+      .then(() => undefined)
+      .catch((error) => {
+        throw describeApiError(
+          error,
+          `블록 내용 수정 실패 (blockId=${blockId})`,
+        );
+      }),
   );
 }
 
@@ -310,7 +352,9 @@ export function syncDeleteBlocks(blockIds: string[]) {
         experienceMapControllerDeleteBlock(serverId(blockId), {
           expectedMapVersion,
         }),
-      );
+      ).catch((error) => {
+        throw describeApiError(error, `블록 삭제 실패 (blockId=${blockId})`);
+      });
     }
   });
 }

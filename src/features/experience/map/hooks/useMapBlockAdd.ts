@@ -52,15 +52,10 @@ export function useMapBlockAdd(node: MapLayoutNode): MapAddAction {
 
   if (node.kind === 'experience') {
     const experience = experiences.find((e) => e.id === node.refId);
-    const options = getAvailableSectionTemplateOptions(experience?.blocks ?? []);
-
-    if (options.length === 0) {
-      return {
-        kind: 'direct',
-        add: () =>
-          addSectionToExperience(node.refId, createSectionFromTemplate('free')),
-      };
-    }
+    // 자유 블록이 항상 포함되므로 목록이 비지 않는다. 언제나 드롭다운을 띄운다.
+    const options = getAvailableSectionTemplateOptions(
+      experience?.blocks ?? [],
+    );
 
     return {
       kind: 'template',

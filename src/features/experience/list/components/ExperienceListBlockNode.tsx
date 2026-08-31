@@ -84,9 +84,7 @@ export function ExperienceListBlockNode({
     level === 5 && (parentKind === 'problem' || parentKind === 'duty');
 
   const sectionTemplateOptions =
-    level === 3
-      ? getAvailableSectionTemplateOptions(dnd.rootBlocks)
-      : null;
+    level === 3 ? getAvailableSectionTemplateOptions(dnd.rootBlocks) : null;
 
   const problemTemplateOptions = usesProblemTemplateAdd
     ? getProblemTemplateOptions().map((opt) => ({
@@ -140,33 +138,22 @@ export function ExperienceListBlockNode({
 
   let addMenuItem: MenuItem;
   if (sectionTemplateOptions) {
-    addMenuItem =
-      sectionTemplateOptions.length === 0
-        ? {
-            key: 'add',
-            label: '아래에 추가',
-            onSelect: () =>
-              addSiblingBlock(
-                dnd.experienceId,
-                block.id,
-                createSectionFromTemplate('free'),
-              ),
-          }
-        : {
-            key: 'add',
-            label: '아래에 추가',
-            submenu: sectionTemplateOptions.map((opt) => ({
-              key: opt.key,
-              label: opt.label,
-              onSelect: () =>
-                addSiblingBlock(
-                  dnd.experienceId,
-                  block.id,
-                  createSectionFromTemplate(opt.key),
-                ),
-            })),
-            submenuTitle: '템플릿 선택',
-          };
+    // 자유 블록이 항상 포함되므로 목록이 비지 않는다. 언제나 드롭다운을 띄운다.
+    addMenuItem = {
+      key: 'add',
+      label: '아래에 추가',
+      submenu: sectionTemplateOptions.map((opt) => ({
+        key: opt.key,
+        label: opt.label,
+        onSelect: () =>
+          addSiblingBlock(
+            dnd.experienceId,
+            block.id,
+            createSectionFromTemplate(opt.key),
+          ),
+      })),
+      submenuTitle: '템플릿 선택',
+    };
   } else if (problemTemplateOptions) {
     addMenuItem = {
       key: 'add',

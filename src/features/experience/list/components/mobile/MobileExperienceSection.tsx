@@ -68,33 +68,22 @@ export function MobileExperienceSection({
         ? block.text
         : SECTION_TITLE[block.kind];
 
-  const addMenuItem: MenuItem =
-    sectionTemplateOptions.length === 0
-      ? {
-          key: 'add',
-          label: '아래에 추가',
-          onSelect: () =>
-            addSiblingBlock(
-              dnd.experienceId,
-              block.id,
-              createSectionFromTemplate('free'),
-            ),
-        }
-      : {
-          key: 'add',
-          label: '아래에 추가',
-          submenu: sectionTemplateOptions.map((opt) => ({
-            key: opt.key,
-            label: opt.label,
-            onSelect: () =>
-              addSiblingBlock(
-                dnd.experienceId,
-                block.id,
-                createSectionFromTemplate(opt.key),
-              ),
-          })),
-          submenuTitle: '템플릿 선택',
-        };
+  // 자유 블록이 항상 포함되므로 목록이 비지 않는다. 언제나 드롭다운을 띄운다.
+  const addMenuItem: MenuItem = {
+    key: 'add',
+    label: '아래에 추가',
+    submenu: sectionTemplateOptions.map((opt) => ({
+      key: opt.key,
+      label: opt.label,
+      onSelect: () =>
+        addSiblingBlock(
+          dnd.experienceId,
+          block.id,
+          createSectionFromTemplate(opt.key),
+        ),
+    })),
+    submenuTitle: '템플릿 선택',
+  };
 
   const canRename = block.editable;
 

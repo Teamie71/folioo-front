@@ -54,39 +54,25 @@ export function EmptyExperienceState({
         <p className={emptyMessageCls}>
           아직 이 활동 안에 정리된 블록이 없어요.
         </p>
-        {options.length === 0 ? (
-          <button
-            type='button'
-            onClick={() =>
+        {/* 자유 블록이 항상 포함되므로 목록이 비지 않는다. 언제나 드롭다운을 띄운다. */}
+        <MenuButton
+          items={options.map((opt) => ({
+            key: opt.key,
+            label: opt.label,
+            onSelect: () =>
               addSectionToExperience(
                 experienceId,
-                createSectionFromTemplate('free'),
-              )
-            }
-            className={addBlockButtonCls}
-          >
-            <span className='typo-b2 text-gray9'>새로운 블록 추가</span>
-          </button>
-        ) : (
-          <MenuButton
-            items={options.map((opt) => ({
-              key: opt.key,
-              label: opt.label,
-              onSelect: () =>
-                addSectionToExperience(
-                  experienceId,
-                  createSectionFromTemplate(opt.key),
-                ),
-            }))}
-            variant='block'
-            menuPlacement='bottom'
-            ariaLabel='새로운 블록 추가'
-            menuTitle='템플릿 선택'
-            className={addBlockButtonCls}
-          >
-            <span className='typo-b2 text-gray9'>새로운 블록 추가</span>
-          </MenuButton>
-        )}
+                createSectionFromTemplate(opt.key),
+              ),
+          }))}
+          variant='block'
+          menuPlacement='bottom'
+          ariaLabel='새로운 블록 추가'
+          menuTitle='템플릿 선택'
+          className={addBlockButtonCls}
+        >
+          <span className='typo-b2 text-gray9'>새로운 블록 추가</span>
+        </MenuButton>
       </div>
     </div>
   );
