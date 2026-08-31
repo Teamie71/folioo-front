@@ -12,6 +12,7 @@ import { ChevronLeftIcon } from '@/components/icons/ChevronLeftIcon';
 import { MobileLogIcon } from '@/components/icons/mobile/MobileLogIcon';
 import { MobileExperienceIcon } from '@/components/icons/mobile/MobileExperienceIcon';
 import { MobileCorrectionIcon } from '@/components/icons/mobile/MobileCorrectionIcon';
+import { MobileJobRecommendationIcon } from '@/components/icons/mobile/MobileJobRecommendationIcon';
 import { MobileTicketIcon } from '@/components/icons/mobile/MobileTicketIcon';
 import { MobileLogoutIcon } from '@/components/icons/mobile/MobileLogoutIcon';
 import { MobileProfileButtonIcon } from '@/components/icons/mobile/MobileProfileButtonIcon';
@@ -79,6 +80,7 @@ export default function MobileNavbar() {
     if (path.startsWith('/log')) return '인사이트 로그';
     if (path.startsWith('/experience')) return '경험 정리';
     if (path.startsWith('/correction')) return '포트폴리오 첨삭';
+    if (path.startsWith('/recommendation')) return '직무 찾기';
     if (path.startsWith('/topup')) return '이용권 구매';
     if (path.startsWith('/profile')) return '프로필';
     if (path.startsWith('/invoice/refund')) return '환불 신청';
@@ -107,6 +109,11 @@ export default function MobileNavbar() {
       label: '포트폴리오 첨삭',
       href: '/correction',
       icon: <MobileCorrectionIcon />,
+    },
+    {
+      label: '직무 찾기',
+      href: '/recommendation',
+      icon: <MobileJobRecommendationIcon />,
     },
     {
       label: '이용권 구매',
