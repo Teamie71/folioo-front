@@ -92,11 +92,14 @@ export function proxy(request: NextRequest) {
     '/verify',
     '/withdraw',
     '/error',
+    '/recommendation',
   ];
 
   const isExactAllowed = exactAllowedMobilePaths.includes(pathname);
+  const isRecommendationAllowed =
+    pathname === '/recommendation' || pathname.startsWith('/recommendation/');
 
-  if (isMobilePhone(userAgent) && !isExactAllowed) {
+  if (isMobilePhone(userAgent) && !isExactAllowed && !isRecommendationAllowed) {
     return NextResponse.redirect(new URL('/mobile-blocked', request.url));
   }
 
