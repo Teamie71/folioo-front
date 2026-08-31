@@ -49,17 +49,19 @@ export function resetMeasureCache() {
   ctxFont = '';
 }
 
+/** 캐시를 거치지 않는 실측. 한 번만 쓰고 버릴 문자열에 쓴다. */
+function measureRaw(text: string): number {
+  const c = getCtx();
+  // canvas를 못 쓰는 환경(SSR 등)에서는 한글 기준 근사치로 대체한다.
+  return c ? c.measureText(text).width : text.length * BLOCK_FONT_SIZE * 0.95;
+}
+
 function textWidth(text: string): number {
   if (!text) return 0;
   const cached = widthCache.get(text);
   if (cached != null) return cached;
 
-  const c = getCtx();
-  // canvas를 못 쓰는 환경(SSR 등)에서는 한글 기준 근사치로 대체한다.
-  const width = c
-    ? c.measureText(text).width
-    : text.length * BLOCK_FONT_SIZE * 0.95;
-
+  const width = measureRaw(text);
   widthCache.set(text, width);
   return width;
 }
@@ -67,6 +69,10 @@ function textWidth(text: string): number {
 /**
  * MAX_CONTENT_WIDTH를 넘는 텍스트가 몇 줄로 접히는지 센다.
  * CSS의 overflow-wrap: anywhere와 동일하게 글자 단위로 끊는다.
+ *
+ * 한 글자씩 늘려 가며 재기 때문에 여기서 만들어지는 중간 문자열은 다시 쓸 일이 없다.
+ * 기존 산출물에서 옮겨 온 긴 본문이 많으면 그 접두사가 전부 캐시에 쌓이므로
+ * 이 안에서는 캐시를 쓰지 않는다.
  */
 function countLines(text: string, maxWidth: number): number {
   const paragraphs = text.split('\n');
@@ -83,7 +89,7 @@ function countLines(text: string, maxWidth: number): number {
 
     for (const char of paragraph) {
       const next = current + char;
-      if (textWidth(next) > maxWidth && current) {
+      if (measureRaw(next) > maxWidth && current) {
         paragraphLines += 1;
         current = char;
       } else {

@@ -2,6 +2,7 @@
 
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { EditableLabel } from '@/features/experience/list/components/EditableLabel';
+import { EXPERIENCE_NAME_PLACEHOLDER } from '@/features/experience/list/constants';
 import { ExperienceListBlockTree } from '@/features/experience/list/components/ExperienceListBlockTree';
 import { ExperienceListContentSkeleton } from '@/features/experience/list/components/ExperienceListContentSkeleton';
 import {
@@ -53,6 +54,7 @@ export function ExperienceListView() {
         <EditableLabel
           as='h1'
           value={experience.name}
+          placeholder={EXPERIENCE_NAME_PLACEHOLDER}
           editable
           onCommit={(next) => renameExperience(experience.id, next)}
           className='typo-h5 text-gray9 shrink-0'

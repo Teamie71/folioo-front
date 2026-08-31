@@ -8,10 +8,18 @@ import { MobileExperienceDetail } from '@/features/experience/list/components/mo
 import { MobileGroupDetail } from '@/features/experience/list/components/mobile/MobileGroupDetail';
 import { useSidebarDnd } from '@/features/experience/list/hooks/useSidebarDnd';
 import { useExperienceMap } from '@/features/experience/list/hooks/useExperienceMap';
+import { useGuestExperienceMode } from '@/features/experience/list/hooks/useGuestExperienceMode';
+import { GuestLoginSnackbar } from '@/features/experience/list/components/GuestLoginSnackbar';
+import { GuestLeaveGuardModal } from '@/features/experience/list/components/GuestLeaveGuardModal';
+import {
+  MOBILE_MODAL_CLS,
+  MOBILE_MODAL_OVERLAY_CLS,
+} from '@/features/experience/list/components/mobile/mobileModalStyles';
 
 export default function ExperienceListClientMobile() {
-  // GET /experience-map 으로 그룹·활동·블록 트리를 채운다.
-  useExperienceMap();
+  // GET /experience-map 으로 그룹·활동·블록 트리를 채운다. (비로그인은 기본 제공 데이터)
+  const { isGuest } = useExperienceMap();
+  const guest = useGuestExperienceMode(isGuest);
 
   const groups = useExperienceListStore((s) => s.groups);
   const experiences = useExperienceListStore((s) => s.experiences);
@@ -103,6 +111,25 @@ export default function ExperienceListClientMobile() {
       )}
 
       <MobileExperienceListModals />
+
+      {/* 로그인 안내 스낵바 (0-1) — 하단 기준 40px 위 */}
+      {guest.snackbarOpen && (
+        <GuestLoginSnackbar
+          onLogin={guest.goToLogin}
+          onDismiss={guest.dismissSnackbar}
+          className='fixed'
+        />
+      )}
+
+      {/* 이탈 방지 모달 (0-2) */}
+      <GuestLeaveGuardModal
+        open={guest.leaveGuardOpen}
+        onOpenChange={guest.onLeaveGuardOpenChange}
+        onLogin={guest.goToLogin}
+        onLeave={guest.onLeave}
+        className={MOBILE_MODAL_CLS}
+        overlayClassName={MOBILE_MODAL_OVERLAY_CLS}
+      />
     </div>
   );
 }

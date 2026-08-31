@@ -120,7 +120,10 @@ function removeBlockFromTree(blocks: Block[], targetId: string): Block[] {
     }));
 }
 
-function removeBlocksFromTree(blocks: Block[], targetIds: Set<string>): Block[] {
+function removeBlocksFromTree(
+  blocks: Block[],
+  targetIds: Set<string>,
+): Block[] {
   return blocks
     .filter((b) => !targetIds.has(b.id))
     .map((b) => ({
@@ -358,6 +361,12 @@ export const useExperienceListStore = create<ExperienceListState>()(
                   '새로운 활동',
                 ),
               ),
+              /*
+               * 활동이 하나도 없으면 첫 그룹을 고른다.
+               * 선택이 비어 있으면 리스트 뷰가 "활동을 선택해 주세요."만 띄워
+               * 활동을 만들 방법이 없어지기 때문이다.
+               * (그룹을 고르면 EmptyGroupState의 '새로운 활동 추가'가 나온다)
+               */
               selection: selectionAlive
                 ? selection
                 : snapshot.experiences[0]
@@ -365,7 +374,9 @@ export const useExperienceListStore = create<ExperienceListState>()(
                       kind: 'experience' as const,
                       id: snapshot.experiences[0].id,
                     }
-                  : null,
+                  : snapshot.groups[0]
+                    ? { kind: 'group' as const, id: snapshot.groups[0].id }
+                    : null,
             };
           }),
 
@@ -671,11 +682,7 @@ export const useExperienceListStore = create<ExperienceListState>()(
             ? serverPositionOf(experience.blocks, sibling.id, experienceId)
             : null;
           if (location) {
-            syncCreateBlocks(
-              location.parentId,
-              [sibling],
-              location.position,
-            );
+            syncCreateBlocks(location.parentId, [sibling], location.position);
           }
         },
 

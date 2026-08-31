@@ -10,7 +10,11 @@ import {
   SUBTREE_GAP,
   SUBTREE_GAP_WITH_AREA,
 } from '@/features/experience/map/constants';
-import { DEFAULT_BLOCK_PLACEHOLDER } from '@/features/experience/list/constants';
+import {
+  DEFAULT_BLOCK_PLACEHOLDER,
+  EXPERIENCE_NAME_PLACEHOLDER,
+  GROUP_NAME_PLACEHOLDER,
+} from '@/features/experience/list/constants';
 import type {
   Block,
   Experience,
@@ -200,7 +204,7 @@ function buildTree(
           parentKind: null,
           block: null,
           text: experience.name,
-          placeholder: '활동명을 입력해 주세요.',
+          placeholder: EXPERIENCE_NAME_PLACEHOLDER,
           editable: true,
           deletable: true,
           hasChildren: experience.blocks.length > 0,
@@ -225,7 +229,7 @@ function buildTree(
         parentKind: null,
         block: null,
         text: group.name,
-        placeholder: '그룹명을 입력해 주세요.',
+        placeholder: GROUP_NAME_PLACEHOLDER,
         // 미분류 그룹은 텍스트 수정 · 삭제 모두 불가
         editable: !group.isUnclassified,
         deletable: !group.isUnclassified,

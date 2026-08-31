@@ -19,7 +19,11 @@ import {
   toListState,
   type ListStateFromServer,
 } from '@/features/experience/list/api/experienceMapMapper';
-import type { Block } from '@/features/experience/list/types';
+import type {
+  Block,
+  Experience,
+  Group,
+} from '@/features/experience/list/types';
 
 /**
  * 경험 맵 쓰기 동기화 계층.
@@ -43,6 +47,14 @@ type SyncHandlers = {
 };
 
 let handlers: SyncHandlers | null = null;
+/**
+ * 비로그인 모드.
+ *
+ * 화면설계서: 비로그인 사용자도 조회·편집 권한을 모두 갖지만
+ * 수정 사항은 서버에 저장되지 않고 클라이언트에만 임시 유지된다.
+ * 그래서 이 모드에서는 쓰기를 아예 서버로 보내지 않는다. (스토어의 낙관적 갱신만 남는다)
+ */
+let guestMode = false;
 let queue: Promise<void> = Promise.resolve();
 let mapVersion: string | null = null;
 /** 큐에 남아 있는 작업 수. 0이 될 때만 화면을 서버 상태로 맞춘다. */
@@ -52,6 +64,15 @@ const idAliases = new Map<string, string>();
 
 export function configureExperienceMapSync(next: SyncHandlers) {
   handlers = next;
+}
+
+/** 비로그인 여부를 알린다. true인 동안에는 서버로 아무것도 쓰지 않는다. */
+export function setExperienceMapGuestMode(next: boolean) {
+  guestMode = next;
+}
+
+export function isExperienceMapGuestMode(): boolean {
+  return guestMode;
 }
 
 /** 로그아웃·페이지 재진입 등으로 맵을 처음부터 다시 읽을 때 호출한다. */
@@ -124,6 +145,8 @@ export async function loadExperienceMap(): Promise<ListStateFromServer> {
  * 작업이 끝나면 성공·실패와 무관하게 맵을 다시 읽어 화면을 서버 상태로 맞춘다.
  */
 function enqueue(run: () => Promise<void>) {
+  // 비로그인 편집은 서버에 저장하지 않는다.
+  if (guestMode) return;
   pending += 1;
   queue = queue
     .then(run)
@@ -288,6 +311,66 @@ export function syncDeleteBlocks(blockIds: string[]) {
           expectedMapVersion,
         }),
       );
+    }
+  });
+}
+
+/**
+ * 비로그인 때 편집한 내용을 로그인 후 서버에 옮긴다. (화면설계서 "페이지 권한")
+ *
+ * 활동을 만들면 서버가 SECTION 5종을 함께 만들어 주므로, 임시로 갖고 있던 섹션은
+ * 새로 만들지 않고 종류(kind)로 짝지어 그 아래에 하위 블록만 붙인다.
+ */
+export function syncImportGuestDraft(draft: {
+  groups: Group[];
+  experiences: Experience[];
+}) {
+  enqueue(async () => {
+    // 서버의 미분류 그룹으로 임시 미분류의 활동을 옮겨 붙인다.
+    const serverState = await fetchMap();
+    const serverUnclassifiedId = serverState.groups.find(
+      (g) => g.isUnclassified,
+    )?.id;
+
+    for (const group of draft.groups) {
+      if (group.isUnclassified) {
+        if (serverUnclassifiedId) idAliases.set(group.id, serverUnclassifiedId);
+        continue;
+      }
+      await createBlock({
+        clientId: group.id,
+        kind: BlockResDTOKind.GROUP,
+        content: group.name,
+      });
+    }
+
+    for (const experience of draft.experiences) {
+      await createBlock({
+        clientId: experience.id,
+        kind: BlockResDTOKind.EXPERIENCE,
+        parentId: experience.groupId,
+        content: experience.name,
+      });
+
+      // 서버가 만들어 준 섹션을 받아 와야 그 아래에 블록을 붙일 수 있다.
+      const afterCreate = await fetchMap();
+      const created = afterCreate.experiences.find(
+        (e) => e.id === serverId(experience.id),
+      );
+      if (!created) continue;
+
+      for (const section of experience.blocks) {
+        const target = created.blocks.find((b) => b.kind === section.kind);
+        // 짝이 되는 섹션이 없으면(자유 블록 등) 활동 아래에 그대로 만든다.
+        const parentId = target?.id ?? serverId(experience.id);
+        if (!target) {
+          await createSubtree(section, parentId);
+          continue;
+        }
+        for (const child of section.children) {
+          await createSubtree(child, target.id);
+        }
+      }
     }
   });
 }

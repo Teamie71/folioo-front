@@ -8,6 +8,7 @@ import {
   type MenuItem,
 } from '@/features/experience/list/components/ExperienceListMenu';
 import { EditableLabel } from '@/features/experience/list/components/EditableLabel';
+import { EXPERIENCE_NAME_PLACEHOLDER } from '@/features/experience/list/constants';
 import { DropIndicator } from '@/features/experience/list/components/DropIndicator';
 import {
   mobileRowActionCls,
@@ -143,6 +144,7 @@ export function MobileExperienceListExperience({
         <div className='min-w-0 flex-1 text-left'>
           <EditableLabel
             value={item.name}
+            placeholder={EXPERIENCE_NAME_PLACEHOLDER}
             editable
             onCommit={(next) => renameExperience(item.id, next)}
             requestEdit={requestRename}

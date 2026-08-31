@@ -1,6 +1,9 @@
 import type { BlockResDTO, ExperienceMapResDTO } from '@/api/models';
 import { BlockResDTOKind } from '@/api/models';
-import { SECTION_TITLE } from '@/features/experience/list/constants';
+import {
+  SECTION_TITLE,
+  UNCLASSIFIED_NAME,
+} from '@/features/experience/list/constants';
 import type {
   Block,
   Experience,
@@ -84,11 +87,15 @@ function toExperience(node: BlockResDTO, groupId: string): Experience {
 export function toListState(dto: ExperienceMapResDTO): ListStateFromServer {
   const roots = [...(dto.roots ?? [])].sort(byPosition);
 
-  const groups: Group[] = roots.map((root) => ({
-    id: root.id,
-    name: root.content ?? '',
-    isUnclassified: root.kind === BlockResDTOKind.GROUP_UNCATEGORIZED,
-  }));
+  const groups: Group[] = roots.map((root) => {
+    const isUnclassified = root.kind === BlockResDTOKind.GROUP_UNCATEGORIZED;
+    return {
+      id: root.id,
+      // 미분류는 서버가 content를 null로 내려준다. 라벨은 클라이언트가 채운다.
+      name: root.content ?? (isUnclassified ? UNCLASSIFIED_NAME : ''),
+      isUnclassified,
+    };
+  });
 
   // 활동은 그룹 순서를 따라 이어 붙인다. (사이드바가 groups 순서로 그룹핑한다)
   const experiences: Experience[] = roots.flatMap((root) =>

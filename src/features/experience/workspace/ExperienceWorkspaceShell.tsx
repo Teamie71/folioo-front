@@ -9,6 +9,9 @@ import { ExperienceListToolbar } from '@/features/experience/list/components/Exp
 import { ExperienceListView } from '@/features/experience/workspace/views/ExperienceListView';
 import { MapViewSkeleton } from '@/features/experience/workspace/views/MapViewSkeleton';
 import { useExperienceMap } from '@/features/experience/list/hooks/useExperienceMap';
+import { useGuestExperienceMode } from '@/features/experience/list/hooks/useGuestExperienceMode';
+import { GuestLoginSnackbar } from '@/features/experience/list/components/GuestLoginSnackbar';
+import { GuestLeaveGuardModal } from '@/features/experience/list/components/GuestLeaveGuardModal';
 import { useWorkspaceView } from '@/features/experience/workspace/hooks/useWorkspaceView';
 import { usePreloadMapView } from '@/features/experience/workspace/hooks/usePreloadMapView';
 import { preloadExperienceMapView } from '@/features/experience/workspace/model/mapViewLoader';
@@ -31,8 +34,9 @@ const ExperienceMapView = dynamic(
 export function ExperienceWorkspaceShell() {
   const { view, setView } = useWorkspaceView();
 
-  // GET /experience-map 으로 그룹·활동·블록 트리를 채운다.
-  useExperienceMap();
+  // GET /experience-map 으로 그룹·활동·블록 트리를 채운다. (비로그인은 기본 제공 데이터)
+  const { isGuest } = useExperienceMap();
+  const guest = useGuestExperienceMode(isGuest);
 
   // 툴바의 "활동 삭제" 노출 조건. 원시값만 구독해 shell 리렌더를 최소화한다.
   const experienceId = useExperienceListStore((s) => {
@@ -72,12 +76,28 @@ export function ExperienceWorkspaceShell() {
           </div>
 
           {view === 'map' ? <ExperienceMapView /> : <ExperienceListView />}
+
+          {/* 로그인 안내 스낵바 (0-1) — 편집 영역 하단 기준 40px 위 */}
+          {guest.snackbarOpen && (
+            <GuestLoginSnackbar
+              onLogin={guest.goToLogin}
+              onDismiss={guest.dismissSnackbar}
+            />
+          )}
         </section>
 
         <ExperienceListAgentPanel />
       </div>
 
       <ExperienceListModals />
+
+      {/* 이탈 방지 모달 (0-2) */}
+      <GuestLeaveGuardModal
+        open={guest.leaveGuardOpen}
+        onOpenChange={guest.onLeaveGuardOpenChange}
+        onLogin={guest.goToLogin}
+        onLeave={guest.onLeave}
+      />
     </div>
   );
 }
