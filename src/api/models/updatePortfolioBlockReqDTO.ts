@@ -14,22 +14,22 @@ export interface UpdatePortfolioBlockReqDTO {
   name?: string;
   /**
    * @minLength 1
-   * @maxLength 400
+   * @maxLength 300
    */
   description?: string;
   /**
    * @minLength 1
-   * @maxLength 400
+   * @maxLength 700
    */
   responsibilities?: string;
   /**
    * @minLength 1
-   * @maxLength 400
+   * @maxLength 700
    */
   problemSolving?: string;
   /**
    * @minLength 1
-   * @maxLength 400
+   * @maxLength 300
    */
   learnings?: string;
 }

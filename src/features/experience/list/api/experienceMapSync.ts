@@ -185,7 +185,18 @@ function enqueue(run: () => Promise<void>) {
       // 대기 중인 작업이 더 있으면 마지막 하나가 끝난 뒤에 한 번만 화면을 맞춘다.
       if (pending > 0) return;
       try {
-        handlers?.onSnapshot(await fetchMap());
+        /*
+         * 생성 응답의 children은 항상 빈 배열이라(활동을 만들면 서버가 SECTION 5종을
+         * 함께 만들지만 응답에 담기지 않는다) 화면은 반드시 이 재조회 결과로 그린다.
+         */
+        const snapshot = await fetchMap();
+        /*
+         * 조회하는 사이에 새 작업이 들어왔다면 그 작업의 낙관적 변경이 아직
+         * 서버에 없다. 지금 반영하면 방금 만든 블록이 사라졌다 돌아오므로,
+         * 그 작업이 끝난 뒤의 재조회에 맡긴다.
+         */
+        if (pending > 0) return;
+        handlers?.onSnapshot(snapshot);
       } catch (error) {
         handlers?.onError(error);
       }
