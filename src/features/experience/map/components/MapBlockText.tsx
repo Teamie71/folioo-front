@@ -33,6 +33,16 @@ export function MapBlockText({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const skipBlurRef = useRef(false);
 
+  /*
+   * 이미 제한을 넘는 텍스트는 잘라내지 않는다.
+   *
+   * 기존 경험 정리 산출물에서 옮겨 온 활동명·본문은 20자/500자를 넘길 수 있는데,
+   * 그대로 maxLength를 적용하면 한 글자만 지워도 나머지가 통째로 날아간다.
+   * 화면설계서의 규칙은 "초과 시 입력 진행 불가"이므로, 더 늘리지 못하게만 막고
+   * 기존 내용은 보존한다. (편집으로 제한 안까지 줄이면 다시 원래 제한이 적용된다)
+   */
+  const effectiveMaxLength = Math.max(maxLength, value.length);
+
   useEffect(() => {
     setDraft(value);
   }, [value]);
@@ -70,14 +80,14 @@ export function MapBlockText({
         ref={inputRef}
         rows={1}
         value={draft}
-        maxLength={maxLength}
+        maxLength={effectiveMaxLength}
         className={cn(
           'nodrag nopan nowheel typo-c1 text-gray9 m-0 block w-full resize-none',
           'overflow-hidden border-0 bg-transparent p-0 leading-[inherit]',
           'break-words whitespace-pre-wrap outline-none',
         )}
         onChange={(e) => {
-          setDraft(e.target.value.slice(0, maxLength));
+          setDraft(e.target.value.slice(0, effectiveMaxLength));
           resize();
         }}
         onBlur={() => {

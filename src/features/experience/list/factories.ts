@@ -12,41 +12,40 @@ import type {
   SectionKind,
   SectionTemplateKey,
 } from '@/features/experience/list/types';
+import {
+  catalogSlotPlaceholders,
+  catalogSubTemplateOptions,
+  catalogSubTemplateSlots,
+} from '@/features/experience/list/api/templateCatalog';
 
-const SECTION_TEMPLATE_CHILDREN: Record<
-  Exclude<SectionKind, 'free'>,
-  Array<{ placeholder: string; children?: string[] }>
-> = {
-  detail: [{ placeholder: DEFAULT_BLOCK_PLACEHOLDER }],
-  achievement: [{ placeholder: DEFAULT_BLOCK_PLACEHOLDER }],
-  duty: [{ placeholder: DUTY_EPISODE_PLACEHOLDER }],
+/**
+ * 3단계 템플릿 (placeholder 문서 §1 기본 제공 데이터 / §2 3단계 템플릿).
+ *
+ * 각 섹션 아래에 만들어지는 4단계 슬롯이다.
+ * 담당업무·문제해결의 5단계는 아래 *_TEMPLATE_LEVEL5의 '기본' 템플릿에서 가져온다.
+ * (담당업무: 4단계 하나에 5단계 4개 / 문제해결: 4단계 4개에 5단계 하나씩)
+ */
+const SECTION_SLOTS: Record<Exclude<SectionKind, 'free'>, string[]> = {
+  detail: [
+    '어떤 계기로 이 활동을 시작했으며, 최종적으로 달성하고자 한 목표는 무엇인가요?',
+    '전체 진행 기간은 언제부터 언제까지였나요?',
+    '본인의 역할은 무엇이었으며, 전체 인원과 역할 분담은 어떻게 구성되었나요?',
+    '주요 타깃, 사용자, 혹은 고객은 누구였나요?',
+    '진행 과정에서 본인이 직접 활용한 기술, 방법론, 혹은 툴은 무엇인가요?',
+  ],
+  achievement: [
+    '수치로 증명할 수 있는 정량적인 성과는 무엇인가요?',
+    '간접적인 지표로 확인할 수 있는 정성적인 성과는 무엇인가요?',
+  ],
+  duty: [DUTY_EPISODE_PLACEHOLDER],
   problem: [
-    {
-      placeholder: PROBLEM_EPISODE_PLACEHOLDER,
-      children: [
-        '어떤 문제가 발생했으며, 이를 해결해야 했던 이유는 무엇인가요?',
-      ],
-    },
-    {
-      placeholder: PROBLEM_EPISODE_PLACEHOLDER,
-      children: ['문제의 원인은 무엇이었고, 어떤 방식으로 원인을 파악했나요?'],
-    },
-    {
-      placeholder: PROBLEM_EPISODE_PLACEHOLDER,
-      children: ['해결책을 도출한 과정과 구체적인 실행 방법은 무엇인가요?'],
-    },
-    {
-      placeholder: PROBLEM_EPISODE_PLACEHOLDER,
-      children: [
-        '해결책 적용 후 나타난 결과와 그 검증 방법, 그리고 이 과정을 통해 배운 점은 무엇인가요?',
-      ],
-    },
+    PROBLEM_EPISODE_PLACEHOLDER,
+    PROBLEM_EPISODE_PLACEHOLDER,
+    PROBLEM_EPISODE_PLACEHOLDER,
+    PROBLEM_EPISODE_PLACEHOLDER,
   ],
   learning: [
-    {
-      placeholder:
-        '이 활동을 통해 새롭게 배우거나 성장한 점은 무엇이며, 향후 어떻게 활용할 계획인가요?',
-    },
+    '이 활동을 통해 새롭게 배우거나 성장한 점은 무엇이며, 향후 어떻게 활용할 계획인가요?',
   ],
 };
 
@@ -92,15 +91,17 @@ const PROBLEM_TEMPLATE_LEVEL5: Record<
   ],
 };
 
-const DUTY_TEMPLATE_LEVEL5: Record<Exclude<DutyTemplateKey, 'free'>, string[]> =
-  {
-    basic: [
-      '이 업무를 진행한 목적은 무엇이며, 구체적으로 어떤 목표를 달성하고자 했나요?',
-      '원활한 업무 수행을 위해 조사한 정보나 추가로 학습한 내용은 무엇인가요?',
-      '실제 작업은 어떤 방식으로, 어떤 과정을 거쳐서 진행했나요?',
-      '업무 완료 후 나타난 결과는 무엇이며, 이 과정을 통해 배운 점은 무엇인가요?',
-    ],
-  };
+const DUTY_TEMPLATE_LEVEL5: Record<
+  Exclude<DutyTemplateKey, 'free'>,
+  string[]
+> = {
+  basic: [
+    '이 업무를 진행한 목적은 무엇이며, 구체적으로 어떤 목표를 달성하고자 했나요?',
+    '원활한 업무 수행을 위해 조사한 정보나 추가로 학습한 내용은 무엇인가요?',
+    '실제 작업은 어떤 방식으로, 어떤 과정을 거쳐서 진행했나요?',
+    '업무 완료 후 나타난 결과는 무엇이며, 이 과정을 통해 배운 점은 무엇인가요?',
+  ],
+};
 
 let uidCounter = 0;
 export function uid(prefix = 'b'): string {
@@ -135,8 +136,8 @@ function placeholderBlock(
 }
 
 function sectionBlockPlaceholders(kind: SectionKind): string[] {
-  if (kind === 'free' || kind === 'problem' || kind === 'duty') return [];
-  return SECTION_TEMPLATE_CHILDREN[kind].map((n) => n.placeholder);
+  if (kind === 'free') return [];
+  return catalogSlotPlaceholders(kind) ?? SECTION_SLOTS[kind];
 }
 
 export function sectionBlockPlaceholderAt(
@@ -146,15 +147,42 @@ export function sectionBlockPlaceholderAt(
   return sectionBlockPlaceholders(kind)[index];
 }
 
+/**
+ * 섹션 아래에 붙일 4·5단계 블록을 만든다. (§1 기본 제공 데이터 / §2 3단계 템플릿)
+ *
+ * 담당업무는 4단계 하나 아래에 5단계 4개를 모두 넣고,
+ * 문제해결은 4단계 4개에 5단계를 하나씩 나눠 넣는다.
+ */
 export function buildSectionChildren(
   kind: Exclude<SectionKind, 'free'>,
 ): Block[] {
-  return SECTION_TEMPLATE_CHILDREN[kind].map((node) =>
-    placeholderBlock(
-      node.placeholder,
-      (node.children ?? []).map((p) => placeholderBlock(p)),
-      kind === 'problem' || kind === 'duty' ? kind : 'free',
-    ),
+  const slots = sectionBlockPlaceholders(kind);
+  const childKind = kind === 'problem' || kind === 'duty' ? kind : 'free';
+
+  if (kind === 'duty') {
+    const level5 = defaultSubTemplateSlots('duty');
+    return slots.map((placeholder, index) =>
+      placeholderBlock(
+        placeholder,
+        index === 0 ? level5.map((p) => placeholderBlock(p)) : [],
+        childKind,
+      ),
+    );
+  }
+
+  if (kind === 'problem') {
+    const level5 = defaultSubTemplateSlots('problem');
+    return slots.map((placeholder, index) =>
+      placeholderBlock(
+        placeholder,
+        level5[index] ? [placeholderBlock(level5[index])] : [],
+        childKind,
+      ),
+    );
+  }
+
+  return slots.map((placeholder) =>
+    placeholderBlock(placeholder, [], childKind),
   );
 }
 
@@ -173,10 +201,45 @@ export function createSectionFromTemplate(key: SectionTemplateKey): Block {
   return sectionBlock(key, []);
 }
 
-export function createProblemChildFromTemplate(key: ProblemTemplateKey): Block {
-  if (key === 'free') return freeBlock();
+/** 섹션의 기본(첫 번째) 하위 템플릿이 만드는 5단계 placeholder 목록. */
+function defaultSubTemplateSlots(kind: 'duty' | 'problem'): string[] {
+  const options = catalogSubTemplateOptions(kind);
+  const first = options?.[0];
+  if (first) return catalogSubTemplateSlots(kind, first.key) ?? [];
+  return kind === 'duty'
+    ? DUTY_TEMPLATE_LEVEL5.basic
+    : PROBLEM_TEMPLATE_LEVEL5.basic;
+}
 
-  const level5 = PROBLEM_TEMPLATE_LEVEL5[key];
+/** 하위 템플릿의 level 5 placeholder. 서버 카탈로그를 우선 쓰고 없으면 기본 문구를 쓴다. */
+function level5Placeholders(
+  kind: 'duty' | 'problem',
+  key: string,
+): string[] | undefined {
+  const fromCatalog = catalogSubTemplateSlots(kind, key);
+  if (fromCatalog) return fromCatalog;
+
+  const fallback =
+    kind === 'duty'
+      ? DUTY_TEMPLATE_LEVEL5[key as keyof typeof DUTY_TEMPLATE_LEVEL5]
+      : PROBLEM_TEMPLATE_LEVEL5[key as keyof typeof PROBLEM_TEMPLATE_LEVEL5];
+  return fallback;
+}
+
+/**
+ * 담당업무·문제해결 템플릿으로 4단계 블록을 새로 만든다. (§3 · §4)
+ *
+ * 문서: "아래 표 내의 5단계 블록은 모두 해당 4단계 블록 아래에 생성한다."
+ * 그래서 4단계 하나와 그 템플릿의 5단계 전부를 함께 만든다.
+ * (이미 있는 4단계 아래에 5단계만 더하는 경우는 create*Level5FromTemplate가 맡는다)
+ */
+export function createProblemChildFromTemplate(key: ProblemTemplateKey): Block {
+  // 자유 블록도 문제해결 아래 4단계이므로 §1의 placeholder를 그대로 쓴다. (§0)
+  if (key === 'free') {
+    return placeholderBlock(PROBLEM_EPISODE_PLACEHOLDER, [], 'problem');
+  }
+
+  const level5 = level5Placeholders('problem', key) ?? [];
   return placeholderBlock(
     PROBLEM_EPISODE_PLACEHOLDER,
     level5.map((p) => placeholderBlock(p)),
@@ -189,7 +252,7 @@ export function createDutyChildFromTemplate(key: DutyTemplateKey): Block {
     return placeholderBlock(DUTY_EPISODE_PLACEHOLDER, [], 'duty');
   }
 
-  const level5 = DUTY_TEMPLATE_LEVEL5[key];
+  const level5 = level5Placeholders('duty', key) ?? [];
   return placeholderBlock(
     DUTY_EPISODE_PLACEHOLDER,
     level5.map((p) => placeholderBlock(p)),
@@ -199,18 +262,28 @@ export function createDutyChildFromTemplate(key: DutyTemplateKey): Block {
 
 export function createDutyLevel5FromTemplate(key: DutyTemplateKey): Block[] {
   if (key === 'free') return [freeBlock()];
-  return DUTY_TEMPLATE_LEVEL5[key].map((p) => placeholderBlock(p));
+  const level5 = level5Placeholders('duty', key);
+  return level5 ? level5.map((p) => placeholderBlock(p)) : [freeBlock()];
 }
 
 export function createProblemLevel5FromTemplate(
   key: ProblemTemplateKey,
 ): Block[] {
   if (key === 'free') return [freeBlock()];
-  return PROBLEM_TEMPLATE_LEVEL5[key].map((p) => placeholderBlock(p));
+  const level5 = level5Placeholders('problem', key);
+  return level5 ? level5.map((p) => placeholderBlock(p)) : [freeBlock()];
 }
 
+/**
+ * 활동 하나의 기본 제공 데이터. (§1)
+ *
+ * 섹션 5종과 그 아래 4·5단계 슬롯까지 모두 만든다. (섹션 포함 26블록)
+ * 로그인 상태에서는 서버가 같은 구조를 만들어 주므로 비로그인 기본 데이터에 쓴다.
+ */
 export function createExperienceTemplateBlocks(): Block[] {
-  return FIXED_SECTION_KINDS.map((kind) => sectionBlock(kind, []));
+  return FIXED_SECTION_KINDS.map((kind) =>
+    sectionBlock(kind, buildSectionChildren(kind)),
+  );
 }
 
 export function createFreeBlock(text = '', placeholder?: string): Block {

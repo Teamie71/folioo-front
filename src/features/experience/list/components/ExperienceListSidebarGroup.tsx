@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { cn } from '@/utils/utils';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import {
@@ -7,6 +8,7 @@ import {
   type MenuItem,
 } from '@/features/experience/list/components/ExperienceListMenu';
 import { EditableLabel } from '@/features/experience/list/components/EditableLabel';
+import { GROUP_NAME_PLACEHOLDER } from '@/features/experience/list/constants';
 import { HoverTooltip } from '@/components/HoverTooltip';
 import {
   DropIndicator,
@@ -67,7 +69,18 @@ export function ExperienceListSidebarGroup({
 
   const isGroupDragging = draggingId === group.id;
 
+  /** 케밥 메뉴의 '이름 변경'으로 인라인 편집을 켠다. */
+  const [requestRename, setRequestRename] = useState(false);
+
   const groupMenu: MenuItem[] = [
+    {
+      key: 'rename',
+      label: '이름 변경',
+      // 메뉴가 닫히면서 포커스를 가져가므로 한 틱 뒤에 편집을 켠다.
+      onSelect: () => {
+        window.setTimeout(() => setRequestRename(true), 50);
+      },
+    },
     {
       key: 'delete',
       label: '삭제',
@@ -166,26 +179,6 @@ export function ExperienceListSidebarGroup({
           isGroupDragging && 'opacity-40',
         )}
       >
-        {!group.isUnclassified && (
-          <div className='absolute top-1/2 left-0 flex size-[16px] -translate-x-full -translate-y-1/2 items-center justify-center'>
-            <DragMenuButton
-              items={groupMenu}
-              ariaLabel='그룹 메뉴'
-              tooltipAlign='start'
-              className={cn(
-                sidebarRowActionCls,
-                'pointer-events-none opacity-0 group-hover/row:pointer-events-auto group-hover/row:opacity-100',
-              )}
-              payload={{ type: 'group', id: group.id }}
-              onDragBegin={(size) => {
-                setDraggingId(group.id);
-                setDragSize(size);
-              }}
-              onDragFinish={clearDrag}
-            />
-          </div>
-        )}
-
         <button
           type='button'
           onClick={() => toggleGroupCollapsed(group.id)}
@@ -217,27 +210,53 @@ export function ExperienceListSidebarGroup({
         >
           <EditableLabel
             value={group.name}
+            placeholder={GROUP_NAME_PLACEHOLDER}
             editable={!group.isUnclassified}
             onCommit={(next) => renameGroup(group.id, next)}
+            requestEdit={requestRename}
+            requestEditSelectAll
+            onRequestEditHandled={() => setRequestRename(false)}
             className={sidebarLabelCls}
             inputClassName={sidebarLabelInputCls}
           />
         </div>
 
+        {/*
+          그룹 추가는 미분류 행에서도 할 수 있어야 한다.
+          미분류만 있는 계정에서 이 버튼까지 숨기면 그룹을 만들 방법이 없어진다.
+          (미분류에서 막히는 건 이름 수정·삭제뿐이라 케밥 메뉴만 계속 숨긴다)
+        */}
+        <HoverTooltip label='클릭하여 그룹 추가'>
+          <button
+            type='button'
+            onClick={() => addGroup(group.id)}
+            className={cn(
+              sidebarRowActionCls,
+              'pointer-events-none shrink-0 opacity-0 group-hover/row:pointer-events-auto group-hover/row:opacity-100',
+            )}
+            aria-label='그룹 추가'
+          >
+            <ListPlusIcon className='size-[16px]' />
+          </button>
+        </HoverTooltip>
+
+        {/* 미분류는 이름 수정·삭제가 불가능해 케밥 메뉴를 두지 않는다. */}
         {!group.isUnclassified && (
-          <HoverTooltip label='클릭하여 그룹 추가'>
-            <button
-              type='button'
-              onClick={() => addGroup(group.id)}
-              className={cn(
-                sidebarRowActionCls,
-                'shrink-0 pointer-events-none opacity-0 group-hover/row:pointer-events-auto group-hover/row:opacity-100',
-              )}
-              aria-label='그룹 추가'
-            >
-              <ListPlusIcon className='size-[16px]' />
-            </button>
-          </HoverTooltip>
+          <DragMenuButton
+            items={groupMenu}
+            ariaLabel='그룹 메뉴'
+            tooltipAlign='start'
+            className={cn(
+              sidebarRowActionCls,
+              'pointer-events-none shrink-0 opacity-0 group-hover/row:pointer-events-auto group-hover/row:opacity-100',
+            )}
+            payload={{ type: 'group', id: group.id }}
+            onDragBegin={(size) => {
+              setDraggingId(group.id);
+              setDragSize(size);
+            }}
+            onDragFinish={clearDrag}
+          />
         )}
       </div>
 

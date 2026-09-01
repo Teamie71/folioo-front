@@ -8,9 +8,9 @@ import {
   type MenuItem,
 } from '@/features/experience/list/components/ExperienceListMenu';
 import {
-  DUTY_TEMPLATE_OPTIONS,
-  PROBLEM_TEMPLATE_OPTIONS,
-} from '@/features/experience/list/constants';
+  getDutyTemplateOptions,
+  getProblemTemplateOptions,
+} from '@/features/experience/list/api/templateOptions';
 import {
   buildSectionChildren,
   createDutyChildFromTemplate,
@@ -54,39 +54,25 @@ export function EmptyExperienceState({
         <p className={emptyMessageCls}>
           아직 이 활동 안에 정리된 블록이 없어요.
         </p>
-        {options.length === 0 ? (
-          <button
-            type='button'
-            onClick={() =>
+        {/* 자유 블록이 항상 포함되므로 목록이 비지 않는다. 언제나 드롭다운을 띄운다. */}
+        <MenuButton
+          items={options.map((opt) => ({
+            key: opt.key,
+            label: opt.label,
+            onSelect: () =>
               addSectionToExperience(
                 experienceId,
-                createSectionFromTemplate('free'),
-              )
-            }
-            className={addBlockButtonCls}
-          >
-            <span className='typo-b2 text-gray9'>새로운 블록 추가</span>
-          </button>
-        ) : (
-          <MenuButton
-            items={options.map((opt) => ({
-              key: opt.key,
-              label: opt.label,
-              onSelect: () =>
-                addSectionToExperience(
-                  experienceId,
-                  createSectionFromTemplate(opt.key),
-                ),
-            }))}
-            variant='block'
-            menuPlacement='bottom'
-            ariaLabel='새로운 블록 추가'
-            menuTitle='템플릿 선택'
-            className={addBlockButtonCls}
-          >
-            <span className='typo-b2 text-gray9'>새로운 블록 추가</span>
-          </MenuButton>
-        )}
+                createSectionFromTemplate(opt.key),
+              ),
+          }))}
+          variant='block'
+          menuPlacement='bottom'
+          ariaLabel='새로운 블록 추가'
+          menuTitle='템플릿 선택'
+          className={addBlockButtonCls}
+        >
+          <span className='typo-b2 text-gray9'>새로운 블록 추가</span>
+        </MenuButton>
       </div>
     </div>
   );
@@ -159,7 +145,7 @@ export function EmptySectionAddButton({
     : ({ menuPlacement: 'bottom', menuAlign: 'start' } as const);
 
   if (section.kind === 'problem') {
-    const items: MenuItem[] = PROBLEM_TEMPLATE_OPTIONS.map((opt) => ({
+    const items: MenuItem[] = getProblemTemplateOptions().map((opt) => ({
       key: opt.key,
       label: opt.label,
       onSelect: () =>
@@ -185,7 +171,7 @@ export function EmptySectionAddButton({
   }
 
   if (section.kind === 'duty') {
-    const items: MenuItem[] = DUTY_TEMPLATE_OPTIONS.map((opt) => ({
+    const items: MenuItem[] = getDutyTemplateOptions().map((opt) => ({
       key: opt.key,
       label: opt.label,
       onSelect: () =>

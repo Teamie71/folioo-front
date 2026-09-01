@@ -8,6 +8,7 @@ import {
   type MenuItem,
 } from '@/features/experience/list/components/ExperienceListMenu';
 import { EditableLabel } from '@/features/experience/list/components/EditableLabel';
+import { GROUP_NAME_PLACEHOLDER } from '@/features/experience/list/constants';
 import { DropIndicator } from '@/features/experience/list/components/DropIndicator';
 import { MobileExperienceListExperience } from '@/features/experience/list/components/mobile/MobileExperienceListExperience';
 import {
@@ -167,6 +168,7 @@ export function MobileExperienceListGroup({
           <div className='min-w-0 flex-1 text-left'>
             <EditableLabel
               value={group.name}
+              placeholder={GROUP_NAME_PLACEHOLDER}
               editable={!group.isUnclassified}
               onCommit={(next) => renameGroup(group.id, next)}
               requestEdit={requestRename}
@@ -178,19 +180,22 @@ export function MobileExperienceListGroup({
           </div>
         </div>
 
-        {!group.isUnclassified && (
-          <div
-            className={cn(mobileRowActionsCls, 'gap-[3px]')}
-            data-no-row-drag
+        <div className={cn(mobileRowActionsCls, 'gap-[3px]')} data-no-row-drag>
+          {/*
+            그룹 추가는 미분류 행에서도 할 수 있어야 한다.
+            미분류만 있는 계정에서 이 버튼까지 숨기면 그룹을 만들 방법이 없어진다.
+          */}
+          <button
+            type='button'
+            onClick={() => addGroup(group.id)}
+            className={mobileRowActionCls}
+            aria-label='그룹 추가'
           >
-            <button
-              type='button'
-              onClick={() => addGroup(group.id)}
-              className={mobileRowActionCls}
-              aria-label='그룹 추가'
-            >
-              <ListPlusIcon className='size-[16px]' />
-            </button>
+            <ListPlusIcon className='size-[16px]' />
+          </button>
+
+          {/* 미분류는 이름 수정·삭제가 불가능해 케밥 메뉴를 두지 않는다. */}
+          {!group.isUnclassified && (
             <MenuButton
               items={groupMenu}
               ariaLabel='그룹 메뉴'
@@ -202,8 +207,8 @@ export function MobileExperienceListGroup({
                 <KebabIcon className='h-[10px] w-[2px]' />
               </span>
             </MenuButton>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {!collapsed &&

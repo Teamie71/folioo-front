@@ -199,6 +199,8 @@ function MapBlockNodeComponent({ data }: NodeProps) {
               className={cn(
                 controlButtonCls,
                 'nodrag nopan opacity-0 group-hover/blk:opacity-100',
+                // 터치 기기는 hover가 없으므로 블록이 활성화되면 노출한다.
+                isActive && 'opacity-100',
               )}
               onClick={(event) => {
                 event.stopPropagation();

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { cn } from '@/utils/utils';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import {
@@ -7,6 +8,7 @@ import {
   type MenuItem,
 } from '@/features/experience/list/components/ExperienceListMenu';
 import { EditableLabel } from '@/features/experience/list/components/EditableLabel';
+import { EXPERIENCE_NAME_PLACEHOLDER } from '@/features/experience/list/constants';
 import { HoverTooltip } from '@/components/HoverTooltip';
 import {
   DropIndicator,
@@ -59,6 +61,9 @@ export function ExperienceListSidebarExperience({
 
   const isExpDragging = draggingId === item.id;
 
+  /** 케밥 메뉴의 '이름 변경'으로 인라인 편집을 켠다. */
+  const [requestRename, setRequestRename] = useState(false);
+
   const experienceMenu: MenuItem[] = [
     {
       key: 'move',
@@ -70,6 +75,14 @@ export function ExperienceListSidebarExperience({
           label: g.name,
           onSelect: () => moveExperienceToGroup(item.id, g.id),
         })),
+    },
+    {
+      key: 'rename',
+      label: '이름 변경',
+      // 메뉴가 닫히면서 포커스를 가져가므로 한 틱 뒤에 편집을 켠다.
+      onSelect: () => {
+        window.setTimeout(() => setRequestRename(true), 50);
+      },
     },
     {
       key: 'delete',
@@ -142,24 +155,6 @@ export function ExperienceListSidebarExperience({
           isExpDragging && 'opacity-40',
         )}
       >
-        <div className='absolute top-1/2 left-0 flex size-[16px] -translate-x-full -translate-y-1/2 items-center justify-center'>
-          <DragMenuButton
-            items={experienceMenu}
-            ariaLabel='활동 메뉴'
-            tooltipAlign='start'
-            className={cn(
-              sidebarRowActionCls,
-              'pointer-events-none opacity-0 group-hover/exp:pointer-events-auto group-hover/exp:opacity-100',
-            )}
-            payload={{ type: 'experience', id: item.id }}
-            onDragBegin={(size) => {
-              setDraggingId(item.id);
-              setDragSize(size);
-            }}
-            onDragFinish={clearDrag}
-          />
-        </div>
-
         <div
           role='button'
           tabIndex={0}
@@ -177,8 +172,12 @@ export function ExperienceListSidebarExperience({
         >
           <EditableLabel
             value={item.name}
+            placeholder={EXPERIENCE_NAME_PLACEHOLDER}
             editable
             onCommit={(next) => renameExperience(item.id, next)}
+            requestEdit={requestRename}
+            requestEditSelectAll
+            onRequestEditHandled={() => setRequestRename(false)}
             className={selected ? sidebarLabelClsSelected : sidebarLabelCls}
             inputClassName={sidebarLabelInputCls}
           />
@@ -190,13 +189,29 @@ export function ExperienceListSidebarExperience({
             onClick={() => addExperience(item.groupId, item.id)}
             className={cn(
               sidebarRowActionCls,
-              'shrink-0 pointer-events-none opacity-0 group-hover/exp:pointer-events-auto group-hover/exp:opacity-100',
+              'pointer-events-none shrink-0 opacity-0 group-hover/exp:pointer-events-auto group-hover/exp:opacity-100',
             )}
             aria-label='활동 추가'
           >
             <ListPlusIcon className='size-[16px]' />
           </button>
         </HoverTooltip>
+
+        <DragMenuButton
+          items={experienceMenu}
+          ariaLabel='활동 메뉴'
+          tooltipAlign='start'
+          className={cn(
+            sidebarRowActionCls,
+            'pointer-events-none shrink-0 opacity-0 group-hover/exp:pointer-events-auto group-hover/exp:opacity-100',
+          )}
+          payload={{ type: 'experience', id: item.id }}
+          onDragBegin={(size) => {
+            setDraggingId(item.id);
+            setDragSize(size);
+          }}
+          onDragFinish={clearDrag}
+        />
       </div>
       <DropIndicator
         visible={

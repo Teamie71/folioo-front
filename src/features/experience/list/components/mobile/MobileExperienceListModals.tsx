@@ -6,17 +6,10 @@ import {
   MAX_EXPERIENCE_COUNT,
   MAX_GROUP_COUNT,
 } from '@/features/experience/list/constants';
-import { cn } from '@/utils/utils';
-
-const MOBILE_MODAL_CLS = cn(
-  'box-border w-[280px] max-w-[calc(100vw-2rem)] gap-[24px] overflow-hidden rounded-[16px] bg-gray1 px-[16px] py-[32px]',
-  '[&>button:last-child]:hidden',
-  '[&_h2]:!text-[16px] [&_h2]:!leading-[1.5] [&_h2]:!font-semibold [&_h2]:!tracking-normal',
-  '[&_p]:!text-[14px] [&_p]:!leading-[1.5] [&_p]:!text-gray6',
-  '[&>div.flex.flex-col]:gap-[8px]',
-  '[&>div.flex.flex-row]:gap-[12px]',
-);
-const MOBILE_MODAL_OVERLAY_CLS = 'z-[99]';
+import {
+  MOBILE_MODAL_CLS,
+  MOBILE_MODAL_OVERLAY_CLS,
+} from '@/features/experience/list/components/mobile/mobileModalStyles';
 
 export function MobileExperienceListModals() {
   const modal = useExperienceListStore((s) => s.modal);
@@ -25,6 +18,9 @@ export function MobileExperienceListModals() {
   const closeModal = useExperienceListStore((s) => s.closeModal);
   const deleteGroup = useExperienceListStore((s) => s.deleteGroup);
   const deleteExperience = useExperienceListStore((s) => s.deleteExperience);
+  const deleteSelectedBlocks = useExperienceListStore(
+    (s) => s.deleteSelectedBlocks,
+  );
 
   const groupName =
     modal?.type === 'group-delete'
@@ -91,6 +87,51 @@ export function MobileExperienceListModals() {
             deleteExperience(modal.experienceId);
           closeModal();
         }}
+        onCancelClick={closeModal}
+      />
+
+      {/* 선택 삭제 확인 (3-5) */}
+      <CommonModal
+        open={modal?.type === 'selection-delete'}
+        onOpenChange={(open) => !open && closeModal()}
+        overlayClassName={MOBILE_MODAL_OVERLAY_CLS}
+        className={MOBILE_MODAL_CLS}
+        title={
+          <span className='typo-b2-sb text-gray9 block w-full text-center'>
+            선택한 모든 블록을
+            <br />
+            정말 삭제하시겠습니까?
+          </span>
+        }
+        cancelBtnText='취소'
+        secondaryBtnText='삭제'
+        onSecondaryClick={deleteSelectedBlocks}
+        onCancelClick={closeModal}
+      />
+
+      {/* 그룹 포함 선택 삭제 확인 (3-6) */}
+      <CommonModal
+        open={modal?.type === 'selection-delete-with-group'}
+        onOpenChange={(open) => !open && closeModal()}
+        overlayClassName={MOBILE_MODAL_OVERLAY_CLS}
+        className={MOBILE_MODAL_CLS}
+        title={
+          <span className='typo-b2-sb text-gray9 block w-full text-center'>
+            선택한 모든 블록을
+            <br />
+            정말 삭제하시겠습니까?
+          </span>
+        }
+        description={
+          <span className='typo-c1 text-gray6 block text-center'>
+            선택한 그룹 아래의 활동은
+            <br />
+            미분류 그룹으로 이동해요.
+          </span>
+        }
+        cancelBtnText='취소'
+        secondaryBtnText='삭제'
+        onSecondaryClick={deleteSelectedBlocks}
         onCancelClick={closeModal}
       />
 

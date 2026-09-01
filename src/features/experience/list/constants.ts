@@ -24,7 +24,18 @@ export const AGENT_COMING_SOON_COPY = {
 
 export const UNCLASSIFIED_ID = 'unclassified';
 
+/**
+ * 미분류 그룹의 표시 이름.
+ * 서버는 이 그룹을 kind(GROUP_UNCATEGORIZED)로만 구분하고 content는 null로 내려주므로,
+ * 라벨은 클라이언트가 정한다.
+ */
+export const UNCLASSIFIED_NAME = '미분류';
+
 export const DEFAULT_BLOCK_PLACEHOLDER = '내용을 입력해 주세요.';
+
+/** 1단계(그룹) · 2단계(활동) 블록의 placeholder. (템플릿 문서 §0) */
+export const GROUP_NAME_PLACEHOLDER = '그룹명을 입력해 주세요.';
+export const EXPERIENCE_NAME_PLACEHOLDER = '활동명을 입력해 주세요.';
 
 export const PROBLEM_EPISODE_PLACEHOLDER =
   '문제해결 에피소드를 한 줄로 요약해 주세요.';
@@ -61,6 +72,9 @@ export const SECTION_TEMPLATE_OPTIONS: Array<{
   { key: 'free', label: '자유 블록' },
 ];
 
+export const FREE_BLOCK_OPTION = { key: 'free', label: '자유 블록' } as const;
+
+/** GET /templates 응답이 오기 전에 쓰는 기본 목록. */
 export const PROBLEM_TEMPLATE_OPTIONS: Array<{
   key: ProblemTemplateKey;
   label: string;
@@ -71,13 +85,11 @@ export const PROBLEM_TEMPLATE_OPTIONS: Array<{
   { key: 'troubleshooting', label: '기술 트러블슈팅' },
   { key: 'feedback', label: '피드백 대응' },
   { key: 'recovery', label: '실패 회복' },
-  { key: 'free', label: '자유 블록' },
+  FREE_BLOCK_OPTION,
 ];
 
+/** GET /templates 응답이 오기 전에 쓰는 기본 목록. */
 export const DUTY_TEMPLATE_OPTIONS: Array<{
   key: DutyTemplateKey;
   label: string;
-}> = [
-  { key: 'basic', label: '기본' },
-  { key: 'free', label: '자유 블록' },
-];
+}> = [{ key: 'basic', label: '기본' }, FREE_BLOCK_OPTION];

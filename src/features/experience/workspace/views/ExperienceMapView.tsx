@@ -8,10 +8,15 @@ import { ExperienceMapCanvas } from '@/features/experience/map/components/Experi
  * 이 모듈은 next/dynamic(ssr: false)으로만 로드되므로,
  * 여기에 추가되는 브라우저 전용 의존성(@xyflow/react)은 리스트 뷰 번들에 포함되지 않는다.
  */
-export function ExperienceMapView() {
+type Props = {
+  /** 진입 직후 화면 중앙에 두고 표준 수준으로 확대할 활동 id. (모바일 진입용) */
+  focusExperienceId?: string;
+};
+
+export function ExperienceMapView({ focusExperienceId }: Props = {}) {
   return (
     <div className='relative min-h-0 flex-1'>
-      <ExperienceMapCanvas />
+      <ExperienceMapCanvas focusExperienceId={focusExperienceId} />
     </div>
   );
 }

@@ -31,13 +31,14 @@ export type Group = {
 
 export type SectionTemplateKey = SectionKind;
 
-export type ProblemTemplateKey =
-  | 'basic'
-  | 'interpersonal'
-  | 'improvement'
-  | 'troubleshooting'
-  | 'feedback'
-  | 'recovery'
-  | 'free';
+/**
+ * 담당업무·문제해결 하위 템플릿 키.
+ *
+ * GET /templates 가 내려주는 templateId를 그대로 쓴다. ('free'는 자유 블록 전용 값)
+ * 카탈로그를 받기 전에는 constants의 기본 목록을 쓰므로 문자열 리터럴도 그대로 허용한다.
+ */
+export type TemplateKey = 'free' | (string & {});
 
-export type DutyTemplateKey = 'basic' | 'free';
+export type ProblemTemplateKey = TemplateKey;
+
+export type DutyTemplateKey = TemplateKey;

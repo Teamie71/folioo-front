@@ -20,6 +20,21 @@ type HoverTooltipProps = {
 const GAP = 6;
 const VIEWPORT_PAD = 8;
 
+// 브라우저의 :hover는 포인터가 실제로 움직일 때만 갱신된다.
+// 캔버스 줌/이동처럼 요소만 움직이는 경우엔 갱신되지 않으므로
+// 마지막 포인터 좌표를 직접 추적해서 hit-test 한다.
+const pointer = { x: -1, y: -1 };
+if (typeof window !== 'undefined') {
+  window.addEventListener(
+    'pointermove',
+    (event) => {
+      pointer.x = event.clientX;
+      pointer.y = event.clientY;
+    },
+    true,
+  );
+}
+
 export function HoverTooltip({
   label,
   children,
@@ -77,8 +92,34 @@ export function HoverTooltip({
       }
     };
 
+    // 휠 조작(캔버스 줌/이동 등)으로 트리거가 포인터 아래에서 벗어나면
+    // mouseleave가 발생하지 않아 툴팁이 남는다.
+    // 열려 있는 동안 실제 hover 여부를 감시해서, 벗어나면 닫는다.
+    let rafId = 0;
+    // 포커스(키보드)로 열린 경우는 hover 감시 대상이 아니다.
+    if (triggerRef.current?.matches(':hover')) {
+      const checkHover = () => {
+        const trigger = triggerRef.current;
+        if (trigger && pointer.x >= 0) {
+          const r = trigger.getBoundingClientRect();
+          const inside =
+            pointer.x >= r.left &&
+            pointer.x <= r.right &&
+            pointer.y >= r.top &&
+            pointer.y <= r.bottom;
+          if (!inside) {
+            setOpen(false);
+            return;
+          }
+        }
+        rafId = requestAnimationFrame(checkHover);
+      };
+      rafId = requestAnimationFrame(checkHover);
+    }
+
     document.addEventListener('pointerdown', closeOnOutsidePointerDown);
     return () => {
+      cancelAnimationFrame(rafId);
       document.removeEventListener('pointerdown', closeOnOutsidePointerDown);
     };
   }, [open]);
