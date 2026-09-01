@@ -40,11 +40,6 @@ function isCorrectionDetailPath(pathname: string) {
 function isExperiencePath(pathname: string) {
   return pathname === '/experience' || pathname.startsWith('/experience/');
 }
-function isRecommendationPath(pathname: string) {
-  return (
-    pathname === '/recommendation' || pathname.startsWith('/recommendation/')
-  );
-}
 export default function LayoutContent({
   children,
   isMobileDevice,
@@ -78,14 +73,11 @@ export default function LayoutContent({
     (path === '/experience' ||
       path === '/experience/list' ||
       path === '/experience/workspace');
-  const isRecommendation = isRecommendationPath(path);
   const showMobileChrome = isMobileDevice;
   const hideNavbar =
     isCorrectionNewPath(path) ||
-    (isExperiencePath(path) && !isMobileExperienceList) ||
-    (isRecommendation && !isMobileDevice);
-  const showDesktopSidebar =
-    !showMobileChrome && path !== '/' && !isRecommendation;
+    (isExperiencePath(path) && !isMobileExperienceList);
+  const showDesktopSidebar = !showMobileChrome && path !== '/';
 
   useEffect(() => {
     if (!isCorrectionDetailPath(path)) setShowNavbarOnResult(false);
