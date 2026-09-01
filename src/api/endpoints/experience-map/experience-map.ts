@@ -136,7 +136,7 @@ export function useExperienceMapControllerGetMap<TData = Awaited<ReturnType<type
 
 
 /**
- * GROUP(루트), EXPERIENCE(GROUP/미분류 하위), CONTENT(SECTION 또는 CONTENT 하위)만 직접 생성할 수 있습니다. EXPERIENCE 생성 시 SECTION 5종(상세정보/주요성과/담당업무/문제해결/배운 점)과 experience_meta가 같은 트랜잭션에서 함께 생성됩니다. 단, 응답의 children은 생성 직후엔 항상 빈 배열이라 자동 생성된 SECTION을 보려면 GET /experience-map을 다시 호출해야 합니다.
+ * GROUP(루트), EXPERIENCE(GROUP/미분류 하위), SECTION_*(EXPERIENCE 하위), CONTENT(EXPERIENCE/SECTION/CONTENT 하위)만 직접 생성할 수 있습니다. EXPERIENCE 생성 시 SECTION 5종(상세정보/주요성과/담당업무/문제해결/배운 점)과 experience_meta가 같은 트랜잭션에서 함께 생성됩니다. 단, 응답의 children은 생성 직후엔 항상 빈 배열이라 자동 생성된 SECTION을 보려면 GET /experience-map을 다시 호출해야 합니다. SECTION_*은 삭제 후 재생성이 가능하도록 직접 생성을 허용하지만, 같은 활동에 같은 종류의 SECTION이 이미 있으면 BLOCK4091로 거부됩니다(빈 SECTION만 생성되고, 최초 활동 생성 때의 질문 템플릿은 함께 생성되지 않습니다). CONTENT를 EXPERIENCE 바로 아래에 만들면 카테고리 구분 없는 자유 블록이 되며, 몇 개를 이미 갖고 있어도 계속 추가할 수 있습니다.
  * @summary 블록 생성
  */
 export const experienceMapControllerCreateBlock = (

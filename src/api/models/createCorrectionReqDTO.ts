@@ -28,7 +28,7 @@ export interface CreateCorrectionReqDTO {
   positionName: string;
   /**
    * 채용 공고 또는 직무 설명
-   * @maxLength 700
+   * @maxLength 1000
    */
   jobDescription?: string;
   jobDescriptionType: CreateCorrectionReqDTOJobDescriptionType;
