@@ -364,7 +364,7 @@ function CorrectionWorkflow() {
             alt=''
             width={44}
             height={44}
-            className='h-9 w-9 -rotate-90 sm:h-11 sm:w-11'
+            className='h-9 w-9 sm:h-11 sm:w-11'
           />
         </button>
         <LandingVideo className='!h-[15rem] !w-full sm:!h-[37.125rem]' />
@@ -375,11 +375,11 @@ function CorrectionWorkflow() {
           onClick={() => moveStep(1)}
         >
           <Image
-            src='/landing/workflow-arrow-left.svg'
+            src='/landing/workflow-arrow-right.svg'
             alt=''
             width={44}
             height={44}
-            className='h-9 w-9 rotate-90 sm:h-11 sm:w-11'
+            className='h-9 w-9 sm:h-11 sm:w-11'
           />
         </button>
       </div>
