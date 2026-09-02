@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { type ReactNode, useState } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import Footer from '@/components/Footer';
+import { ChevronColorLeftIcon } from '@/components/icons/ChevronColorLeftIcon';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
 import { LandingVideo } from './LandingVideo';
@@ -728,14 +729,14 @@ function CorrectionWorkflow() {
             className='absolute top-[9.375rem] left-10 z-10 h-7 w-7 cursor-pointer'
             onClick={() => moveStep(-1)}
           >
-            <span className='relative block h-7 w-7 -rotate-90'>
-              <Image
-                src='/landing/workflow-arrow-mobile.svg'
-                alt=''
-                width={36}
-                height={36}
-                className='absolute -top-0.5 -left-1 h-9 w-9 max-w-none'
-              />
+            <span
+              aria-hidden
+              className='absolute inset-0 rounded-full bg-gradient-to-br from-white to-[#F2F2F2] shadow-[0_2px_4px_rgba(0,0,0,0.2)]'
+            >
+              <span className='absolute inset-px rounded-full bg-white/60' />
+            </span>
+            <span className='relative z-10 flex h-full w-full items-center justify-center [&_svg]:h-3 [&_svg]:w-auto'>
+              <ChevronColorLeftIcon />
             </span>
           </button>
         )}
@@ -746,14 +747,14 @@ function CorrectionWorkflow() {
             className='absolute top-[9.375rem] right-10 z-10 h-7 w-7 cursor-pointer'
             onClick={() => moveStep(1)}
           >
-            <span className='relative block h-7 w-7 rotate-90'>
-              <Image
-                src='/landing/workflow-arrow-mobile.svg'
-                alt=''
-                width={36}
-                height={36}
-                className='absolute -top-0.5 -left-1 h-9 w-9 max-w-none'
-              />
+            <span
+              aria-hidden
+              className='absolute inset-0 rounded-full bg-gradient-to-br from-white to-[#F2F2F2] shadow-[0_2px_4px_rgba(0,0,0,0.2)]'
+            >
+              <span className='absolute inset-px rounded-full bg-white/60' />
+            </span>
+            <span className='relative z-10 flex h-full w-full rotate-180 items-center justify-center [&_svg]:h-3 [&_svg]:w-auto'>
+              <ChevronColorLeftIcon />
             </span>
           </button>
         )}
