@@ -510,11 +510,12 @@ function CorrectionWorkflow() {
   const step = correctionSteps[activeStep];
 
   const moveStep = (direction: -1 | 1) => {
-    setActiveStep(
-      (current) =>
-        (current + direction + correctionSteps.length) % correctionSteps.length,
+    setActiveStep((current) =>
+      Math.min(Math.max(current + direction, 0), correctionSteps.length - 1),
     );
   };
+  const hasPreviousStep = activeStep > 0;
+  const hasNextStep = activeStep < correctionSteps.length - 1;
 
   return (
     <>
@@ -545,7 +546,9 @@ function CorrectionWorkflow() {
                 role='tab'
                 aria-selected={isActive}
                 className={`cursor-pointer border-b-2 py-3 text-center text-[0.875rem] leading-[150%] ${
-                  isActive ? 'border-main text-main' : 'border-gray3 text-gray4'
+                  isActive
+                    ? 'border-main text-main font-bold'
+                    : 'border-gray3 text-gray4'
                 }`}
                 onClick={() => setActiveStep(index)}
               >
@@ -554,23 +557,41 @@ function CorrectionWorkflow() {
             );
           })}
         </div>
-        <p className='text-gray9 absolute top-[9.5625rem] left-0 w-full text-center text-[1.125rem] leading-[130%] font-bold'>
+        <p className='text-main absolute top-[9.5625rem] left-0 w-full text-center text-[1.125rem] leading-[130%] font-bold'>
           {step.title}
         </p>
-        <button
-          type='button'
-          aria-label='다음 첨삭 단계'
-          className='absolute top-[9.1875rem] right-7 z-10 h-9 w-9 cursor-pointer'
-          onClick={() => moveStep(1)}
-        >
-          <Image
-            src='/landing/workflow-arrow-mobile.svg'
-            alt=''
-            width={36}
-            height={36}
-            className='h-9 w-9'
-          />
-        </button>
+        {hasPreviousStep && (
+          <button
+            type='button'
+            aria-label='이전 첨삭 단계'
+            className='absolute top-[9.375rem] left-10 z-10 h-7 w-7 cursor-pointer'
+            onClick={() => moveStep(-1)}
+          >
+            <Image
+              src='/landing/workflow-arrow-mobile.svg'
+              alt=''
+              width={36}
+              height={36}
+              className='absolute -top-0.5 -left-1 h-9 w-9 max-w-none -rotate-90'
+            />
+          </button>
+        )}
+        {hasNextStep && (
+          <button
+            type='button'
+            aria-label='다음 첨삭 단계'
+            className='absolute top-[9.375rem] right-10 z-10 h-7 w-7 cursor-pointer'
+            onClick={() => moveStep(1)}
+          >
+            <Image
+              src='/landing/workflow-arrow-mobile.svg'
+              alt=''
+              width={36}
+              height={36}
+              className='absolute -top-0.5 -left-1 h-9 w-9 max-w-none rotate-90'
+            />
+          </button>
+        )}
         <LandingVideo className='absolute top-[13.625rem] left-4 !h-[11.5rem] !w-[calc(100%-2rem)] !rounded-none' />
         <p className='text-gray9 absolute top-[27.625rem] left-4 flex h-[3.25rem] w-[calc(100%-2rem)] items-center justify-center text-center text-[0.875rem] leading-[150%]'>
           {step.description}
@@ -596,7 +617,9 @@ function CorrectionWorkflow() {
                 role='tab'
                 aria-selected={isActive}
                 className={`cursor-pointer border-b-4 px-3 py-3 text-center sm:px-6 ${
-                  isActive ? 'border-main text-main' : 'border-gray3 text-gray4'
+                  isActive
+                    ? 'border-main text-main font-bold'
+                    : 'border-gray3 text-gray4'
                 }`}
                 onClick={() => setActiveStep(index)}
               >
@@ -614,39 +637,43 @@ function CorrectionWorkflow() {
           {step.description}
         </p>
         <div className='relative mt-8 flex items-center gap-3 sm:mt-11 sm:block'>
-          <button
-            type='button'
-            aria-label='이전 첨삭 단계'
-            className='z-10 shrink-0 cursor-pointer sm:absolute sm:top-1/2 sm:-left-[4.25rem] sm:-translate-y-1/2'
-            onClick={() => moveStep(-1)}
-          >
-            <span className='relative block h-9 w-9 sm:h-11 sm:w-11'>
-              <Image
-                src='/landing/workflow-arrow-left.svg?v=2'
-                alt=''
-                width={52}
-                height={52}
-                className='absolute -top-[4.55%] -left-[9.09%] h-[118.18%] w-[118.18%] max-w-none'
-              />
-            </span>
-          </button>
+          {hasPreviousStep && (
+            <button
+              type='button'
+              aria-label='이전 첨삭 단계'
+              className='z-10 shrink-0 cursor-pointer sm:absolute sm:top-1/2 sm:-left-[4.25rem] sm:-translate-y-1/2'
+              onClick={() => moveStep(-1)}
+            >
+              <span className='relative block h-9 w-9 sm:h-11 sm:w-11'>
+                <Image
+                  src='/landing/workflow-arrow-left.svg?v=2'
+                  alt=''
+                  width={52}
+                  height={52}
+                  className='absolute -top-[4.55%] -left-[9.09%] h-[118.18%] w-[118.18%] max-w-none'
+                />
+              </span>
+            </button>
+          )}
           <LandingVideo className='!h-[15rem] !w-full !rounded-none sm:!h-[37.125rem]' />
-          <button
-            type='button'
-            aria-label='다음 첨삭 단계'
-            className='z-10 shrink-0 cursor-pointer sm:absolute sm:top-1/2 sm:-right-[4.25rem] sm:-translate-y-1/2 2xl:-right-[7rem]'
-            onClick={() => moveStep(1)}
-          >
-            <span className='relative block h-9 w-9 sm:h-11 sm:w-11'>
-              <Image
-                src='/landing/workflow-arrow-right.svg?v=2'
-                alt=''
-                width={52}
-                height={52}
-                className='absolute -top-[4.55%] -left-[9.09%] h-[118.18%] w-[118.18%] max-w-none'
-              />
-            </span>
-          </button>
+          {hasNextStep && (
+            <button
+              type='button'
+              aria-label='다음 첨삭 단계'
+              className='z-10 shrink-0 cursor-pointer sm:absolute sm:top-1/2 sm:-right-[4.25rem] sm:-translate-y-1/2 2xl:-right-[7rem]'
+              onClick={() => moveStep(1)}
+            >
+              <span className='relative block h-9 w-9 sm:h-11 sm:w-11'>
+                <Image
+                  src='/landing/workflow-arrow-right.svg?v=2'
+                  alt=''
+                  width={52}
+                  height={52}
+                  className='absolute -top-[4.55%] -left-[9.09%] h-[118.18%] w-[118.18%] max-w-none'
+                />
+              </span>
+            </button>
+          )}
         </div>
       </section>
     </>
