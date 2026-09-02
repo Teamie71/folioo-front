@@ -858,13 +858,14 @@ export function LandingPageContent() {
       <CorrectionWorkflow />
       <LandingFaq />
 
-      <section className='relative overflow-hidden py-[7.5rem] sm:py-[10rem]'>
-        <div
-          className='pointer-events-none absolute inset-x-0 bottom-[-18rem] h-[58rem] opacity-45 blur-[4rem]'
-          style={{
-            background:
-              'radial-gradient(ellipse at center, #5060C5 0%, #93B3F4 32%, rgba(255,255,255,0) 70%)',
-          }}
+      <section className='relative overflow-hidden pt-[7.5rem] pb-40 sm:pt-[28.75rem] sm:pb-[25rem]'>
+        <Image
+          src='/landing/landing-cta-gradient.svg'
+          alt=''
+          width={2510}
+          height={1823}
+          aria-hidden='true'
+          className='pointer-events-none absolute top-[3.75rem] left-1/2 h-auto w-[max(130.73vw,156.875rem)] max-w-none -translate-x-1/2 sm:top-[11.25rem]'
         />
         <div className='relative flex flex-col items-center text-center'>
           <h2 className='text-[2.25rem] leading-[130%] font-bold sm:text-[3rem]'>
