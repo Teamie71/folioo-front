@@ -354,7 +354,7 @@ function CorrectionWorkflow() {
         <button
           type='button'
           aria-label='이전 첨삭 단계'
-          className='z-10 shrink-0 transition-transform hover:-translate-x-0.5 sm:absolute sm:top-1/2 sm:-left-[4.25rem] sm:-translate-y-1/2'
+          className='z-10 shrink-0 cursor-pointer transition-transform hover:-translate-x-0.5 sm:absolute sm:top-1/2 sm:-left-[4.25rem] sm:-translate-y-1/2'
           onClick={() => moveStep(-1)}
         >
           <span className='relative block h-9 w-9 sm:h-11 sm:w-11'>
@@ -371,7 +371,7 @@ function CorrectionWorkflow() {
         <button
           type='button'
           aria-label='다음 첨삭 단계'
-          className='z-10 shrink-0 transition-transform hover:translate-x-0.5 sm:absolute sm:top-1/2 sm:-right-[4.25rem] sm:-translate-y-1/2 2xl:-right-[7rem]'
+          className='z-10 shrink-0 cursor-pointer transition-transform hover:translate-x-0.5 sm:absolute sm:top-1/2 sm:-right-[4.25rem] sm:-translate-y-1/2 2xl:-right-[7rem]'
           onClick={() => moveStep(1)}
         >
           <span className='relative block h-9 w-9 sm:h-11 sm:w-11'>
@@ -421,14 +421,16 @@ function LandingFaq() {
                 <span className='flex-1 text-[1rem] leading-[150%] font-bold sm:text-[1.125rem]'>
                   {faq.question}
                 </span>
-                <span
+                <Image
+                  src='/landing/faq-dropdown.svg'
+                  alt=''
                   aria-hidden
-                  className={`text-gray5 text-[1.5rem] leading-none transition-transform ${
-                    isOpen ? 'rotate-180' : ''
+                  width={40}
+                  height={40}
+                  className={`h-10 w-10 shrink-0 transition-transform ${
+                    isOpen ? '' : 'rotate-180'
                   }`}
-                >
-                  ⌄
-                </span>
+                />
               </button>
               {isOpen && (
                 <p className='border-gray3 text-gray7 border-t px-5 py-6 text-[0.9375rem] leading-[170%] sm:px-8 sm:py-8 sm:text-[1rem]'>
