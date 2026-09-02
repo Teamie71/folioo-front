@@ -628,8 +628,8 @@ export function LandingPageContent() {
           className='pointer-events-none absolute inset-0 z-0 hidden sm:block'
         >
           <div className='relative mx-auto h-full max-w-[66rem]'>
-            <div className='border-gray3 absolute top-[41.25rem] left-[3.9375rem] h-[5.4078125rem] w-[23.625rem] rounded-full border bg-[#FDFDFD] shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] blur-[0.375rem]' />
-            <div className='border-gray3 absolute top-[46.6875rem] left-[29.5rem] h-[7.375rem] w-[40.5rem] rounded-full border bg-[#FDFDFD] shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] blur-[0.375rem]' />
+            <div className='border-gray3 absolute top-[41.25rem] left-[3.9375rem] h-[5.4078125rem] w-[23.625rem] rounded-full border bg-[#FDFDFD] shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] blur-[0.3125rem]' />
+            <div className='border-gray3 absolute top-[46.6875rem] left-[29.5rem] h-[7.375rem] w-[40.5rem] rounded-full border bg-[#FDFDFD] shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] blur-[0.3125rem]' />
           </div>
         </div>
         <div
@@ -657,10 +657,10 @@ export function LandingPageContent() {
               aria-hidden
               className='absolute top-[25.6875rem] left-1/2 z-0 hidden h-[5.0625rem] w-[17.625rem] -translate-x-1/2 sm:block'
             >
-              <span className='absolute top-0 left-1/2 h-[1.375rem] w-[17.625rem] -translate-x-1/2 rounded-full bg-white opacity-30 blur-[0.25rem]' />
-              <span className='absolute top-[1.875rem] left-1/2 h-[1.125rem] w-48 -translate-x-1/2 rounded-full bg-white opacity-50 blur-[0.25rem]' />
-              <span className='absolute top-[3.5rem] left-[calc(50%+1.5px)] h-[0.6875rem] w-[7.5625rem] -translate-x-1/2 rounded-full bg-white opacity-70 blur-[0.25rem]' />
-              <span className='absolute top-[4.6875rem] left-[calc(50%+2px)] h-1.5 w-[4.75rem] -translate-x-1/2 rounded-full bg-white opacity-90 blur-[0.25rem]' />
+              <span className='absolute top-0 left-1/2 h-[1.375rem] w-[17.625rem] -translate-x-1/2 rounded-full bg-white opacity-30 blur-[0.1875rem]' />
+              <span className='absolute top-[1.875rem] left-1/2 h-[1.125rem] w-48 -translate-x-1/2 rounded-full bg-white opacity-50 blur-[0.1875rem]' />
+              <span className='absolute top-[3.5rem] left-[calc(50%+1.5px)] h-[0.6875rem] w-[7.5625rem] -translate-x-1/2 rounded-full bg-white opacity-70 blur-[0.1875rem]' />
+              <span className='absolute top-[4.6875rem] left-[calc(50%+2px)] h-1.5 w-[4.75rem] -translate-x-1/2 rounded-full bg-white opacity-90 blur-[0.1875rem]' />
             </div>
             <div className='border-gray3 absolute top-0 left-[5%] z-10 h-20 w-[70%] rounded-full border bg-white shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] sm:left-[7.5625rem] sm:h-[7.375rem] sm:w-[36.8125rem]' />
             <p className='absolute top-6 left-[10%] z-10 max-w-[19rem] text-[0.9375rem] leading-[150%] sm:top-8 sm:left-[12.5rem] sm:max-w-[28.5rem] sm:text-[1.125rem] sm:whitespace-nowrap'>
