@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import Footer from '@/components/Footer';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -50,6 +51,60 @@ const portfolioPoints = [
     label: 'POINT 3.',
     title: '심층 기업 분석 정보 제공 및 맞춤 첨삭',
     iconSrc: '/landing/analysis-icon.svg',
+  },
+];
+
+const correctionSteps = [
+  {
+    eyebrow: 'STEP 01',
+    title: '지원 정보',
+    description: '기업과 직무, JD를 입력하여 맞춤 첨삭을 시작하세요.',
+  },
+  {
+    eyebrow: 'STEP 02',
+    title: '포트폴리오 업로드',
+    description:
+      '가지고 있는 PDF 포트폴리오를 업로드하면, AI 컨설턴트가 문서의 구조와 내용을 빠짐없이 파악하여 첨삭을 준비해요.',
+  },
+  {
+    eyebrow: 'STEP 03',
+    title: '기업 분석',
+    description:
+      'AI 컨설턴트가 최신 정보를 반영하여 지원하는 기업의 심층 분석 자료를 생성해요. 강조할 부분을 정해주시면, 참고하여 첨삭을 진행할게요.',
+  },
+  {
+    eyebrow: 'STEP 04',
+    title: '첨삭 결과',
+    description:
+      '총평과 구체적인 개선 방향이 제시된 지원 맞춤 첨삭 보고서를 받아보세요! 수정 예시를 함께 제공하여, 가이드대로 고치기만 하면 바로 서류가 완성돼요.',
+  },
+];
+
+const faqs = [
+  {
+    question: 'Folioo는 어떤 서비스인가요?',
+    answer:
+      'Folioo는 취업 준비 과정 전반을 보조하는 AI 커리어 솔루션이에요. AI를 중심으로 재편된 채용 환경에서, 취업준비생이 서류화의 부담에서 벗어나 온전히 경험과 성장에만 몰입하는 환경을 만들고자 서비스를 시작하게 되었어요. 모든 취업준비생이 자신의 경험을 구체적인 데이터로 소유하고, 언제든 가장 매력적인 형태로 증명할 수 있게 되는 것을 목표로 하고 있어요.',
+  },
+  {
+    question: 'Folioo는 취업 준비의 어느 단계에서 쓰면 좋은가요?',
+    answer:
+      'Folioo의 세 기능은 취업 준비의 전체 단계에서 사용할 수 있어요. 희망 직무를 고민하고 있다면 3분 테스트로 성향에 맞는 직무와 기업 형태를 찾고, 경험을 쌓는 과정에서는 경험 정리 기능으로 기록을 체계화해 보세요. 실제 공고에 지원할 때는 AI 컨설턴트의 첨삭 가이드를 활용해 공고 맞춤형 서류를 빠르게 완성할 수 있어요.',
+  },
+  {
+    question: '직무를 정하지 못한 상황에서도 Folioo가 도움이 되나요?',
+    answer:
+      '네, 직무 찾기 기능이 막막한 진로 고민의 해결을 도와드려요. 3분 만에 끝나는 간단한 테스트로 전공, 흥미 유형, 선호 근무 조건을 분석해 적합도가 높은 직무와 기업 형태를 소개해 드려요. 핵심 스킬과 추천 활동 정보도 함께 제공해 쉽게 취업 준비를 시작할 수 있어요.',
+  },
+  {
+    question: '경험 정리는 어떤 상황에서 필요한가요?',
+    answer:
+      '경험을 쌓고 있는 대학생과 실제 지원을 앞둔 취업준비생 모두에게 필요해요. 작은 경험도 바로 구조에 맞춰 기록해두면 나를 증명하는 구체적인 스토리로 활용할 수 있고, 채용 시즌에는 이력서·자기소개서·포트폴리오·면접을 더 빠르고 밀도 있게 준비할 수 있어요.',
+  },
+  {
+    question: '포트폴리오 첨삭 기능은 어떤 상황에서 도움이 되나요?',
+    answer:
+      '여러 공고에 실제로 지원하면서 서류 작성에 많은 시간을 쓰고 있다면 활용해 보세요. 지원 공고와 기존 포트폴리오를 업로드하면 AI 컨설턴트가 두 자료와 기업 정보를 분석하고, 수정 예시가 포함된 맞춤 첨삭 가이드를 제공해요.',
   },
 ];
 
@@ -172,10 +227,12 @@ function VideoFeatureCard({
   title,
   description,
   className = '',
+  mediaCount = 1,
 }: {
   title: string;
   description: string;
   className?: string;
+  mediaCount?: 1 | 2;
 }) {
   return (
     <article
@@ -187,8 +244,158 @@ function VideoFeatureCard({
       <p className='text-gray6 mt-2 text-[0.8125rem] leading-[150%] sm:text-[1rem]'>
         {description}
       </p>
-      <LandingVideo className='mt-5 !h-[12rem] !w-full sm:mt-6 sm:!h-[16.75rem]' />
+      <div
+        className={`mt-5 grid gap-4 sm:mt-6 ${
+          mediaCount === 2 ? 'sm:grid-cols-2' : ''
+        }`}
+      >
+        {Array.from({ length: mediaCount }, (_, index) => (
+          <LandingVideo
+            key={index}
+            className='!h-[12rem] !w-full sm:!h-[16.75rem]'
+          />
+        ))}
+      </div>
     </article>
+  );
+}
+
+function CorrectionWorkflow() {
+  const [activeStep, setActiveStep] = useState(0);
+  const step = correctionSteps[activeStep];
+
+  const moveStep = (direction: -1 | 1) => {
+    setActiveStep(
+      (current) =>
+        (current + direction + correctionSteps.length) % correctionSteps.length,
+    );
+  };
+
+  return (
+    <section className='mx-auto max-w-[66rem] px-5 py-[7.5rem] sm:px-0 sm:py-[13.75rem]'>
+      <p className='text-gray6 text-center text-[1.125rem] leading-[130%] font-bold sm:text-[1.25rem]'>
+        How It Works
+      </p>
+      <div
+        className='border-gray3 mt-8 grid grid-cols-2 border-b sm:mt-[3.75rem] sm:grid-cols-4'
+        role='tablist'
+        aria-label='포트폴리오 첨삭 단계'
+      >
+        {correctionSteps.map((item, index) => {
+          const isActive = index === activeStep;
+
+          return (
+            <button
+              key={item.eyebrow}
+              type='button'
+              role='tab'
+              aria-selected={isActive}
+              className={`border-b-2 px-3 pt-3 pb-4 text-center transition-colors sm:px-6 sm:pt-3 sm:pb-5 ${
+                isActive
+                  ? 'border-main text-main'
+                  : 'text-gray4 hover:text-gray6 border-transparent'
+              }`}
+              onClick={() => setActiveStep(index)}
+            >
+              <span className='block text-[0.75rem] leading-[150%] sm:text-[0.875rem]'>
+                {item.eyebrow}
+              </span>
+              <span className='mt-1 block text-[0.9375rem] leading-[130%] font-bold sm:mt-2 sm:text-[1.25rem]'>
+                {item.title}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      <p className='text-gray9 mx-auto mt-7 max-w-[37.5rem] text-center text-[1rem] leading-[150%] sm:mt-10 sm:text-[1.125rem]'>
+        {step.description}
+      </p>
+      <div className='relative mt-8 flex items-center gap-3 sm:mt-11 sm:gap-14'>
+        <button
+          type='button'
+          aria-label='이전 첨삭 단계'
+          className='shrink-0 transition-transform hover:-translate-x-0.5'
+          onClick={() => moveStep(-1)}
+        >
+          <Image
+            src='/landing/workflow-arrow-left.svg'
+            alt=''
+            width={44}
+            height={44}
+            className='h-9 w-9 sm:h-11 sm:w-11'
+          />
+        </button>
+        <LandingVideo className='!h-[15rem] !w-full sm:!h-[37.125rem]' />
+        <button
+          type='button'
+          aria-label='다음 첨삭 단계'
+          className='shrink-0 transition-transform hover:translate-x-0.5'
+          onClick={() => moveStep(1)}
+        >
+          <Image
+            src='/landing/workflow-arrow-left.svg'
+            alt=''
+            width={44}
+            height={44}
+            className='h-9 w-9 rotate-180 sm:h-11 sm:w-11'
+          />
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function LandingFaq() {
+  const [openedIndex, setOpenedIndex] = useState<number | null>(null);
+
+  return (
+    <section className='mx-auto max-w-[66rem] px-5 pb-[8rem] sm:px-0 sm:pb-[10rem]'>
+      <p className='text-main text-center text-[1.125rem] leading-[130%] font-bold sm:text-[1.25rem]'>
+        FAQ
+      </p>
+      <h2 className='mt-3 text-center text-[1.875rem] leading-[130%] font-bold sm:text-[2rem]'>
+        자주 묻는 질문
+      </h2>
+      <div className='mt-12 space-y-4 sm:mt-[5rem] sm:space-y-5'>
+        {faqs.map((faq, index) => {
+          const isOpen = openedIndex === index;
+
+          return (
+            <article
+              key={faq.question}
+              className='rounded-[1rem] bg-[#F6F8FF] transition-colors hover:bg-white'
+            >
+              <button
+                type='button'
+                className='flex w-full items-center gap-3 px-5 py-6 text-left sm:px-8 sm:py-8'
+                aria-expanded={isOpen}
+                onClick={() => setOpenedIndex(isOpen ? null : index)}
+              >
+                <span className='flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#647BE1] text-[0.875rem] font-bold text-white'>
+                  {index + 1}
+                </span>
+                <span className='flex-1 text-[1rem] leading-[150%] font-bold sm:text-[1.125rem]'>
+                  {faq.question}
+                </span>
+                <span
+                  aria-hidden
+                  className={`text-gray5 text-[1.5rem] leading-none transition-transform ${
+                    isOpen ? 'rotate-180' : ''
+                  }`}
+                >
+                  ⌄
+                </span>
+              </button>
+              {isOpen && (
+                <p className='border-gray3 text-gray7 border-t px-5 py-6 text-[0.9375rem] leading-[170%] sm:px-8 sm:py-8 sm:text-[1rem]'>
+                  {faq.answer}
+                </p>
+              )}
+            </article>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
@@ -336,6 +543,7 @@ export function LandingPageContent() {
               className='sm:col-span-2'
               title='나의 경험을 구조적으로 볼 수 있는 두 가지 뷰'
               description='맵 뷰로 경험의 구조를 한눈에 파악하고, 리스트 뷰로 경험을 깊이 있게 정리해요.'
+              mediaCount={2}
             />
           </div>
         </div>
@@ -408,6 +616,29 @@ export function LandingPageContent() {
                 </article>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      <CorrectionWorkflow />
+      <LandingFaq />
+
+      <section className='relative overflow-hidden py-[7.5rem] sm:py-[10rem]'>
+        <div
+          className='pointer-events-none absolute inset-x-0 bottom-[-18rem] h-[58rem] opacity-45 blur-[4rem]'
+          style={{
+            background:
+              'radial-gradient(ellipse at center, #5060C5 0%, #93B3F4 32%, rgba(255,255,255,0) 70%)',
+          }}
+        />
+        <div className='relative flex flex-col items-center text-center'>
+          <h2 className='text-[2.25rem] leading-[130%] font-bold sm:text-[3rem]'>
+            지금,
+            <br />
+            경험을 서류로 바꾸세요.
+          </h2>
+          <div className='mt-10 sm:mt-[3.75rem]'>
+            <LoginEntryButton />
           </div>
         </div>
       </section>
