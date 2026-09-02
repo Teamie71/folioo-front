@@ -108,23 +108,23 @@ const faqs = [
   },
 ];
 
-function LoginEntryButton() {
+function LoginEntryButton({
+  children = '무료로 시작하기 →',
+}: {
+  children?: string;
+}) {
   const router = useRouter();
   const accessToken = useAuthStore((state) => state.accessToken);
-  const sessionRestoreAttempted = useAuthStore(
-    (state) => state.sessionRestoreAttempted,
-  );
-
-  if (!sessionRestoreAttempted || accessToken != null) return null;
 
   return (
     <CommonButton
       variantType='Gradient'
       px='2.25rem'
       py='0.75rem'
-      onClick={() => router.push('/login')}
+      className='leading-[150%] font-bold'
+      onClick={() => router.push(accessToken ? '/recommendation' : '/login')}
     >
-      무료로 시작하기 →
+      {children}
     </CommonButton>
   );
 }
@@ -137,7 +137,7 @@ function ServiceCard({
   onClick,
 }: ServiceCardProps) {
   return (
-    <article className='shadow-chat-card flex min-h-[22rem] w-full flex-col items-center rounded-[1.75rem] bg-[#FCFCFF] px-6 py-8 text-center sm:min-h-[25.125rem] sm:w-[21rem]'>
+    <article className='shadow-chat-card flex min-h-[22rem] w-full flex-col items-center rounded-[1.75rem] bg-[#FCFCFF] px-6 py-8 text-center sm:min-h-[25.125rem] sm:w-[21rem] sm:p-10'>
       <h2 className='text-gray9 text-[1.5rem] leading-[130%] font-bold sm:text-[1.75rem]'>
         {title}
       </h2>
@@ -155,7 +155,7 @@ function ServiceCard({
         variantType='Outline'
         px='2.25rem'
         py='0.5rem'
-        className='mt-auto text-[0.875rem] sm:text-[1rem]'
+        className='mt-auto border text-[0.875rem] font-bold sm:text-[1rem]'
         onClick={onClick}
       >
         {buttonText} →
@@ -413,7 +413,7 @@ export function LandingPageContent() {
   };
 
   return (
-    <div className='text-gray9 overflow-x-hidden bg-white'>
+    <div className='text-gray9 overflow-x-hidden bg-white tracking-normal'>
       <div className='relative'>
         <div
           className='pointer-events-none absolute inset-x-0 top-0 -z-0 h-[118rem] opacity-50 blur-[3.125rem]'
@@ -425,16 +425,16 @@ export function LandingPageContent() {
 
         <section className='relative z-10 mx-auto max-w-[66rem] px-5 pt-[6.25rem] pb-[9rem] sm:px-0 sm:pt-[6.25rem] sm:pb-[13.75rem]'>
           <div className='flex flex-col items-center text-center'>
-            <h1 className='text-[2.25rem] leading-[130%] font-bold tracking-[-0.02em] sm:text-[3rem]'>
+            <h1 className='text-[2.25rem] leading-[130%] font-bold sm:text-[3rem]'>
               당신의 모든 경험을
               <br />
               무한한 취업 경쟁력으로
             </h1>
-            <p className='mt-7 text-[1rem] leading-[150%] font-bold sm:mt-9 sm:text-[1.25rem]'>
+            <p className='mt-7 text-[1rem] leading-[130%] font-bold sm:mt-[3.125rem] sm:text-[1.25rem]'>
               Folioo의 AI 컨설턴트가 당신의 경험과 역량을 가장 효과적으로 활용할
               수 있도록 도와드려요.
             </p>
-            <div className='mt-9'>
+            <div className='mt-9 sm:mt-[3.25rem]'>
               <LoginEntryButton />
             </div>
           </div>
@@ -485,16 +485,23 @@ export function LandingPageContent() {
 
           <div className='mt-14 grid items-center gap-8 sm:mt-16 sm:grid-cols-[minmax(0,43.75rem)_1fr] sm:gap-[5.5rem]'>
             <JobPreview />
-            <div>
-              <ol className='text-gray9 space-y-2 text-[1rem] leading-[150%] sm:text-[1.125rem]'>
+            <div className='relative sm:translate-y-[0.8125rem] sm:pl-5'>
+              <Image
+                src='/landing/job-preview-divider.svg'
+                alt=''
+                width={8}
+                height={80}
+                className='absolute top-3 left-0 hidden h-20 w-2 sm:top-[0.875rem] sm:block'
+              />
+              <ol className='text-gray9 space-y-0 text-[1rem] leading-[200%] sm:text-[1.125rem]'>
                 <li>01 전공 선택</li>
                 <li>02 흥미 유형 검사</li>
                 <li>03 근무 조건 밸런스게임</li>
               </ol>
-              <p className='mt-6 text-[1.5rem] leading-[130%] font-bold sm:text-[2rem]'>
+              <p className='mt-3 text-[1.5rem] leading-[130%] font-bold sm:text-[1.5rem]'>
                 3단계 테스트로 3분 만에!
               </p>
-              <p className='mt-16 text-[1.25rem] leading-[130%] font-bold sm:mt-[5.75rem] sm:text-[1.5rem]'>
+              <p className='mt-16 text-[1.25rem] leading-[130%] font-bold sm:mt-[6.1875rem] sm:text-[1.5rem]'>
                 나의 성향에 딱 맞는 직무와
                 <br />
                 기업 형태를 찾아보세요.
@@ -638,7 +645,7 @@ export function LandingPageContent() {
             경험을 서류로 바꾸세요.
           </h2>
           <div className='mt-10 sm:mt-[3.75rem]'>
-            <LoginEntryButton />
+            <LoginEntryButton>무료로 사용하기 →</LoginEntryButton>
           </div>
         </div>
       </section>
