@@ -13,26 +13,36 @@ type ServiceCardProps = {
   title: string;
   description: string;
   iconSrc: string;
+  iconClassName?: string;
   buttonText: string;
   onClick: () => void;
 };
+
+type SolutionConnector = 'single' | 'dual-center' | 'dual-right';
 
 const solutionCards = [
   {
     label: '지원 서류에 쓸 내용이 없어요.',
     number: 'Solution 01',
     description: '경험 정리를 해두면,\n어떤 서류든 문제 없어요!',
+    connector: 'single' as const,
+    gradient: 'linear-gradient(45.280686deg, #CCDBFF 1.0308%, #F6F8FF 98.969%)',
   },
   {
     label: '경험 정리하는 방법을 모르겠어요.',
     number: 'Solution 02',
     description: '카테고리별 템플릿으로\n체계적으로 정리하세요!',
+    connector: 'dual-center' as const,
+    gradient:
+      'linear-gradient(161.758259deg, #CCDBFF 8.8394%, #F6F8FF 91.161%)',
   },
   {
     label: '정리하는 시간이 너무 오래 걸려요.',
     number: 'Solution 03',
     description:
       'AI 에이전트가 활동 자료와\n지원 서류를 바탕으로\n경험을 정리해줘요!',
+    connector: 'dual-right' as const,
+    gradient: 'linear-gradient(-64.14626deg, #CCDBFF 15.769%, #F6F8FF 98.691%)',
   },
 ];
 
@@ -133,6 +143,7 @@ function ServiceCard({
   title,
   description,
   iconSrc,
+  iconClassName = 'h-full w-full',
   buttonText,
   onClick,
 }: ServiceCardProps) {
@@ -141,14 +152,16 @@ function ServiceCard({
       <h2 className='text-gray9 text-[1.5rem] leading-[130%] font-bold sm:text-[1.75rem]'>
         {title}
       </h2>
-      <Image
-        src={iconSrc}
-        alt=''
-        width={120}
-        height={120}
-        className='my-6 h-20 w-20 sm:h-[7.5rem] sm:w-[7.5rem]'
-      />
-      <p className='text-gray9 min-h-[3rem] text-[0.875rem] leading-[150%] sm:text-[1rem]'>
+      <div className='my-6 flex h-20 w-20 items-center justify-center sm:h-[7.5rem] sm:w-[7.5rem]'>
+        <Image
+          src={iconSrc}
+          alt=''
+          width={120}
+          height={120}
+          className={iconClassName}
+        />
+      </div>
+      <p className='text-gray9 min-h-[3rem] text-[0.875rem] leading-[150%] whitespace-pre-line sm:text-[1rem]'>
         {description}
       </p>
       <CommonButton
@@ -200,22 +213,55 @@ function JobPreview() {
   );
 }
 
+function SolutionCardConnector({ type }: { type: SolutionConnector }) {
+  if (type === 'single') {
+    return (
+      <Image
+        src='/landing/solution-connector-single.svg'
+        alt=''
+        width={10.6667}
+        height={36.3333}
+        className='absolute -top-5 left-1/2 z-10 h-[2.2708rem] w-[0.6667rem] -translate-x-1/2'
+      />
+    );
+  }
+
+  return (
+    <Image
+      src='/landing/solution-connector-dual.svg'
+      alt=''
+      width={270.667}
+      height={36.3333}
+      className={`absolute -top-5 z-10 h-[2.2708rem] w-[16.9167rem] ${
+        type === 'dual-center' ? 'left-[1.6667rem]' : 'left-[2.4167rem]'
+      }`}
+    />
+  );
+}
+
 function SolutionCard({
   label,
   number,
   description,
+  connector,
+  gradient,
 }: (typeof solutionCards)[number]) {
   return (
-    <article className='relative flex min-h-[21rem] flex-1 flex-col pt-[5.5rem] sm:min-h-[25rem]'>
-      <p className='border-gray3 text-gray9 shadow-chat-card absolute top-0 z-10 flex min-h-[5.5rem] w-full items-center justify-center rounded-[0.75rem] border bg-white px-4 text-center text-[0.9375rem] leading-[150%] sm:text-[1.125rem]'>
+    <article className='relative flex min-h-[23.25rem] flex-1 flex-col pt-[6.75rem] sm:min-h-[26rem]'>
+      <p className='border-gray3 text-gray9 shadow-chat-card absolute top-0 z-20 flex min-h-[5.5rem] w-full items-center justify-center rounded-[0.75rem] border bg-[#FDFDFD] px-4 text-center text-[0.9375rem] leading-[150%] sm:text-[1.125rem]'>
         {label}
       </p>
-      <div className='shadow-chat-card relative flex min-h-[16.5rem] flex-1 flex-col justify-end overflow-hidden rounded-[1.25rem] bg-[linear-gradient(145deg,#F6F8FF_0%,#CCD9FF_100%)] p-5 sm:min-h-[19.25rem] sm:p-8'>
-        <span className='bg-sub1 text-main absolute top-3 left-5 rounded-full px-3 py-1 text-[0.75rem] sm:left-8 sm:text-[0.875rem]'>
+      <div className='shadow-chat-card relative flex min-h-[16.5rem] flex-1 flex-col justify-end rounded-[1.25rem] p-5 sm:min-h-[19.25rem] sm:p-8'>
+        <div
+          aria-hidden
+          className='absolute inset-0 rounded-[inherit] opacity-80'
+          style={{ background: gradient }}
+        />
+        <SolutionCardConnector type={connector} />
+        <span className='bg-sub1 text-main absolute top-7 left-5 z-10 rounded-full px-3 py-1 text-[0.75rem] sm:left-8 sm:text-[0.875rem]'>
           {number}
         </span>
-        <span className='absolute top-[-1.875rem] left-1/2 h-[1.875rem] w-px -translate-x-1/2 bg-[#B8C4E7]' />
-        <p className='text-gray9 text-[1.125rem] leading-[130%] font-bold whitespace-pre-line sm:text-[1.5rem]'>
+        <p className='text-gray9 relative z-10 mt-auto text-[1.125rem] leading-[130%] font-bold whitespace-pre-line sm:text-[1.5rem]'>
           {description}
         </p>
       </div>
@@ -443,21 +489,28 @@ export function LandingPageContent() {
             <ServiceCard
               title='직무 찾기'
               iconSrc='/landing/job-search-icon.svg'
-              description='어렵고 막막한 진로 고민, 3분 테스트로 찾는 나의 직무'
+              description={
+                '어렵고 막막한 진로 고민,\n3분 테스트로 찾는 나의 직무'
+              }
               buttonText='테스트 시작하기'
               onClick={() => navigateWithLoginGuard('/recommendation')}
             />
             <ServiceCard
               title='경험 정리'
               iconSrc='/landing/experience-organize-icon.svg'
-              description='흩어진 경험의 기록을 모아 취업 준비의 핵심 자산으로'
+              iconClassName='h-[61.111%] w-[71.667%] opacity-75'
+              description={
+                '흩어진 경험의 기록을 모아\n취업 준비의 핵심 자산으로'
+              }
               buttonText='경험 정리하기'
               onClick={() => navigateWithLoginGuard('/experience/workspace')}
             />
             <ServiceCard
               title='포트폴리오 첨삭'
               iconSrc='/landing/portfolio-correction-icon.svg'
-              description='매번 새로 쓰는 부담 없이, 공고마다 빠르게, 맞춤 전략으로'
+              description={
+                '매번 새로 쓰는 부담 없이,\n공고마다 빠르게, 맞춤 전략으로'
+              }
               buttonText='첨삭 의뢰하기'
               onClick={() => navigateWithLoginGuard('/correction/new')}
             />
@@ -493,15 +546,15 @@ export function LandingPageContent() {
                 height={80}
                 className='absolute top-3 left-0 hidden h-20 w-2 sm:top-[0.875rem] sm:block'
               />
-              <ol className='text-gray9 space-y-0 text-[1rem] leading-[200%] sm:text-[1.125rem]'>
+              <ol className='text-gray9 space-y-0 text-[1rem] leading-[200%] sm:text-[1.125rem] sm:whitespace-nowrap'>
                 <li>01 전공 선택</li>
                 <li>02 흥미 유형 검사</li>
                 <li>03 근무 조건 밸런스게임</li>
               </ol>
-              <p className='mt-3 text-[1.5rem] leading-[130%] font-bold sm:text-[1.5rem]'>
+              <p className='mt-3 text-[1.5rem] leading-[130%] font-bold sm:text-[1.5rem] sm:whitespace-nowrap'>
                 3단계 테스트로 3분 만에!
               </p>
-              <p className='mt-16 text-[1.25rem] leading-[130%] font-bold sm:mt-[6.1875rem] sm:text-[1.5rem]'>
+              <p className='mt-16 text-[1.25rem] leading-[130%] font-bold sm:mt-[6.1875rem] sm:text-[1.5rem] sm:whitespace-nowrap'>
                 나의 성향에 딱 맞는 직무와
                 <br />
                 기업 형태를 찾아보세요.
