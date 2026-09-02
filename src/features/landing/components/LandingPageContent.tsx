@@ -443,11 +443,15 @@ function SolutionCard({
 function VideoFeatureCard({
   title,
   description,
+  mobileTitle = title,
+  mobileDescription = description,
   className = '',
   mediaCount = 1,
 }: {
   title: string;
   description: string;
+  mobileTitle?: string;
+  mobileDescription?: string;
   className?: string;
   mediaCount?: 1 | 2;
 }) {
@@ -471,10 +475,16 @@ function VideoFeatureCard({
       >
         <div className='absolute inset-0 rounded-[inherit] shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.1)]' />
       </div>
-      <h3 className='text-main relative text-[1.125rem] leading-[130%] font-bold sm:text-[1.75rem]'>
+      <h3 className='text-main relative text-[1.125rem] leading-[130%] font-bold whitespace-pre sm:hidden'>
+        {mobileTitle}
+      </h3>
+      <h3 className='text-main relative hidden text-[1.125rem] leading-[130%] font-bold sm:block sm:text-[1.75rem]'>
         {title}
       </h3>
-      <p className='text-gray6 relative mt-1 text-[0.875rem] leading-[150%] sm:mt-2 sm:text-[1.125rem]'>
+      <p className='text-gray6 relative mt-1 text-[0.875rem] leading-[150%] whitespace-pre sm:hidden'>
+        {mobileDescription}
+      </p>
+      <p className='text-gray6 relative mt-1 hidden text-[0.875rem] leading-[150%] sm:mt-2 sm:block sm:text-[1.125rem]'>
         {description}
       </p>
       <div
@@ -981,6 +991,9 @@ export function LandingPageContent() {
             <VideoFeatureCard
               title='템플릿을 활용해 체계적으로'
               description='준비된 템플릿을 통해, 누구나 체계적으로 정리할 수 있어요.'
+              mobileDescription={
+                '준비된 템플릿을 통해, 누구나\n체계적으로 정리할 수 있어요.'
+              }
             />
             <VideoFeatureCard
               title='AI 에이전트와 쉽고, 빠르게'
@@ -990,6 +1003,10 @@ export function LandingPageContent() {
               className='sm:col-span-2'
               title='나의 경험을 구조적으로 볼 수 있는 두 가지 뷰'
               description='맵 뷰로 경험의 구조를 한눈에 파악하고, 리스트 뷰로 경험을 깊이 있게 정리해요.'
+              mobileTitle={'나의 경험을 구조적으로 볼 수 있는 두 가지\n뷰'}
+              mobileDescription={
+                '맵 뷰로 경험의 구조를 한눈에 파악하고,\n리스트 뷰로 경험을 깊이 있게 정리해요.'
+              }
               mediaCount={2}
             />
           </div>
