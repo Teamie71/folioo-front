@@ -47,6 +47,8 @@ const solutionCards = [
     number: 'Solution 03',
     description:
       'AI 에이전트가 활동 자료와\n지원 서류를 바탕으로\n경험을 정리해줘요!',
+    mobileDescription:
+      'AI 에이전트가 활동 자료와 지원 서류를\n바탕으로 경험을 정리해줘요!',
     connector: 'dual-right' as const,
     gradient: 'linear-gradient(-64.14626deg, #CCDBFF 15.769%, #F6F8FF 98.691%)',
   },
@@ -408,6 +410,7 @@ function SolutionCard({
   label,
   number,
   description,
+  mobileDescription = description,
   connector,
   gradient,
 }: (typeof solutionCards)[number]) {
@@ -426,7 +429,10 @@ function SolutionCard({
         <span className='bg-sub1 text-main absolute top-5 left-6 z-10 rounded-full px-3 py-1 text-[0.75rem] sm:top-7 sm:left-8 sm:text-[0.875rem]'>
           {number}
         </span>
-        <p className='text-gray9 relative z-10 mt-auto text-[1.125rem] leading-[130%] font-bold whitespace-pre-line sm:text-[1.5rem]'>
+        <p className='text-gray9 relative z-10 mt-auto text-[1.125rem] leading-[130%] font-bold whitespace-pre sm:hidden'>
+          {mobileDescription}
+        </p>
+        <p className='text-gray9 relative z-10 mt-auto hidden text-[1.125rem] leading-[130%] font-bold whitespace-pre-line sm:block sm:text-[1.5rem]'>
           {description}
         </p>
       </div>
