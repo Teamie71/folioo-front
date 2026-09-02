@@ -567,10 +567,10 @@ function LandingFaq() {
           return (
             <article
               key={faq.question}
-              className={`relative rounded-[1rem] px-5 py-6 sm:rounded-[1.25rem] sm:px-10 sm:py-7 ${
+              className={`relative cursor-pointer rounded-[1rem] px-5 py-6 transition-colors sm:rounded-[1.25rem] sm:px-10 sm:py-7 ${
                 isOpen
                   ? 'bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.04),inset_0px_2px_4px_0px_rgba(0,0,0,0.04)]'
-                  : 'bg-gradient-to-r from-[#CCDDFF]/30 to-[#F6F8FF]/30 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.04),inset_0px_2px_4px_0px_rgba(0,0,0,0.04)]'
+                  : 'bg-gradient-to-r from-[#CCDDFF]/30 to-[#F6F8FF]/30 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.04),inset_0px_2px_4px_0px_rgba(0,0,0,0.04)] hover:from-white hover:to-white'
               }`}
             >
               <button
