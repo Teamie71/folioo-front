@@ -471,7 +471,7 @@ function VideoFeatureCard({
     >
       <div
         aria-hidden
-        className='absolute inset-0 rounded-[inherit] bg-gradient-to-b from-[#CCDBFF] to-[#F6F8FF] opacity-30 shadow-[0_4px_8px_0_rgba(0,0,0,0.1)]'
+        className='absolute inset-0 rounded-[inherit] bg-gradient-to-b from-[#F6F8FF] to-[#CCDBFF] opacity-30 shadow-[0_4px_8px_0_rgba(0,0,0,0.1)]'
       >
         <div className='absolute inset-0 rounded-[inherit] shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.1)]' />
       </div>
@@ -488,7 +488,7 @@ function VideoFeatureCard({
         {description}
       </p>
       <div
-        className={`relative mt-5 grid gap-3 sm:-mx-4 sm:mt-7 ${
+        className={`relative -mx-2 mt-5 grid gap-3 sm:-mx-4 sm:mt-7 ${
           isSplitView ? 'sm:grid-cols-2 sm:gap-7' : ''
         }`}
       >
