@@ -572,12 +572,12 @@ function LandingFaq() {
                   ? 'bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.04),inset_0px_2px_4px_0px_rgba(0,0,0,0.04)]'
                   : 'bg-gradient-to-r from-[#CCDDFF]/30 to-[#F6F8FF]/30 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.04),inset_0px_2px_4px_0px_rgba(0,0,0,0.04)] hover:from-white hover:to-white'
               }`}
+              onClick={() => setOpenedIndex(isOpen ? null : index)}
             >
               <button
                 type='button'
                 className='relative z-10 flex w-full cursor-pointer items-center gap-3 text-left sm:gap-4'
                 aria-expanded={isOpen}
-                onClick={() => setOpenedIndex(isOpen ? null : index)}
               >
                 <Image
                   src={faq.numberIconSrc}
