@@ -216,13 +216,16 @@ function JobPreview() {
 function SolutionCardConnector({ type }: { type: SolutionConnector }) {
   if (type === 'single') {
     return (
-      <Image
-        src='/landing/solution-connector-single.svg'
-        alt=''
-        width={10.6667}
-        height={36.3333}
-        className='absolute -top-5 left-1/2 z-10 h-[2.2708rem] w-[0.6667rem] -translate-x-1/2'
-      />
+      <div className='absolute -top-5 left-1/2 z-10 h-[2.2708rem] w-[0.6667rem] -translate-x-1/2'>
+        <Image
+          src='/landing/solution-connector-single.svg'
+          alt=''
+          width={36.3333}
+          height={10.6667}
+          className='absolute top-1/2 left-1/2 h-[0.6667rem] w-[2.2708rem] max-w-none'
+          style={{ transform: 'translate(-50%, -50%) rotate(-90deg)' }}
+        />
+      </div>
     );
   }
 
@@ -232,9 +235,7 @@ function SolutionCardConnector({ type }: { type: SolutionConnector }) {
       alt=''
       width={270.667}
       height={36.3333}
-      className={`absolute -top-5 z-10 h-[2.2708rem] w-[16.9167rem] ${
-        type === 'dual-center' ? 'left-[1.6667rem]' : 'left-[2.4167rem]'
-      }`}
+      className='absolute -top-5 left-[1.6667rem] z-10 h-[2.2708rem] w-[16.9167rem]'
     />
   );
 }
@@ -280,25 +281,35 @@ function VideoFeatureCard({
   className?: string;
   mediaCount?: 1 | 2;
 }) {
+  const isSplitView = mediaCount === 2;
+
   return (
     <article
-      className={`rounded-[1.25rem] bg-[#E7ECFF] p-4 sm:p-5 ${className}`}
+      className={`shadow-chat-card relative overflow-hidden rounded-[1.25rem] p-4 sm:px-9 sm:pt-7 sm:pb-5 ${
+        isSplitView ? 'sm:h-[26.5625rem]' : 'sm:h-[25.875rem]'
+      } ${className}`}
     >
-      <h3 className='text-main text-[1.25rem] leading-[130%] font-bold sm:text-[1.75rem]'>
+      <div
+        aria-hidden
+        className='absolute inset-0 rounded-[inherit] bg-gradient-to-b from-[#F6F8FF] to-[#CCDBFF] opacity-30'
+      />
+      <h3 className='text-main relative text-[1.25rem] leading-[130%] font-bold sm:text-[1.75rem]'>
         {title}
       </h3>
-      <p className='text-gray6 mt-2 text-[0.8125rem] leading-[150%] sm:text-[1rem]'>
+      <p className='text-gray6 relative mt-2 text-[0.8125rem] leading-[150%] sm:text-[1.125rem]'>
         {description}
       </p>
       <div
-        className={`mt-5 grid gap-4 sm:mt-6 ${
-          mediaCount === 2 ? 'sm:grid-cols-2' : ''
+        className={`relative mt-5 grid gap-4 sm:-mx-4 sm:mt-7 ${
+          isSplitView ? 'sm:grid-cols-2 sm:gap-7' : ''
         }`}
       >
         {Array.from({ length: mediaCount }, (_, index) => (
           <LandingVideo
             key={index}
-            className='!h-[12rem] !w-full sm:!h-[16.75rem]'
+            className={`!h-[12rem] !w-full ${
+              isSplitView ? 'sm:!h-[17.375rem]' : 'sm:!h-[16.6875rem]'
+            }`}
           />
         ))}
       </div>
@@ -551,10 +562,10 @@ export function LandingPageContent() {
                 <li>02 흥미 유형 검사</li>
                 <li>03 근무 조건 밸런스게임</li>
               </ol>
-              <p className='mt-3 text-[1.5rem] leading-[130%] font-bold sm:text-[1.5rem] sm:whitespace-nowrap'>
+              <p className='mt-3 text-[1.5rem] leading-[130%] font-bold sm:-ml-5 sm:text-[1.5rem] sm:whitespace-nowrap'>
                 3단계 테스트로 3분 만에!
               </p>
-              <p className='mt-16 text-[1.25rem] leading-[130%] font-bold sm:mt-[6.1875rem] sm:text-[1.5rem] sm:whitespace-nowrap'>
+              <p className='mt-16 text-[1.25rem] leading-[130%] font-bold sm:mt-[6.1875rem] sm:-ml-5 sm:text-[1.5rem] sm:whitespace-nowrap'>
                 나의 성향에 딱 맞는 직무와
                 <br />
                 기업 형태를 찾아보세요.
