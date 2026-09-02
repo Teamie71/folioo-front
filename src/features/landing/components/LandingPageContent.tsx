@@ -349,7 +349,7 @@ function CorrectionWorkflow() {
           );
         })}
       </div>
-      <p className='mx-auto mt-7 h-[3rem] max-w-[37.5rem] text-center text-[1rem] leading-[150%] text-black sm:mt-10 sm:h-[3.375rem] sm:text-[1.125rem]'>
+      <p className='mx-auto mt-7 flex h-[3rem] max-w-[37.5rem] items-center justify-center text-center text-[1rem] leading-[150%] text-black sm:mt-10 sm:h-[3.375rem] sm:text-[1.125rem]'>
         {step.description}
       </p>
       <div className='relative mt-8 flex items-center gap-3 sm:mt-11 sm:block'>
