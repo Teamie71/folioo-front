@@ -628,8 +628,8 @@ export function LandingPageContent() {
           className='pointer-events-none absolute inset-0 z-0 hidden sm:block'
         >
           <div className='relative mx-auto h-full max-w-[66rem]'>
-            <div className='border-gray3 absolute top-[41.25rem] left-[3.9375rem] h-[5.4078125rem] w-[23.625rem] rounded-full border bg-[#FDFDFD] shadow-[0_4px_8px_0_rgba(0,0,0,0.2)]' />
-            <div className='border-gray3 absolute top-[46.6875rem] left-[29.5rem] h-[7.375rem] w-[40.5rem] rounded-full border bg-[#FDFDFD] shadow-[0_4px_8px_0_rgba(0,0,0,0.2)]' />
+            <div className='border-gray3 absolute top-[41.25rem] left-[3.9375rem] h-[5.4078125rem] w-[23.625rem] rounded-full border bg-[#FDFDFD] shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] blur-[1.25rem]' />
+            <div className='border-gray3 absolute top-[46.6875rem] left-[29.5rem] h-[7.375rem] w-[40.5rem] rounded-full border bg-[#FDFDFD] shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] blur-[1.25rem]' />
           </div>
         </div>
         <div
