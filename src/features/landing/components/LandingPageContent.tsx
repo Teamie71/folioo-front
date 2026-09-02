@@ -1049,6 +1049,30 @@ export function LandingPageContent() {
           <div className='relative mt-24 min-h-[28.1875rem] sm:mt-[8.75rem] sm:min-h-[34.875rem]'>
             <div
               aria-hidden
+              className='pointer-events-none absolute inset-0 z-0 sm:hidden'
+            >
+              <div className='border-gray3 shadow-chat-card absolute top-[5.125rem] -left-12 h-[2.6505rem] w-[7.3611rem] rounded-full border bg-[#FDFDFD] blur-[0.3125rem]' />
+              <div className='border-gray3 shadow-chat-card absolute top-[8.5rem] left-[10.25rem] h-[5.1875rem] w-[14.1875rem] rounded-full border bg-[#FDFDFD] blur-[0.3125rem]' />
+              <div className='border-gray3 shadow-chat-card absolute top-1 left-[2.375rem] h-[7.5rem] w-[23.5625rem] rounded-full border bg-white' />
+              <div className='border-gray3 shadow-chat-card absolute top-40 -left-[6.375rem] h-36 w-[25.25rem] rounded-full border bg-white' />
+              <div className='absolute top-[21.5rem] left-[10.5rem] h-[0.9375rem] w-[11.75rem] -translate-x-1/2 rounded-full bg-white opacity-50 blur-[0.1875rem]' />
+              <div className='absolute top-[22.6875rem] left-[10.5rem] h-3 w-32 -translate-x-1/2 rounded-full bg-white opacity-60 blur-[0.1875rem]' />
+              <div className='absolute top-[23.6875rem] left-[10.5rem] h-2 w-20 -translate-x-1/2 rounded-full bg-white opacity-75 blur-[0.1875rem]' />
+              <div className='absolute top-[24.4375rem] left-[10.5rem] h-1 w-12 -translate-x-1/2 rounded-full bg-white opacity-90 blur-[0.1875rem]' />
+            </div>
+            <div className='absolute top-7 left-[4.875rem] z-10 w-[15.375rem] text-right text-[1rem] leading-[150%] whitespace-pre sm:hidden'>
+              <p>특정 직무에 적합한 활동을 주로 했는데,</p>
+              <p>막상 취업 시장에 나와보니</p>
+              <p className='font-bold'>다른 직무도 지원할 수밖에 없어요.</p>
+            </div>
+            <div className='absolute top-[11.5rem] left-1 z-10 w-[14.875rem] text-[1rem] leading-[150%] whitespace-pre sm:hidden'>
+              <p>포트폴리오 하나로 여러 직무와 기업에</p>
+              <p>지원하니 경쟁력이 떨어지지만,</p>
+              <p>공고마다 새로 포트폴리오를 쓰기에는</p>
+              <p className='font-bold'>시간이 너무 오래 걸려요.</p>
+            </div>
+            <div
+              aria-hidden
               className='absolute top-[25.6875rem] left-1/2 z-0 hidden h-[5.0625rem] w-[17.625rem] -translate-x-1/2 sm:block'
             >
               <span className='absolute top-0 left-1/2 h-[1.375rem] w-[17.625rem] -translate-x-1/2 rounded-full bg-white opacity-30 blur-[0.1875rem]' />
@@ -1056,24 +1080,24 @@ export function LandingPageContent() {
               <span className='absolute top-[3.5rem] left-[calc(50%+1.5px)] h-[0.6875rem] w-[7.5625rem] -translate-x-1/2 rounded-full bg-white opacity-70 blur-[0.1875rem]' />
               <span className='absolute top-[4.6875rem] left-[calc(50%+2px)] h-1.5 w-[4.75rem] -translate-x-1/2 rounded-full bg-white opacity-90 blur-[0.1875rem]' />
             </div>
-            <div className='border-gray3 absolute top-0 left-[5%] z-10 h-[5.5rem] w-[90%] rounded-full border bg-white shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] sm:left-[7.5625rem] sm:h-[7.375rem] sm:w-[36.8125rem]' />
-            <p className='absolute top-5 left-[14%] z-10 max-w-[16rem] text-[0.75rem] leading-[150%] sm:top-8 sm:left-[12.5rem] sm:max-w-[28.5rem] sm:text-[1.125rem] sm:whitespace-nowrap'>
+            <div className='border-gray3 absolute top-0 left-[7.5625rem] z-10 hidden h-[7.375rem] w-[36.8125rem] rounded-full border bg-white shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] sm:block' />
+            <p className='absolute top-8 left-[12.5rem] z-10 hidden max-w-[28.5rem] text-[1.125rem] leading-[150%] whitespace-nowrap sm:block'>
               <span className='block'>
                 특정 직무에 적합한 활동을 주로 했는데,
               </span>
               <span>막상 취업 시장에 나와보니 </span>
-              <strong className='text-[0.875rem] leading-[130%] font-bold sm:text-[1.25rem]'>
+              <strong className='text-[1.25rem] leading-[130%] font-bold'>
                 다른 직무도 지원할 수밖에 없어요.
               </strong>
             </p>
-            <div className='border-gray3 absolute top-[9.25rem] right-[2%] z-10 h-[6.75rem] w-[94%] rounded-full border bg-[#FDFDFD] shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] sm:top-[10.625rem] sm:right-[2rem] sm:h-[7.375rem] sm:w-[40.5rem]' />
-            <p className='absolute top-[10.75rem] right-[8%] z-10 max-w-[16rem] text-[0.75rem] leading-[150%] sm:top-[12.625rem] sm:right-[6.9375rem] sm:max-w-[30.5rem] sm:text-[1.125rem] sm:whitespace-nowrap'>
+            <div className='border-gray3 absolute top-[10.625rem] right-[2rem] z-10 hidden h-[7.375rem] w-[40.5rem] rounded-full border bg-[#FDFDFD] shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] sm:block' />
+            <p className='absolute top-[12.625rem] right-[6.9375rem] z-10 hidden max-w-[30.5rem] text-[1.125rem] leading-[150%] whitespace-nowrap sm:block'>
               <span className='block'>
                 포트폴리오 하나로 여러 직무와 기업에 지원하니 경쟁력이
                 떨어지지만,
               </span>
               <span>공고마다 새로 포트폴리오를 쓰기에는</span>
-              <strong className='text-[0.875rem] leading-[130%] font-bold sm:text-[1.25rem]'>
+              <strong className='text-[1.25rem] leading-[130%] font-bold'>
                 {' '}
                 시간이 너무 오래 걸려요.
               </strong>
