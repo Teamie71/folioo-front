@@ -340,7 +340,7 @@ function ServiceCard({
         variantType='Outline'
         px='2.25rem'
         py='0.5rem'
-        className='relative z-10 mt-auto border text-[0.875rem] font-bold sm:text-[1rem]'
+        className='relative z-10 mt-auto self-center border text-[0.875rem] font-bold sm:self-auto sm:text-[1rem]'
         onClick={onClick}
       >
         {buttonText} →
