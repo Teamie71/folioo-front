@@ -873,7 +873,7 @@ function LandingFaq() {
             >
               <button
                 type='button'
-                className='relative z-10 flex w-full items-center gap-2 text-left sm:gap-4'
+                className='relative z-10 flex w-full cursor-pointer items-center gap-2 text-left sm:gap-4'
                 aria-expanded={isOpen}
               >
                 <Image
@@ -1221,7 +1221,7 @@ export function LandingPageContent() {
           </div>
         </div>
         <div
-          className='pointer-events-none absolute top-[26.75rem] z-10 h-[36.3125rem] w-full opacity-50 blur-[3.125rem] sm:inset-0'
+          className='pointer-events-none absolute top-[26.75rem] z-10 h-[36.3125rem] w-full opacity-50 blur-[3.125rem]'
           style={{
             background:
               'linear-gradient(180.083456732145deg, rgba(255, 255, 255, 0) 20.046%, rgb(196, 204, 255) 51.997%, rgba(255, 255, 255, 0.4) 79.954%)',
