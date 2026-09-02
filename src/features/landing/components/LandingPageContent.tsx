@@ -360,7 +360,7 @@ function JobPreview() {
 
 function SolutionCardConnector({ type }: { type: SolutionConnector }) {
   const mobileConnector = (
-    <div className='absolute top-[3.25rem] left-1/2 z-10 h-[2.2708rem] w-[0.6667rem] -translate-x-1/2 sm:hidden'>
+    <div className='absolute -top-5 left-1/2 z-10 h-[2.2708rem] w-[0.6667rem] -translate-x-1/2 sm:hidden'>
       <Image
         src='/landing/solution-connector-single.svg'
         alt=''
