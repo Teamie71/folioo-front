@@ -163,7 +163,7 @@ function ServiceCard({
 function JobPreview() {
   return (
     <div
-      className='relative h-[18rem] overflow-hidden rounded-[1.25rem] bg-[#EEF0F5] sm:h-[32.5rem]'
+      className='relative h-[18rem] overflow-hidden bg-[#EEF0F5] sm:h-[32.5rem]'
       role='img'
       aria-label='직무 찾기 결과 미리보기 이미지 준비 중'
     >
@@ -349,7 +349,7 @@ function CorrectionWorkflow() {
           );
         })}
       </div>
-      <p className='mx-auto mt-7 h-[7.5rem] max-w-[37.5rem] text-center text-[1rem] leading-[150%] text-black sm:mt-10 sm:h-[5.0625rem] sm:text-[1.125rem]'>
+      <p className='mx-auto mt-7 h-[3rem] max-w-[37.5rem] text-center text-[1rem] leading-[150%] text-black sm:mt-10 sm:h-[3.375rem] sm:text-[1.125rem]'>
         {step.description}
       </p>
       <div className='relative mt-8 flex items-center gap-3 sm:mt-11 sm:block'>
@@ -369,7 +369,7 @@ function CorrectionWorkflow() {
             />
           </span>
         </button>
-        <LandingVideo className='!h-[15rem] !w-full !rounded-[1.25rem] sm:!h-[37.125rem]' />
+        <LandingVideo className='!h-[15rem] !w-full !rounded-none sm:!h-[37.125rem]' />
         <button
           type='button'
           aria-label='다음 첨삭 단계'
