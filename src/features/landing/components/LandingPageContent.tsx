@@ -17,6 +17,7 @@ type ServiceCardProps = {
   iconClassName?: string;
   buttonText: string;
   onClick: () => void;
+  onCardClick?: () => void;
 };
 
 type SolutionConnector = 'single' | 'dual-center' | 'dual-right';
@@ -289,29 +290,44 @@ function ServiceCard({
   iconClassName = 'h-full w-full',
   buttonText,
   onClick,
+  onCardClick,
 }: ServiceCardProps) {
   return (
-    <article className='shadow-chat-card flex min-h-[22rem] w-full flex-col items-center rounded-[1.75rem] bg-[#FCFCFF] px-6 py-8 text-center sm:min-h-[25.125rem] sm:w-[21rem] sm:p-10'>
-      <h2 className='text-gray9 text-[1.5rem] leading-[130%] font-bold sm:text-[1.75rem]'>
-        {title}
-      </h2>
-      <div className='my-6 flex h-20 w-20 items-center justify-center sm:h-[7.5rem] sm:w-[7.5rem]'>
-        <Image
-          src={iconSrc}
-          alt=''
-          width={120}
-          height={120}
-          className={iconClassName}
+    <article className='shadow-chat-card relative flex min-h-[22rem] w-full flex-col items-center rounded-[1.75rem] bg-[#FCFCFF] px-6 py-8 text-center sm:min-h-[25.125rem] sm:w-[21rem] sm:p-10'>
+      {onCardClick && (
+        <button
+          type='button'
+          aria-label={`${title} 소개로 이동`}
+          className='absolute inset-0 z-0 cursor-pointer rounded-[1.75rem]'
+          onClick={onCardClick}
         />
+      )}
+      <div
+        className={`relative z-10 flex w-full flex-col items-center ${
+          onCardClick ? 'pointer-events-none' : ''
+        }`}
+      >
+        <h2 className='text-gray9 text-[1.5rem] leading-[130%] font-bold sm:text-[1.75rem]'>
+          {title}
+        </h2>
+        <div className='my-6 flex h-20 w-20 items-center justify-center sm:h-[7.5rem] sm:w-[7.5rem]'>
+          <Image
+            src={iconSrc}
+            alt=''
+            width={120}
+            height={120}
+            className={iconClassName}
+          />
+        </div>
+        <p className='text-gray9 min-h-[3rem] text-[0.875rem] leading-[150%] whitespace-pre-line sm:text-[1rem]'>
+          {description}
+        </p>
       </div>
-      <p className='text-gray9 min-h-[3rem] text-[0.875rem] leading-[150%] whitespace-pre-line sm:text-[1rem]'>
-        {description}
-      </p>
       <CommonButton
         variantType='Outline'
         px='2.25rem'
         py='0.5rem'
-        className='mt-auto border text-[0.875rem] font-bold sm:text-[1rem]'
+        className='relative z-10 mt-auto border text-[0.875rem] font-bold sm:text-[1rem]'
         onClick={onClick}
       >
         {buttonText} →
@@ -663,6 +679,11 @@ export function LandingPageContent() {
               }
               buttonText='테스트 시작하기'
               onClick={() => navigateWithLoginGuard('/recommendation')}
+              onCardClick={() => {
+                document
+                  .getElementById('job-search-introduction')
+                  ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
             />
             <ServiceCard
               title='경험 정리'
@@ -686,7 +707,10 @@ export function LandingPageContent() {
           </div>
         </section>
 
-        <section className='relative z-10 mx-auto max-w-[66rem] px-5 pb-[8rem] sm:px-0 sm:pb-[10rem]'>
+        <section
+          id='job-search-introduction'
+          className='relative z-10 mx-auto max-w-[66rem] scroll-mt-24 px-5 pb-[8rem] sm:scroll-mt-28 sm:px-0 sm:pb-[10rem]'
+        >
           <p className='text-[1.125rem] leading-[130%] font-bold sm:text-[1.25rem]'>
             직무 찾기
           </p>
