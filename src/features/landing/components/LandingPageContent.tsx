@@ -319,7 +319,7 @@ function CorrectionWorkflow() {
         How It Works
       </p>
       <div
-        className='border-gray3 mt-8 grid grid-cols-2 border-b sm:mt-[3.75rem] sm:grid-cols-4'
+        className='mt-8 grid grid-cols-2 sm:mt-10 sm:grid-cols-4'
         role='tablist'
         aria-label='포트폴리오 첨삭 단계'
       >
@@ -332,10 +332,10 @@ function CorrectionWorkflow() {
               type='button'
               role='tab'
               aria-selected={isActive}
-              className={`border-b-2 px-3 pt-3 pb-4 text-center transition-colors sm:px-6 sm:pt-3 sm:pb-5 ${
+              className={`border-b-4 px-3 py-3 text-center transition-colors sm:px-6 ${
                 isActive
                   ? 'border-main text-main'
-                  : 'text-gray4 hover:text-gray6 border-transparent'
+                  : 'border-gray3 text-gray4 hover:text-gray6'
               }`}
               onClick={() => setActiveStep(index)}
             >
@@ -364,7 +364,7 @@ function CorrectionWorkflow() {
             alt=''
             width={44}
             height={44}
-            className='h-9 w-9 sm:h-11 sm:w-11'
+            className='h-9 w-9 -rotate-90 sm:h-11 sm:w-11'
           />
         </button>
         <LandingVideo className='!h-[15rem] !w-full sm:!h-[37.125rem]' />
@@ -379,7 +379,7 @@ function CorrectionWorkflow() {
             alt=''
             width={44}
             height={44}
-            className='h-9 w-9 rotate-180 sm:h-11 sm:w-11'
+            className='h-9 w-9 rotate-90 sm:h-11 sm:w-11'
           />
         </button>
       </div>
