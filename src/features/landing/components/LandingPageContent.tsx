@@ -332,10 +332,8 @@ function CorrectionWorkflow() {
               type='button'
               role='tab'
               aria-selected={isActive}
-              className={`border-b-4 px-3 py-3 text-center transition-colors sm:px-6 ${
-                isActive
-                  ? 'border-main text-main'
-                  : 'border-gray3 text-gray4 hover:text-gray6'
+              className={`cursor-pointer border-b-4 px-3 py-3 text-center sm:px-6 ${
+                isActive ? 'border-main text-main' : 'border-gray3 text-gray4'
               }`}
               onClick={() => setActiveStep(index)}
             >
@@ -409,11 +407,11 @@ function LandingFaq() {
           return (
             <article
               key={faq.question}
-              className='rounded-[1rem] bg-[#F6F8FF] transition-colors hover:bg-white'
+              className='rounded-[1rem] bg-gradient-to-r from-[#CCDDFF]/30 to-[#F6F8FF]/30 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.04),inset_0px_2px_4px_0px_rgba(0,0,0,0.04)] transition-colors hover:from-white hover:to-white sm:rounded-[1.25rem]'
             >
               <button
                 type='button'
-                className='flex w-full items-center gap-3 px-5 py-6 text-left sm:px-8 sm:py-8'
+                className='flex w-full cursor-pointer items-center gap-3 px-5 py-6 text-left sm:px-8 sm:py-8'
                 aria-expanded={isOpen}
                 onClick={() => setOpenedIndex(isOpen ? null : index)}
               >
