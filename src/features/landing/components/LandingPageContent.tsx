@@ -17,6 +17,8 @@ type ServiceCardProps = {
   description: string;
   iconSrc: string;
   iconClassName?: string;
+  mobileIconSrc?: string;
+  mobileIconClassName?: string;
   buttonText: string;
   onClick: () => void;
   onCardClick?: () => void;
@@ -290,6 +292,8 @@ function ServiceCard({
   description,
   iconSrc,
   iconClassName = 'h-full w-full',
+  mobileIconSrc,
+  mobileIconClassName = 'h-full w-full',
   buttonText,
   onClick,
   onCardClick,
@@ -314,11 +318,18 @@ function ServiceCard({
         </h2>
         <div className='absolute top-0 right-0 flex h-[3.75rem] w-[3.75rem] items-center justify-center sm:static sm:my-6 sm:h-[7.5rem] sm:w-[7.5rem]'>
           <Image
+            src={mobileIconSrc ?? iconSrc}
+            alt=''
+            width={60}
+            height={60}
+            className={`sm:hidden ${mobileIconClassName}`}
+          />
+          <Image
             src={iconSrc}
             alt=''
             width={120}
             height={120}
-            className={iconClassName}
+            className={`hidden sm:block ${iconClassName}`}
           />
         </div>
         <p className='text-gray9 mt-3 min-h-[2.625rem] text-[0.875rem] leading-[150%] whitespace-pre-line sm:mt-0 sm:min-h-[3rem] sm:text-[1rem]'>
@@ -814,8 +825,15 @@ export function LandingPageContent() {
               무한한 취업 경쟁력으로
             </h1>
             <p className='text-gray6 sm:text-gray9 mt-4 text-[1rem] leading-[150%] font-normal sm:mt-[3.125rem] sm:text-[1.25rem] sm:leading-[130%] sm:font-bold'>
-              Folioo의 AI 컨설턴트가 당신의 경험과 역량을 가장 효과적으로 활용할
-              수 있도록 도와드려요.
+              <span className='sm:hidden'>
+                Folioo의 AI 컨설턴트가 당신의 경험과 역량을
+                <br />
+                가장 효과적으로 활용할 수 있도록 도와드려요.
+              </span>
+              <span className='hidden sm:inline'>
+                Folioo의 AI 컨설턴트가 당신의 경험과 역량을 가장 효과적으로
+                활용할 수 있도록 도와드려요.
+              </span>
             </p>
             <div className='mt-14 sm:mt-[3.25rem]'>
               <LoginEntryButton />
@@ -826,6 +844,7 @@ export function LandingPageContent() {
             <ServiceCard
               title='직무 찾기'
               iconSrc='/landing/job-search-icon.svg'
+              mobileIconSrc='/landing/job-search-icon-mobile.svg'
               description={
                 '어렵고 막막한 진로 고민,\n3분 테스트로 찾는 나의 직무'
               }
@@ -839,6 +858,8 @@ export function LandingPageContent() {
               title='경험 정리'
               iconSrc='/landing/experience-organize-icon.svg'
               iconClassName='h-[61.111%] w-[71.667%] opacity-75'
+              mobileIconSrc='/landing/experience-organize-icon-mobile.svg'
+              mobileIconClassName='h-11 w-[3.1875rem] opacity-75'
               description={
                 '흩어진 경험의 기록을 모아\n취업 준비의 핵심 자산으로'
               }
@@ -851,6 +872,7 @@ export function LandingPageContent() {
             <ServiceCard
               title='포트폴리오 첨삭'
               iconSrc='/landing/portfolio-correction-icon.svg'
+              mobileIconSrc='/landing/portfolio-correction-icon-mobile.svg'
               description={
                 '매번 새로 쓰는 부담 없이,\n공고마다 빠르게, 맞춤 전략으로'
               }
@@ -889,21 +911,28 @@ export function LandingPageContent() {
             <JobPreview />
             <div className='relative sm:translate-y-[0.8125rem] sm:pl-5'>
               <Image
+                src='/landing/job-preview-divider-mobile.svg'
+                alt=''
+                width={8}
+                height={72}
+                className='absolute top-3 left-0 h-[4.5rem] w-2 sm:hidden'
+              />
+              <Image
                 src='/landing/job-preview-divider.svg'
                 alt=''
                 width={8}
                 height={80}
-                className='absolute top-3 left-0 hidden h-20 w-2 sm:top-[0.875rem] sm:block'
+                className='absolute top-[0.875rem] left-0 hidden h-20 w-2 sm:block'
               />
-              <ol className='text-gray9 space-y-0 text-[0.875rem] leading-[200%] sm:text-[1.125rem] sm:whitespace-nowrap'>
+              <ol className='text-gray9 space-y-0 pl-5 text-[1rem] leading-[200%] sm:pl-0 sm:text-[1.125rem] sm:whitespace-nowrap'>
                 <li>01 전공 선택</li>
                 <li>02 흥미 유형 검사</li>
                 <li>03 근무 조건 밸런스게임</li>
               </ol>
-              <p className='mt-3 text-[1.125rem] leading-[130%] font-bold sm:-ml-5 sm:text-[1.5rem] sm:whitespace-nowrap'>
+              <p className='mt-2 text-[1.125rem] leading-[130%] font-semibold sm:mt-3 sm:-ml-5 sm:text-[1.5rem] sm:font-bold sm:whitespace-nowrap'>
                 3단계 테스트로 3분 만에!
               </p>
-              <p className='mt-12 text-[1.25rem] leading-[130%] font-bold sm:mt-[6.1875rem] sm:-ml-5 sm:text-[1.5rem] sm:whitespace-nowrap'>
+              <p className='mt-10 text-[1.125rem] leading-[130%] font-semibold sm:mt-[6.1875rem] sm:-ml-5 sm:text-[1.5rem] sm:font-bold sm:whitespace-nowrap'>
                 나의 성향에 딱 맞는 직무와
                 <br />
                 기업 형태를 찾아보세요.
