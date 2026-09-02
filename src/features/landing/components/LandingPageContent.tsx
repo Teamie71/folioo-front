@@ -1221,7 +1221,7 @@ export function LandingPageContent() {
           </div>
         </div>
         <div
-          className='pointer-events-none absolute top-[26.75rem] z-10 h-[36.3125rem] w-full opacity-50 blur-[3.125rem]'
+          className='pointer-events-none absolute top-[26.75rem] z-10 h-[36.3125rem] w-full opacity-50 blur-[3.125rem] sm:inset-0 sm:h-auto'
           style={{
             background:
               'linear-gradient(180.083456732145deg, rgba(255, 255, 255, 0) 20.046%, rgb(196, 204, 255) 51.997%, rgba(255, 255, 255, 0.4) 79.954%)',

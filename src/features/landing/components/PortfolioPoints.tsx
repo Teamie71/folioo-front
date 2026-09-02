@@ -30,7 +30,7 @@ export const PortfoliloPoints = () => {
         return (
           <div
             key={point.number}
-            className='flex items-center justify-between rounded-[1.75rem] bg-[#FFFFFF] px-[1.75rem] py-[2rem] shadow-[2px_4px_12px_0px_rgba(0,0,0,0.2)_inset] md:px-[2.5rem] md:py-[1.75rem]'
+            className='flex items-center justify-between rounded-[1.75rem] bg-[#FFFFFF] px-[1.75rem] py-[2rem] shadow-[2px_4px_12px_0px_rgba(0,0,0,0.2)_inset] md:px-[2.5rem] md:py-10'
           >
             <div className='flex flex-col gap-[0.75rem]'>
               <div className='flex items-center gap-[0.5rem]'>
