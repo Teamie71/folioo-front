@@ -887,7 +887,7 @@ export function LandingPageContent() {
 
         <section
           id='job-search-introduction'
-          className='relative z-10 mx-auto max-w-[66rem] scroll-mt-[9.5rem] px-4 pb-[3.625rem] sm:scroll-mt-[12.5rem] sm:px-0 sm:pb-[10rem]'
+          className='relative z-10 mx-auto max-w-[66rem] scroll-mt-[9.5rem] px-4 pb-[3.75rem] sm:scroll-mt-[12.5rem] sm:px-0 sm:pb-[10rem]'
         >
           <p className='text-[1rem] leading-[130%] font-semibold sm:text-[1.25rem] sm:font-bold'>
             직무 찾기
