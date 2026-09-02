@@ -285,14 +285,16 @@ function VideoFeatureCard({
 
   return (
     <article
-      className={`shadow-chat-card relative overflow-hidden rounded-[1.25rem] p-4 sm:px-9 sm:pt-7 sm:pb-5 ${
+      className={`relative overflow-hidden rounded-[1.25rem] p-4 sm:px-9 sm:pt-7 sm:pb-5 ${
         isSplitView ? 'sm:h-[26.5625rem]' : 'sm:h-[25.875rem]'
       } ${className}`}
     >
       <div
         aria-hidden
-        className='absolute inset-0 rounded-[inherit] bg-gradient-to-b from-[#F6F8FF] to-[#CCDBFF] opacity-30'
-      />
+        className='absolute inset-0 rounded-[inherit] bg-gradient-to-b from-[#F6F8FF] to-[#CCDBFF] opacity-30 shadow-[0_4px_8px_0_rgba(0,0,0,0.1)]'
+      >
+        <div className='absolute inset-0 rounded-[inherit] shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.1)]' />
+      </div>
       <h3 className='text-main relative text-[1.25rem] leading-[130%] font-bold sm:text-[1.75rem]'>
         {title}
       </h3>
