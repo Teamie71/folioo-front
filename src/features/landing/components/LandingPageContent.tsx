@@ -7,6 +7,7 @@ import { CommonButton } from '@/components/CommonButton';
 import Footer from '@/components/Footer';
 import { useAuthStore } from '@/store/useAuthStore';
 import { LandingVideo } from './LandingVideo';
+import { PortfoliloPoints } from './PortfolioPoints';
 import { StartCorrectionButton } from './StartCorrectionButton';
 
 type ServiceCardProps = {
@@ -43,24 +44,6 @@ const solutionCards = [
       'AI 에이전트가 활동 자료와\n지원 서류를 바탕으로\n경험을 정리해줘요!',
     connector: 'dual-right' as const,
     gradient: 'linear-gradient(-64.14626deg, #CCDBFF 15.769%, #F6F8FF 98.691%)',
-  },
-];
-
-const portfolioPoints = [
-  {
-    label: 'POINT 1.',
-    title: '지원 직무 & JD에 적합한 Fit 발굴',
-    iconSrc: '/landing/fit-icon.svg',
-  },
-  {
-    label: 'POINT 2.',
-    title: '명확한 가이드라인으로 빠른 포트폴리오 개선 가능',
-    iconSrc: '/landing/guideline-icon.svg',
-  },
-  {
-    label: 'POINT 3.',
-    title: '심층 기업 분석 정보 제공 및 맞춤 첨삭',
-    iconSrc: '/landing/analysis-icon.svg',
   },
 ];
 
@@ -692,32 +675,8 @@ export function LandingPageContent() {
               <br />
               지원 상황에 최적화된 첨삭 보고서로 해결하세요.
             </h3>
-            <div className='mt-12 space-y-4 sm:mt-[3.125rem] sm:space-y-6'>
-              {portfolioPoints.map((point) => (
-                <article
-                  key={point.label}
-                  className='border-gray3 shadow-chat-card flex min-h-[7rem] items-center justify-between rounded-[1.25rem] border bg-white px-5 py-4 text-left sm:min-h-[9.4375rem] sm:px-10'
-                >
-                  <div>
-                    <p className='text-gray6 text-[0.875rem] leading-[150%] sm:text-[1rem]'>
-                      <span className='mr-2 inline-flex h-4 w-4 items-center justify-center rounded-sm bg-[#7890E9] text-[0.625rem] text-white'>
-                        ✓
-                      </span>
-                      {point.label}
-                    </p>
-                    <p className='text-main mt-2 text-[1.125rem] leading-[130%] font-bold sm:text-[1.5rem]'>
-                      {point.title}
-                    </p>
-                  </div>
-                  <Image
-                    src={point.iconSrc}
-                    alt=''
-                    width={95}
-                    height={95}
-                    className='h-12 w-12 shrink-0 sm:h-[5.9375rem] sm:w-[5.9375rem]'
-                  />
-                </article>
-              ))}
+            <div className='mt-12 sm:mt-[3.125rem]'>
+              <PortfoliloPoints />
             </div>
           </div>
         </div>

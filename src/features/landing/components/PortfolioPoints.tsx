@@ -50,7 +50,7 @@ export const PortfoliloPoints = () => {
                 </span>
               </h3>
             </div>
-            <div className='flex h-[3.75rem] w-[3.75rem] shrink-0 items-center justify-center overflow-visible md:h-[6rem] md:w-[6rem] [&_svg]:h-full [&_svg]:w-full [&_svg]:flex-shrink-0'>
+            <div className='flex h-[3.75rem] w-[3.75rem] shrink-0 items-center justify-center overflow-visible md:h-[5.9375rem] md:w-[5.9375rem] [&_svg]:h-full [&_svg]:w-full [&_svg]:flex-shrink-0'>
               {PointIcon ? (
                 <PointIcon id={`${uniqueId}-${point.number}`} />
               ) : null}
