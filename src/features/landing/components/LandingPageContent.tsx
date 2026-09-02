@@ -352,11 +352,11 @@ function CorrectionWorkflow() {
       <p className='text-gray9 mx-auto mt-7 max-w-[37.5rem] text-center text-[1rem] leading-[150%] sm:mt-10 sm:text-[1.125rem]'>
         {step.description}
       </p>
-      <div className='relative mt-8 flex items-center gap-3 sm:mt-11 sm:gap-14'>
+      <div className='relative mt-8 flex items-center gap-3 sm:mt-11 sm:block'>
         <button
           type='button'
           aria-label='이전 첨삭 단계'
-          className='shrink-0 transition-transform hover:-translate-x-0.5'
+          className='z-10 shrink-0 transition-transform hover:-translate-x-0.5 sm:absolute sm:top-1/2 sm:-left-[4.25rem] sm:-translate-y-1/2'
           onClick={() => moveStep(-1)}
         >
           <span className='relative block h-9 w-9 sm:h-11 sm:w-11'>
@@ -369,11 +369,11 @@ function CorrectionWorkflow() {
             />
           </span>
         </button>
-        <LandingVideo className='!h-[15rem] !w-full sm:!h-[37.125rem]' />
+        <LandingVideo className='!h-[15rem] !w-full !rounded-[1.25rem] sm:!h-[37.125rem]' />
         <button
           type='button'
           aria-label='다음 첨삭 단계'
-          className='shrink-0 transition-transform hover:translate-x-0.5'
+          className='z-10 shrink-0 transition-transform hover:translate-x-0.5 sm:absolute sm:top-1/2 sm:-right-[4.25rem] sm:-translate-y-1/2 2xl:-right-[7rem]'
           onClick={() => moveStep(1)}
         >
           <span className='relative block h-9 w-9 sm:h-11 sm:w-11'>
