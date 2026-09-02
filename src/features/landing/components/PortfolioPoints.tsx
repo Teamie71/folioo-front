@@ -34,8 +34,10 @@ export const PortfoliloPoints = () => {
           >
             <div className='flex flex-col gap-[0.75rem]'>
               <div className='flex items-center gap-[0.5rem]'>
-                <CheckSquareIcon />
-                <span className='text-[1.25rem] leading-[130%] font-bold text-[#9EA4A9]'>
+                <span className='flex h-6 w-6 shrink-0 md:h-7 md:w-7 [&_svg]:h-full [&_svg]:w-full'>
+                  <CheckSquareIcon />
+                </span>
+                <span className='text-[1rem] leading-[150%] font-bold text-[#9EA4A9] md:text-[1.25rem] md:leading-[130%]'>
                   POINT {point.number}.
                 </span>
               </div>

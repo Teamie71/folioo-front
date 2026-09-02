@@ -1105,12 +1105,19 @@ export function LandingPageContent() {
           </div>
 
           <div className='mx-auto max-w-[46.25rem] text-center'>
-            <h3 className='text-[1.5rem] leading-[130%] font-bold sm:text-[2rem]'>
-              AI 컨설턴트가 제공하는
-              <br />
-              지원 상황에 최적화된 첨삭 보고서로 해결하세요.
+            <h3 className='text-[1.25rem] leading-[130%] font-bold sm:text-[2rem]'>
+              <span className='whitespace-pre sm:hidden'>
+                {
+                  'AI 컨설턴트가 제공하는\n지원 상황에 최적화된\n첨삭 보고서로 해결하세요.'
+                }
+              </span>
+              <span className='hidden sm:inline'>
+                AI 컨설턴트가 제공하는
+                <br />
+                지원 상황에 최적화된 첨삭 보고서로 해결하세요.
+              </span>
             </h3>
-            <div className='mt-14 sm:mt-[3.125rem]'>
+            <div className='mt-10 sm:mt-[3.125rem]'>
               <PortfoliloPoints />
             </div>
           </div>
