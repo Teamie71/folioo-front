@@ -359,13 +359,15 @@ function CorrectionWorkflow() {
           className='shrink-0 transition-transform hover:-translate-x-0.5'
           onClick={() => moveStep(-1)}
         >
-          <Image
-            src='/landing/workflow-arrow-left.svg'
-            alt=''
-            width={44}
-            height={44}
-            className='h-9 w-9 sm:h-11 sm:w-11'
-          />
+          <span className='relative block h-9 w-9 sm:h-11 sm:w-11'>
+            <Image
+              src='/landing/workflow-arrow-left.svg?v=2'
+              alt=''
+              width={52}
+              height={52}
+              className='absolute -top-[4.55%] -left-[9.09%] h-[118.18%] w-[118.18%] max-w-none'
+            />
+          </span>
         </button>
         <LandingVideo className='!h-[15rem] !w-full sm:!h-[37.125rem]' />
         <button
@@ -374,13 +376,15 @@ function CorrectionWorkflow() {
           className='shrink-0 transition-transform hover:translate-x-0.5'
           onClick={() => moveStep(1)}
         >
-          <Image
-            src='/landing/workflow-arrow-right.svg'
-            alt=''
-            width={44}
-            height={44}
-            className='h-9 w-9 sm:h-11 sm:w-11'
-          />
+          <span className='relative block h-9 w-9 sm:h-11 sm:w-11'>
+            <Image
+              src='/landing/workflow-arrow-right.svg?v=2'
+              alt=''
+              width={52}
+              height={52}
+              className='absolute -top-[4.55%] -left-[9.09%] h-[118.18%] w-[118.18%] max-w-none'
+            />
+          </span>
         </button>
       </div>
     </section>

@@ -2,7 +2,7 @@
 <g id="페이지 이동 화살표 (프로필 카드 안에)" filter="url(#filter0_d_0_4)">
 <rect x="4" y="2" width="44" height="44" rx="22" fill="white" fill-opacity="0.6" shape-rendering="crispEdges"/>
 <rect x="4.5" y="2.5" width="43" height="43" rx="21.5" stroke="url(#paint0_linear_0_4)" shape-rendering="crispEdges"/>
-<path id="Vector" d="M36.6206 26L25.6206 18L14.6206 26" transform="rotate(90 26 26)" stroke="#5060C5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector" d="M36.6206 26L25.6206 18L14.6206 26" transform="rotate(90 26 24)" stroke="#5060C5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <defs>
 <filter id="filter0_d_0_4" x="0" y="0" width="52" height="52" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
