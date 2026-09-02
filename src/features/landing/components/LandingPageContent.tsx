@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import Footer from '@/components/Footer';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -73,31 +73,191 @@ const correctionSteps = [
   },
 ];
 
-const faqs = [
+type Faq = {
+  question: string;
+  numberIconSrc: string;
+  answer: ReactNode;
+};
+
+const faqs: Faq[] = [
   {
     question: 'Folioo는 어떤 서비스인가요?',
-    answer:
-      'Folioo는 취업 준비 과정 전반을 보조하는 AI 커리어 솔루션이에요. AI를 중심으로 재편된 채용 환경에서, 취업준비생이 서류화의 부담에서 벗어나 온전히 경험과 성장에만 몰입하는 환경을 만들고자 서비스를 시작하게 되었어요. 모든 취업준비생이 자신의 경험을 구체적인 데이터로 소유하고, 언제든 가장 매력적인 형태로 증명할 수 있게 되는 것을 목표로 하고 있어요.',
+    numberIconSrc: '/landing/faq-number-1.svg',
+    answer: (
+      <div>
+        <p>
+          Folioo는{' '}
+          <strong>취업 준비 과정 전반을 보조하는 AI 커리어 솔루션</strong>
+          {'이에요.'}
+        </p>
+        <p>
+          AI를 중심으로 재편된 채용 환경에서,{' '}
+          <strong>
+            취업준비생이 서류화의 부담에서 벗어나 온전히 경험과 성장에만
+            몰입하는 환경
+          </strong>
+          을
+        </p>
+        <p>만들고자 서비스를 시작하게 되었어요.</p>
+        <p>
+          모든 취업준비생이 자신의 경험을 구체적인 데이터로 소유하고, 언제든
+          가장 매력적인 형태로 증명할 수 있게 되는 것을
+        </p>
+        <p>목표로 하고 있어요.</p>
+      </div>
+    ),
   },
   {
     question: 'Folioo는 취업 준비의 어느 단계에서 쓰면 좋은가요?',
-    answer:
-      'Folioo의 세 기능은 취업 준비의 전체 단계에서 사용할 수 있어요. 희망 직무를 고민하고 있다면 3분 테스트로 성향에 맞는 직무와 기업 형태를 찾고, 경험을 쌓는 과정에서는 경험 정리 기능으로 기록을 체계화해 보세요. 실제 공고에 지원할 때는 AI 컨설턴트의 첨삭 가이드를 활용해 공고 맞춤형 서류를 빠르게 완성할 수 있어요.',
+    numberIconSrc: '/landing/faq-number-2.svg',
+    answer: (
+      <div>
+        <p>
+          Folioo의 세 기능은 <strong>취업 준비의 전체 단계</strong>에서 사용할
+          수 있어요.
+        </p>
+        <div className='h-6 sm:h-[1.875rem]' />
+        <p>
+          먼저,{' '}
+          <strong>본격적으로 경험과 스펙을 쌓기 전, 희망 직무를 고민</strong>
+          {'하고 있다면 '}
+          <strong>직무 찾기</strong> 기능을 사용해 보세요. 3분 만에
+        </p>
+        <p>
+          진행되는 간단한 테스트를 통해 나의 성향을 파악하고, 가장 적합한 직무와
+          기업 형태를 찾을 수 있어요.
+        </p>
+        <div className='h-6 sm:h-[1.875rem]' />
+        <p>
+          다음으로, <strong>경험을 쌓는 과정</strong>에서는 이를{' '}
+          <strong>체계적으로 기록</strong>할 수 있는 <strong>경험 정리</strong>{' '}
+          기능을 사용해 보세요. 사소한 경험도
+        </p>
+        <p>
+          체계적으로 정리해두면 이력서, 자기소개서, 포트폴리오, 면접까지
+          채용사이클 전체에서 활용 가능한 핵심 자산이 돼요.
+        </p>
+        <p>
+          시간이 지나면 기억이 소실되기 때문에, 구체적인 기록을 위해서는 경험을
+          쌓으면서 바로바로 정리하는 것을 추천해요.
+        </p>
+        <div className='h-6 sm:h-[1.875rem]' />
+        <p>
+          마지막으로, 실제로 <strong>공고에 지원하는 과정</strong>에서는{' '}
+          <strong>포트폴리오 첨삭</strong> 기능을 사용해 보세요. AI 컨설턴트의
+          첨삭 가이드를
+        </p>
+        <p>활용하면 여러 개의 공고에 맞춤형 서류로 빠르게 지원할 수 있어요.</p>
+      </div>
+    ),
   },
   {
     question: '직무를 정하지 못한 상황에서도 Folioo가 도움이 되나요?',
-    answer:
-      '네, 직무 찾기 기능이 막막한 진로 고민의 해결을 도와드려요. 3분 만에 끝나는 간단한 테스트로 전공, 흥미 유형, 선호 근무 조건을 분석해 적합도가 높은 직무와 기업 형태를 소개해 드려요. 핵심 스킬과 추천 활동 정보도 함께 제공해 쉽게 취업 준비를 시작할 수 있어요.',
+    numberIconSrc: '/landing/faq-number-3.svg',
+    answer: (
+      <div>
+        <p>
+          네, Folioo의 <strong>직무 찾기</strong> 기능이{' '}
+          <strong>막막한 직무 고민의 해결</strong>을 도와드려요.
+        </p>
+        <p>
+          어떤 직무가 나에게 잘 맞을지, 어떤 기업 형태가 나의 조건에 가장
+          부합할지, 목표를 설정하지 못해 고민 중이신
+        </p>
+        <p>분들에게 유용해요.</p>
+        <div className='h-6 sm:h-[1.875rem]' />
+        <p>
+          <strong>3분 만에 끝나는 간단한 테스트</strong>를 진행하면 나의 전공,
+          흥미 유형, 선호 근무 조건을 파악하고 분석해요.
+        </p>
+        <p>
+          분석된 결과를 바탕으로{' '}
+          <strong>적합도가 가장 높은 직무 3가지와 기업 형태 1가지</strong>를
+          발굴하여 소개해 드려요.
+        </p>
+        <p>
+          딱 맞는 직무에 바로 도전할 수 있도록 핵심 스킬과 추천 활동 정보까지
+          제공해서, 누구나 쉽게 취업 준비를 시작할
+        </p>
+        <p>수 있어요.</p>
+      </div>
+    ),
   },
   {
     question: '경험 정리는 어떤 상황에서 필요한가요?',
-    answer:
-      '경험을 쌓고 있는 대학생과 실제 지원을 앞둔 취업준비생 모두에게 필요해요. 작은 경험도 바로 구조에 맞춰 기록해두면 나를 증명하는 구체적인 스토리로 활용할 수 있고, 채용 시즌에는 이력서·자기소개서·포트폴리오·면접을 더 빠르고 밀도 있게 준비할 수 있어요.',
+    numberIconSrc: '/landing/faq-number-4.svg',
+    answer: (
+      <div>
+        <p>두 가지 상황에 경험 정리를 강력하게 추천해요!</p>
+        <div className='h-6 sm:h-[1.875rem]' />
+        <p>
+          먼저, 아직{' '}
+          <strong>
+            실제 공고에 지원하고 있지는 않지만 취업 준비를 위해 경험을 쌓고 있는
+            대학생
+          </strong>
+          {'에게 필요해요. 경험을 쌓는'}
+        </p>
+        <p>
+          것도 중요하지만, 이를 채용 전형에서 제대로 활용하기 위해서는
+          체계적이고 구체적인 기록이 필수적이기 때문이에요.
+        </p>
+        <p>
+          작은 경험이라도 바로바로 경험 정리 기능의 구조에 맞게 정리해두면, 나를
+          증명하는 구체적인 스토리로 활용할 수 있어요.
+        </p>
+        <div className='h-6 sm:h-[1.875rem]' />
+        <p>
+          다음으로, <strong>실제 공고에 지원을 앞두고 있는 취업준비생</strong>
+          {'에게 필요해요. 상/하반기 채용 시즌이 시작되고 나면 서류 전형,'}
+        </p>
+        <p>
+          인적성 검사, 각종 과제 및 면접 전형 등을 수행하느라 시간이 많이
+          부족해져요. 본격적인 채용 시즌이 시작되기 전에
+        </p>
+        <p>
+          가진 경험을 꼼꼼하게 정리해두면, 각각의 전형을 준비하는 과정은 줄이고,
+          퀄리티는 높일 수 있어요.
+        </p>
+        <div className='h-6 sm:h-[1.875rem]' />
+        <p>
+          Folioo에서 제공하는 <strong>템플릿</strong>을 활용하면 나의 경험을
+          체계적으로 정리할 수 있어요. 지원 서류나 활동 자료를 업로드하면
+        </p>
+        <p>
+          <strong>AI 에이전트</strong>가 이를 분석하여 빠르게 경험을 정리해줘요.
+        </p>
+      </div>
+    ),
   },
   {
     question: '포트폴리오 첨삭 기능은 어떤 상황에서 도움이 되나요?',
-    answer:
-      '여러 공고에 실제로 지원하면서 서류 작성에 많은 시간을 쓰고 있다면 활용해 보세요. 지원 공고와 기존 포트폴리오를 업로드하면 AI 컨설턴트가 두 자료와 기업 정보를 분석하고, 수정 예시가 포함된 맞춤 첨삭 가이드를 제공해요.',
+    numberIconSrc: '/landing/faq-number-5.svg',
+    answer: (
+      <div>
+        <p>
+          <strong>
+            여러 공고에 실제로 지원하는 과정에서 서류 작성에 많은 시간을 사용
+          </strong>
+          {'하고 있다면 '}
+          <strong>포트폴리오 첨삭</strong> 기능을 활용해 보세요.
+        </p>
+        <div className='h-6 sm:h-[1.875rem]' />
+        <p>
+          지원하고자 하는 공고와 기존에 만들어둔 포트폴리오를 업로드하면 AI
+          컨설턴트가 공고와 포트폴리오를 분석해요.
+        </p>
+        <p>
+          분석한 정보와 생성한 기업 분석 정보를 바탕으로{' '}
+          <strong>맞춤 첨삭 가이드</strong>를 제공해요.
+        </p>
+        <p>
+          수정 예시가 포함된 첨삭 가이드를 반영하여{' '}
+          <strong>공고 적합도가 높은 포트폴리오를 빠르게 제출</strong>할 수
+          있어요.
+        </p>
+      </div>
+    ),
   },
 ];
 
@@ -407,18 +567,27 @@ function LandingFaq() {
           return (
             <article
               key={faq.question}
-              className='rounded-[1rem] bg-gradient-to-r from-[#CCDDFF]/30 to-[#F6F8FF]/30 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.04),inset_0px_2px_4px_0px_rgba(0,0,0,0.04)] transition-colors hover:from-white hover:to-white sm:rounded-[1.25rem]'
+              className={`relative rounded-[1rem] px-5 py-6 sm:rounded-[1.25rem] sm:px-10 sm:py-7 ${
+                isOpen
+                  ? 'bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.04),inset_0px_2px_4px_0px_rgba(0,0,0,0.04)]'
+                  : 'bg-gradient-to-r from-[#CCDDFF]/30 to-[#F6F8FF]/30 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.04),inset_0px_2px_4px_0px_rgba(0,0,0,0.04)]'
+              }`}
             >
               <button
                 type='button'
-                className='flex w-full cursor-pointer items-center gap-3 px-5 py-6 text-left sm:px-8 sm:py-8'
+                className='relative z-10 flex w-full cursor-pointer items-center gap-3 text-left sm:gap-4'
                 aria-expanded={isOpen}
                 onClick={() => setOpenedIndex(isOpen ? null : index)}
               >
-                <span className='flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#647BE1] text-[0.875rem] font-bold text-white'>
-                  {index + 1}
-                </span>
-                <span className='flex-1 text-[1rem] leading-[150%] font-bold sm:text-[1.125rem]'>
+                <Image
+                  src={faq.numberIconSrc}
+                  alt=''
+                  aria-hidden
+                  width={28}
+                  height={28}
+                  className='h-6 w-6 shrink-0 sm:h-7 sm:w-7'
+                />
+                <span className='flex-1 text-[1rem] leading-[130%] font-bold text-[#1A1A1A] sm:text-[1.25rem]'>
                   {faq.question}
                 </span>
                 <Image
@@ -433,9 +602,9 @@ function LandingFaq() {
                 />
               </button>
               {isOpen && (
-                <p className='border-gray3 text-gray7 border-t px-5 py-6 text-[0.9375rem] leading-[170%] sm:px-8 sm:py-8 sm:text-[1rem]'>
+                <div className='relative z-10 mt-6 text-[1rem] leading-[150%] font-medium text-[#1A1A1A] sm:mt-7 sm:text-[1.25rem]'>
                   {faq.answer}
-                </p>
+                </div>
               )}
             </article>
           );
