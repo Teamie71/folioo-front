@@ -731,7 +731,7 @@ export function LandingPageContent() {
 
         <section
           id='job-search-introduction'
-          className='relative z-10 mx-auto max-w-[66rem] scroll-mt-[5.5rem] px-5 pb-[8rem] sm:scroll-mt-[8.5rem] sm:px-0 sm:pb-[10rem]'
+          className='relative z-10 mx-auto max-w-[66rem] scroll-mt-[7.5rem] px-5 pb-[8rem] sm:scroll-mt-[10.5rem] sm:px-0 sm:pb-[10rem]'
         >
           <p className='text-[1.125rem] leading-[130%] font-bold sm:text-[1.25rem]'>
             직무 찾기
@@ -781,7 +781,7 @@ export function LandingPageContent() {
 
       <section
         id='experience-organization-introduction'
-        className='scroll-mt-[7.5rem] bg-[#E6E9FF]/30 py-[7.5rem] sm:scroll-mt-[10.5rem] sm:py-[10rem]'
+        className='scroll-mt-[5.5rem] bg-[#E6E9FF]/30 py-[7.5rem] sm:scroll-mt-[8.5rem] sm:py-[10rem]'
       >
         <div className='mx-auto max-w-[66rem] px-5 sm:px-0'>
           <p className='text-[1.125rem] leading-[130%] font-bold sm:text-[1.25rem]'>
@@ -829,7 +829,7 @@ export function LandingPageContent() {
 
       <section
         id='portfolio-correction-introduction'
-        className='relative scroll-mt-[7.5rem] overflow-hidden py-[7.5rem] sm:min-h-[113.6875rem] sm:scroll-mt-[10.5rem] sm:pt-[10rem] sm:pb-[6.875rem]'
+        className='relative scroll-mt-[5.5rem] overflow-hidden py-[7.5rem] sm:min-h-[113.6875rem] sm:scroll-mt-[8.5rem] sm:pt-[10rem] sm:pb-[6.875rem]'
       >
         <div
           aria-hidden
