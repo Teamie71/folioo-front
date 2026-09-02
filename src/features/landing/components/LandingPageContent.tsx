@@ -291,7 +291,7 @@ function VideoFeatureCard({
     >
       <div
         aria-hidden
-        className='absolute inset-0 rounded-[inherit] bg-gradient-to-b from-[#F6F8FF] to-[#CCDBFF] opacity-30 shadow-[0_4px_8px_0_rgba(0,0,0,0.1)]'
+        className='absolute inset-0 rounded-[inherit] bg-gradient-to-b from-[#CCDBFF] to-[#F6F8FF] opacity-30 shadow-[0_4px_8px_0_rgba(0,0,0,0.1)]'
       >
         <div className='absolute inset-0 rounded-[inherit] shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.1)]' />
       </div>
