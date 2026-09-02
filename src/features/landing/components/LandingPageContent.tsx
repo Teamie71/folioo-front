@@ -622,12 +622,12 @@ export function LandingPageContent() {
         </div>
       </section>
 
-      <section className='relative overflow-hidden py-[7.5rem] sm:py-[10rem]'>
+      <section className='relative overflow-hidden py-[7.5rem] sm:min-h-[113.6875rem] sm:py-[10rem]'>
         <div
-          className='pointer-events-none absolute inset-x-0 top-0 h-[48rem] opacity-50 blur-[3.125rem]'
+          className='pointer-events-none absolute inset-0 opacity-50 blur-[3.125rem]'
           style={{
             background:
-              'linear-gradient(180deg, rgba(255,255,255,0) 0%, #C4CCFF 46%, rgba(242,244,255,0.55) 86%, rgba(255,255,255,0) 100%)',
+              'linear-gradient(180.083456732145deg, rgba(255, 255, 255, 0) 20.046%, rgb(196, 204, 255) 51.997%, rgba(255, 255, 255, 0.4) 79.954%)',
           }}
         />
         <div className='relative mx-auto max-w-[66rem] px-5 sm:px-0'>
@@ -644,15 +644,27 @@ export function LandingPageContent() {
           </div>
 
           <div className='relative mt-24 min-h-[19rem] sm:mt-[8.75rem] sm:min-h-[25rem]'>
-            <div className='absolute top-0 left-[5%] h-20 w-[70%] rounded-full border border-white/70 bg-white/55 blur-[1px] sm:left-[6rem] sm:h-[5.5rem] sm:w-[23.625rem]' />
-            <p className='absolute top-6 left-[10%] max-w-[19rem] text-[0.9375rem] leading-[150%] sm:top-8 sm:left-[12.5rem] sm:max-w-[28rem] sm:text-[1rem]'>
-              특정 직무에 적합한 활동을 주로 했는데, 막상 취업 시장에 나와보니
-              다른 직무도 지원할 수밖에 없어요.
+            <div className='border-gray3 absolute top-0 left-[5%] h-20 w-[70%] rounded-full border bg-white shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] sm:left-[7.5625rem] sm:h-[7.375rem] sm:w-[36.8125rem]' />
+            <p className='absolute top-6 left-[10%] max-w-[19rem] text-[0.9375rem] leading-[150%] sm:top-8 sm:left-[12.5rem] sm:max-w-[28.5rem] sm:text-[1.125rem] sm:whitespace-nowrap'>
+              <span className='block'>
+                특정 직무에 적합한 활동을 주로 했는데,
+              </span>
+              <span>막상 취업 시장에 나와보니 </span>
+              <strong className='text-[1.25rem] leading-[130%] font-bold'>
+                다른 직무도 지원할 수밖에 없어요.
+              </strong>
             </p>
-            <div className='shadow-chat-card absolute top-28 right-[2%] h-24 w-[78%] rounded-full border border-white/70 bg-white/75 sm:top-[5.5rem] sm:right-[2rem] sm:h-[7.375rem] sm:w-[40.5rem]' />
-            <p className='absolute top-[8.75rem] right-[7%] max-w-[22rem] text-[0.9375rem] leading-[150%] sm:top-[7.5rem] sm:right-[7.5rem] sm:max-w-[30.5rem] sm:text-[1rem]'>
-              포트폴리오 하나로 여러 직무와 기업에 지원하니 경쟁력이 떨어지지만,
-              공고마다 새로 포트폴리오를 쓰기에는 시간이 너무 오래 걸려요.
+            <div className='border-gray3 absolute top-28 right-[2%] h-24 w-[78%] rounded-full border bg-[#FDFDFD] shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] sm:top-[10.625rem] sm:right-[2rem] sm:h-[7.375rem] sm:w-[40.5rem]' />
+            <p className='absolute top-[8.75rem] right-[7%] max-w-[22rem] text-[0.9375rem] leading-[150%] sm:top-[12.625rem] sm:right-[6.9375rem] sm:max-w-[30.5rem] sm:text-[1.125rem] sm:whitespace-nowrap'>
+              <span className='block'>
+                포트폴리오 하나로 여러 직무와 기업에 지원하니 경쟁력이
+                떨어지지만,
+              </span>
+              <span>공고마다 새로 포트폴리오를 쓰기에는</span>
+              <strong className='text-[1.25rem] leading-[130%] font-bold'>
+                {' '}
+                시간이 너무 오래 걸려요.
+              </strong>
             </p>
           </div>
 
