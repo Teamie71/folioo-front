@@ -655,6 +655,12 @@ export function LandingPageContent() {
     );
   };
 
+  const scrollToIntroduction = (sectionId: string) => {
+    document
+      .getElementById(sectionId)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <div className='text-gray9 overflow-x-hidden bg-white tracking-normal'>
       <div className='relative'>
@@ -691,11 +697,9 @@ export function LandingPageContent() {
               }
               buttonText='테스트 시작하기'
               onClick={navigateToRecommendation}
-              onCardClick={() => {
-                document
-                  .getElementById('job-search-introduction')
-                  ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }}
+              onCardClick={() =>
+                scrollToIntroduction('job-search-introduction')
+              }
             />
             <ServiceCard
               title='경험 정리'
@@ -706,6 +710,9 @@ export function LandingPageContent() {
               }
               buttonText='경험 정리하기'
               onClick={() => navigateWithLoginGuard('/experience/workspace')}
+              onCardClick={() =>
+                scrollToIntroduction('experience-organization-introduction')
+              }
             />
             <ServiceCard
               title='포트폴리오 첨삭'
@@ -715,13 +722,16 @@ export function LandingPageContent() {
               }
               buttonText='첨삭 의뢰하기'
               onClick={() => navigateWithLoginGuard('/correction/new')}
+              onCardClick={() =>
+                scrollToIntroduction('portfolio-correction-introduction')
+              }
             />
           </div>
         </section>
 
         <section
           id='job-search-introduction'
-          className='relative z-10 mx-auto max-w-[66rem] scroll-mt-[7.5rem] px-5 pb-[8rem] sm:scroll-mt-[10.5rem] sm:px-0 sm:pb-[10rem]'
+          className='relative z-10 mx-auto max-w-[66rem] scroll-mt-[6.5rem] px-5 pb-[8rem] sm:scroll-mt-[9.5rem] sm:px-0 sm:pb-[10rem]'
         >
           <p className='text-[1.125rem] leading-[130%] font-bold sm:text-[1.25rem]'>
             직무 찾기
@@ -769,7 +779,10 @@ export function LandingPageContent() {
         </section>
       </div>
 
-      <section className='bg-[#E6E9FF]/30 py-[7.5rem] sm:py-[10rem]'>
+      <section
+        id='experience-organization-introduction'
+        className='scroll-mt-[6.5rem] bg-[#E6E9FF]/30 py-[7.5rem] sm:scroll-mt-[9.5rem] sm:py-[10rem]'
+      >
         <div className='mx-auto max-w-[66rem] px-5 sm:px-0'>
           <p className='text-[1.125rem] leading-[130%] font-bold sm:text-[1.25rem]'>
             경험 정리
@@ -814,7 +827,10 @@ export function LandingPageContent() {
         </div>
       </section>
 
-      <section className='relative overflow-hidden py-[7.5rem] sm:min-h-[113.6875rem] sm:pt-[10rem] sm:pb-[6.875rem]'>
+      <section
+        id='portfolio-correction-introduction'
+        className='relative scroll-mt-[6.5rem] overflow-hidden py-[7.5rem] sm:min-h-[113.6875rem] sm:scroll-mt-[9.5rem] sm:pt-[10rem] sm:pb-[6.875rem]'
+      >
         <div
           aria-hidden
           className='pointer-events-none absolute inset-0 z-0 hidden sm:block'
