@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type ReactNode, useState } from 'react';
 import { CommonButton } from '@/components/CommonButton';
@@ -294,24 +295,24 @@ function ServiceCard({
   onCardClick,
 }: ServiceCardProps) {
   return (
-    <article className='shadow-chat-card relative flex min-h-[22rem] w-full flex-col items-center rounded-[1.75rem] bg-[#FCFCFF] px-6 py-8 text-center sm:min-h-[25.125rem] sm:w-[21rem] sm:p-10'>
+    <article className='shadow-chat-card relative flex h-[12.25rem] w-[20.5rem] flex-col items-start rounded-[1rem] bg-[#FCFCFF] px-8 py-7 text-left sm:min-h-[25.125rem] sm:w-[21rem] sm:items-center sm:rounded-[1.75rem] sm:p-10 sm:text-center'>
       {onCardClick && (
         <button
           type='button'
           aria-label={`${title} 소개로 이동`}
-          className='absolute inset-0 z-0 cursor-pointer rounded-[1.75rem]'
+          className='absolute inset-0 z-0 cursor-pointer rounded-[1rem] sm:rounded-[1.75rem]'
           onClick={onCardClick}
         />
       )}
       <div
-        className={`relative z-10 flex w-full flex-col items-center ${
+        className={`relative z-10 flex w-full flex-col items-start ${
           onCardClick ? 'pointer-events-none' : ''
-        }`}
+        } sm:items-center`}
       >
-        <h2 className='text-gray9 text-[1.5rem] leading-[130%] font-bold sm:text-[1.75rem]'>
+        <h2 className='text-gray9 text-[1.125rem] leading-[130%] font-bold sm:text-[1.75rem]'>
           {title}
         </h2>
-        <div className='my-6 flex h-20 w-20 items-center justify-center sm:h-[7.5rem] sm:w-[7.5rem]'>
+        <div className='absolute top-0 right-0 flex h-[3.75rem] w-[3.75rem] items-center justify-center sm:static sm:my-6 sm:h-[7.5rem] sm:w-[7.5rem]'>
           <Image
             src={iconSrc}
             alt=''
@@ -320,7 +321,7 @@ function ServiceCard({
             className={iconClassName}
           />
         </div>
-        <p className='text-gray9 min-h-[3rem] text-[0.875rem] leading-[150%] whitespace-pre-line sm:text-[1rem]'>
+        <p className='text-gray9 mt-3 min-h-[2.625rem] text-[0.875rem] leading-[150%] whitespace-pre-line sm:mt-0 sm:min-h-[3rem] sm:text-[1rem]'>
           {description}
         </p>
       </div>
@@ -339,64 +340,56 @@ function ServiceCard({
 
 function JobPreview() {
   return (
-    <div
-      className='relative h-[18rem] overflow-hidden bg-[#EEF0F5] sm:h-[32.5rem]'
-      role='img'
-      aria-label='직무 찾기 결과 미리보기 이미지 준비 중'
-    >
-      <div className='absolute top-[10%] left-[5%] h-[72%] w-[31%] rounded-[0.75rem] bg-white/80 p-3 shadow-sm sm:p-5'>
-        <div className='h-3 w-12 rounded bg-[#DCE5FF]' />
-        <div className='mt-4 h-[46%] rounded-full border border-[#C9D3EE]' />
-        <div className='mt-4 space-y-2'>
-          <div className='h-2 w-full rounded bg-[#E9EAEC]' />
-          <div className='h-2 w-4/5 rounded bg-[#E9EAEC]' />
-        </div>
-      </div>
-      <div className='absolute top-[18%] left-[39%] h-[68%] w-[27%] rounded-[0.75rem] bg-white/75 p-3 shadow-sm sm:p-5'>
-        <div className='h-3 w-20 rounded bg-[#DCE5FF]' />
-        <div className='mt-4 h-14 rounded-lg bg-[#F6F8FA]' />
-        <div className='mt-3 h-10 rounded-lg bg-[#F6F8FA]' />
-        <div className='mt-3 h-10 rounded-lg bg-[#F6F8FA]' />
-      </div>
-      <div className='absolute top-[14%] right-[5%] h-[65%] w-[30%] rounded-[0.75rem] bg-white/75 p-3 shadow-sm sm:p-5'>
-        <div className='h-3 w-16 rounded bg-[#DCE5FF]' />
-        <div className='mt-4 space-y-3'>
-          <div className='h-9 rounded-lg bg-[#F6F8FA]' />
-          <div className='h-9 rounded-lg bg-[#F6F8FA]' />
-          <div className='h-9 rounded-lg bg-[#F6F8FA]' />
-        </div>
-      </div>
-      <p className='text-gray7 absolute inset-0 flex items-center justify-center text-center text-[1.25rem] font-bold sm:text-[2.625rem]'>
-        이미지로 드리겠습니다.
-      </p>
-    </div>
+    <LandingVideo
+      className='!h-[15.25rem] !w-full !rounded-none sm:!h-[32.5rem]'
+      label='직무 찾기 영상 준비 중'
+    />
   );
 }
 
 function SolutionCardConnector({ type }: { type: SolutionConnector }) {
+  const mobileConnector = (
+    <div className='absolute top-[3.25rem] left-1/2 z-10 h-[2.2708rem] w-[0.6667rem] -translate-x-1/2 sm:hidden'>
+      <Image
+        src='/landing/solution-connector-single.svg'
+        alt=''
+        width={36.3333}
+        height={10.6667}
+        className='absolute top-1/2 left-1/2 h-[0.6667rem] w-[2.2708rem] max-w-none'
+        style={{ transform: 'translate(-50%, -50%) rotate(-90deg)' }}
+      />
+    </div>
+  );
+
   if (type === 'single') {
     return (
-      <div className='absolute -top-5 left-1/2 z-10 h-[2.2708rem] w-[0.6667rem] -translate-x-1/2'>
-        <Image
-          src='/landing/solution-connector-single.svg'
-          alt=''
-          width={36.3333}
-          height={10.6667}
-          className='absolute top-1/2 left-1/2 h-[0.6667rem] w-[2.2708rem] max-w-none'
-          style={{ transform: 'translate(-50%, -50%) rotate(-90deg)' }}
-        />
-      </div>
+      <>
+        {mobileConnector}
+        <div className='absolute -top-5 left-1/2 z-10 hidden h-[2.2708rem] w-[0.6667rem] -translate-x-1/2 sm:block'>
+          <Image
+            src='/landing/solution-connector-single.svg'
+            alt=''
+            width={36.3333}
+            height={10.6667}
+            className='absolute top-1/2 left-1/2 h-[0.6667rem] w-[2.2708rem] max-w-none'
+            style={{ transform: 'translate(-50%, -50%) rotate(-90deg)' }}
+          />
+        </div>
+      </>
     );
   }
 
   return (
-    <Image
-      src='/landing/solution-connector-dual.svg'
-      alt=''
-      width={270.667}
-      height={36.3333}
-      className='absolute -top-5 left-[1.6667rem] z-10 h-[2.2708rem] w-[16.9167rem]'
-    />
+    <>
+      {mobileConnector}
+      <Image
+        src='/landing/solution-connector-dual.svg'
+        alt=''
+        width={270.667}
+        height={36.3333}
+        className='absolute -top-5 left-[1.6667rem] z-10 hidden h-[2.2708rem] w-[16.9167rem] sm:block'
+      />
+    </>
   );
 }
 
@@ -408,18 +401,18 @@ function SolutionCard({
   gradient,
 }: (typeof solutionCards)[number]) {
   return (
-    <article className='relative flex min-h-[23.25rem] flex-1 flex-col pt-[6.75rem] sm:min-h-[26rem]'>
-      <p className='border-gray3 text-gray9 shadow-chat-card absolute top-0 z-20 flex min-h-[5.5rem] w-full items-center justify-center rounded-[0.75rem] border bg-[#FDFDFD] px-4 text-center text-[0.9375rem] leading-[150%] sm:text-[1.125rem]'>
+    <article className='relative flex h-[14.1875rem] flex-1 flex-col pt-[4.5rem] sm:h-auto sm:min-h-[26rem] sm:pt-[6.75rem]'>
+      <p className='text-gray9 shadow-chat-card absolute top-0 z-20 flex h-14 w-full items-center justify-center rounded-[0.75rem] bg-[#FDFDFD] px-4 text-center text-[0.9375rem] leading-[150%] sm:h-auto sm:min-h-[5.5rem] sm:border sm:border-[#CDD0D5] sm:text-[1.125rem]'>
         {label}
       </p>
-      <div className='shadow-chat-card relative flex min-h-[16.5rem] flex-1 flex-col justify-end rounded-[1.25rem] p-5 sm:min-h-[19.25rem] sm:p-8'>
+      <div className='shadow-chat-card relative flex min-h-[9.6875rem] flex-1 flex-col justify-end rounded-[1rem] p-6 sm:min-h-[19.25rem] sm:rounded-[1.25rem] sm:p-8'>
         <div
           aria-hidden
           className='absolute inset-0 rounded-[inherit] opacity-80'
           style={{ background: gradient }}
         />
         <SolutionCardConnector type={connector} />
-        <span className='bg-sub1 text-main absolute top-7 left-5 z-10 rounded-full px-3 py-1 text-[0.75rem] sm:left-8 sm:text-[0.875rem]'>
+        <span className='bg-sub1 text-main absolute top-5 left-6 z-10 rounded-full px-3 py-1 text-[0.75rem] sm:top-7 sm:left-8 sm:text-[0.875rem]'>
           {number}
         </span>
         <p className='text-gray9 relative z-10 mt-auto text-[1.125rem] leading-[130%] font-bold whitespace-pre-line sm:text-[1.5rem]'>
@@ -442,11 +435,17 @@ function VideoFeatureCard({
   mediaCount?: 1 | 2;
 }) {
   const isSplitView = mediaCount === 2;
+  const isCompact =
+    description === 'AI 에이전트가 자료를 분석하여 경험을 정리해줘요.';
 
   return (
     <article
-      className={`relative overflow-hidden rounded-[1.25rem] p-4 sm:px-9 sm:pt-7 sm:pb-5 ${
-        isSplitView ? 'sm:h-[26.5625rem]' : 'sm:h-[25.875rem]'
+      className={`relative h-[18.25rem] overflow-hidden rounded-[1rem] p-5 sm:rounded-[1.25rem] sm:px-9 sm:pt-7 sm:pb-5 ${
+        isSplitView
+          ? 'h-[31.125rem] sm:h-[26.5625rem]'
+          : isCompact
+            ? 'h-[16.9375rem] sm:h-[25.875rem]'
+            : 'sm:h-[25.875rem]'
       } ${className}`}
     >
       <div
@@ -455,21 +454,21 @@ function VideoFeatureCard({
       >
         <div className='absolute inset-0 rounded-[inherit] shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.1)]' />
       </div>
-      <h3 className='text-main relative text-[1.25rem] leading-[130%] font-bold sm:text-[1.75rem]'>
+      <h3 className='text-main relative text-[1.125rem] leading-[130%] font-bold sm:text-[1.75rem]'>
         {title}
       </h3>
-      <p className='text-gray6 relative mt-2 text-[0.8125rem] leading-[150%] sm:text-[1.125rem]'>
+      <p className='text-gray6 relative mt-1 text-[0.875rem] leading-[150%] sm:mt-2 sm:text-[1.125rem]'>
         {description}
       </p>
       <div
-        className={`relative mt-5 grid gap-4 sm:-mx-4 sm:mt-7 ${
+        className={`relative mt-5 grid gap-3 sm:-mx-4 sm:mt-7 ${
           isSplitView ? 'sm:grid-cols-2 sm:gap-7' : ''
         }`}
       >
         {Array.from({ length: mediaCount }, (_, index) => (
           <LandingVideo
             key={index}
-            className={`!h-[12rem] !w-full ${
+            className={`!h-[10.6875rem] !w-full !rounded-[0.75rem] ${
               isSplitView ? 'sm:!h-[17.375rem]' : 'sm:!h-[16.6875rem]'
             }`}
           />
@@ -491,78 +490,139 @@ function CorrectionWorkflow() {
   };
 
   return (
-    <section className='mx-auto max-w-[66rem] px-5 py-[7.5rem] sm:px-0 sm:py-[13.75rem]'>
-      <p className='text-gray6 text-center text-[1.125rem] leading-[130%] font-bold sm:text-[1.25rem]'>
-        How It Works
-      </p>
-      <div
-        className='mt-8 grid grid-cols-2 sm:mt-10 sm:grid-cols-4'
-        role='tablist'
-        aria-label='포트폴리오 첨삭 단계'
-      >
-        {correctionSteps.map((item, index) => {
-          const isActive = index === activeStep;
-
-          return (
-            <button
-              key={item.eyebrow}
-              type='button'
-              role='tab'
-              aria-selected={isActive}
-              className={`cursor-pointer border-b-4 px-3 py-3 text-center sm:px-6 ${
-                isActive ? 'border-main text-main' : 'border-gray3 text-gray4'
-              }`}
-              onClick={() => setActiveStep(index)}
-            >
-              <span className='block text-[0.75rem] leading-[150%] sm:text-[0.875rem]'>
-                {item.eyebrow}
-              </span>
-              <span className='mt-1 block text-[0.9375rem] leading-[130%] font-bold sm:mt-2 sm:text-[1.25rem]'>
-                {item.title}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-      <p className='mx-auto mt-7 flex h-[3rem] max-w-[37.5rem] items-center justify-center text-center text-[1rem] leading-[150%] text-black sm:mt-10 sm:h-[3.375rem] sm:text-[1.125rem]'>
-        {step.description}
-      </p>
-      <div className='relative mt-8 flex items-center gap-3 sm:mt-11 sm:block'>
-        <button
-          type='button'
-          aria-label='이전 첨삭 단계'
-          className='z-10 shrink-0 cursor-pointer transition-transform hover:-translate-x-0.5 sm:absolute sm:top-1/2 sm:-left-[4.25rem] sm:-translate-y-1/2'
-          onClick={() => moveStep(-1)}
+    <>
+      <section className='relative h-[34.875rem] overflow-hidden bg-white sm:hidden'>
+        <div
+          aria-hidden
+          className='pointer-events-none absolute top-[12.5rem] h-[13.5rem] w-full opacity-80 blur-[3.125rem]'
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(255,255,255,0) 0%, #C4CCFF 50%, rgba(255,255,255,0) 100%)',
+          }}
+        />
+        <p className='text-gray6 absolute top-5 left-0 w-full text-center text-[0.875rem] leading-[130%] font-bold'>
+          How It Works
+        </p>
+        <div
+          className='absolute top-[4.0625rem] left-0 grid w-full grid-cols-4'
+          role='tablist'
+          aria-label='포트폴리오 첨삭 단계'
         >
-          <span className='relative block h-9 w-9 sm:h-11 sm:w-11'>
-            <Image
-              src='/landing/workflow-arrow-left.svg?v=2'
-              alt=''
-              width={52}
-              height={52}
-              className='absolute -top-[4.55%] -left-[9.09%] h-[118.18%] w-[118.18%] max-w-none'
-            />
-          </span>
-        </button>
-        <LandingVideo className='!h-[15rem] !w-full !rounded-none sm:!h-[37.125rem]' />
+          {correctionSteps.map((item, index) => {
+            const isActive = index === activeStep;
+
+            return (
+              <button
+                key={item.eyebrow}
+                type='button'
+                role='tab'
+                aria-selected={isActive}
+                className={`cursor-pointer border-b-2 py-3 text-center text-[0.875rem] leading-[150%] ${
+                  isActive ? 'border-main text-main' : 'border-gray3 text-gray4'
+                }`}
+                onClick={() => setActiveStep(index)}
+              >
+                {item.eyebrow}
+              </button>
+            );
+          })}
+        </div>
+        <p className='text-gray9 absolute top-[9.5625rem] left-0 w-full text-center text-[1.125rem] leading-[130%] font-bold'>
+          {step.title}
+        </p>
         <button
           type='button'
           aria-label='다음 첨삭 단계'
-          className='z-10 shrink-0 cursor-pointer transition-transform hover:translate-x-0.5 sm:absolute sm:top-1/2 sm:-right-[4.25rem] sm:-translate-y-1/2 2xl:-right-[7rem]'
+          className='absolute top-[9.1875rem] right-7 z-10 h-9 w-9 cursor-pointer'
           onClick={() => moveStep(1)}
         >
-          <span className='relative block h-9 w-9 sm:h-11 sm:w-11'>
-            <Image
-              src='/landing/workflow-arrow-right.svg?v=2'
-              alt=''
-              width={52}
-              height={52}
-              className='absolute -top-[4.55%] -left-[9.09%] h-[118.18%] w-[118.18%] max-w-none'
-            />
-          </span>
+          <Image
+            src='/landing/workflow-arrow-mobile.svg'
+            alt=''
+            width={36}
+            height={36}
+            className='h-9 w-9'
+          />
         </button>
-      </div>
-    </section>
+        <LandingVideo className='absolute top-[13.625rem] left-4 !h-[11.5rem] !w-[calc(100%-2rem)] !rounded-none' />
+        <p className='text-gray9 absolute top-[27.625rem] left-4 flex h-[3.25rem] w-[calc(100%-2rem)] items-center justify-center text-center text-[0.875rem] leading-[150%]'>
+          {step.description}
+        </p>
+      </section>
+
+      <section className='mx-auto hidden max-w-[66rem] px-5 py-[7.5rem] sm:block sm:px-0 sm:py-[13.75rem]'>
+        <p className='text-gray6 text-center text-[1.125rem] leading-[130%] font-bold sm:text-[1.25rem]'>
+          How It Works
+        </p>
+        <div
+          className='mt-8 grid grid-cols-2 sm:mt-10 sm:grid-cols-4'
+          role='tablist'
+          aria-label='포트폴리오 첨삭 단계'
+        >
+          {correctionSteps.map((item, index) => {
+            const isActive = index === activeStep;
+
+            return (
+              <button
+                key={item.eyebrow}
+                type='button'
+                role='tab'
+                aria-selected={isActive}
+                className={`cursor-pointer border-b-4 px-3 py-3 text-center sm:px-6 ${
+                  isActive ? 'border-main text-main' : 'border-gray3 text-gray4'
+                }`}
+                onClick={() => setActiveStep(index)}
+              >
+                <span className='block text-[0.75rem] leading-[150%] sm:text-[0.875rem]'>
+                  {item.eyebrow}
+                </span>
+                <span className='mt-1 block text-[0.9375rem] leading-[130%] font-bold sm:mt-2 sm:text-[1.25rem]'>
+                  {item.title}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        <p className='mx-auto mt-7 flex h-[3rem] max-w-[37.5rem] items-center justify-center text-center text-[1rem] leading-[150%] text-black sm:mt-10 sm:h-[3.375rem] sm:text-[1.125rem]'>
+          {step.description}
+        </p>
+        <div className='relative mt-8 flex items-center gap-3 sm:mt-11 sm:block'>
+          <button
+            type='button'
+            aria-label='이전 첨삭 단계'
+            className='z-10 shrink-0 cursor-pointer sm:absolute sm:top-1/2 sm:-left-[4.25rem] sm:-translate-y-1/2'
+            onClick={() => moveStep(-1)}
+          >
+            <span className='relative block h-9 w-9 sm:h-11 sm:w-11'>
+              <Image
+                src='/landing/workflow-arrow-left.svg?v=2'
+                alt=''
+                width={52}
+                height={52}
+                className='absolute -top-[4.55%] -left-[9.09%] h-[118.18%] w-[118.18%] max-w-none'
+              />
+            </span>
+          </button>
+          <LandingVideo className='!h-[15rem] !w-full !rounded-none sm:!h-[37.125rem]' />
+          <button
+            type='button'
+            aria-label='다음 첨삭 단계'
+            className='z-10 shrink-0 cursor-pointer sm:absolute sm:top-1/2 sm:-right-[4.25rem] sm:-translate-y-1/2 2xl:-right-[7rem]'
+            onClick={() => moveStep(1)}
+          >
+            <span className='relative block h-9 w-9 sm:h-11 sm:w-11'>
+              <Image
+                src='/landing/workflow-arrow-right.svg?v=2'
+                alt=''
+                width={52}
+                height={52}
+                className='absolute -top-[4.55%] -left-[9.09%] h-[118.18%] w-[118.18%] max-w-none'
+              />
+            </span>
+          </button>
+        </div>
+      </section>
+    </>
   );
 }
 
@@ -570,21 +630,21 @@ function LandingFaq() {
   const [openedIndex, setOpenedIndex] = useState<number | null>(null);
 
   return (
-    <section className='mx-auto max-w-[66rem] px-5 pb-[8rem] sm:px-0 sm:pb-[10rem]'>
-      <p className='text-main text-center text-[1.125rem] leading-[130%] font-bold sm:text-[1.25rem]'>
+    <section className='mx-auto max-w-[66rem] px-4 pt-[4.25rem] pb-[3.75rem] sm:px-0 sm:pt-0 sm:pb-[10rem]'>
+      <p className='text-main text-center text-[0.875rem] leading-[130%] font-bold sm:text-[1.25rem]'>
         FAQ
       </p>
-      <h2 className='mt-3 text-center text-[1.875rem] leading-[130%] font-bold sm:text-[2rem]'>
+      <h2 className='mt-1 text-center text-[1.25rem] leading-[130%] font-bold sm:mt-3 sm:text-[2rem]'>
         자주 묻는 질문
       </h2>
-      <div className='mt-12 space-y-4 sm:mt-[5rem] sm:space-y-5'>
+      <div className='mt-10 space-y-3 sm:mt-[5rem] sm:space-y-5'>
         {faqs.map((faq, index) => {
           const isOpen = openedIndex === index;
 
           return (
             <article
               key={faq.question}
-              className={`relative cursor-pointer rounded-[1rem] px-5 py-6 transition-colors sm:rounded-[1.25rem] sm:px-10 sm:py-7 ${
+              className={`relative cursor-pointer rounded-[0.75rem] px-5 py-5 transition-colors sm:rounded-[1.25rem] sm:px-10 sm:py-7 ${
                 isOpen
                   ? 'bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.04),inset_0px_2px_4px_0px_rgba(0,0,0,0.04)]'
                   : 'bg-gradient-to-r from-[#CCDDFF]/30 to-[#F6F8FF]/30 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.04),inset_0px_2px_4px_0px_rgba(0,0,0,0.04)] hover:from-white hover:to-white'
@@ -593,7 +653,7 @@ function LandingFaq() {
             >
               <button
                 type='button'
-                className='relative z-10 flex w-full cursor-pointer items-center gap-3 text-left sm:gap-4'
+                className='relative z-10 flex w-full items-center gap-2 text-left sm:gap-4'
                 aria-expanded={isOpen}
               >
                 <Image
@@ -602,9 +662,9 @@ function LandingFaq() {
                   aria-hidden
                   width={28}
                   height={28}
-                  className='h-6 w-6 shrink-0 sm:h-7 sm:w-7'
+                  className='h-[1.125rem] w-[1.125rem] shrink-0 sm:h-7 sm:w-7'
                 />
-                <span className='flex-1 text-[1rem] leading-[130%] font-bold text-[#1A1A1A] sm:text-[1.25rem]'>
+                <span className='flex-1 text-[1rem] leading-[150%] font-bold text-[#1A1A1A] sm:text-[1.25rem] sm:leading-[130%]'>
                   {faq.question}
                 </span>
                 <Image
@@ -613,13 +673,13 @@ function LandingFaq() {
                   aria-hidden
                   width={40}
                   height={40}
-                  className={`h-10 w-10 shrink-0 transition-transform ${
+                  className={`h-6 w-6 shrink-0 transition-transform sm:h-10 sm:w-10 ${
                     isOpen ? '' : 'rotate-180'
                   }`}
                 />
               </button>
               {isOpen && (
-                <div className='relative z-10 mt-6 text-[1rem] leading-[150%] font-medium text-[#1A1A1A] sm:mt-7 sm:text-[1.25rem]'>
+                <div className='relative z-10 mt-5 text-[0.875rem] leading-[150%] font-medium text-[#1A1A1A] sm:mt-7 sm:text-[1.25rem]'>
                   {faq.answer}
                 </div>
               )}
@@ -628,6 +688,80 @@ function LandingFaq() {
         })}
       </div>
     </section>
+  );
+}
+
+function MobileLandingFooter() {
+  const currentYear = new Date().getFullYear();
+
+  return (
+    <footer className='relative h-[32.9375rem] bg-[#F6F8FA] px-4 pt-10 text-[0.75rem] leading-[150%] text-[#74777D] sm:hidden'>
+      <div className='flex items-center justify-between'>
+        <p className='font-bold text-[#1A1A1A]'>서비스</p>
+        <Link
+          href='/feedback'
+          className='cursor-pointer rounded-[0.375rem] border border-[#9EA4A9] bg-white px-4 py-2 font-semibold text-[#1A1A1A]'
+        >
+          서비스 피드백 남기기
+        </Link>
+      </div>
+      <nav className='mt-2 flex flex-col gap-2 text-[#1A1A1A]'>
+        <Link href='/recommendation' className='cursor-pointer'>
+          직무 찾기
+        </Link>
+        <Link href='/experience/workspace' className='cursor-pointer'>
+          경험 정리
+        </Link>
+        <Link href='/correction' className='cursor-pointer'>
+          포트폴리오 첨삭
+        </Link>
+      </nav>
+      <div className='mt-9 h-px w-full bg-[#CDD0D5]' />
+      <div className='mt-7 flex items-center justify-between'>
+        <Image src='/MainLogo.svg' alt='Folioo' width={96} height={24} />
+        <a
+          href='https://www.instagram.com/folioo_ai'
+          target='_blank'
+          rel='noopener noreferrer'
+          className='cursor-pointer'
+          aria-label='Folioo 인스타그램'
+        >
+          <Image src='/InstagramIcon.svg' alt='' width={40} height={40} />
+        </a>
+      </div>
+      <div className='mt-7 flex flex-col gap-2'>
+        <p>상호명: 티미(Teamie)</p>
+        <p>대표자: 김수빈</p>
+        <p>개인정보관리책임자: 김수빈</p>
+        <a
+          href='https://www.ftc.go.kr/bizCommPop.do?wrkr_no=5121602706'
+          target='_blank'
+          rel='noopener noreferrer'
+          className='cursor-pointer'
+        >
+          사업자등록번호: 512-16-02706
+        </a>
+        <p>전화번호: 010-5797-0358</p>
+        <p>이메일: teamie0701@gmail.com</p>
+        <p>주소: (23015) 인천광역시 강화군 하점면 창후로174번길 13-27, 일부</p>
+      </div>
+      <div className='mt-3.5 flex items-center gap-3 text-[#74777D]'>
+        <Link href='/privacy' className='cursor-pointer font-bold'>
+          개인정보 처리방침
+        </Link>
+        <span className='h-3 w-px bg-[#CDD0D5]' />
+        <Link href='/tos' className='cursor-pointer'>
+          서비스 이용약관
+        </Link>
+        <span className='h-3 w-px bg-[#CDD0D5]' />
+        <Link href='/marketing' className='cursor-pointer'>
+          마케팅 정보 수신
+        </Link>
+      </div>
+      <p className='mt-3'>
+        Copyright © {currentYear} Teamie. All rights reserved.
+      </p>
+    </footer>
   );
 }
 
@@ -665,30 +799,30 @@ export function LandingPageContent() {
     <div className='text-gray9 overflow-x-hidden bg-white tracking-normal'>
       <div className='relative'>
         <div
-          className='pointer-events-none absolute inset-x-0 top-0 -z-0 h-[118rem] opacity-50 blur-[3.125rem]'
+          className='pointer-events-none absolute inset-x-0 top-0 -z-0 h-[27.5rem] opacity-50 blur-[3.125rem] sm:h-[118rem]'
           style={{
             background:
               'linear-gradient(180deg, rgba(255,255,255,0) 0%, #C4CCFF 26%, rgba(242,244,255,0.45) 53%, rgba(255,255,255,0) 100%)',
           }}
         />
 
-        <section className='relative z-10 mx-auto max-w-[66rem] px-5 pt-[6.25rem] pb-[9rem] sm:px-0 sm:pt-[6.25rem] sm:pb-[13.75rem]'>
+        <section className='relative z-10 mx-auto max-w-[66rem] px-4 pt-[5.25rem] pb-[7.5rem] sm:px-0 sm:pt-[6.25rem] sm:pb-[13.75rem]'>
           <div className='flex flex-col items-center text-center'>
-            <h1 className='text-[2.25rem] leading-[130%] font-bold sm:text-[3rem]'>
+            <h1 className='text-[1.75rem] leading-[130%] font-bold sm:text-[3rem]'>
               당신의 모든 경험을
               <br />
               무한한 취업 경쟁력으로
             </h1>
-            <p className='mt-7 text-[1rem] leading-[130%] font-bold sm:mt-[3.125rem] sm:text-[1.25rem]'>
+            <p className='text-gray6 sm:text-gray9 mt-4 text-[1rem] leading-[150%] font-normal sm:mt-[3.125rem] sm:text-[1.25rem] sm:leading-[130%] sm:font-bold'>
               Folioo의 AI 컨설턴트가 당신의 경험과 역량을 가장 효과적으로 활용할
               수 있도록 도와드려요.
             </p>
-            <div className='mt-9 sm:mt-[3.25rem]'>
+            <div className='mt-14 sm:mt-[3.25rem]'>
               <LoginEntryButton />
             </div>
           </div>
 
-          <div className='mt-16 grid grid-cols-1 justify-items-center gap-5 sm:mt-[4.5rem] sm:grid-cols-3 sm:gap-6'>
+          <div className='mt-20 grid grid-cols-1 justify-items-center gap-6 sm:mt-[4.5rem] sm:grid-cols-3 sm:gap-6'>
             <ServiceCard
               title='직무 찾기'
               iconSrc='/landing/job-search-icon.svg'
@@ -731,12 +865,12 @@ export function LandingPageContent() {
 
         <section
           id='job-search-introduction'
-          className='relative z-10 mx-auto max-w-[66rem] scroll-mt-[9.5rem] px-5 pb-[8rem] sm:scroll-mt-[12.5rem] sm:px-0 sm:pb-[10rem]'
+          className='relative z-10 mx-auto max-w-[66rem] scroll-mt-[9.5rem] px-4 pb-[3.625rem] sm:scroll-mt-[12.5rem] sm:px-0 sm:pb-[10rem]'
         >
-          <p className='text-[1.125rem] leading-[130%] font-bold sm:text-[1.25rem]'>
+          <p className='text-[1rem] leading-[130%] font-semibold sm:text-[1.25rem] sm:font-bold'>
             직무 찾기
           </p>
-          <h2 className='mt-7 text-[1.875rem] leading-[130%] font-bold sm:text-[2rem]'>
+          <h2 className='mt-4 text-[1.5rem] leading-[130%] font-bold sm:mt-7 sm:text-[2rem]'>
             어렵고 막막한 진로 고민,
             <br />
             3분 테스트로 찾는 나의 직무
@@ -745,13 +879,13 @@ export function LandingPageContent() {
             variantType='Gradient'
             px='2.25rem'
             py='0.75rem'
-            className='mt-8'
+            className='mt-10 sm:mt-8'
             onClick={navigateToRecommendation}
           >
             테스트 시작하기 →
           </CommonButton>
 
-          <div className='mt-14 grid items-center gap-8 sm:mt-16 sm:grid-cols-[minmax(0,43.75rem)_1fr] sm:gap-[5.5rem]'>
+          <div className='mt-10 grid items-center gap-5 sm:mt-16 sm:grid-cols-[minmax(0,43.75rem)_1fr] sm:gap-[5.5rem]'>
             <JobPreview />
             <div className='relative sm:translate-y-[0.8125rem] sm:pl-5'>
               <Image
@@ -761,15 +895,15 @@ export function LandingPageContent() {
                 height={80}
                 className='absolute top-3 left-0 hidden h-20 w-2 sm:top-[0.875rem] sm:block'
               />
-              <ol className='text-gray9 space-y-0 text-[1rem] leading-[200%] sm:text-[1.125rem] sm:whitespace-nowrap'>
+              <ol className='text-gray9 space-y-0 text-[0.875rem] leading-[200%] sm:text-[1.125rem] sm:whitespace-nowrap'>
                 <li>01 전공 선택</li>
                 <li>02 흥미 유형 검사</li>
                 <li>03 근무 조건 밸런스게임</li>
               </ol>
-              <p className='mt-3 text-[1.5rem] leading-[130%] font-bold sm:-ml-5 sm:text-[1.5rem] sm:whitespace-nowrap'>
+              <p className='mt-3 text-[1.125rem] leading-[130%] font-bold sm:-ml-5 sm:text-[1.5rem] sm:whitespace-nowrap'>
                 3단계 테스트로 3분 만에!
               </p>
-              <p className='mt-16 text-[1.25rem] leading-[130%] font-bold sm:mt-[6.1875rem] sm:-ml-5 sm:text-[1.5rem] sm:whitespace-nowrap'>
+              <p className='mt-12 text-[1.25rem] leading-[130%] font-bold sm:mt-[6.1875rem] sm:-ml-5 sm:text-[1.5rem] sm:whitespace-nowrap'>
                 나의 성향에 딱 맞는 직무와
                 <br />
                 기업 형태를 찾아보세요.
@@ -781,13 +915,13 @@ export function LandingPageContent() {
 
       <section
         id='experience-organization-introduction'
-        className='scroll-mt-[3.5rem] bg-[#E6E9FF]/30 py-[7.5rem] sm:scroll-mt-[6.5rem] sm:py-[10rem]'
+        className='scroll-mt-[3.5rem] bg-[#E6E9FF]/30 py-[3.75rem] sm:scroll-mt-[6.5rem] sm:py-[10rem]'
       >
-        <div className='mx-auto max-w-[66rem] px-5 sm:px-0'>
-          <p className='text-[1.125rem] leading-[130%] font-bold sm:text-[1.25rem]'>
+        <div className='mx-auto max-w-[66rem] px-4 sm:px-0'>
+          <p className='text-[1rem] leading-[130%] font-semibold sm:text-[1.25rem] sm:font-bold'>
             경험 정리
           </p>
-          <h2 className='mt-7 text-[1.875rem] leading-[130%] font-bold sm:text-[2rem]'>
+          <h2 className='mt-4 text-[1.5rem] leading-[130%] font-bold sm:mt-7 sm:text-[2rem]'>
             흩어진 경험의 기록을 모아
             <br />
             취업 준비의 핵심 자산으로
@@ -796,19 +930,19 @@ export function LandingPageContent() {
             variantType='Gradient'
             px='2.25rem'
             py='0.75rem'
-            className='mt-8'
+            className='mt-10 sm:mt-8'
             onClick={() => navigateWithLoginGuard('/experience/workspace')}
           >
             경험 정리하기 →
           </CommonButton>
 
-          <div className='mt-16 grid gap-9 sm:mt-[4.375rem] sm:grid-cols-3 sm:gap-[2.75rem]'>
+          <div className='mt-15 grid gap-15 sm:mt-[4.375rem] sm:grid-cols-3 sm:gap-[2.75rem]'>
             {solutionCards.map((card) => (
               <SolutionCard key={card.number} {...card} />
             ))}
           </div>
 
-          <div className='mt-16 grid gap-6 sm:mt-[10rem] sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10'>
+          <div className='mt-[7.5rem] grid gap-5 sm:mt-[10rem] sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10'>
             <VideoFeatureCard
               title='템플릿을 활용해 체계적으로'
               description='준비된 템플릿을 통해, 누구나 체계적으로 정리할 수 있어요.'
@@ -829,7 +963,7 @@ export function LandingPageContent() {
 
       <section
         id='portfolio-correction-introduction'
-        className='relative scroll-mt-[3.5rem] overflow-hidden py-[7.5rem] sm:min-h-[113.6875rem] sm:scroll-mt-[6.5rem] sm:pt-[10rem] sm:pb-[6.875rem]'
+        className='relative scroll-mt-[3.5rem] overflow-hidden py-[3.75rem] sm:min-h-[113.6875rem] sm:scroll-mt-[6.5rem] sm:pt-[10rem] sm:pb-[6.875rem]'
       >
         <div
           aria-hidden
@@ -841,26 +975,26 @@ export function LandingPageContent() {
           </div>
         </div>
         <div
-          className='pointer-events-none absolute inset-0 z-10 opacity-50 blur-[3.125rem]'
+          className='pointer-events-none absolute top-[26.75rem] z-10 h-[36.3125rem] w-full opacity-50 blur-[3.125rem] sm:inset-0'
           style={{
             background:
               'linear-gradient(180.083456732145deg, rgba(255, 255, 255, 0) 20.046%, rgb(196, 204, 255) 51.997%, rgba(255, 255, 255, 0.4) 79.954%)',
           }}
         />
-        <div className='relative z-20 mx-auto max-w-[66rem] px-5 sm:px-0'>
-          <p className='text-[1.125rem] leading-[130%] font-bold sm:text-[1.25rem]'>
+        <div className='relative z-20 mx-auto max-w-[66rem] px-4 sm:px-0'>
+          <p className='text-[1rem] leading-[130%] font-semibold sm:text-[1.25rem] sm:font-bold'>
             포트폴리오 첨삭
           </p>
-          <h2 className='mt-7 text-[1.875rem] leading-[130%] font-bold sm:text-[2rem]'>
+          <h2 className='mt-4 text-[1.5rem] leading-[130%] font-bold sm:mt-7 sm:text-[2rem]'>
             매번 새로 쓰는 부담 없이,
             <br />
             공고마다 빠르게, 맞춤 전략으로
           </h2>
-          <div className='mt-8'>
+          <div className='mt-10 sm:mt-8'>
             <StartCorrectionButton>첨삭 의뢰하기 →</StartCorrectionButton>
           </div>
 
-          <div className='relative mt-24 min-h-[19rem] sm:mt-[8.75rem] sm:min-h-[34.875rem]'>
+          <div className='relative mt-24 min-h-[28.1875rem] sm:mt-[8.75rem] sm:min-h-[34.875rem]'>
             <div
               aria-hidden
               className='absolute top-[25.6875rem] left-1/2 z-0 hidden h-[5.0625rem] w-[17.625rem] -translate-x-1/2 sm:block'
@@ -870,24 +1004,24 @@ export function LandingPageContent() {
               <span className='absolute top-[3.5rem] left-[calc(50%+1.5px)] h-[0.6875rem] w-[7.5625rem] -translate-x-1/2 rounded-full bg-white opacity-70 blur-[0.1875rem]' />
               <span className='absolute top-[4.6875rem] left-[calc(50%+2px)] h-1.5 w-[4.75rem] -translate-x-1/2 rounded-full bg-white opacity-90 blur-[0.1875rem]' />
             </div>
-            <div className='border-gray3 absolute top-0 left-[5%] z-10 h-20 w-[70%] rounded-full border bg-white shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] sm:left-[7.5625rem] sm:h-[7.375rem] sm:w-[36.8125rem]' />
-            <p className='absolute top-6 left-[10%] z-10 max-w-[19rem] text-[0.9375rem] leading-[150%] sm:top-8 sm:left-[12.5rem] sm:max-w-[28.5rem] sm:text-[1.125rem] sm:whitespace-nowrap'>
+            <div className='border-gray3 absolute top-0 left-[5%] z-10 h-[5.5rem] w-[90%] rounded-full border bg-white shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] sm:left-[7.5625rem] sm:h-[7.375rem] sm:w-[36.8125rem]' />
+            <p className='absolute top-5 left-[14%] z-10 max-w-[16rem] text-[0.75rem] leading-[150%] sm:top-8 sm:left-[12.5rem] sm:max-w-[28.5rem] sm:text-[1.125rem] sm:whitespace-nowrap'>
               <span className='block'>
                 특정 직무에 적합한 활동을 주로 했는데,
               </span>
               <span>막상 취업 시장에 나와보니 </span>
-              <strong className='text-[1.25rem] leading-[130%] font-bold'>
+              <strong className='text-[0.875rem] leading-[130%] font-bold sm:text-[1.25rem]'>
                 다른 직무도 지원할 수밖에 없어요.
               </strong>
             </p>
-            <div className='border-gray3 absolute top-28 right-[2%] z-10 h-24 w-[78%] rounded-full border bg-[#FDFDFD] shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] sm:top-[10.625rem] sm:right-[2rem] sm:h-[7.375rem] sm:w-[40.5rem]' />
-            <p className='absolute top-[8.75rem] right-[7%] z-10 max-w-[22rem] text-[0.9375rem] leading-[150%] sm:top-[12.625rem] sm:right-[6.9375rem] sm:max-w-[30.5rem] sm:text-[1.125rem] sm:whitespace-nowrap'>
+            <div className='border-gray3 absolute top-[9.25rem] right-[2%] z-10 h-[6.75rem] w-[94%] rounded-full border bg-[#FDFDFD] shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] sm:top-[10.625rem] sm:right-[2rem] sm:h-[7.375rem] sm:w-[40.5rem]' />
+            <p className='absolute top-[10.75rem] right-[8%] z-10 max-w-[16rem] text-[0.75rem] leading-[150%] sm:top-[12.625rem] sm:right-[6.9375rem] sm:max-w-[30.5rem] sm:text-[1.125rem] sm:whitespace-nowrap'>
               <span className='block'>
                 포트폴리오 하나로 여러 직무와 기업에 지원하니 경쟁력이
                 떨어지지만,
               </span>
               <span>공고마다 새로 포트폴리오를 쓰기에는</span>
-              <strong className='text-[1.25rem] leading-[130%] font-bold'>
+              <strong className='text-[0.875rem] leading-[130%] font-bold sm:text-[1.25rem]'>
                 {' '}
                 시간이 너무 오래 걸려요.
               </strong>
@@ -895,12 +1029,12 @@ export function LandingPageContent() {
           </div>
 
           <div className='mx-auto max-w-[46.25rem] text-center'>
-            <h3 className='text-[1.75rem] leading-[130%] font-bold sm:text-[2rem]'>
+            <h3 className='text-[1.5rem] leading-[130%] font-bold sm:text-[2rem]'>
               AI 컨설턴트가 제공하는
               <br />
               지원 상황에 최적화된 첨삭 보고서로 해결하세요.
             </h3>
-            <div className='mt-12 sm:mt-[3.125rem]'>
+            <div className='mt-14 sm:mt-[3.125rem]'>
               <PortfoliloPoints />
             </div>
           </div>
@@ -910,27 +1044,36 @@ export function LandingPageContent() {
       <CorrectionWorkflow />
       <LandingFaq />
 
-      <section className='relative overflow-hidden pt-[7.5rem] pb-40 sm:pt-[28.75rem] sm:pb-[25rem]'>
+      <section className='relative overflow-hidden pt-[16.375rem] pb-[12.5rem] sm:pt-[28.75rem] sm:pb-[25rem]'>
+        <Image
+          src='/landing/landing-cta-gradient-mobile.svg'
+          alt=''
+          width={713}
+          height={902}
+          aria-hidden='true'
+          className='pointer-events-none absolute -top-20 left-1/2 h-auto w-[44.5625rem] max-w-none -translate-x-1/2 sm:hidden'
+        />
         <Image
           src='/landing/landing-cta-gradient.svg'
           alt=''
           width={2510}
           height={1823}
           aria-hidden='true'
-          className='pointer-events-none absolute top-[3.75rem] left-1/2 h-auto w-[max(130.73vw,156.875rem)] max-w-none -translate-x-1/2 sm:top-[11.25rem]'
+          className='pointer-events-none absolute top-[11.25rem] left-1/2 hidden h-auto w-[max(130.73vw,156.875rem)] max-w-none -translate-x-1/2 sm:block'
         />
         <div className='relative flex flex-col items-center text-center'>
-          <h2 className='text-[2.25rem] leading-[130%] font-bold sm:text-[3rem]'>
+          <h2 className='text-[1.75rem] leading-[130%] font-bold sm:text-[3rem]'>
             지금,
             <br />
             경험을 서류로 바꾸세요.
           </h2>
-          <div className='mt-10 sm:mt-[3.75rem]'>
+          <div className='mt-15 sm:mt-[3.75rem]'>
             <LoginEntryButton>무료로 사용하기 →</LoginEntryButton>
           </div>
         </div>
       </section>
 
+      <MobileLandingFooter />
       <Footer />
     </div>
   );
