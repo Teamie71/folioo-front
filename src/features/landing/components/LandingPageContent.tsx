@@ -597,13 +597,13 @@ export function LandingPageContent() {
             경험 정리하기 →
           </CommonButton>
 
-          <div className='mt-16 grid gap-9 sm:mt-[5.75rem] sm:grid-cols-3 sm:gap-[2.75rem]'>
+          <div className='mt-16 grid gap-9 sm:mt-[4.375rem] sm:grid-cols-3 sm:gap-[2.75rem]'>
             {solutionCards.map((card) => (
               <SolutionCard key={card.number} {...card} />
             ))}
           </div>
 
-          <div className='mt-16 grid gap-6 sm:mt-[5.75rem] sm:grid-cols-2'>
+          <div className='mt-16 grid gap-6 sm:mt-[10rem] sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10'>
             <VideoFeatureCard
               title='템플릿을 활용해 체계적으로'
               description='준비된 템플릿을 통해, 누구나 체계적으로 정리할 수 있어요.'
@@ -622,7 +622,7 @@ export function LandingPageContent() {
         </div>
       </section>
 
-      <section className='relative overflow-hidden py-[7.5rem] sm:min-h-[113.6875rem] sm:py-[10rem]'>
+      <section className='relative overflow-hidden py-[7.5rem] sm:min-h-[113.6875rem] sm:pt-[10rem] sm:pb-[6.875rem]'>
         <div
           aria-hidden
           className='pointer-events-none absolute inset-0 z-0 hidden sm:block'
@@ -692,7 +692,7 @@ export function LandingPageContent() {
               <br />
               지원 상황에 최적화된 첨삭 보고서로 해결하세요.
             </h3>
-            <div className='mt-12 space-y-4 sm:mt-16 sm:space-y-6'>
+            <div className='mt-12 space-y-4 sm:mt-[3.125rem] sm:space-y-6'>
               {portfolioPoints.map((point) => (
                 <article
                   key={point.label}
