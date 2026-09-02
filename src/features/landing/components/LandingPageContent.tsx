@@ -733,7 +733,7 @@ function LandingFaq() {
                 />
               </button>
               {isOpen && (
-                <div className='relative z-10 mt-5 text-[0.875rem] leading-[150%] font-medium text-[#1A1A1A] sm:mt-7 sm:text-[1.25rem]'>
+                <div className='relative z-10 mt-5 text-[0.875rem] leading-[150%] font-medium break-keep text-[#1A1A1A] sm:mt-7 sm:text-[1.25rem]'>
                   {faq.answer}
                 </div>
               )}
@@ -1154,7 +1154,7 @@ export function LandingPageContent() {
       <CorrectionWorkflow />
       <LandingFaq />
 
-      <section className='relative overflow-hidden pt-[16.375rem] pb-[12.5rem] sm:pt-[28.75rem] sm:pb-[25rem]'>
+      <section className='relative overflow-hidden pt-[10rem] pb-[12.5rem] sm:pt-[28.75rem] sm:pb-[25rem]'>
         <Image
           src='/landing/landing-cta-gradient-mobile.svg'
           alt=''
