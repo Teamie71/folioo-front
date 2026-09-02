@@ -545,7 +545,7 @@ function CorrectionWorkflow() {
                 type='button'
                 role='tab'
                 aria-selected={isActive}
-                className={`cursor-pointer border-b-2 py-3 text-center text-[0.875rem] leading-[150%] ${
+                className={`cursor-pointer border-b-[3px] py-3 text-center text-[0.875rem] leading-[150%] ${
                   isActive
                     ? 'border-main text-main font-bold'
                     : 'border-gray3 text-gray4'
@@ -567,13 +567,15 @@ function CorrectionWorkflow() {
             className='absolute top-[9.375rem] left-10 z-10 h-7 w-7 cursor-pointer'
             onClick={() => moveStep(-1)}
           >
-            <Image
-              src='/landing/workflow-arrow-mobile.svg'
-              alt=''
-              width={36}
-              height={36}
-              className='absolute -top-0.5 -left-1 h-9 w-9 max-w-none -rotate-90'
-            />
+            <span className='relative block h-7 w-7 -rotate-90'>
+              <Image
+                src='/landing/workflow-arrow-mobile.svg'
+                alt=''
+                width={36}
+                height={36}
+                className='absolute -top-0.5 -left-1 h-9 w-9 max-w-none'
+              />
+            </span>
           </button>
         )}
         {hasNextStep && (
@@ -583,13 +585,15 @@ function CorrectionWorkflow() {
             className='absolute top-[9.375rem] right-10 z-10 h-7 w-7 cursor-pointer'
             onClick={() => moveStep(1)}
           >
-            <Image
-              src='/landing/workflow-arrow-mobile.svg'
-              alt=''
-              width={36}
-              height={36}
-              className='absolute -top-0.5 -left-1 h-9 w-9 max-w-none rotate-90'
-            />
+            <span className='relative block h-7 w-7 rotate-90'>
+              <Image
+                src='/landing/workflow-arrow-mobile.svg'
+                alt=''
+                width={36}
+                height={36}
+                className='absolute -top-0.5 -left-1 h-9 w-9 max-w-none'
+              />
+            </span>
           </button>
         )}
         <LandingVideo className='absolute top-[13.625rem] left-4 !h-[11.5rem] !w-[calc(100%-2rem)] !rounded-none' />
