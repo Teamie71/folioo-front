@@ -624,13 +624,22 @@ export function LandingPageContent() {
 
       <section className='relative overflow-hidden py-[7.5rem] sm:min-h-[113.6875rem] sm:py-[10rem]'>
         <div
-          className='pointer-events-none absolute inset-0 opacity-50 blur-[3.125rem]'
+          aria-hidden
+          className='pointer-events-none absolute inset-0 z-0 hidden sm:block'
+        >
+          <div className='relative mx-auto h-full max-w-[66rem]'>
+            <div className='border-gray3 absolute top-[41.25rem] left-[3.9375rem] h-[5.4078125rem] w-[23.625rem] rounded-full border bg-[#FDFDFD] shadow-[0_4px_8px_0_rgba(0,0,0,0.2)]' />
+            <div className='border-gray3 absolute top-[46.6875rem] left-[29.5rem] h-[7.375rem] w-[40.5rem] rounded-full border bg-[#FDFDFD] shadow-[0_4px_8px_0_rgba(0,0,0,0.2)]' />
+          </div>
+        </div>
+        <div
+          className='pointer-events-none absolute inset-0 z-10 opacity-50 blur-[3.125rem]'
           style={{
             background:
               'linear-gradient(180.083456732145deg, rgba(255, 255, 255, 0) 20.046%, rgb(196, 204, 255) 51.997%, rgba(255, 255, 255, 0.4) 79.954%)',
           }}
         />
-        <div className='relative mx-auto max-w-[66rem] px-5 sm:px-0'>
+        <div className='relative z-20 mx-auto max-w-[66rem] px-5 sm:px-0'>
           <p className='text-[1.125rem] leading-[130%] font-bold sm:text-[1.25rem]'>
             포트폴리오 첨삭
           </p>
@@ -644,14 +653,6 @@ export function LandingPageContent() {
           </div>
 
           <div className='relative mt-24 min-h-[19rem] sm:mt-[8.75rem] sm:min-h-[34.875rem]'>
-            <div
-              aria-hidden
-              className='border-gray3 absolute top-[8.875rem] left-[3.9375rem] z-0 hidden h-[5.4078125rem] w-[23.625rem] rounded-full border bg-[#FDFDFD] shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] sm:block'
-            />
-            <div
-              aria-hidden
-              className='border-gray3 absolute top-[14.3125rem] left-[29.5rem] z-0 hidden h-[7.375rem] w-[40.5rem] rounded-full border bg-[#FDFDFD] shadow-[0_4px_8px_0_rgba(0,0,0,0.2)] sm:block'
-            />
             <div
               aria-hidden
               className='absolute top-[25.6875rem] left-1/2 z-0 hidden h-[5.0625rem] w-[17.625rem] -translate-x-1/2 sm:block'
