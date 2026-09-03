@@ -329,7 +329,7 @@ export const useExperienceMapControllerDeleteBlock = <TError = CommonResponse,
       return useMutation(getExperienceMapControllerDeleteBlockMutationOptions(options), queryClient);
     }
     /**
- * 블록의 형제 내 순서를 바꾸거나(parentId 생략), 다른 부모로 이동합니다. 1~2단계(그룹/활동)는 위계를 바꿀 수 없고 순서만 변경할 수 있습니다. 3~5단계는 3~5단계 내에서만 위계를 바꿀 수 있으며, 하위 블록도 함께 이동하고 이동 후 최대 5단계를 넘을 수 없습니다.
+ * 블록의 형제 내 순서를 바꾸거나(parentId 생략), 다른 부모로 이동합니다. 1단계(그룹)는 위계를 바꿀 수 없고 순서만 변경할 수 있습니다. 2단계(활동)는 다른 그룹(또는 미분류)으로 이동할 수 있습니다. 3~5단계는 3~5단계 내에서만 위계를 바꿀 수 있으며, 하위 블록도 함께 이동하고 이동 후 최대 5단계를 넘을 수 없습니다.
  * @summary 블록 순서/위치 변경 (드래그 앤 드롭)
  */
 export const experienceMapControllerMoveBlock = (
