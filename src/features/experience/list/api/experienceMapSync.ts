@@ -290,6 +290,36 @@ async function createSubtree(
   }
 }
 
+/** 서버에 이미 있는 기본 템플릿에 비로그인 초안을 위치별로 병합한다. */
+async function mergeDraftSubtree(draftBlock: Block, serverBlock: Block) {
+  idAliases.set(draftBlock.id, serverBlock.id);
+
+  if (draftBlock.editable && draftBlock.text !== serverBlock.text) {
+    await write((expectedMapVersion) =>
+      experienceMapControllerUpdateBlockContent(serverBlock.id, {
+        content: toContentPayload<UpdateBlockContentReqDTOContent>(
+          draftBlock.text,
+        ),
+        expectedMapVersion,
+      }),
+    ).catch((error) => {
+      throw describeApiError(
+        error,
+        `초안 블록 병합 실패 (blockId=${serverBlock.id})`,
+      );
+    });
+  }
+
+  for (const [index, draftChild] of draftBlock.children.entries()) {
+    const serverChild = serverBlock.children[index];
+    if (serverChild) {
+      await mergeDraftSubtree(draftChild, serverChild);
+    } else {
+      await createSubtree(draftChild, serverBlock.id);
+    }
+  }
+}
+
 /* ------------------------------------------------------------------ *
  * 스토어에서 호출하는 작업들
  * ------------------------------------------------------------------ */
@@ -422,8 +452,13 @@ export function syncImportGuestDraft(draft: {
           await createSubtree(section, parentId);
           continue;
         }
-        for (const child of section.children) {
-          await createSubtree(child, target.id);
+        for (const [index, child] of section.children.entries()) {
+          const serverChild = target.children[index];
+          if (serverChild) {
+            await mergeDraftSubtree(child, serverChild);
+          } else {
+            await createSubtree(child, target.id);
+          }
         }
       }
     }

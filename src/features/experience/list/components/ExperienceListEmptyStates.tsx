@@ -12,11 +12,11 @@ import {
   getProblemTemplateOptions,
 } from '@/features/experience/list/api/templateOptions';
 import {
-  buildSectionChildren,
   createDutyChildFromTemplate,
   createFreeBlock,
   createProblemChildFromTemplate,
   createSectionFromTemplate,
+  sectionBlockPlaceholderAt,
 } from '@/features/experience/list/factories';
 import type { Block } from '@/features/experience/list/types';
 import { getAvailableSectionTemplateOptions } from '@/features/experience/list/utils/sectionTemplateOptions';
@@ -137,8 +137,6 @@ export function EmptySectionAddButton({
   menuInsideBox?: boolean;
 }) {
   const addChildBlock = useExperienceListStore((s) => s.addChildBlock);
-  const addChildrenBlocks = useExperienceListStore((s) => s.addChildrenBlocks);
-
   const label = <span>+ 새로운 블록 추가</span>;
   const menuPositionProps = menuInsideBox
     ? ({ menuPlacement: 'inside-end' } as const)
@@ -202,10 +200,10 @@ export function EmptySectionAddButton({
       <button
         type='button'
         onClick={() =>
-          addChildrenBlocks(
+          addChildBlock(
             experienceId,
             section.id,
-            buildSectionChildren(fixedKind),
+            createFreeBlock('', sectionBlockPlaceholderAt(fixedKind, 0)),
           )
         }
         className={emptyAddBoxCls}

@@ -109,6 +109,7 @@ export function MobileExperienceDetail({ experienceId, onBack }: Props) {
           value={experience.name}
           placeholder={EXPERIENCE_NAME_PLACEHOLDER}
           editable
+          maxLength={20}
           onCommit={(next) => renameExperience(experience.id, next)}
           className='typo-b2-sb text-gray9'
           inputClassName='typo-b2-sb text-gray9'

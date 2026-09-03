@@ -10,7 +10,6 @@ import type { PaymentResDTOStatus } from './paymentResDTOStatus';
 export interface PaymentResDTO {
   status: PaymentResDTOStatus;
   id: number;
-  ticketProductId: number;
   amount: number;
   /** @nullable */
   payUrl: string | null;

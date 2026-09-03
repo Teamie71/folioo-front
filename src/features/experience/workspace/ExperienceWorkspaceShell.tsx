@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { useCallback, useState } from 'react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { ExperienceListSidebar } from '@/features/experience/list/components/ExperienceListSidebar';
 import { ExperienceListAgentPanel } from '@/features/experience/list/components/ExperienceListAgentPanel';
@@ -33,6 +34,9 @@ const ExperienceMapView = dynamic(
  */
 export function ExperienceWorkspaceShell() {
   const { view, setView } = useWorkspaceView();
+  const [mapFocusExperienceId, setMapFocusExperienceId] = useState<
+    string | undefined
+  >();
 
   // GET /experience-map 으로 그룹·활동·블록 트리를 채운다. (비로그인은 기본 제공 데이터)
   const { isGuest } = useExperienceMap();
@@ -48,6 +52,16 @@ export function ExperienceWorkspaceShell() {
   });
 
   usePreloadMapView(view === 'list');
+
+  const changeView = useCallback(
+    (next: 'list' | 'map') => {
+      if (next === 'map' && view === 'list') {
+        setMapFocusExperienceId(experienceId);
+      }
+      setView(next);
+    },
+    [experienceId, setView, view],
+  );
 
   return (
     <div className='flex h-[100dvh] w-full overflow-hidden bg-white'>
@@ -69,13 +83,17 @@ export function ExperienceWorkspaceShell() {
             <ExperienceListToolbar
               experienceId={experienceId}
               view={view}
-              onViewChange={setView}
+              onViewChange={changeView}
               onViewIntent={preloadExperienceMapView}
               overlay={view === 'map'}
             />
           </div>
 
-          {view === 'map' ? <ExperienceMapView /> : <ExperienceListView />}
+          {view === 'map' ? (
+            <ExperienceMapView focusExperienceId={mapFocusExperienceId} />
+          ) : (
+            <ExperienceListView />
+          )}
 
           {/* 로그인 안내 스낵바 (0-1) — 편집 영역 하단 기준 40px 위 */}
           {guest.snackbarOpen && (

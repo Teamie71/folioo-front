@@ -166,24 +166,28 @@ export function ExperienceListToolbar({
         />
 
         <div className='flex items-center gap-[4px]'>
-          <button
-            type='button'
-            onClick={() => runListUndo(undo)}
-            disabled={pastLen === 0 && !editSessionCanUndo()}
-            className='border-gray5 flex size-[28px] cursor-pointer items-center justify-center rounded-[6px] border bg-white disabled:pointer-events-none disabled:opacity-50'
-            aria-label='실행 취소'
-          >
-            <UndoIcon className='size-[20px]' />
-          </button>
-          <button
-            type='button'
-            onClick={() => runListRedo(redo)}
-            disabled={futureLen === 0 && !editSessionCanRedo()}
-            className='border-gray5 flex size-[28px] cursor-pointer items-center justify-center rounded-[6px] border bg-white disabled:pointer-events-none disabled:opacity-50'
-            aria-label='다시 실행'
-          >
-            <RedoIcon className='size-[20px]' />
-          </button>
+          <HoverTooltip label='실행 취소 (Ctrl + Z)'>
+            <button
+              type='button'
+              onClick={() => runListUndo(undo)}
+              disabled={pastLen === 0 && !editSessionCanUndo()}
+              className='border-gray5 flex size-[28px] cursor-pointer items-center justify-center rounded-[6px] border bg-white disabled:cursor-default disabled:opacity-50'
+              aria-label='실행 취소'
+            >
+              <UndoIcon className='size-[20px]' />
+            </button>
+          </HoverTooltip>
+          <HoverTooltip label='다시 실행 (Ctrl + Shift + Z)'>
+            <button
+              type='button'
+              onClick={() => runListRedo(redo)}
+              disabled={futureLen === 0 && !editSessionCanRedo()}
+              className='border-gray5 flex size-[28px] cursor-pointer items-center justify-center rounded-[6px] border bg-white disabled:cursor-default disabled:opacity-50'
+              aria-label='다시 실행'
+            >
+              <RedoIcon className='size-[20px]' />
+            </button>
+          </HoverTooltip>
         </div>
       </div>
 
@@ -223,16 +227,18 @@ export function ExperienceListToolbar({
               </button>
             </>
           ) : (
-            <button
-              type='button'
-              onClick={startBlockSelection}
-              className='border-gray4 hover:bg-gray2 flex h-[38px] cursor-pointer items-center gap-[4px] rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors'
-            >
-              <ListDeleteIcon className='size-[20px]' />
-              <span className='typo-b2 text-gray9 text-center'>
-                블록 선택 삭제
-              </span>
-            </button>
+            <HoverTooltip label='여러 개의 블록을 선택하여 한 번에 삭제'>
+              <button
+                type='button'
+                onClick={startBlockSelection}
+                className='border-gray4 hover:bg-gray2 flex h-[38px] cursor-pointer items-center gap-[4px] rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors'
+              >
+                <ListDeleteIcon className='size-[20px]' />
+                <span className='typo-b2 text-gray9 text-center'>
+                  블록 선택 삭제
+                </span>
+              </button>
+            </HoverTooltip>
           )
         ) : experienceId ? (
           <button
@@ -246,7 +252,7 @@ export function ExperienceListToolbar({
             className='border-gray4 hover:bg-gray2 flex h-[38px] cursor-pointer items-center gap-[4px] rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors'
           >
             <ListDeleteIcon className='size-[20px]' />
-            <span className='typo-b2 text-gray9 text-center'>활동 삭제</span>
+            <span className='typo-b2 text-gray9 text-center'>이 활동 삭제</span>
           </button>
         ) : null}
         {!agentOpen && (

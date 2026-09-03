@@ -56,6 +56,17 @@ export function useMapBlockAdd(node: MapLayoutNode): MapAddAction {
     const options = getAvailableSectionTemplateOptions(
       experience?.blocks ?? [],
     );
+    const hasMissingSectionTemplate = options.some(
+      (option) => option.key !== 'free',
+    );
+
+    if (!hasMissingSectionTemplate) {
+      return {
+        kind: 'direct',
+        add: () =>
+          addSectionToExperience(node.refId, createSectionFromTemplate('free')),
+      };
+    }
 
     return {
       kind: 'template',

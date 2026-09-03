@@ -174,6 +174,7 @@ export function ExperienceListSidebarExperience({
             value={item.name}
             placeholder={EXPERIENCE_NAME_PLACEHOLDER}
             editable
+            maxLength={20}
             onCommit={(next) => renameExperience(item.id, next)}
             requestEdit={requestRename}
             requestEditSelectAll
@@ -186,7 +187,7 @@ export function ExperienceListSidebarExperience({
         <HoverTooltip label='클릭하여 활동 추가'>
           <button
             type='button'
-            onClick={() => addExperience(item.groupId, item.id)}
+            onClick={() => addExperience()}
             className={cn(
               sidebarRowActionCls,
               'pointer-events-none shrink-0 opacity-0 group-hover/exp:pointer-events-auto group-hover/exp:opacity-100',

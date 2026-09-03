@@ -44,7 +44,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 /**
- * 새로운 경험 정리를 생성하고, AI와의 대화를 시작합니다. 경험 정리 티켓 1장을 사용합니다. 인당 최대 15개의 경험을 저장할 수 있습니다.
+ * 새로운 경험 정리를 생성하고, AI와의 대화를 시작합니다. 인당 최대 15개의 경험을 저장할 수 있습니다.
  * @summary 새로운 경험 정리 시작하기
  */
 export const experienceControllerCreateExperience = (

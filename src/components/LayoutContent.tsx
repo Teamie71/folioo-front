@@ -2,7 +2,6 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import MobileNavbar from '@/components/MobileNavbar';
 import Sidebar from '@/components/Sidebar';
@@ -10,18 +9,9 @@ import { OBTBannerMobile } from '@/components/OBT/OBTBannerMobile';
 import { BannerBeta } from '@/components/OBT/OBTBanner';
 import { OBTEventModal } from '@/components/OBT/OBTEventModal';
 import { OBTEventModalMobile } from '@/components/OBT/OBTEventModalMobile';
-import { EventModal } from '@/components/EventModal';
-import { EventModalMobile } from '@/components/EventModalMobile';
 import { markWeeklyVoucherGranted } from '@/utils/weeklyVoucher';
 import { CorrectionNavbarContext } from '@/contexts/CorrectionNavbarContext';
 import { useEventControllerClaimEventReward } from '@/api/endpoints/event/event';
-import {
-  getUserControllerGetTicketBalanceQueryKey,
-  getUserControllerGetExpiringTicketsQueryKey,
-  useUserControllerGetNextTicketGrantNotice,
-  useUserControllerMarkTicketGrantNoticeShown,
-  useUserControllerMarkTicketGrantNoticeDismissed,
-} from '@/api/endpoints/user/user';
 import { cn } from '@/utils/utils';
 
 /** 회원가입 직후 / 주간 이용권 지급 이벤트 코드 (백엔드와 동일해야 함) */
@@ -49,23 +39,12 @@ export default function LayoutContent({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const queryClient = useQueryClient();
   const [showNavbarOnResult, setShowNavbarOnResult] = useState(false);
   const [weeklyVoucherModalOpen, setWeeklyVoucherModalOpen] = useState(false);
-  const [noticeModalOpen, setNoticeModalOpen] = useState(false);
   const claimAttemptedRef = useRef(false);
-  const signupModalShownRef = useRef(false);
 
   const { mutateAsync: claimEventReward } =
     useEventControllerClaimEventReward();
-
-  const { data: noticeData } = useUserControllerGetNextTicketGrantNotice();
-  const notice = noticeData?.result;
-
-  const { mutateAsync: markShown } =
-    useUserControllerMarkTicketGrantNoticeShown();
-  const { mutateAsync: markDismissed } =
-    useUserControllerMarkTicketGrantNoticeDismissed();
 
   const path = pathname ?? '';
   const isMobileExperienceList =
@@ -177,15 +156,12 @@ export default function LayoutContent({
     if (typeof window === 'undefined') return;
 
     setWeeklyVoucherModalOpen(false);
-    setNoticeModalOpen(false);
-
     const isDismissed = sessionStorage.getItem('obt_banner_mobile_dismissed');
     if (!isDismissed) setIsOBTBannerVisible(true);
 
     const fromSignup = sessionStorage.getItem(TERMS_FROM_SIGNUP_KEY);
     if (fromSignup) {
       sessionStorage.removeItem(TERMS_FROM_SIGNUP_KEY);
-      signupModalShownRef.current = true;
       if (path === '/') {
         setWeeklyVoucherModalOpen(true);
       }
@@ -210,38 +186,11 @@ export default function LayoutContent({
     claimEventReward({ eventCode: WEEKLY_VOUCHER_EVENT_CODE })
       .then(() => {
         markWeeklyVoucherGranted();
-        queryClient.invalidateQueries({
-          queryKey: getUserControllerGetTicketBalanceQueryKey(),
-        });
-        queryClient.invalidateQueries({
-          queryKey: getUserControllerGetExpiringTicketsQueryKey(),
-        });
       })
       .catch(() => {
         claimAttemptedRef.current = false;
       });
-  }, [weeklyVoucherModalOpen, claimEventReward, queryClient]);
-
-  // 새 보상 안내 모달 로직
-  useEffect(() => {
-    if (!notice || noticeModalOpen) return;
-    if (signupModalShownRef.current) return; // 회원가입 직후 이번 로드에서는 EventModal 미표시
-    setNoticeModalOpen(true);
-    markShown({ noticeId: String(notice.id) }).catch(() => {});
-  }, [notice, noticeModalOpen, markShown]);
-
-  const handleNoticeModalClose = (open: boolean) => {
-    if (!open && noticeModalOpen && notice) {
-      markDismissed({ noticeId: String(notice.id) }).catch(() => {});
-      setNoticeModalOpen(false);
-      queryClient.invalidateQueries({
-        queryKey: ['/users/me/ticket-grant-notices/next'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['/users/me/tickets'],
-      });
-    }
-  };
+  }, [weeklyVoucherModalOpen, claimEventReward]);
 
   return (
     <CorrectionNavbarContext.Provider
@@ -318,31 +267,6 @@ export default function LayoutContent({
           validityMessage='지급된 이용권은 일요일까지 사용 가능해요.'
           buttonText='경험 정리하기'
           onButtonClick={() => router.push('/experience/settings')}
-        />
-      )}
-
-      {/* 동적 지급 보상 안내 모달 */}
-      {isMobileDevice ? (
-        <EventModalMobile
-          open={noticeModalOpen}
-          onOpenChange={handleNoticeModalClose}
-          notice={notice ?? null}
-          onButtonClick={() => {
-            if (typeof notice?.ctaLink === 'string') {
-              router.push(notice.ctaLink);
-            }
-          }}
-        />
-      ) : (
-        <EventModal
-          open={noticeModalOpen}
-          onOpenChange={handleNoticeModalClose}
-          notice={notice ?? null}
-          onButtonClick={() => {
-            if (typeof notice?.ctaLink === 'string') {
-              router.push(notice.ctaLink);
-            }
-          }}
         />
       )}
     </CorrectionNavbarContext.Provider>

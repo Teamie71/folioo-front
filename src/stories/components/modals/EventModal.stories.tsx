@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { EventModal } from '@/components/EventModal';
-import type { TicketGrantNoticeResDTO } from '@/api/models';
+import type { TicketGrantNoticeResDTO } from '@/api/models/ticketGrantNoticeResDTO';
 import { useState } from 'react';
 
 const meta = {

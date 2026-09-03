@@ -146,6 +146,7 @@ export function MobileExperienceListExperience({
             value={item.name}
             placeholder={EXPERIENCE_NAME_PLACEHOLDER}
             editable
+            maxLength={20}
             onCommit={(next) => renameExperience(item.id, next)}
             requestEdit={requestRename}
             requestEditSelectAll
@@ -158,7 +159,7 @@ export function MobileExperienceListExperience({
         <div className={cn(mobileRowActionsCls, 'gap-[3px]')} data-no-row-drag>
           <button
             type='button'
-            onClick={() => addExperience(item.groupId, item.id)}
+            onClick={() => addExperience()}
             className={mobileRowActionCls}
             aria-label='활동 추가'
           >

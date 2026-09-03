@@ -4,7 +4,6 @@ import {
   portfolioCorrectionControllerCreateCorrection,
   portfolioCorrectionControllerGetCorrections,
 } from '@/api/endpoints/portfolio-correction/portfolio-correction';
-import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
@@ -69,11 +68,6 @@ export function useNewCorrectionForm() {
   const sessionRestoreAttempted = useAuthStore(
     (state) => state.sessionRestoreAttempted,
   );
-
-  const { data: ticketBalance } = useUserControllerGetTicketBalance({
-    query: { enabled: sessionRestoreAttempted && accessToken != null },
-  });
-  const portfolioCount = ticketBalance?.result?.portfolioCorrection?.count ?? 0;
 
   useEffect(() => {
     if (!sessionRestoreAttempted || !accessToken || hasRestoredDraftRef.current)
@@ -146,17 +140,9 @@ export function useNewCorrectionForm() {
           setIsCorrectionLimitModalOpen(true);
           return;
         }
-        if (portfolioCount < 1) {
-          setIsTicketExhaustedModalOpen(true);
-          return;
-        }
         setIsStartCorrectionModalOpen(true);
       })
       .catch(() => {
-        if (portfolioCount < 1) {
-          setIsTicketExhaustedModalOpen(true);
-          return;
-        }
         setIsStartCorrectionModalOpen(true);
       });
   }, [
@@ -165,7 +151,6 @@ export function useNewCorrectionForm() {
     jobDescription,
     jdMode,
     jdUploadedFiles,
-    portfolioCount,
     accessToken,
     router,
     sessionRestoreAttempted,

@@ -26,9 +26,7 @@ import type {
 
 import type {
   CommonResponse,
-  CreatePaymentReqDTO,
   PaymentControllerCancelPayment200,
-  PaymentControllerCreatePayment200,
   PaymentControllerGetPayment200
 } from '../../models';
 
@@ -40,70 +38,6 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 /**
- * 티켓 상품 ID를 전달하면 결제 요청을 생성하고 REQUESTED 상태로 저장합니다.
- * @summary 결제 요청 생성
- */
-export const paymentControllerCreatePayment = (
-    createPaymentReqDTO: CreatePaymentReqDTO,
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
-) => {
-      
-      
-      return customInstance<PaymentControllerCreatePayment200>(
-      {url: `/payments`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: createPaymentReqDTO, signal
-    },
-      options);
-    }
-  
-
-
-export const getPaymentControllerCreatePaymentMutationOptions = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentControllerCreatePayment>>, TError,{data: CreatePaymentReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof paymentControllerCreatePayment>>, TError,{data: CreatePaymentReqDTO}, TContext> => {
-
-const mutationKey = ['paymentControllerCreatePayment'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof paymentControllerCreatePayment>>, {data: CreatePaymentReqDTO}> = (props) => {
-          const {data} = props ?? {};
-
-          return  paymentControllerCreatePayment(data,requestOptions)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PaymentControllerCreatePaymentMutationResult = NonNullable<Awaited<ReturnType<typeof paymentControllerCreatePayment>>>
-    export type PaymentControllerCreatePaymentMutationBody = CreatePaymentReqDTO
-    export type PaymentControllerCreatePaymentMutationError = CommonResponse
-
-    /**
- * @summary 결제 요청 생성
- */
-export const usePaymentControllerCreatePayment = <TError = CommonResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentControllerCreatePayment>>, TError,{data: CreatePaymentReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof paymentControllerCreatePayment>>,
-        TError,
-        {data: CreatePaymentReqDTO},
-        TContext
-      > => {
-      return useMutation(getPaymentControllerCreatePaymentMutationOptions(options), queryClient);
-    }
-    /**
  * 결제 복귀/새로고침 시 현재 결제 상태를 조회합니다. 본인의 결제만 조회할 수 있습니다.
  * @summary 결제 상태 조회
  */

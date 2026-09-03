@@ -4,7 +4,7 @@ export const WORKSPACE_VIEWS = ['list', 'map'] as const;
 
 export type WorkspaceView = (typeof WORKSPACE_VIEWS)[number];
 
-export const DEFAULT_WORKSPACE_VIEW: WorkspaceView = 'list';
+export const DEFAULT_WORKSPACE_VIEW: WorkspaceView = 'map';
 
 export const WORKSPACE_VIEW_PARAM = 'view';
 
@@ -12,7 +12,7 @@ export function isWorkspaceView(value: unknown): value is WorkspaceView {
   return WORKSPACE_VIEWS.includes(value as WorkspaceView);
 }
 
-/** URL의 view 파라미터를 안전하게 해석한다. 값이 없거나 잘못되면 기본값(list). */
+/** URL의 view 파라미터를 안전하게 해석한다. 값이 없거나 잘못되면 기본값(map). */
 export function parseWorkspaceView(
   raw: string | null | undefined,
 ): WorkspaceView {

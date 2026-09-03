@@ -2,6 +2,7 @@ import {
   DEFAULT_BLOCK_PLACEHOLDER,
   DUTY_EPISODE_PLACEHOLDER,
   FIXED_SECTION_KINDS,
+  LEARNING_PLACEHOLDER,
   PROBLEM_EPISODE_PLACEHOLDER,
   SECTION_TITLE,
 } from '@/features/experience/list/constants';
@@ -44,9 +45,7 @@ const SECTION_SLOTS: Record<Exclude<SectionKind, 'free'>, string[]> = {
     PROBLEM_EPISODE_PLACEHOLDER,
     PROBLEM_EPISODE_PLACEHOLDER,
   ],
-  learning: [
-    '이 활동을 통해 새롭게 배우거나 성장한 점은 무엇이며, 향후 어떻게 활용할 계획인가요?',
-  ],
+  learning: [LEARNING_PLACEHOLDER],
 };
 
 const PROBLEM_TEMPLATE_LEVEL5: Record<
@@ -209,6 +208,17 @@ function defaultSubTemplateSlots(kind: 'duty' | 'problem'): string[] {
   return kind === 'duty'
     ? DUTY_TEMPLATE_LEVEL5.basic
     : PROBLEM_TEMPLATE_LEVEL5.basic;
+}
+
+/**
+ * 서버가 CONTENT 블록에 일반 placeholder를 내려줄 때 기본 제공 5단계 슬롯을 복원한다.
+ * 기본 템플릿의 순서는 화면설계서 및 GET /templates의 첫 번째 하위 템플릿과 같다.
+ */
+export function defaultSubTemplatePlaceholderAt(
+  kind: 'duty' | 'problem',
+  index: number,
+): string | undefined {
+  return defaultSubTemplateSlots(kind)[index];
 }
 
 /** 하위 템플릿의 level 5 placeholder. 서버 카탈로그를 우선 쓰고 없으면 기본 문구를 쓴다. */

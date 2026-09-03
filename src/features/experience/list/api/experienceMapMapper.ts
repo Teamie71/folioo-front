@@ -1,9 +1,14 @@
 import type { BlockResDTO, ExperienceMapResDTO } from '@/api/models';
 import { BlockResDTOKind } from '@/api/models';
 import {
+  DEFAULT_BLOCK_PLACEHOLDER,
   SECTION_TITLE,
   UNCLASSIFIED_NAME,
 } from '@/features/experience/list/constants';
+import {
+  defaultSubTemplatePlaceholderAt,
+  sectionBlockPlaceholderAt,
+} from '@/features/experience/list/factories';
 import type {
   Block,
   Experience,
@@ -43,10 +48,54 @@ function childKindOf(sectionKind: SectionKind, level: number): SectionKind {
     : 'free';
 }
 
+/**
+ * CONTENT 생성 API에는 placeholder를 전달할 수 없다. 그 결과 서버 재조회 시 기본 제공
+ * 4단계 블록도 일반 CONTENT 문구로 바뀔 수 있다. 화면설계서에 정의된 기본 슬롯 범위는
+ * 섹션 종류와 형제 순서로 복원하고, 그 범위를 벗어나 사용자가 추가한 블록만 서버 문구를 쓴다.
+ */
+function placeholderOf(
+  node: BlockResDTO,
+  level: number,
+  sectionKind: SectionKind,
+  siblingIndex: number,
+  parentSiblingIndex: number,
+  siblingCount: number,
+): string | undefined {
+  if (level === 4) {
+    return (
+      sectionBlockPlaceholderAt(sectionKind, siblingIndex) ??
+      node.placeholder ??
+      undefined
+    );
+  }
+
+  if (
+    level === 5 &&
+    (sectionKind === 'duty' || sectionKind === 'problem') &&
+    (!node.placeholder || node.placeholder === DEFAULT_BLOCK_PLACEHOLDER)
+  ) {
+    // 담당업무 기본 블록은 하나의 4단계 아래에 네 슬롯이 붙는다.
+    if (sectionKind === 'duty') {
+      return defaultSubTemplatePlaceholderAt('duty', siblingIndex);
+    }
+
+    // 문제해결 기본 블록은 네 개의 4단계마다 하나씩 슬롯이 붙는다.
+    // 한 4단계 아래에 여러 슬롯이 있으면 선택한 기본 하위 템플릿의 순서를 따른다.
+    const templateIndex =
+      siblingCount === 1 ? parentSiblingIndex : siblingIndex;
+    return defaultSubTemplatePlaceholderAt('problem', templateIndex);
+  }
+
+  return node.placeholder ?? undefined;
+}
+
 function toBlock(
   node: BlockResDTO,
   level: number,
   sectionKind: SectionKind,
+  siblingIndex: number,
+  parentSiblingIndex = 0,
+  siblingCount = 1,
 ): Block {
   const isFixedSection = level === 3 && isFixedSectionDtoKind(node.kind);
   const kind: SectionKind =
@@ -54,15 +103,31 @@ function toBlock(
   const text = isFixedSection
     ? (node.content ?? SECTION_TITLE[sectionKind])
     : (node.content ?? '');
+  const placeholder = placeholderOf(
+    node,
+    level,
+    sectionKind,
+    siblingIndex,
+    parentSiblingIndex,
+    siblingCount,
+  );
+  const children = sortedChildren(node);
 
   return {
     id: node.id,
     kind,
     text,
     editable: !isFixedSection,
-    ...(node.placeholder ? { placeholder: node.placeholder } : {}),
-    children: sortedChildren(node).map((child) =>
-      toBlock(child, level + 1, sectionKind),
+    ...(placeholder ? { placeholder } : {}),
+    children: children.map((child, index) =>
+      toBlock(
+        child,
+        level + 1,
+        sectionKind,
+        index,
+        siblingIndex,
+        children.length,
+      ),
     ),
   };
 }
@@ -72,8 +137,8 @@ function toExperience(node: BlockResDTO, groupId: string): Experience {
     id: node.id,
     groupId,
     name: node.content ?? '',
-    blocks: sortedChildren(node).map((child) =>
-      toBlock(child, 3, SECTION_KIND_BY_DTO[child.kind] ?? 'free'),
+    blocks: sortedChildren(node).map((child, index) =>
+      toBlock(child, 3, SECTION_KIND_BY_DTO[child.kind] ?? 'free', index),
     ),
   };
 }

@@ -80,6 +80,8 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
   );
   const selectedBlockIds = useExperienceListStore((s) => s.selectedBlockIds);
   const setBlockSelection = useExperienceListStore((s) => s.setBlockSelection);
+  const selectGroup = useExperienceListStore((s) => s.selectGroup);
+  const selectExperience = useExperienceListStore((s) => s.selectExperience);
 
   const { setCenter, fitView, zoomTo } = useReactFlow();
   const nodesInitialized = useNodesInitialized();
@@ -249,6 +251,11 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
         return;
       }
 
+      // 뷰 전환 시 같은 그룹/활동을 이어서 보여주기 위해 탐색 대상을 공용 선택 상태에 남긴다.
+      if (node.kind === 'group') selectGroup(node.refId);
+      else if (node.kind === 'experience') selectExperience(node.refId);
+      else if (node.experienceId) selectExperience(node.experienceId);
+
       // 최소화 · 중간 수준에서는 편집 대신 해당 블록을 중앙에 두고 표준 수준으로 확대한다.
       if (detail !== 'standard') {
         setDetail('standard');
@@ -265,6 +272,8 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       experiences,
       selectedBlockIds,
       setBlockSelection,
+      selectGroup,
+      selectExperience,
       detail,
       focusOnStandard,
     ],

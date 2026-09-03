@@ -56,6 +56,7 @@ export function ExperienceListView() {
           value={experience.name}
           placeholder={EXPERIENCE_NAME_PLACEHOLDER}
           editable
+          maxLength={20}
           onCommit={(next) => renameExperience(experience.id, next)}
           className='typo-h5 text-gray9 shrink-0'
           inputClassName='typo-h5 text-gray9'

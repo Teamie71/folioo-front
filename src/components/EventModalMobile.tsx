@@ -3,7 +3,7 @@
 import { CommonButton } from '@/components/CommonButton';
 import { EventModalIcon } from '@/components/icons/EventModalIcon';
 import { MobileBottomSheet } from '@/components/MobileBottomSheet';
-import type { TicketGrantNoticeResDTO } from '@/api/models';
+import type { TicketGrantNoticeResDTO } from '@/api/models/ticketGrantNoticeResDTO';
 
 export function EventModalMobile({
   open,
@@ -36,22 +36,25 @@ export function EventModalMobile({
       contentBottomPaddingClassName='pb-[1rem]'
     >
       <div className='flex flex-col items-center'>
-        <div className='flex h-[2.5rem] w-[2.5rem] justify-center mb-[1.5rem]'>
+        <div className='mb-[1.5rem] flex h-[2.5rem] w-[2.5rem] justify-center'>
           <EventModalIcon />
         </div>
-        <p className='text-[1.125rem] font-bold text-[#1A1A1A] text-center'>
+        <p className='text-center text-[1.125rem] font-bold text-[#1A1A1A]'>
           {notice.payload?.displayReason || notice.title}
         </p>
-        <p className='text-[1.125rem] font-bold text-[#1A1A1A] text-center'>
+        <p className='text-center text-[1.125rem] font-bold text-[#1A1A1A]'>
           보상 지급 완료
         </p>
         <div className='mt-[1.25rem] flex flex-col items-center text-center'>
-          <p className='text-[0.875rem] text-[#1A1A1A]'>{notice.body}이 지급되었어요.</p>
+          <p className='text-[0.875rem] text-[#1A1A1A]'>
+            {notice.body}이 지급되었어요.
+          </p>
           <p className='text-[0.875rem] text-[#1A1A1A]'>
             Folioo와 함께 경험을 강력한 서류로 만들어보세요.
           </p>
-          <p className='mt-[0.25rem] text-[0.75rem] text-[#74777D] text-center'>
-            지급된 이용권은 {notice.payload?.displayPeriod ?? '일요일까지'} 사용 가능해요.
+          <p className='mt-[0.25rem] text-center text-[0.75rem] text-[#74777D]'>
+            지급된 이용권은 {notice.payload?.displayPeriod ?? '일요일까지'} 사용
+            가능해요.
           </p>
         </div>
         <CommonButton
