@@ -159,7 +159,7 @@ export function MobileExperienceListExperience({
         <div className={cn(mobileRowActionsCls, 'gap-[3px]')} data-no-row-drag>
           <button
             type='button'
-            onClick={() => addExperience()}
+            onClick={() => addExperience(item.groupId, item.id)}
             className={mobileRowActionCls}
             aria-label='활동 추가'
           >

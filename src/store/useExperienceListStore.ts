@@ -334,6 +334,22 @@ export const useExperienceListStore = create<ExperienceListState>()(
             const selection: Selection = s.selection
               ? { ...s.selection, id: resolveSyncedId(s.selection.id) }
               : null;
+            /*
+             * 그룹 순서는 화면에서 편집한 로컬 순서를 유지한다.
+             * (서버 position을 그대로 따르면 새 그룹을 만들 때마다 목록이 재정렬돼 보인다)
+             * 이미 있던 그룹은 기존 순서대로 두고, 서버에만 있는 새 그룹은 뒤에 붙이며,
+             * '미분류'는 언제나 가장 아래에 둔다.
+             */
+            const prevOrder = new Map(s.groups.map((g, i) => [g.id, i]));
+            const orderedGroups = [...snapshot.groups].sort((a, b) => {
+              if (a.isUnclassified !== b.isUnclassified) {
+                return a.isUnclassified ? 1 : -1;
+              }
+              const ai = prevOrder.get(a.id) ?? Number.MAX_SAFE_INTEGER;
+              const bi = prevOrder.get(b.id) ?? Number.MAX_SAFE_INTEGER;
+              return ai - bi;
+            });
+
             const selectionAlive =
               selection?.kind === 'experience'
                 ? snapshot.experiences.some((e) => e.id === selection.id)
@@ -342,7 +358,7 @@ export const useExperienceListStore = create<ExperienceListState>()(
                   : false;
 
             return {
-              groups: snapshot.groups,
+              groups: orderedGroups,
               experiences: snapshot.experiences,
               mapVersion: snapshot.mapVersion,
               isContentLoading: false,
@@ -374,8 +390,8 @@ export const useExperienceListStore = create<ExperienceListState>()(
                       kind: 'experience' as const,
                       id: snapshot.experiences[0].id,
                     }
-                  : snapshot.groups[0]
-                    ? { kind: 'group' as const, id: snapshot.groups[0].id }
+                  : orderedGroups[0]
+                    ? { kind: 'group' as const, id: orderedGroups[0].id }
                     : null,
             };
           }),
@@ -433,7 +449,12 @@ export const useExperienceListStore = create<ExperienceListState>()(
           const afterIdx = afterGroupId
             ? groups.findIndex((g) => g.id === afterGroupId)
             : -1;
-          const insertAt = afterIdx === -1 ? groups.length : afterIdx + 1;
+          // 미분류는 항상 가장 아래에 있어야 하므로 그 위로만 삽입한다.
+          const unclassifiedIdx = groups.findIndex((g) => g.isUnclassified);
+          const lastAllowed =
+            unclassifiedIdx === -1 ? groups.length : unclassifiedIdx;
+          const requested = afterIdx === -1 ? lastAllowed : afterIdx + 1;
+          const insertAt = Math.min(requested, lastAllowed);
           groups.splice(insertAt, 0, newGroup);
 
           set((prev) => ({
@@ -590,6 +611,7 @@ export const useExperienceListStore = create<ExperienceListState>()(
           if (!exp) return;
 
           if (target.kind === 'group') {
+            if (exp.groupId === target.id) return;
             const others = s.experiences.filter((e) => e.id !== experienceId);
             const groupItems = others.filter((e) => e.groupId === target.id);
             const rest = others.filter((e) => e.groupId !== target.id);
@@ -602,18 +624,25 @@ export const useExperienceListStore = create<ExperienceListState>()(
               list.push(e);
               byGroup.set(e.groupId, list);
             }
-            const targetList = byGroup.get(target.id) ?? [];
             byGroup.set(target.id, [...groupItems, moved]);
             const rebuilt = groupOrder.flatMap((gid) => byGroup.get(gid) ?? []);
             const known = new Set(groupOrder);
             const orphans = others.filter((e) => !known.has(e.groupId));
+            const nextExperiences = [...rebuilt, ...orphans];
             set((prev) => ({
               collapsedGroups: {
                 ...prev.collapsedGroups,
                 [target.id]: false,
               },
             }));
-            commit({ experiences: [...rebuilt, ...orphans] });
+            commit({ experiences: nextExperiences });
+            // 그룹 위로 바로 드롭한 경우에도 부모 변경을 서버에 반영한다.
+            // (누락 시 맵 재조회에서 이전 그룹으로 되돌아간다)
+            syncMoveBlock(
+              experienceId,
+              experienceIndexInGroup(nextExperiences, experienceId, target.id),
+              target.id,
+            );
             return;
           }
 

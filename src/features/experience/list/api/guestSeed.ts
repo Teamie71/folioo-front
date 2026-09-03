@@ -20,8 +20,9 @@ export function createGuestSeed(): ListStateFromServer {
   return {
     mapVersion: '0',
     groups: [
-      { id: unclassifiedId, name: UNCLASSIFIED_NAME, isUnclassified: true },
       { id: groupId, name: '새로운 그룹 1', isUnclassified: false },
+      // 미분류는 항상 가장 아래에 위치한다.
+      { id: unclassifiedId, name: UNCLASSIFIED_NAME, isUnclassified: true },
     ],
     experiences: [
       {

@@ -222,7 +222,8 @@ export function ExperienceListSidebarGroup({
           />
         </div>
 
-        {!group.isUnclassified && (
+        {/* 그룹 추가는 미분류 행에서도 가능하다. (그 외 그룹이 하나도 없을 때 유일한 진입점) */}
+        {
           <HoverTooltip label='클릭하여 그룹 추가'>
             <button
               type='button'
@@ -236,7 +237,7 @@ export function ExperienceListSidebarGroup({
               <ListPlusIcon className='size-[16px]' />
             </button>
           </HoverTooltip>
-        )}
+        }
 
         {/* 미분류는 이름 수정·삭제가 불가능해 케밥 메뉴를 두지 않는다. */}
         {!group.isUnclassified && (

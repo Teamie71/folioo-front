@@ -182,16 +182,15 @@ export function MobileExperienceListGroup({
         </div>
 
         <div className={cn(mobileRowActionsCls, 'gap-[3px]')} data-no-row-drag>
-          {!group.isUnclassified && (
-            <button
-              type='button'
-              onClick={() => addGroup(group.id)}
-              className={mobileRowActionCls}
-              aria-label='그룹 추가'
-            >
-              <ListPlusIcon className='size-[16px]' />
-            </button>
-          )}
+          {/* 그룹 추가는 미분류 행에서도 가능하다. (그 외 그룹이 없을 때 유일한 진입점) */}
+          <button
+            type='button'
+            onClick={() => addGroup(group.id)}
+            className={mobileRowActionCls}
+            aria-label='그룹 추가'
+          >
+            <ListPlusIcon className='size-[16px]' />
+          </button>
 
           {/* 미분류는 이름 수정·삭제가 불가능해 케밥 메뉴를 두지 않는다. */}
           {!group.isUnclassified && (
