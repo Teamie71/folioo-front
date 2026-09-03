@@ -12,7 +12,6 @@ import {
   createProblemChildFromTemplate,
   createProblemLevel5FromTemplate,
   createSectionFromTemplate,
-  sectionBlockPlaceholderAt,
 } from '@/features/experience/list/factories';
 import { getAvailableSectionTemplateOptions } from '@/features/experience/list/utils/sectionTemplateOptions';
 import type { MenuItem } from '@/features/experience/list/components/ExperienceListMenu';
@@ -119,18 +118,9 @@ export function useMapBlockAdd(node: MapLayoutNode): MapAddAction {
       };
     }
 
-    const childIndex = node.block.children.length;
     return {
       kind: 'direct',
-      add: () =>
-        addChildBlock(
-          experienceId,
-          node.refId,
-          createFreeBlock(
-            '',
-            sectionBlockPlaceholderAt(node.block!.kind, childIndex),
-          ),
-        ),
+      add: () => addChildBlock(experienceId, node.refId, createFreeBlock()),
     };
   }
 

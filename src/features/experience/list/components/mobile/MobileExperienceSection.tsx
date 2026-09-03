@@ -96,7 +96,9 @@ export function MobileExperienceSection({
           ),
       };
 
-  const canRename = block.editable;
+  // 3단계에서는 자유 블록만 클릭 편집할 수 있다. 서버/과거 로컬 상태의
+  // editable 값과 무관하게 화면설계서의 kind 규칙을 우선한다.
+  const canRename = block.kind === 'free';
 
   const { rowDragProps } = useRowPointerDrag({
     payload: {
@@ -179,7 +181,10 @@ export function MobileExperienceSection({
             />
           </button>
 
-          <div className='min-w-0 flex-1 text-left'>
+          <div
+            className='min-w-0 flex-1 text-left'
+            data-no-row-drag={canRename ? '' : undefined}
+          >
             <EditableLabel
               value={canRename ? block.text : title}
               placeholder={
@@ -188,6 +193,7 @@ export function MobileExperienceSection({
                   : SECTION_TITLE[block.kind]
               }
               editable={canRename}
+              editOn='click'
               maxLength={500}
               onCommit={(next) =>
                 updateBlockText(dnd.experienceId, block.id, next)

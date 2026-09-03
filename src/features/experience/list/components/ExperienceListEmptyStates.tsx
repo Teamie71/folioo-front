@@ -16,7 +16,6 @@ import {
   createFreeBlock,
   createProblemChildFromTemplate,
   createSectionFromTemplate,
-  sectionBlockPlaceholderAt,
 } from '@/features/experience/list/factories';
 import type { Block } from '@/features/experience/list/types';
 import { getAvailableSectionTemplateOptions } from '@/features/experience/list/utils/sectionTemplateOptions';
@@ -194,17 +193,12 @@ export function EmptySectionAddButton({
     );
   }
 
-  const fixedKind = section.kind;
-  if (fixedKind !== 'free') {
+  if (section.kind !== 'free') {
     return (
       <button
         type='button'
         onClick={() =>
-          addChildBlock(
-            experienceId,
-            section.id,
-            createFreeBlock('', sectionBlockPlaceholderAt(fixedKind, 0)),
-          )
+          addChildBlock(experienceId, section.id, createFreeBlock())
         }
         className={emptyAddBoxCls}
       >

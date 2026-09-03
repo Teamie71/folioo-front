@@ -24,7 +24,6 @@ import {
   createProblemChildFromTemplate,
   createProblemLevel5FromTemplate,
   createSectionFromTemplate,
-  sectionBlockPlaceholderAt,
 } from '@/features/experience/list/factories';
 import { useBlockNodeDnd } from '@/features/experience/list/hooks/useBlockNodeDnd';
 import type { Block } from '@/features/experience/list/types';
@@ -181,16 +180,7 @@ export function ExperienceListBlockNode({
       key: 'add',
       label: '아래에 추가',
       onSelect: () =>
-        addSiblingBlock(
-          dnd.experienceId,
-          block.id,
-          createFreeBlock(
-            '',
-            level === 4 && parentKind
-              ? sectionBlockPlaceholderAt(parentKind, index + 1)
-              : undefined,
-          ),
-        ),
+        addSiblingBlock(dnd.experienceId, block.id, createFreeBlock()),
     };
   }
 
@@ -232,6 +222,7 @@ export function ExperienceListBlockNode({
 
   if (level === 3) {
     const title = SECTION_TITLE[block.kind];
+    const canEditSectionTitle = block.kind === 'free';
     return (
       <div
         data-section-dnd
@@ -259,12 +250,12 @@ export function ExperienceListBlockNode({
           >
             {dragKebab}
           </div>
-          {block.editable ? (
+          {canEditSectionTitle ? (
             <EditableLabel
               as='h3'
               value={block.text}
               placeholder={DEFAULT_BLOCK_PLACEHOLDER}
-              editable
+              editable={canEditSectionTitle}
               editOn='click'
               maxLength={500}
               onCommit={(next) =>

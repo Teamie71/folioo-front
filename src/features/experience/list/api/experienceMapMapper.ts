@@ -2,13 +2,12 @@ import type { BlockResDTO, ExperienceMapResDTO } from '@/api/models';
 import { BlockResDTOKind } from '@/api/models';
 import {
   DEFAULT_BLOCK_PLACEHOLDER,
+  DUTY_EPISODE_PLACEHOLDER,
+  PROBLEM_EPISODE_PLACEHOLDER,
   SECTION_TITLE,
   UNCLASSIFIED_NAME,
 } from '@/features/experience/list/constants';
-import {
-  defaultSubTemplatePlaceholderAt,
-  sectionBlockPlaceholderAt,
-} from '@/features/experience/list/factories';
+import { defaultSubTemplatePlaceholderAt } from '@/features/experience/list/factories';
 import type {
   Block,
   Experience,
@@ -49,9 +48,9 @@ function childKindOf(sectionKind: SectionKind, level: number): SectionKind {
 }
 
 /**
- * CONTENT 생성 API에는 placeholder를 전달할 수 없다. 그 결과 서버 재조회 시 기본 제공
- * 4단계 블록도 일반 CONTENT 문구로 바뀔 수 있다. 화면설계서에 정의된 기본 슬롯 범위는
- * 섹션 종류와 형제 순서로 복원하고, 그 범위를 벗어나 사용자가 추가한 블록만 서버 문구를 쓴다.
+ * 담당업무·문제해결 아래의 4단계는 생성 방식(템플릿/자유 블록)과 관계없이 섹션 전용
+ * placeholder를 사용한다. 상세정보·주요성과·배운 점은 서버 값을 그대로 사용해야
+ * 최초 기본 세트의 전용 문구와 이후 추가 블록의 일반 문구를 구분할 수 있다.
  */
 function placeholderOf(
   node: BlockResDTO,
@@ -62,11 +61,9 @@ function placeholderOf(
   siblingCount: number,
 ): string | undefined {
   if (level === 4) {
-    return (
-      sectionBlockPlaceholderAt(sectionKind, siblingIndex) ??
-      node.placeholder ??
-      undefined
-    );
+    if (sectionKind === 'duty') return DUTY_EPISODE_PLACEHOLDER;
+    if (sectionKind === 'problem') return PROBLEM_EPISODE_PLACEHOLDER;
+    return node.placeholder ?? undefined;
   }
 
   if (
@@ -103,6 +100,7 @@ function toBlock(
   const text = isFixedSection
     ? (node.content ?? SECTION_TITLE[sectionKind])
     : (node.content ?? '');
+  const editable = level === 3 ? sectionKind === 'free' : true;
   const placeholder = placeholderOf(
     node,
     level,
@@ -117,7 +115,7 @@ function toBlock(
     id: node.id,
     kind,
     text,
-    editable: !isFixedSection,
+    editable,
     ...(placeholder ? { placeholder } : {}),
     children: children.map((child, index) =>
       toBlock(
