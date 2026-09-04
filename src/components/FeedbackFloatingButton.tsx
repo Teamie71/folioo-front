@@ -4,19 +4,20 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { OBTFeedbackModal } from '@/components/OBT/OBTFeedbackModal';
 
+import { FEEDBACK_PATH } from '@/constants/feedback';
+
 export const FeedbackFloatingButton = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const router = useRouter();
-  // TODO: API로 첫 피드백 여부 조회 후 연동
   const isFirstFeedback = true;
 
   const handleFeedbackClick = () => {
     setModalOpen(false);
-    router.push('/feedback');
+    router.push(FEEDBACK_PATH);
   };
 
   return (
-    <>
+    <>``
       <button
         type='button'
         className='group fixed right-[3.75rem] bottom-[5rem] z-50 flex h-[3.75rem] w-[3.75rem] cursor-pointer flex-row-reverse items-center overflow-hidden rounded-full bg-gradient-to-b from-[#93B3F4] to-[#5060C5] transition-all duration-300 ease-in-out hover:w-[12.125rem]'

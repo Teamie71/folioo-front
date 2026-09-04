@@ -1,8 +1,9 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { CommonModal } from '@/components/CommonModal';
-import { openFeedbackForm } from '@/constants/feedback';
+import { FEEDBACK_PATH } from '@/constants/feedback';
 
 interface OBTPaymentModalProps {
   open: boolean;
@@ -15,9 +16,12 @@ export const OBTPaymentModal = ({
   onOpenChange,
   onFeedbackClick,
 }: OBTPaymentModalProps) => {
+  const router = useRouter();
+
   const handleFeedbackClick = () => {
-    openFeedbackForm();
+    onOpenChange(false);
     onFeedbackClick();
+    router.push(FEEDBACK_PATH);
   };
 
   return (

@@ -1,18 +1,21 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { CloseIcon } from '@/components/icons/CloseIcon';
-import { openFeedbackForm } from '@/constants/feedback';
+import { FEEDBACK_PATH } from '@/constants/feedback';
 
 interface OBTBannerMobileProps {
   onDismiss: () => void;
 }
 
 export function OBTBannerMobile({ onDismiss }: OBTBannerMobileProps) {
+  const router = useRouter();
+
   return (
     <div className='fixed top-[52px] right-0 left-0 z-[50] flex w-full items-center justify-between bg-gradient-to-r from-[#FFFDE5] to-[#FFF1FE] px-[1rem] py-[0.875rem]'>
       <div
         className='flex cursor-pointer items-center gap-[0.5rem]'
-        onClick={openFeedbackForm}
+        onClick={() => router.push(FEEDBACK_PATH)}
       >
         <div className='typo-c1-b text-main flex h-[1.375rem] w-[3.625rem] items-center justify-center rounded-[3.75rem] bg-white px-[0.875rem] py-[0.125rem]'>
           Beta
