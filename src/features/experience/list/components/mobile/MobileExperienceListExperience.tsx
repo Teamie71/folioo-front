@@ -146,6 +146,7 @@ export function MobileExperienceListExperience({
             value={item.name}
             placeholder={EXPERIENCE_NAME_PLACEHOLDER}
             editable
+            maxLength={20}
             onCommit={(next) => renameExperience(item.id, next)}
             requestEdit={requestRename}
             requestEditSelectAll

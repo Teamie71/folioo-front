@@ -5,11 +5,10 @@
  * API document of Folioo Development
  * OpenAPI spec version: 1.0.0
  */
-import type { CustomRewardItemDTOType } from './customRewardItemDTOType';
 
 export interface CustomRewardItemDTO {
-  /** 이용권 종류 */
-  type: CustomRewardItemDTOType;
+  /** 보상 종류 */
+  type: string;
   /**
    * 수량 (1~10)
    * @minimum 1

@@ -144,7 +144,7 @@ export function usePortfolioCorrectionControllerGetCorrections<TData = Awaited<R
 
 
 /**
- * 포트폴리오 첨삭을 시작합니다. 포트폴리오 첨삭 티켓 1장이 사용됩니다.
+ * 포트폴리오 첨삭을 시작합니다.
  * @summary 첨삭 의뢰하기
  */
 export const portfolioCorrectionControllerCreateCorrection = (

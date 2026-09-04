@@ -111,7 +111,7 @@ function AgentComposer({
               onSend();
             }
           }}
-          placeholder='질문하세요.'
+          placeholder='내용 또는 파일을 추가해 주세요.'
           className='typo-b2 text-gray9 placeholder:text-gray5 relative z-10 h-full min-w-0 flex-1 bg-transparent pr-[8px] pl-[24px] outline-none disabled:cursor-not-allowed'
         />
         <button

@@ -170,6 +170,7 @@ export function MobileExperienceListGroup({
               value={group.name}
               placeholder={GROUP_NAME_PLACEHOLDER}
               editable={!group.isUnclassified}
+              maxLength={20}
               onCommit={(next) => renameGroup(group.id, next)}
               requestEdit={requestRename}
               requestEditSelectAll
@@ -181,10 +182,7 @@ export function MobileExperienceListGroup({
         </div>
 
         <div className={cn(mobileRowActionsCls, 'gap-[3px]')} data-no-row-drag>
-          {/*
-            그룹 추가는 미분류 행에서도 할 수 있어야 한다.
-            미분류만 있는 계정에서 이 버튼까지 숨기면 그룹을 만들 방법이 없어진다.
-          */}
+          {/* 그룹 추가는 미분류 행에서도 가능하다. (그 외 그룹이 없을 때 유일한 진입점) */}
           <button
             type='button'
             onClick={() => addGroup(group.id)}

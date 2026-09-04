@@ -11,7 +11,7 @@ import { OutOfTicketModal } from '@/components/OutOfTicketModal';
 import { PaymentModal } from '@/components/PaymentModal';
 import { ProfileModal } from '@/components/ProfileModal';
 import { CommonButton } from '@/components/CommonButton';
-import type { TicketGrantNoticeResDTO } from '@/api/models';
+import type { TicketGrantNoticeResDTO } from '@/api/models/ticketGrantNoticeResDTO';
 
 const meta = {
   title: 'Components/Modals/Overview',

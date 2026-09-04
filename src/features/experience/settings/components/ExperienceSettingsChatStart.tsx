@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { CommonButton } from '@/components/CommonButton';
 import { CommonModal } from '@/components/CommonModal';
-import { OBTTicketModal } from '@/components/OBT/OBTTicketModal';
 import { useExperienceStore } from '@/store/useExperienceStore';
 import { setChatNewExperienceId } from '@/features/experience/utils/experienceReturnPath';
 import { ChatStartIcon } from '@/components/icons/ChatStartIcon';
@@ -13,7 +12,6 @@ import {
   getExperienceControllerGetExperiencesQueryKey,
   useExperienceControllerCreateExperience,
 } from '@/api/endpoints/experience/experience';
-import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
 import type { CreateExperienceReqDTOHopeJob } from '@/api/models';
 import { LABEL_TO_HOPE_JOB } from '@/constants/hopeJob';
 
@@ -29,13 +27,8 @@ export function ExperienceSettingsChatStart({
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isStartChatModalOpen, setIsStartChatModalOpen] = useState(false);
-  const [isTicketExhaustedModalOpen, setIsTicketExhaustedModalOpen] =
-    useState(false);
   const { formData, validateForm, addExperience, resetForm } =
     useExperienceStore();
-
-  const { data: ticketBalance } = useUserControllerGetTicketBalance();
-  const experienceCount = ticketBalance?.result?.experience?.count ?? 0;
 
   /* 경험 정리 생성 */
   const { mutateAsync: createExperience, isPending: isCreating } =
@@ -44,8 +37,8 @@ export function ExperienceSettingsChatStart({
   const handleStartChat = async () => {
     if (isCreating) return;
 
-    const hopeJob =
-      (LABEL_TO_HOPE_JOB[formData.desiredJob] ?? 'NONE') as CreateExperienceReqDTOHopeJob;
+    const hopeJob = (LABEL_TO_HOPE_JOB[formData.desiredJob] ??
+      'NONE') as CreateExperienceReqDTOHopeJob;
 
     try {
       const response = await createExperience({
@@ -92,10 +85,6 @@ export function ExperienceSettingsChatStart({
       return;
     }
     onValidationError({});
-    if (experienceCount < 1) {
-      setIsTicketExhaustedModalOpen(true);
-      return;
-    }
     setIsStartChatModalOpen(true);
   };
 
@@ -117,13 +106,7 @@ export function ExperienceSettingsChatStart({
       <CommonModal
         open={isStartChatModalOpen}
         onOpenChange={setIsStartChatModalOpen}
-        title={
-          <>
-            경험 정리 1회권을 사용하여
-            <br />
-            진행하시겠습니까?
-          </>
-        }
+        title='새로운 경험 정리를 시작하시겠습니까?'
         footer={
           <>
             <button
@@ -143,12 +126,6 @@ export function ExperienceSettingsChatStart({
             </button>
           </>
         }
-      />
-
-      {/* 경험 정리 이용권 소진 시 */}
-      <OBTTicketModal
-        open={isTicketExhaustedModalOpen}
-        onOpenChange={setIsTicketExhaustedModalOpen}
       />
     </>
   );

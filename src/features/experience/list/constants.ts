@@ -43,6 +43,9 @@ export const PROBLEM_EPISODE_PLACEHOLDER =
 export const DUTY_EPISODE_PLACEHOLDER =
   '담당한 주요 업무 또는 역할을 적어주세요.';
 
+export const LEARNING_PLACEHOLDER =
+  '이 활동을 통해 새롭게 배우거나 성장한 점은 무엇이며, 향후 어떻게 활용할 계획인가요?';
+
 export const FIXED_SECTION_KINDS: Array<Exclude<SectionKind, 'free'>> = [
   'detail',
   'achievement',

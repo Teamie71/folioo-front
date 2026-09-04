@@ -2,7 +2,10 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
-import { registerEditSessionHandlers, notifyEditSessionChanged } from '@/features/experience/list/utils/editSessionUndo';
+import {
+  registerEditSessionHandlers,
+  notifyEditSessionChanged,
+} from '@/features/experience/list/utils/editSessionUndo';
 import { cn } from '@/utils/utils';
 
 type Props = {
@@ -20,6 +23,7 @@ type Props = {
   as?: 'span' | 'h1' | 'h3';
   placeholder?: string;
   editOn?: 'click' | 'doubleClick';
+  maxLength?: number;
 };
 
 function caretOffsetFromPoint(
@@ -73,6 +77,7 @@ export function EditableLabel({
   as = 'span',
   placeholder,
   editOn = 'doubleClick',
+  maxLength,
 }: Props) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
@@ -167,10 +172,6 @@ export function EditableLabel({
   const commit = () => {
     setEditing(false);
     clearDraftHistory();
-    if (!draft.trim()) {
-      setDraft(value);
-      return;
-    }
     if (draft !== value) onCommit(draft);
     else setDraft(value);
   };
@@ -231,6 +232,9 @@ export function EditableLabel({
         ref={inputRef}
         rows={1}
         value={draft}
+        maxLength={
+          maxLength == null ? undefined : Math.max(maxLength, value.length)
+        }
         onChange={(e) => {
           draftPastRef.current.push(draft);
           draftFutureRef.current = [];
@@ -257,7 +261,7 @@ export function EditableLabel({
           }
 
           if (
-            e.key === 'Backspace' &&
+            (e.key === 'Backspace' || e.key === 'Delete') &&
             onDeleteEmpty &&
             draft === '' &&
             e.currentTarget.selectionStart === 0 &&

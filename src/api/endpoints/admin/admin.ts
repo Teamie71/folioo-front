@@ -27,7 +27,6 @@ import type {
 import type {
   AdminEventRewardControllerGetManualRewardEvents200,
   AdminEventRewardControllerGetManualRewardEventsParams,
-  AdminEventRewardControllerGetTicketGrants200,
   AdminEventRewardControllerGrantReward200,
   AdminEventRewardControllerSearchUsers200,
   AdminEventRewardControllerSearchUsersParams,
@@ -378,93 +377,4 @@ export const useAdminEventRewardControllerGrantReward = <TError = CommonResponse
       > => {
       return useMutation(getAdminEventRewardControllerGrantRewardMutationOptions(options), queryClient);
     }
-    /**
- * @summary 이용권 지급/안내 이력 조회 (Admin)
- */
-export const adminEventRewardControllerGetTicketGrants = (
     
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
-) => {
-      
-      
-      return customInstance<AdminEventRewardControllerGetTicketGrants200>(
-      {url: `/admin/api/ticket-grants`, method: 'GET', signal
-    },
-      options);
-    }
-  
-
-
-
-export const getAdminEventRewardControllerGetTicketGrantsQueryKey = () => {
-    return [
-    `/admin/api/ticket-grants`
-    ] as const;
-    }
-
-    
-export const getAdminEventRewardControllerGetTicketGrantsQueryOptions = <TData = Awaited<ReturnType<typeof adminEventRewardControllerGetTicketGrants>>, TError = CommonResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminEventRewardControllerGetTicketGrants>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
-) => {
-
-const {query: queryOptions, request: requestOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getAdminEventRewardControllerGetTicketGrantsQueryKey();
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminEventRewardControllerGetTicketGrants>>> = ({ signal }) => adminEventRewardControllerGetTicketGrants(requestOptions, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminEventRewardControllerGetTicketGrants>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type AdminEventRewardControllerGetTicketGrantsQueryResult = NonNullable<Awaited<ReturnType<typeof adminEventRewardControllerGetTicketGrants>>>
-export type AdminEventRewardControllerGetTicketGrantsQueryError = CommonResponse
-
-
-export function useAdminEventRewardControllerGetTicketGrants<TData = Awaited<ReturnType<typeof adminEventRewardControllerGetTicketGrants>>, TError = CommonResponse>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminEventRewardControllerGetTicketGrants>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof adminEventRewardControllerGetTicketGrants>>,
-          TError,
-          Awaited<ReturnType<typeof adminEventRewardControllerGetTicketGrants>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useAdminEventRewardControllerGetTicketGrants<TData = Awaited<ReturnType<typeof adminEventRewardControllerGetTicketGrants>>, TError = CommonResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminEventRewardControllerGetTicketGrants>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof adminEventRewardControllerGetTicketGrants>>,
-          TError,
-          Awaited<ReturnType<typeof adminEventRewardControllerGetTicketGrants>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useAdminEventRewardControllerGetTicketGrants<TData = Awaited<ReturnType<typeof adminEventRewardControllerGetTicketGrants>>, TError = CommonResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminEventRewardControllerGetTicketGrants>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary 이용권 지급/안내 이력 조회 (Admin)
- */
-
-export function useAdminEventRewardControllerGetTicketGrants<TData = Awaited<ReturnType<typeof adminEventRewardControllerGetTicketGrants>>, TError = CommonResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminEventRewardControllerGetTicketGrants>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getAdminEventRewardControllerGetTicketGrantsQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-

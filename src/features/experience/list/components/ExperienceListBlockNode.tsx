@@ -24,7 +24,6 @@ import {
   createProblemChildFromTemplate,
   createProblemLevel5FromTemplate,
   createSectionFromTemplate,
-  sectionBlockPlaceholderAt,
 } from '@/features/experience/list/factories';
 import { useBlockNodeDnd } from '@/features/experience/list/hooks/useBlockNodeDnd';
 import type { Block } from '@/features/experience/list/types';
@@ -85,6 +84,8 @@ export function ExperienceListBlockNode({
 
   const sectionTemplateOptions =
     level === 3 ? getAvailableSectionTemplateOptions(dnd.rootBlocks) : null;
+  const hasMissingSectionTemplate =
+    sectionTemplateOptions?.some((option) => option.key !== 'free') ?? false;
 
   const problemTemplateOptions = usesProblemTemplateAdd
     ? getProblemTemplateOptions().map((opt) => ({
@@ -137,8 +138,7 @@ export function ExperienceListBlockNode({
     : null;
 
   let addMenuItem: MenuItem;
-  if (sectionTemplateOptions) {
-    // 자유 블록이 항상 포함되므로 목록이 비지 않는다. 언제나 드롭다운을 띄운다.
+  if (sectionTemplateOptions && hasMissingSectionTemplate) {
     addMenuItem = {
       key: 'add',
       label: '아래에 추가',
@@ -180,16 +180,7 @@ export function ExperienceListBlockNode({
       key: 'add',
       label: '아래에 추가',
       onSelect: () =>
-        addSiblingBlock(
-          dnd.experienceId,
-          block.id,
-          createFreeBlock(
-            '',
-            level === 4 && parentKind
-              ? sectionBlockPlaceholderAt(parentKind, index + 1)
-              : undefined,
-          ),
-        ),
+        addSiblingBlock(dnd.experienceId, block.id, createFreeBlock()),
     };
   }
 
@@ -230,10 +221,8 @@ export function ExperienceListBlockNode({
   );
 
   if (level === 3) {
-    const title =
-      block.kind === 'free'
-        ? block.text || SECTION_TITLE.free
-        : SECTION_TITLE[block.kind];
+    const title = SECTION_TITLE[block.kind];
+    const canEditSectionTitle = block.kind === 'free';
     return (
       <div
         data-section-dnd
@@ -261,14 +250,38 @@ export function ExperienceListBlockNode({
           >
             {dragKebab}
           </div>
-          <h3
-            className={cn(
-              'typo-b2-sb',
-              isDragging ? 'text-gray5' : 'text-gray9',
-            )}
-          >
-            {title}
-          </h3>
+          {canEditSectionTitle ? (
+            <EditableLabel
+              as='h3'
+              value={block.text}
+              placeholder={DEFAULT_BLOCK_PLACEHOLDER}
+              editable={canEditSectionTitle}
+              editOn='click'
+              maxLength={500}
+              onCommit={(next) =>
+                updateBlockText(dnd.experienceId, block.id, next)
+              }
+              onDeleteEmpty={
+                block.children.length === 0
+                  ? () => deleteBlock(dnd.experienceId, block.id)
+                  : undefined
+              }
+              className={cn(
+                'typo-b2-sb',
+                isDragging || !block.text ? 'text-gray5' : 'text-gray9',
+              )}
+              inputClassName='typo-b2-sb w-full text-gray9'
+            />
+          ) : (
+            <h3
+              className={cn(
+                'typo-b2-sb',
+                isDragging ? 'text-gray5' : 'text-gray9',
+              )}
+            >
+              {title}
+            </h3>
+          )}
         </div>
 
         {block.children.length === 0 ? (
@@ -375,6 +388,7 @@ export function ExperienceListBlockNode({
                 <EditableLabel
                   value={block.text}
                   editable={block.editable}
+                  maxLength={500}
                   editOn='click'
                   onCommit={(next) =>
                     updateBlockText(dnd.experienceId, block.id, next)
@@ -384,7 +398,11 @@ export function ExperienceListBlockNode({
                     let right = draft.slice(end);
                     if (left.endsWith('\n')) left = left.slice(0, -1);
                     else if (right.startsWith('\n')) right = right.slice(1);
-                    const sibling = createFreeBlock(right);
+                    // 분할로 새로 생기는 형제 블록은 원래 블록과 같은 슬롯이므로
+                    // placeholder(문제해결/담당업무 템플릿 문구 등)를 그대로 물려받아야 한다.
+                    // 이걸 빠뜨리면 Enter로 줄을 나누는 순간 안내 문구가 기본값
+                    // '내용을 입력해 주세요.'로 바뀌어 보인다.
+                    const sibling = createFreeBlock(right, block.placeholder);
                     splitBlockAt(dnd.experienceId, block.id, left, sibling);
                     dnd.setEditRequest({ id: sibling.id, caret: 0 });
                   }}

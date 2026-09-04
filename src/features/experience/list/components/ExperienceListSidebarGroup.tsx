@@ -212,6 +212,7 @@ export function ExperienceListSidebarGroup({
             value={group.name}
             placeholder={GROUP_NAME_PLACEHOLDER}
             editable={!group.isUnclassified}
+            maxLength={20}
             onCommit={(next) => renameGroup(group.id, next)}
             requestEdit={requestRename}
             requestEditSelectAll
@@ -221,24 +222,22 @@ export function ExperienceListSidebarGroup({
           />
         </div>
 
-        {/*
-          그룹 추가는 미분류 행에서도 할 수 있어야 한다.
-          미분류만 있는 계정에서 이 버튼까지 숨기면 그룹을 만들 방법이 없어진다.
-          (미분류에서 막히는 건 이름 수정·삭제뿐이라 케밥 메뉴만 계속 숨긴다)
-        */}
-        <HoverTooltip label='클릭하여 그룹 추가'>
-          <button
-            type='button'
-            onClick={() => addGroup(group.id)}
-            className={cn(
-              sidebarRowActionCls,
-              'pointer-events-none shrink-0 opacity-0 group-hover/row:pointer-events-auto group-hover/row:opacity-100',
-            )}
-            aria-label='그룹 추가'
-          >
-            <ListPlusIcon className='size-[16px]' />
-          </button>
-        </HoverTooltip>
+        {/* 그룹 추가는 미분류 행에서도 가능하다. (그 외 그룹이 하나도 없을 때 유일한 진입점) */}
+        {
+          <HoverTooltip label='클릭하여 그룹 추가'>
+            <button
+              type='button'
+              onClick={() => addGroup(group.id)}
+              className={cn(
+                sidebarRowActionCls,
+                'pointer-events-none shrink-0 opacity-0 group-hover/row:pointer-events-auto group-hover/row:opacity-100',
+              )}
+              aria-label='그룹 추가'
+            >
+              <ListPlusIcon className='size-[16px]' />
+            </button>
+          </HoverTooltip>
+        }
 
         {/* 미분류는 이름 수정·삭제가 불가능해 케밥 메뉴를 두지 않는다. */}
         {!group.isUnclassified && (

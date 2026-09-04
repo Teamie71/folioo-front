@@ -11,7 +11,10 @@ import { EditableLabel } from '@/features/experience/list/components/EditableLab
 import { DropIndicator } from '@/features/experience/list/components/DropIndicator';
 import { EmptySectionAddButton } from '@/features/experience/list/components/ExperienceListEmptyStates';
 import { ExperienceListBlockNode } from '@/features/experience/list/components/ExperienceListBlockNode';
-import { SECTION_TITLE } from '@/features/experience/list/constants';
+import {
+  DEFAULT_BLOCK_PLACEHOLDER,
+  SECTION_TITLE,
+} from '@/features/experience/list/constants';
 import { createSectionFromTemplate } from '@/features/experience/list/factories';
 import {
   mobileRowActionCls,
@@ -60,32 +63,42 @@ export function MobileExperienceSection({
     () => getAvailableSectionTemplateOptions(dnd.rootBlocks),
     [dnd.rootBlocks],
   );
+  const hasMissingSectionTemplate = sectionTemplateOptions.some(
+    (option) => option.key !== 'free',
+  );
 
-  const title =
-    block.kind === 'free'
-      ? block.text || SECTION_TITLE.free
-      : block.text.trim()
-        ? block.text
-        : SECTION_TITLE[block.kind];
+  const title = block.text.trim() ? block.text : SECTION_TITLE[block.kind];
 
-  // 자유 블록이 항상 포함되므로 목록이 비지 않는다. 언제나 드롭다운을 띄운다.
-  const addMenuItem: MenuItem = {
-    key: 'add',
-    label: '아래에 추가',
-    submenu: sectionTemplateOptions.map((opt) => ({
-      key: opt.key,
-      label: opt.label,
-      onSelect: () =>
-        addSiblingBlock(
-          dnd.experienceId,
-          block.id,
-          createSectionFromTemplate(opt.key),
-        ),
-    })),
-    submenuTitle: '템플릿 선택',
-  };
+  const addMenuItem: MenuItem = hasMissingSectionTemplate
+    ? {
+        key: 'add',
+        label: '아래에 추가',
+        submenu: sectionTemplateOptions.map((opt) => ({
+          key: opt.key,
+          label: opt.label,
+          onSelect: () =>
+            addSiblingBlock(
+              dnd.experienceId,
+              block.id,
+              createSectionFromTemplate(opt.key),
+            ),
+        })),
+        submenuTitle: '템플릿 선택',
+      }
+    : {
+        key: 'add',
+        label: '아래에 추가',
+        onSelect: () =>
+          addSiblingBlock(
+            dnd.experienceId,
+            block.id,
+            createSectionFromTemplate('free'),
+          ),
+      };
 
-  const canRename = block.editable;
+  // 3단계에서는 자유 블록만 클릭 편집할 수 있다. 서버/과거 로컬 상태의
+  // editable 값과 무관하게 화면설계서의 kind 규칙을 우선한다.
+  const canRename = block.kind === 'free';
 
   const { rowDragProps } = useRowPointerDrag({
     payload: {
@@ -168,10 +181,20 @@ export function MobileExperienceSection({
             />
           </button>
 
-          <div className='min-w-0 flex-1 text-left'>
+          <div
+            className='min-w-0 flex-1 text-left'
+            data-no-row-drag={canRename ? '' : undefined}
+          >
             <EditableLabel
-              value={title}
+              value={canRename ? block.text : title}
+              placeholder={
+                canRename
+                  ? DEFAULT_BLOCK_PLACEHOLDER
+                  : SECTION_TITLE[block.kind]
+              }
               editable={canRename}
+              editOn='click'
+              maxLength={500}
               onCommit={(next) =>
                 updateBlockText(dnd.experienceId, block.id, next)
               }

@@ -3,28 +3,17 @@
 import { Suspense, useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
-import { openFeedbackForm } from '@/constants/feedback';
 import { CreditExpireAlert } from '@/components/CreditExpireAlert';
 import { ChallengeModal } from '@/components/ChallengeModal';
-import { PaymentModal } from '@/components/PaymentModal';
 import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { BigTicketIcon } from '@/components/icons/BigTicketIcon';
 import { BigCalendarIcon } from '@/components/icons/BigCalendarIcon';
-import { useUserControllerGetTicketBalance } from '@/api/endpoints/user/user';
 import {
-  usePaymentControllerCreatePayment,
   usePaymentControllerGetPayment,
   usePaymentControllerCancelPayment,
 } from '@/api/endpoints/payment/payment';
-import { useTicketControllerGetTicketProducts } from '@/api/endpoints/ticket/ticket';
-import type { TicketProductResDTOType } from '@/api/models';
 import { PaymentResDTOStatus } from '@/api/models/paymentResDTOStatus';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useQueryClient } from '@tanstack/react-query';
-import {
-  getUserControllerGetTicketBalanceQueryKey,
-  getUserControllerGetNextTicketGrantNoticeQueryKey,
-} from '@/api/endpoints/user/user';
 import { cn } from '@/utils/utils';
 
 type VoucherType = 'experience' | 'portfolio';
@@ -48,38 +37,15 @@ const PORTFOLIO_VOUCHERS: VoucherOption[] = [
   { times: 5, price: 4400, originalPrice: 5000, discountPercent: 12 },
 ];
 
-type SelectedVoucher = { type: VoucherType; option: VoucherOption };
-
-const VOUCHER_TYPE_TO_API: Record<VoucherType, TicketProductResDTOType> = {
-  experience: 'EXPERIENCE',
-  portfolio: 'PORTFOLIO_CORRECTION',
-};
-
 function TopupClientMobileContent() {
   const accessToken = useAuthStore((s) => s.accessToken);
-  const { data: ticketBalance } = useUserControllerGetTicketBalance({
-    query: { enabled: !!accessToken },
-  });
-  const { data: ticketProductsData } = useTicketControllerGetTicketProducts({
-    query: { enabled: !!accessToken },
-  });
-  const { mutateAsync: createPayment } = usePaymentControllerCreatePayment();
   const { mutateAsync: cancelPayment } = usePaymentControllerCancelPayment();
-
-  const experienceCount = ticketBalance?.result?.experience?.count ?? 0;
-  const portfolioCount = ticketBalance?.result?.portfolioCorrection?.count ?? 0;
-
-  const ticketProducts = ticketProductsData?.result ?? [];
-
-  const [selectedVoucher, setSelectedVoucher] =
-    useState<SelectedVoucher | null>(null);
   const [obtPurchaseRedirectOpen, setObtPurchaseRedirectOpen] = useState(false);
   const [challengeModalOpen, setChallengeModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<VoucherType>('experience');
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const queryClient = useQueryClient();
 
   const paymentIdParam = searchParams.get('paymentId');
   const paymentId = paymentIdParam ? Number(paymentIdParam) : NaN;
@@ -91,16 +57,10 @@ function TopupClientMobileContent() {
 
   useEffect(() => {
     if (!isValidPaymentId || paymentStatus !== PaymentResDTOStatus.PAID) return;
-    queryClient.invalidateQueries({
-      queryKey: getUserControllerGetTicketBalanceQueryKey(),
-    });
-    queryClient.invalidateQueries({
-      queryKey: getUserControllerGetNextTicketGrantNoticeQueryKey(),
-    });
     const url = new URL(window.location.href);
     url.searchParams.delete('paymentId');
     window.history.replaceState(null, '', url.pathname + url.search);
-  }, [isValidPaymentId, paymentStatus, queryClient]);
+  }, [isValidPaymentId, paymentStatus]);
 
   const cancelRequestedRef = useRef(false);
   useEffect(() => {
@@ -137,17 +97,6 @@ function TopupClientMobileContent() {
     };
   }, [isValidPaymentId, paymentId, paymentStatus, cancelPayment]);
 
-  const getTicketProductId = (
-    type: VoucherType,
-    times: number,
-  ): number | null => {
-    const apiType = VOUCHER_TYPE_TO_API[type];
-    const product = ticketProducts.find(
-      (p) => p.type === apiType && p.quantity === times,
-    );
-    return product?.id ?? null;
-  };
-
   useEffect(() => {
     if (searchParams.get('noBack') !== '1') return;
     const handlePopState = () => {
@@ -162,89 +111,9 @@ function TopupClientMobileContent() {
     setObtPurchaseRedirectOpen(true);
   };
 
-  const handleConfirmPurchase = async () => {
-    if (!selectedVoucher) return;
-    const ticketProductId = getTicketProductId(
-      selectedVoucher.type,
-      selectedVoucher.option.times,
-    );
-    if (ticketProductId == null) {
-      alert('해당 이용권 상품을 찾을 수 없어요. 잠시 후 다시 시도해주세요.');
-      return;
-    }
-    const newWindow = window.open('about:blank', '_blank');
-
-    const pollTimer = setInterval(() => {
-      try {
-        if (newWindow?.closed) {
-          clearInterval(pollTimer);
-          window.location.reload();
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }, 1000);
-
-    try {
-      const res = await createPayment({ data: { ticketProductId } });
-      const payUrl = res?.result?.payUrl;
-      if (payUrl && newWindow) {
-        newWindow.location.href = payUrl;
-        return;
-      }
-      newWindow?.close();
-      clearInterval(pollTimer);
-      alert('결제창 URL을 받지 못했어요. 잠시 후 다시 시도해주세요.');
-      setSelectedVoucher(null);
-    } catch {
-      newWindow?.close();
-      clearInterval(pollTimer);
-      alert('결제 요청에 실패했어요. 잠시 후 다시 시도해주세요.');
-      setSelectedVoucher(null);
-    }
-  };
-
   return (
     <div className='flex w-full flex-col overflow-x-hidden bg-[#FFFFFF] pb-[5rem]'>
       <div className='flex flex-col bg-white'>
-        {/* 잔여 이용권 섹션 */}
-        <div className='flex flex-col bg-[#F6F5FF] px-[1rem] py-[1.25rem]'>
-          <div className='flex flex-col gap-[1rem]'>
-            <span className='text-[1rem] font-semibold text-[#1A1A1A]'>
-              나의 잔여 이용권
-            </span>
-            <div className='flex flex-col items-end gap-[0.5rem]'>
-              <div className='flex items-center gap-[1.25rem]'>
-                <span className='text-[1rem] text-[#464B53]'>경험 정리</span>
-                <div className='flex items-center justify-end gap-[0.25rem]'>
-                  <span className='text-[1.125rem] font-bold text-[#1A1A1A]'>
-                    {experienceCount}
-                  </span>
-                  <span className='text-[1.125rem] text-[#1A1A1A]'>회</span>
-                </div>
-              </div>
-              <div className='flex items-center gap-[1.25rem]'>
-                <span className='text-[1rem] text-[#464B53]'>
-                  포트폴리오 첨삭
-                </span>
-                <div className='flex items-center justify-end gap-[0.25rem]'>
-                  <span className='text-[1.125rem] font-bold text-[#1A1A1A]'>
-                    {portfolioCount}
-                  </span>
-                  <span className='text-[1.125rem] text-[#1A1A1A]'>회</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <CreditExpireAlert
-            message='이용권 만료 예정 안내'
-            hideWhenEmpty
-            wrapperClassName='mt-[1rem] w-full'
-            className='!w-full !justify-center'
-          />
-        </div>
-
         {/* 탭 */}
         <div className='flex w-full border-b border-[#E9EAEC]'>
           <button
@@ -357,17 +226,6 @@ function TopupClientMobileContent() {
         )}
       </div>
 
-      <PaymentModal
-        open={!!selectedVoucher}
-        onOpenChange={(open) => !open && setSelectedVoucher(null)}
-        productName={
-          selectedVoucher
-            ? `${selectedVoucher.type === 'experience' ? '경험 정리' : '포트폴리오 첨삭'} ${selectedVoucher.option.times}회권`
-            : ''
-        }
-        onConfirm={handleConfirmPurchase}
-      />
-
       <OBTRedirectModal
         open={obtPurchaseRedirectOpen}
         onOpenChange={setObtPurchaseRedirectOpen}
@@ -406,8 +264,8 @@ function WeeklyGiftEventCardMobile() {
         </p>
       </div>
       <p className='w-full text-center text-[0.75rem] leading-[1.4] text-[#74777D]'>
-        매주 월요일에 이용권 8개를 무료로 드려요. 그 주 일요일까지만 사용 가능하니,
-        선물을 놓치지 말고 사용해보세요!
+        매주 월요일에 이용권 8개를 무료로 드려요. 그 주 일요일까지만 사용
+        가능하니, 선물을 놓치지 말고 사용해보세요!
       </p>
     </div>
   );
