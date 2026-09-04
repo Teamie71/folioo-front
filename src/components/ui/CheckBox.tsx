@@ -9,7 +9,7 @@ import { cn } from '@/utils/utils';
 const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
->(({ className, ...props }, ref) => (
+>(({ className, type: _type, ...props }, ref) => (
   <CheckboxPrimitive.Root
     ref={ref}
     className={cn(
@@ -17,6 +17,7 @@ const Checkbox = React.forwardRef<
       className,
     )}
     {...props}
+    type='button'
   >
     <CheckboxPrimitive.Indicator
       className={cn('grid place-content-center text-white')}
