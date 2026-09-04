@@ -25,7 +25,6 @@ function parsePositiveInt(value: unknown): number | null {
   return null;
 }
 
-/* 피드백 질문지 조회 + 제출 (Orval API 연동) */
 export function useFeedbackSubmission() {
   const {
     data: feedbackFormResponse,
@@ -66,8 +65,6 @@ export function useFeedbackSubmission() {
         if (response?.isSuccess === false || !response?.result) {
           throw new Error('피드백 제출에 실패했어요.');
         }
-
-        return { rewardGranted: response.result.rewardGranted };
       } catch (error) {
         alert(
           error instanceof Error
