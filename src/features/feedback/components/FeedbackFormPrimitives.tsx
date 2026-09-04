@@ -4,15 +4,17 @@ import type { ReactNode } from 'react';
 import { useCallback } from 'react';
 import { Checkbox } from '@/components/ui/CheckBox';
 import TextField from '@/components/TextField';
+import {
+  FEEDBACK_TEXT_FIELD_HEIGHT,
+  FEEDBACK_TEXT_FIELD_RADIUS_CLASS,
+} from '../constants';
 import { cn } from '@/utils/utils';
 
 export const feedbackFormClassNames = {
   questionTitle: 'typo-h5',
-  subQuestionTitle: 'typo-h5',
   body: 'typo-b2',
   fieldError: 'typo-b2 mt-[8px] mb-[12px] ml-[1.25rem] text-error',
   answerStack: 'flex flex-col gap-[1.75rem] ml-[1.25rem]',
-  subQuestionBlockTop: 'mt-[6.25rem]',
 } as const;
 
 export function QuestionSection({
@@ -35,26 +37,6 @@ export function QuestionSection({
       <FieldError message={error} />
       <div className={cn(!error && 'mt-6')}>{children}</div>
     </section>
-  );
-}
-
-export function SubQuestionSection({
-  title,
-  children,
-}: {
-  title: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <div
-      className={cn(
-        'flex flex-col',
-        feedbackFormClassNames.subQuestionBlockTop,
-      )}
-    >
-      <h3 className={feedbackFormClassNames.subQuestionTitle}>{title}</h3>
-      <div className='mt-[1.75rem]'>{children}</div>
-    </div>
   );
 }
 
@@ -106,11 +88,18 @@ export function CheckboxOtherInlineRow({
   );
 
   return (
-    <div className='flex w-full min-w-0 items-start gap-2'>
+    <div
+      className='flex w-full min-w-0 cursor-pointer items-start gap-2'
+      onClick={(e) => {
+        e.preventDefault();
+        if (!checked) onCheckedChange(true);
+      }}
+    >
       <Checkbox
         className='mt-[0.25rem] shrink-0'
         checked={checked}
         onCheckedChange={(c) => onCheckedChange(c === true)}
+        onClick={(e) => e.stopPropagation()}
       />
       <span
         className={cn(feedbackFormClassNames.body, 'mt-[0.25rem] shrink-0')}
@@ -126,6 +115,7 @@ export function CheckboxOtherInlineRow({
         rows={1}
         maxLength={maxLength}
         onFocus={onFocusInput}
+        onClick={(e) => e.stopPropagation()}
         onChange={handleChange}
         placeholder={placeholder}
       />
@@ -143,11 +133,18 @@ export function CheckboxChoiceRow({
   label: string;
 }) {
   return (
-    <div className='flex items-start gap-2'>
+    <div
+      className='flex cursor-pointer items-start gap-2'
+      onClick={(e) => {
+        e.preventDefault();
+        onCheckedChange(true);
+      }}
+    >
       <Checkbox
         className='mt-[0.125rem]'
         checked={checked}
         onCheckedChange={(c) => onCheckedChange(c === true)}
+        onClick={(e) => e.stopPropagation()}
       />
       <span className={feedbackFormClassNames.body}>{label}</span>
     </div>
@@ -159,14 +156,19 @@ export function LongFormTextField(props: {
   onChange: (value: string) => void;
   maxLength?: number;
   height?: string;
+  placeholder?: string;
 }) {
   return (
     <div className='ml-[1.25rem] w-full'>
       <TextField
-        className='text-gray9 placeholder:text-gray5'
-        height={props.height ?? '8rem'}
+        className={cn(
+          FEEDBACK_TEXT_FIELD_RADIUS_CLASS,
+          'typo-text-field text-gray9 placeholder:text-gray5',
+        )}
+        height={props.height ?? FEEDBACK_TEXT_FIELD_HEIGHT}
         value={props.value}
         maxLength={props.maxLength}
+        placeholder={props.placeholder}
         onChange={(e) => props.onChange(e.target.value)}
       />
     </div>
