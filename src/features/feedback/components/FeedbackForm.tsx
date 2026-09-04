@@ -4,6 +4,12 @@ import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { CommonButton } from '@/components/CommonButton';
 import { useAuthStore } from '@/store/useAuthStore';
+import {
+  isChoiceAnswer,
+  parseFeedbackSchema,
+  questionTitle,
+  type FeedbackQuestion,
+} from '../utils/parseFeedbackSchema';
 import { useFeedbackSubmission } from '../hooks/useFeedbackSubmission';
 import {
   CheckboxChoiceRow,
@@ -12,104 +18,57 @@ import {
   QuestionSection,
   feedbackFormClassNames,
 } from './FeedbackFormPrimitives';
-import { FeedbackRewardDistributedModal } from './FeedbackRewardDistributedModal';
 import { FeedbackSubmittedModal } from './FeedbackSubmittedModal';
-
-type UnknownRecord = Record<string, unknown>;
-type FeedbackQuestionType = 'CHOICE' | 'TEXT';
-
-type FeedbackOption = {
-  id: string;
-  label: string;
-};
-
-type FeedbackQuestion = {
-  id: string;
-  text: string;
-  type: FeedbackQuestionType;
-  required: boolean;
-  options: FeedbackOption[];
-  hasOther: boolean;
-  placeholder?: string;
-  otherPlaceholder?: string;
-};
 
 type ChoiceAnswer = {
   optionId: string | null;
   otherText: string;
 };
 
-function isRecord(value: unknown): value is UnknownRecord {
-  return typeof value === 'object' && value !== null;
-}
-
-function parseQuestion(item: unknown, index: number): FeedbackQuestion | null {
-  if (!isRecord(item)) return null;
-  const id = typeof item.id === 'string' && item.id.trim() ? item.id : `q${index + 1}`;
-  const text = typeof item.text === 'string' ? item.text : '';
-  const type = item.type === 'CHOICE' || item.type === 'TEXT' ? item.type : null;
-  if (!type || !text.trim()) return null;
-
-  const options: FeedbackOption[] = Array.isArray(item.options)
-    ? item.options
-        .map((option, optionIndex) => {
-          if (!isRecord(option)) return null;
-          const optionId =
-            typeof option.id === 'string' && option.id.trim()
-              ? option.id
-              : `opt${optionIndex + 1}`;
-          const label = typeof option.label === 'string' ? option.label : '';
-          if (!label.trim()) return null;
-          return { id: optionId, label };
-        })
-        .filter((option): option is FeedbackOption => option !== null)
-    : [];
-
-  return {
-    id,
-    text,
-    type,
-    required: item.required === true,
-    options,
-    hasOther: item.hasOther === true,
-    placeholder: typeof item.placeholder === 'string' ? item.placeholder : undefined,
-    otherPlaceholder:
-      typeof item.otherPlaceholder === 'string'
-        ? item.otherPlaceholder
-        : undefined,
-  };
-}
+const EMPTY_CHOICE: ChoiceAnswer = { optionId: null, otherText: '' };
 
 export function FeedbackForm() {
-  const router = useRouter();
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const [answers, setAnswers] = useState<Record<string, ChoiceAnswer | string>>({});
+  const [answers, setAnswers] = useState<Record<string, ChoiceAnswer | string>>(
+    {},
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [rewardDistributedModalOpen, setRewardDistributedModalOpen] =
-    useState(false);
   const [submittedModalOpen, setSubmittedModalOpen] = useState(false);
-  const { submitFeedback, isSubmitting, canSubmit, isFeedbackFormLoading, schema } =
-    useFeedbackSubmission();
+  const {
+    submitFeedback,
+    isSubmitting,
+    canSubmit,
+    isFeedbackFormLoading,
+    schema,
+  } = useFeedbackSubmission();
 
-  const handleProofreadRequestClick = () => {
-    const target = '/correction/new';
-    if (!accessToken) {
-      router.push(`/login?redirect_to=${encodeURIComponent(target)}`);
-      return;
-    }
-    router.push(target);
-  };
+  const questions = useMemo(() => parseFeedbackSchema(schema), [schema]);
 
-  const questions = useMemo(
+  const hasAnyAnswer = useMemo(
     () =>
-      schema
-        .map((item, index) => parseQuestion(item, index))
-        .filter((question): question is FeedbackQuestion => question !== null),
-    [schema],
+      questions.some((question) => {
+        const answer = answers[question.id];
+        if (question.type === 'TEXT') {
+          return typeof answer === 'string' && answer.trim().length > 0;
+        }
+        return isChoiceAnswer(answer) && typeof answer.optionId === 'string';
+      }),
+    [answers, questions],
   );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const clearError = (questionId: string) => {
+    setErrors((prev) => {
+      if (!prev[questionId]) return prev;
+      const next = { ...prev };
+      delete next[questionId];
+      return next;
+    });
+  };
+
+  const setChoiceAnswer = (questionId: string, next: ChoiceAnswer) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: next }));
+  };
+
+  const handleSubmit = async () => {
     const nextErrors: Record<string, string> = {};
 
     for (const question of questions) {
@@ -123,7 +82,7 @@ export function FeedbackForm() {
         continue;
       }
 
-      if (!isRecord(answer) || typeof answer.optionId !== 'string') {
+      if (!isChoiceAnswer(answer) || typeof answer.optionId !== 'string') {
         nextErrors[question.id] = '답변을 선택해주세요.';
         continue;
       }
@@ -131,7 +90,7 @@ export function FeedbackForm() {
       if (
         question.hasOther &&
         answer.optionId === '__other__' &&
-        (typeof answer.otherText !== 'string' || answer.otherText.trim().length === 0)
+        answer.otherText.trim().length === 0
       ) {
         nextErrors[question.id] = '기타 의견을 입력해주세요.';
       }
@@ -144,22 +103,21 @@ export function FeedbackForm() {
     for (const question of questions) {
       const answer = answers[question.id];
       if (question.type === 'TEXT') {
-        payloadAnswers[question.id] = typeof answer === 'string' ? answer.trim() : '';
+        payloadAnswers[question.id] =
+          typeof answer === 'string' ? answer.trim() : '';
         continue;
       }
-      if (!isRecord(answer) || typeof answer.optionId !== 'string') continue;
+      if (!isChoiceAnswer(answer) || typeof answer.optionId !== 'string') {
+        continue;
+      }
       payloadAnswers[question.id] =
         answer.optionId === '__other__'
-          ? String(answer.otherText ?? '').trim()
+          ? answer.otherText.trim()
           : answer.optionId;
     }
 
     try {
-      const { rewardGranted } = await submitFeedback(payloadAnswers);
-      if (rewardGranted) {
-        setRewardDistributedModalOpen(true);
-        return;
-      }
+      await submitFeedback(payloadAnswers);
       setSubmittedModalOpen(true);
     } catch {
       return;
@@ -168,135 +126,141 @@ export function FeedbackForm() {
 
   return (
     <>
-      <FeedbackRewardDistributedModal
-        open={rewardDistributedModalOpen}
-        onOpenChange={setRewardDistributedModalOpen}
-        onProofreadRequestClick={handleProofreadRequestClick}
-      />
       <FeedbackSubmittedModal
         open={submittedModalOpen}
         onOpenChange={setSubmittedModalOpen}
       />
-      <form
-        onSubmit={handleSubmit}
-        className='flex flex-col gap-[6.25rem]'
-        noValidate
-      >
-        {questions.map((question, index) => {
-          const answer = answers[question.id];
-          const choiceAnswer: ChoiceAnswer =
-            isRecord(answer) &&
-            (answer.optionId === null || typeof answer.optionId === 'string') &&
-            typeof answer.otherText === 'string'
-              ? { optionId: answer.optionId, otherText: answer.otherText }
-              : { optionId: null, otherText: '' };
+      <div className='flex flex-col gap-[6.25rem]'>
+        {questions.map((question, index) => (
+          <QuestionBlock
+            key={question.id}
+            question={question}
+            index={index}
+            answer={answers[question.id]}
+            error={errors[question.id]}
+            onClearError={() => clearError(question.id)}
+            onTextChange={(value) => {
+              setAnswers((prev) => ({ ...prev, [question.id]: value }));
+              if (value.trim().length > 0) clearError(question.id);
+            }}
+            onChoiceChange={(next) => {
+              setChoiceAnswer(question.id, next);
+              const otherText = next.otherText ?? '';
+              if (
+                next.optionId &&
+                !(next.optionId === '__other__' && otherText.trim().length === 0)
+              ) {
+                clearError(question.id);
+              }
+            }}
+          />
+        ))}
 
-          return (
-            <QuestionSection
-              key={question.id}
-              required={question.required}
-              title={`${index + 1}. ${question.text}`}
-              error={errors[question.id]}
-            >
-              {question.type === 'CHOICE' ? (
-                <div className={feedbackFormClassNames.answerStack}>
-                  {question.options.map((option) => (
-                    <CheckboxChoiceRow
-                      key={`${question.id}-${option.id}`}
-                      checked={choiceAnswer.optionId === option.id}
-                      label={option.label}
-                      onCheckedChange={(checked) => {
-                        if (!checked) return;
-                        setAnswers((prev) => ({
-                          ...prev,
-                          [question.id]: { optionId: option.id, otherText: '' },
-                        }));
-                        setErrors((prev) => {
-                          if (!prev[question.id]) return prev;
-                          const next = { ...prev };
-                          delete next[question.id];
-                          return next;
-                        });
-                      }}
-                    />
-                  ))}
-                  {question.hasOther ? (
-                    <CheckboxOtherInlineRow
-                      checked={choiceAnswer.optionId === '__other__'}
-                      label='기타:'
-                      value={choiceAnswer.otherText}
-                      onChange={(value) => {
-                        setAnswers((prev) => ({
-                          ...prev,
-                          [question.id]: { optionId: '__other__', otherText: value },
-                        }));
-                        if (value.trim().length === 0) return;
-                        setErrors((prev) => {
-                          if (!prev[question.id]) return prev;
-                          const next = { ...prev };
-                          delete next[question.id];
-                          return next;
-                        });
-                      }}
-                      maxLength={200}
-                      active={choiceAnswer.optionId === '__other__'}
-                      onFocusInput={() =>
-                        setAnswers((prev) => ({
-                          ...prev,
-                          [question.id]: {
-                            optionId: '__other__',
-                            otherText: choiceAnswer.otherText,
-                          },
-                        }))
-                      }
-                      onCheckedChange={(checked) => {
-                        if (!checked) return;
-                        setAnswers((prev) => ({
-                          ...prev,
-                          [question.id]: {
-                            optionId: '__other__',
-                            otherText: choiceAnswer.otherText,
-                          },
-                        }));
-                      }}
-                      placeholder={
-                        question.otherPlaceholder ?? '기타 의견을 입력해주세요.'
-                      }
-                    />
-                  ) : null}
-                </div>
-              ) : (
-                <LongFormTextField
-                  value={typeof answer === 'string' ? answer : ''}
-                  onChange={(value) => {
-                    setAnswers((prev) => ({ ...prev, [question.id]: value }));
-                    if (value.trim().length === 0) return;
-                    setErrors((prev) => {
-                      if (!prev[question.id]) return prev;
-                      const next = { ...prev };
-                      delete next[question.id];
-                      return next;
-                    });
-                  }}
-                  maxLength={500}
-                />
-              )}
-            </QuestionSection>
-          );
-        })}
-
-        <div className='flex justify-center pb-4'>
+        <div className='flex justify-center'>
           <CommonButton
-            type='submit'
+            type='button'
             variantType='Primary'
             px='2.25rem'
-            py='0.875rem'
-            disabled={isSubmitting || isFeedbackFormLoading || !canSubmit}
+            py='0.75rem'
+            disabled={
+              isSubmitting ||
+              isFeedbackFormLoading ||
+              !canSubmit ||
+              !hasAnyAnswer
+            }
+            onClick={() => {
+              void handleSubmit();
+            }}
           >
             제출하기
           </CommonButton>
         </div>
-      </form>
+      </div>
     </>
+  );
+}
+
+function QuestionBlock({
+  question,
+  index,
+  answer,
+  error,
+  onClearError,
+  onTextChange,
+  onChoiceChange,
+}: {
+  question: FeedbackQuestion;
+  index: number;
+  answer: ChoiceAnswer | string | undefined;
+  error?: string;
+  onClearError: () => void;
+  onTextChange: (value: string) => void;
+  onChoiceChange: (next: ChoiceAnswer) => void;
+}) {
+  const choiceAnswer: ChoiceAnswer = isChoiceAnswer(answer)
+    ? answer
+    : EMPTY_CHOICE;
+
+  return (
+    <QuestionSection
+      required={question.required}
+      title={questionTitle(question, index)}
+      error={error}
+    >
+      {question.type === 'CHOICE' ? (
+        <div className={feedbackFormClassNames.answerStack}>
+          {question.options.map((option) => (
+            <CheckboxChoiceRow
+              key={`${question.id}-${option.id}`}
+              checked={choiceAnswer.optionId === option.id}
+              label={option.label}
+              onCheckedChange={(checked) => {
+                if (!checked) return;
+                onChoiceChange({
+                  optionId: option.id,
+                  otherText: choiceAnswer.otherText,
+                });
+              }}
+            />
+          ))}
+          {question.hasOther ? (
+            <CheckboxOtherInlineRow
+              checked={choiceAnswer.optionId === '__other__'}
+              label='기타:'
+              value={choiceAnswer.otherText}
+              onChange={(value) => {
+                onChoiceChange({ optionId: '__other__', otherText: value });
+                if (value.trim().length > 0) onClearError();
+              }}
+              maxLength={200}
+              active={choiceAnswer.optionId === '__other__'}
+              onFocusInput={() =>
+                onChoiceChange({
+                  optionId: '__other__',
+                  otherText: choiceAnswer.otherText,
+                })
+              }
+              onCheckedChange={(checked) => {
+                if (!checked) return;
+                onChoiceChange({
+                  optionId: '__other__',
+                  otherText: choiceAnswer.otherText,
+                });
+              }}
+              placeholder={
+                question.otherPlaceholder ?? '기타 의견을 입력해주세요.'
+              }
+            />
+          ) : null}
+        </div>
+      ) : (
+        <LongFormTextField
+          value={typeof answer === 'string' ? answer : ''}
+          onChange={onTextChange}
+          maxLength={500}
+          placeholder={question.placeholder}
+        />
+      )}
+    </QuestionSection>
   );
 }

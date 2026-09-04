@@ -14,7 +14,7 @@ import { Checkbox } from '@/components/ui/CheckBox';
 import { Dropdown } from '@/components/Dropdown';
 import TextField from '@/components/TextField';
 import { CommonModal } from '@/components/CommonModal';
-import { FEEDBACK_FORM_URL } from '@/constants/feedback';
+import { FEEDBACK_PATH } from '@/constants/feedback';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export default function WithdrawPage() {
@@ -286,14 +286,12 @@ export default function WithdrawPage() {
                 계정을 유지하고, 추후 기능 업데이트 시에 다시 찾아주시면
                 어떨까요?
               </p>
-              <a
-                href={FEEDBACK_FORM_URL}
-                target='_blank'
-                rel='noopener noreferrer'
+              <Link
+                href={FEEDBACK_PATH}
                 className='mt-[2rem] inline-block text-[1rem] text-[#1A1A1A] underline underline-offset-[3px]'
               >
                 피드백 남기러 가기 →
-              </a>
+              </Link>
             </div>
           )}
 

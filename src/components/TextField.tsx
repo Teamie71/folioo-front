@@ -67,16 +67,12 @@ const TextField = React.forwardRef<HTMLTextAreaElement, TextFieldProps>(
     return (
       <textarea
         className={cn(
-          // 기본 스타일
-          'w-full resize-none bg-transparent text-[1rem] font-normal text-[#1A1A1A]',
+          'typo-text-field w-full resize-none bg-transparent text-gray9',
           'px-[1.25rem] py-[0.75rem]',
-          'border border-[#74777D]',
-          'placeholder:text-[#74777D]',
-
-          // variant
+          'border border-gray6',
+          'placeholder:text-gray6',
           variant === 'default' && 'rounded-[0.5rem] leading-[150%]',
           variant === 'wide' && 'rounded-[1rem] leading-[160%]',
-
           className,
         )}
         style={{
