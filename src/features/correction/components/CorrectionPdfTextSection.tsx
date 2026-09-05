@@ -129,7 +129,7 @@ export function CorrectionPdfTextSection({
   ]);
 
   const extractionStatusSectionClass =
-    'mt-[3.75rem] flex min-h-[15.875rem] flex-col';
+    'mt-[3.75rem] flex h-[37.3125rem] flex-col';
 
   if (isWaitingForData) {
     return (
