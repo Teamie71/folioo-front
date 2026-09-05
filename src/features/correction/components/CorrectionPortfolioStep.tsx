@@ -74,7 +74,7 @@ export function CorrectionPortfolioStep({
       <div
         className={`flex flex-col gap-[1.25rem] ${!isPdfTextExtracted || isPdfTextExtracting ? 'pb-[6.25rem]' : ''}`}
       >
-        {!isPdfTextExtracting && (
+        {!isPdfTextExtracting && !isPdfExtractFailed && (
           <CorrectionPdfUploadBlock
             pdfUploadedFile={pdfUploadedFile}
             pdfUploadError={pdfUploadError}

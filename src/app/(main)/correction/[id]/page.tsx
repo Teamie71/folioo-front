@@ -44,8 +44,8 @@ export default function CorrectionSettingsPage() {
     return null; // 또는 로딩 스피너
   }
 
-  const isPdfExtractionWaiting =
-    s.step === 'portfolio' && s.isPdfTextExtracting;
+  const isPdfTextStatusScreen =
+    s.step === 'portfolio' && (s.isPdfTextExtracting || s.isPdfExtractFailed);
 
   return (
     <CorrectionLayout
@@ -65,7 +65,7 @@ export default function CorrectionSettingsPage() {
         onClose: () => s.setIsPdfDropOverlayActive(false),
       }}
       header={
-        isPdfExtractionWaiting ? null : (
+        isPdfTextStatusScreen ? null : (
           <CorrectionPageHeader
             step={s.step}
             onBackClick={() => s.router.replace('/correction')}
@@ -146,7 +146,7 @@ export default function CorrectionSettingsPage() {
         )
       }
       progressOrDivider={
-        isPdfExtractionWaiting ? null : s.step === 'result' &&
+        isPdfTextStatusScreen ? null : s.step === 'result' &&
           s.status !== 'ANALYZING' &&
           s.status !== 'ANALYZING_FAILED' ? (
           <div className='flex flex-col gap-[0.75rem] pb-[3.75rem]'>

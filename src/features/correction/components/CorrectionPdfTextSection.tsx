@@ -143,6 +143,29 @@ export function CorrectionPdfTextSection({
     );
   }
 
+  if (isFailed || showEmptyRetry) {
+    return (
+      <section className='mt-[3.75rem] flex min-h-[calc(100dvh-6.25rem)] flex-col'>
+        <h2 className='typo-h1 text-black'>PDF 포트폴리오 텍스트 정리</h2>
+        <div className='flex flex-1 flex-col items-center pt-[8rem]'>
+          <div className='flex flex-col items-center gap-[1rem] text-center text-[2rem] leading-[1.3] font-bold text-[#464B53]'>
+            <span>포트폴리오를 텍스트로 정리하는 중 오류가 발생했어요.</span>
+            <span>아래 버튼을 눌러 다시 시도해주세요.</span>
+          </div>
+          <CommonButton
+            variantType='Outline'
+            px='2.25rem'
+            py='0.5rem'
+            className='mt-[4rem]'
+            onClick={onRetryExtract}
+          >
+            다시 시도하기
+          </CommonButton>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <div className='mt-[3.75rem] flex flex-col'>
       <div className='mb-[0.5rem] flex items-center text-[1.125rem] leading-[1.3] font-bold'>
@@ -160,22 +183,7 @@ export function CorrectionPdfTextSection({
         </div>
       )}
 
-      {!enabled ? null : isFailed || showEmptyRetry ? (
-        <div className='flex flex-col items-center justify-center py-[4rem]'>
-          <div className='mb-[2rem] flex flex-col items-center gap-[0.5rem] text-center text-[1.125rem] leading-[1.3] font-bold text-[#464B53]'>
-            <span>포트폴리오를 텍스트로 정리하는 중 오류가 발생했어요.</span>
-            <span>아래 버튼을 눌러 다시 시도해주세요.</span>
-          </div>
-          <CommonButton
-            variantType='Outline'
-            px='1.5rem'
-            py='0.5rem'
-            onClick={onRetryExtract}
-          >
-            다시 시도하기
-          </CommonButton>
-        </div>
-      ) : showPortfolioBlock ? (
+      {!enabled ? null : showPortfolioBlock ? (
         <>
           <CorrectionPdfActivityTabs
             pdfActivities={pdfActivities}
