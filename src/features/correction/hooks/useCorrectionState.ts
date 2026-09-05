@@ -29,7 +29,6 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useCorrectionNavbar } from '@/contexts/CorrectionNavbarContext';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
   getPdfCategoryCharLimit,
@@ -161,8 +160,6 @@ export function useCorrectionState(correctionId: string | undefined) {
     return () => document.removeEventListener('dragenter', onDragEnter);
   }, [step]);
 
-  const { setShowNavbarOnResult } = useCorrectionNavbar() ?? {};
-
   // correctionId 있을 때 GET /status로 step·status 복원
   useEffect(() => {
     if (!sessionRestoreAttempted) return;
@@ -231,10 +228,6 @@ export function useCorrectionState(correctionId: string | undefined) {
       setPdfUploadedFile({ name: file.name, file });
     });
   }, [accessToken, effectiveId, isInitializing]);
-
-  useEffect(() => {
-    setShowNavbarOnResult?.(step === 'result');
-  }, [step, setShowNavbarOnResult]);
 
   // result 단계에서 status === 'ANALYZING'이면 /status 주기적으로 폴링해서 DONE 되면 자동 반영
   useEffect(() => {
