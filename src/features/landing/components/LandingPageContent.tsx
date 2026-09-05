@@ -632,6 +632,7 @@ function VideoFeatureCard({
   mobileDescription = description,
   className = '',
   mediaCount = 1,
+  mediaSources,
 }: {
   title: string;
   description: string;
@@ -639,6 +640,7 @@ function VideoFeatureCard({
   mobileDescription?: string;
   className?: string;
   mediaCount?: 1 | 2;
+  mediaSources?: string[];
 }) {
   const isSplitView = mediaCount === 2;
   const isCompact =
@@ -678,8 +680,9 @@ function VideoFeatureCard({
         }`}
       >
         {Array.from({ length: mediaCount }, (_, index) => (
-          <LandingVideo
+          <FeatureMedia
             key={index}
+            src={mediaSources?.[index]}
             className={`!h-[10.6875rem] !w-full !rounded-[0.75rem] ${
               isSplitView ? 'sm:!h-[17.375rem]' : 'sm:!h-[16.6875rem]'
             }`}
@@ -687,6 +690,24 @@ function VideoFeatureCard({
         ))}
       </div>
     </article>
+  );
+}
+
+function FeatureMedia({ src, className }: { src?: string; className: string }) {
+  if (!src?.endsWith('.svg')) {
+    return <LandingVideo src={src} className={className} />;
+  }
+
+  return (
+    <div className={`overflow-hidden bg-[#D9D9D9] ${className}`}>
+      <Image
+        src={src}
+        alt=''
+        width={476}
+        height={267}
+        className='h-full w-full object-cover'
+      />
+    </div>
   );
 }
 
@@ -1214,10 +1235,12 @@ export function LandingPageContent() {
               mobileDescription={
                 '준비된 템플릿을 통해, 누구나\n체계적으로 정리할 수 있어요.'
               }
+              mediaSources={['/landing/experience_template.mp4']}
             />
             <VideoFeatureCard
               title='AI 에이전트와 쉽고, 빠르게'
               description='AI 에이전트가 자료를 분석하여 경험을 정리해줘요.'
+              mediaSources={['/landing/experience_agent.svg']}
             />
             <VideoFeatureCard
               className='sm:col-span-2'
@@ -1228,6 +1251,10 @@ export function LandingPageContent() {
                 '맵 뷰로 경험의 구조를 한눈에 파악하고,\n리스트 뷰로 경험을 깊이 있게 정리해요.'
               }
               mediaCount={2}
+              mediaSources={[
+                '/landing/experience_map.mp4',
+                '/landing/experience_list.mp4',
+              ]}
             />
           </FadeInCards>
         </div>
