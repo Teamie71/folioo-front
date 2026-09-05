@@ -32,7 +32,7 @@ export function CorrectionLayout({
         onDrop={pdfDropOverlay.onDrop}
         onClose={pdfDropOverlay.onClose}
       />
-      <div className='flex flex-col gap-[0.75rem]'>
+      <div className='flex flex-col gap-[0.375rem]'>
         {header}
         {progressOrDivider}
       </div>
