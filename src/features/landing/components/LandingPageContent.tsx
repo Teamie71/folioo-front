@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type ReactNode, useState } from 'react';
+import { motion } from 'framer-motion';
 import { CommonButton } from '@/components/CommonButton';
 import Footer from '@/components/Footer';
 import { ChevronColorLeftIcon } from '@/components/icons/ChevronColorLeftIcon';
@@ -451,6 +452,28 @@ function LoginEntryButton({
   );
 }
 
+function FadeInCards({
+  children,
+  className,
+  delay = 0,
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.6, ease: 'easeOut', delay }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 function ServiceCard({
   title,
   description,
@@ -857,7 +880,7 @@ function LandingFaq() {
       <h2 className='mt-1 text-center text-[1.25rem] leading-[130%] font-bold sm:mt-3 sm:text-[2rem]'>
         자주 묻는 질문
       </h2>
-      <div className='mt-10 space-y-3 sm:mt-[5rem] sm:space-y-5'>
+      <FadeInCards className='mt-10 space-y-3 sm:mt-[5rem] sm:space-y-5'>
         {faqs.map((faq, index) => {
           const isOpen = openedIndex === index;
 
@@ -907,7 +930,7 @@ function LandingFaq() {
             </article>
           );
         })}
-      </div>
+      </FadeInCards>
     </section>
   );
 }
@@ -1050,7 +1073,10 @@ export function LandingPageContent() {
             </div>
           </div>
 
-          <div className='mt-20 grid grid-cols-1 justify-items-center gap-6 sm:mt-[4.5rem] sm:grid-cols-3 sm:gap-6'>
+          <FadeInCards
+            className='mt-20 grid grid-cols-1 justify-items-center gap-6 sm:mt-[4.5rem] sm:grid-cols-3 sm:gap-6'
+            delay={0.2}
+          >
             <ServiceCard
               title='직무 찾기'
               iconSrc='/landing/job-search-icon.svg'
@@ -1092,7 +1118,7 @@ export function LandingPageContent() {
                 scrollToIntroduction('portfolio-correction-introduction')
               }
             />
-          </div>
+          </FadeInCards>
         </section>
 
         <section
@@ -1175,13 +1201,13 @@ export function LandingPageContent() {
             경험 정리하기 →
           </CommonButton>
 
-          <div className='mt-15 grid gap-15 sm:mt-[4.375rem] sm:grid-cols-3 sm:gap-[2.75rem]'>
+          <FadeInCards className='mt-15 grid gap-15 sm:mt-[4.375rem] sm:grid-cols-3 sm:gap-[2.75rem]'>
             {solutionCards.map((card) => (
               <SolutionCard key={card.number} {...card} />
             ))}
-          </div>
+          </FadeInCards>
 
-          <div className='mt-[7.5rem] grid gap-5 sm:mt-[10rem] sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10'>
+          <FadeInCards className='mt-[7.5rem] grid gap-5 sm:mt-[10rem] sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10'>
             <VideoFeatureCard
               title='템플릿을 활용해 체계적으로'
               description='준비된 템플릿을 통해, 누구나 체계적으로 정리할 수 있어요.'
@@ -1203,7 +1229,7 @@ export function LandingPageContent() {
               }
               mediaCount={2}
             />
-          </div>
+          </FadeInCards>
         </div>
       </section>
 
@@ -1298,7 +1324,7 @@ export function LandingPageContent() {
             </p>
           </div>
 
-          <div className='mx-auto max-w-[46.25rem] text-center'>
+          <FadeInCards className='mx-auto max-w-[46.25rem] text-center'>
             <h3 className='text-[1.25rem] leading-[130%] font-bold sm:text-[2rem]'>
               <span className='whitespace-pre sm:hidden'>
                 {
@@ -1314,7 +1340,7 @@ export function LandingPageContent() {
             <div className='mt-10 sm:mt-[3.125rem]'>
               <PortfoliloPoints />
             </div>
-          </div>
+          </FadeInCards>
         </div>
       </section>
 
