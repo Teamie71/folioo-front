@@ -128,9 +128,12 @@ export function CorrectionPdfTextSection({
     onPdfPortfoliosHydratedFromQuery,
   ]);
 
+  const extractionStatusSectionClass =
+    'mt-[3.75rem] flex min-h-[15.875rem] flex-col';
+
   if (isWaitingForData) {
     return (
-      <section className='mt-[3.75rem] flex flex-col'>
+      <section className={extractionStatusSectionClass}>
         <h2 className='typo-h5 text-black'>PDF 포트폴리오 텍스트 정리</h2>
         <div className='typo-c1 mt-[0.5rem] flex flex-col text-[#74777D]'>
           <span>업로드하신 파일을 AI가 구조화하여 정리 중이에요.</span>
@@ -145,7 +148,7 @@ export function CorrectionPdfTextSection({
 
   if (isFailed || showEmptyRetry) {
     return (
-      <section className='mt-[2.5rem] flex flex-col'>
+      <section className={extractionStatusSectionClass}>
         <h2 className='typo-h5 text-black'>PDF 포트폴리오 텍스트 정리</h2>
         <div className='typo-c1 mt-[0.5rem] flex flex-col text-[#74777D]'>
           <span>포트폴리오를 텍스트로 정리하는 중 오류가 발생했어요.</span>
