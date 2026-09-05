@@ -4,7 +4,6 @@ export interface PendingCorrectionDraft {
   companyName: string;
   jobTitle: string;
   jobDescription: string;
-  jdMode: 'text' | 'image';
 }
 
 const DRAFT_KEY = 'folioo:pending-correction-draft';
@@ -12,7 +11,6 @@ const DRAFT_CORRECTION_ID_KEY = 'folioo:pending-correction-id';
 const PDF_DATABASE_NAME = 'folioo-pending-correction';
 const PDF_STORE_NAME = 'draft';
 const PDF_FILE_KEY = 'pdf-file';
-const JD_IMAGES_KEY = 'jd-images';
 
 function canUseBrowserStorage() {
   return typeof window !== 'undefined';
@@ -37,10 +35,7 @@ export function getPendingCorrectionDraft(): PendingCorrectionDraft | null {
     ) {
       return null;
     }
-    return {
-      ...draft,
-      jdMode: draft.jdMode === 'image' ? 'image' : 'text',
-    };
+    return draft;
   } catch {
     return null;
   }
@@ -110,45 +105,6 @@ export async function clearPendingCorrectionPdf() {
     transaction.onerror = () => reject(transaction.error);
   });
   database.close();
-}
-
-export async function savePendingCorrectionJdImages(files: File[]) {
-  const database = await openPdfDatabase();
-  if (!database) return;
-
-  await new Promise<void>((resolve, reject) => {
-    const transaction = database.transaction(PDF_STORE_NAME, 'readwrite');
-    transaction.objectStore(PDF_STORE_NAME).put(files, JD_IMAGES_KEY);
-    transaction.oncomplete = () => resolve();
-    transaction.onerror = () => reject(transaction.error);
-  });
-  database.close();
-}
-
-export async function consumePendingCorrectionJdImages(): Promise<File[]> {
-  const database = await openPdfDatabase();
-  if (!database) return [];
-
-  try {
-    return await new Promise<File[]>((resolve, reject) => {
-      const transaction = database.transaction(PDF_STORE_NAME, 'readwrite');
-      const store = transaction.objectStore(PDF_STORE_NAME);
-      const request = store.get(JD_IMAGES_KEY);
-      let files: File[] = [];
-      request.onsuccess = () => {
-        const value = request.result;
-        files = Array.isArray(value)
-          ? value.filter((file): file is File => file instanceof File)
-          : [];
-        store.delete(JD_IMAGES_KEY);
-      };
-      request.onerror = () => reject(request.error);
-      transaction.oncomplete = () => resolve(files);
-      transaction.onerror = () => reject(transaction.error);
-    });
-  } finally {
-    database.close();
-  }
 }
 
 export async function consumePendingCorrectionPdf(

@@ -1,13 +1,13 @@
 'use client';
 
 /** 첨삭 진행 중 / 목록 로딩 등에서 쓰는 스피너 (CorrectionAnalyzingView와 동일) */
-export function CorrectionLoadingSpinner() {
+export function CorrectionLoadingSpinner({ size = 56 }: { size?: number }) {
   return (
     <div className='flex flex-col items-center justify-center gap-[2rem]'>
       <svg
         xmlns='http://www.w3.org/2000/svg'
-        width='56'
-        height='60'
+        width={size}
+        height={size}
         viewBox='0 0 56 60'
         fill='none'
       >
@@ -18,10 +18,7 @@ export function CorrectionLoadingSpinner() {
           d='M28 8C22.6957 8 17.6086 10.1071 13.8579 13.8579C10.1071 17.6086 8 22.6957 8 28C8 33.3043 10.1071 38.3914 13.8579 42.1421C17.6086 45.8929 22.6957 48 28 48C33.3043 48 38.3914 45.8929 42.1421 42.1421C45.8929 38.3914 48 33.3043 48 28C48 22.6957 45.8929 17.6086 42.1421 13.8579C38.3914 10.1071 33.3043 8 28 8ZM0 28C0 12.536 12.536 0 28 0C43.464 0 56 12.536 56 28C56 43.464 43.464 56 28 56C12.536 56 0 43.464 0 28Z'
           fill='#74777D'
         />
-        <g
-          className='animate-spin'
-          style={{ transformOrigin: '28px 28px' }}
-        >
+        <g className='animate-spin' style={{ transformOrigin: '28px 28px' }}>
           <path
             fillRule='evenodd'
             clipRule='evenodd'

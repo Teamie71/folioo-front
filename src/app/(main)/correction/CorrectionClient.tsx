@@ -38,7 +38,9 @@ export default function CorrectionClient() {
   const responseData = data as
     | PortfolioCorrectionControllerGetCorrections200
     | undefined;
-  const list = responseData?.result ?? [];
+  // 로그아웃 직후 비활성화된 쿼리가 기존 data를 보존할 수 있으므로,
+  // 인증이 없을 때는 어떤 캐시 값도 목록에 사용하지 않는다.
+  const list = isLoggedIn ? (responseData?.result ?? []) : [];
   const items: CorrectionListItem[] = list.map((c) => ({
     title: c.title,
     tag: c.positionName,

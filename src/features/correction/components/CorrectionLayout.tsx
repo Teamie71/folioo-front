@@ -6,11 +6,6 @@ interface CorrectionLayoutProps {
   layoutKey?: string;
   layoutClassName: string;
   onDragEnter?: (e: React.DragEvent) => void;
-  jdDropOverlay?: {
-    active: boolean;
-    onDrop: (file: File) => void;
-    onClose: () => void;
-  };
   pdfDropOverlay: {
     active: boolean;
     onDrop: (file: File) => void;
@@ -25,7 +20,6 @@ export function CorrectionLayout({
   layoutKey,
   layoutClassName,
   onDragEnter,
-  jdDropOverlay,
   pdfDropOverlay,
   header,
   progressOrDivider,
@@ -33,19 +27,12 @@ export function CorrectionLayout({
 }: CorrectionLayoutProps) {
   return (
     <div key={layoutKey} className={layoutClassName} onDragEnter={onDragEnter}>
-      {jdDropOverlay && (
-        <CorrectionDropOverlay
-          active={jdDropOverlay.active}
-          onDrop={jdDropOverlay.onDrop}
-          onClose={jdDropOverlay.onClose}
-        />
-      )}
       <CorrectionDropOverlay
         active={pdfDropOverlay.active}
         onDrop={pdfDropOverlay.onDrop}
         onClose={pdfDropOverlay.onClose}
       />
-      <div className='flex flex-col gap-[0.75rem]'>
+      <div className='flex flex-col gap-[0.375rem]'>
         {header}
         {progressOrDivider}
       </div>

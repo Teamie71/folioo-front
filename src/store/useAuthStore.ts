@@ -1,5 +1,6 @@
 import { create } from 'zustand/react';
 import { devtools } from 'zustand/middleware';
+import { queryClient } from '@/lib/queryClient';
 
 const REFRESH_TOKEN_COOKIE_KEY = 'refreshToken';
 
@@ -68,6 +69,8 @@ export const useAuthStore = create<AuthStore>()(
       // 인증 정보 초기화
       clearAuth: () => {
         clearRefreshTokenCookie();
+        // 이전 사용자의 개인정보가 다음 화면이나 계정에 남지 않도록 캐시를 비운다.
+        queryClient.clear();
         set({ accessToken: null });
       },
     }),

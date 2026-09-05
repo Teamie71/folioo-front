@@ -4,9 +4,6 @@ export type Step = 'information' | 'portfolio' | 'analysis' | 'result';
 /** 첨삭 상태 */
 export type Status = 'DRAFT' | 'ANALYZING' | 'ANALYZING_FAILED' | 'DONE';
 
-/** 포트폴리오 종류 (텍스트형 / PDF) */
-export type PortfolioType = 'text' | 'pdf';
-
 /** PDF 활동 카테고리명 (상세정보, 담당업무, 문제해결, 배운 점) */
 export type PdfCategoryName = '상세정보' | '담당업무' | '문제해결' | '배운 점';
 
@@ -25,22 +22,8 @@ export type PdfActivityBlock = {
   portfolioId?: number;
 };
 
-/** JD 입력 방식 */
-export type JdMode = 'text' | 'image';
-
-/** JD 이미지 업로드 메타 */
-export interface JdUploadedFile {
-  name: string;
-  size: number;
-  file: File;
-  previewUrl: string;
-}
-
 /** 파일 삭제 확인 모달 타겟 (프론트 전용) */
-export type FileDeleteConfirmTarget =
-  | { type: 'jd'; index: number }
-  | { type: 'pdf' }
-  | null;
+export type FileDeleteConfirmTarget = { type: 'pdf' } | null;
 
 /** 정보 입력 단계 검증 에러 (프론트 전용) */
 export interface InformationErrors {

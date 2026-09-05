@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Navbar from '@/components/Navbar';
 import MobileNavbar from '@/components/MobileNavbar';
 import Sidebar from '@/components/Sidebar';
@@ -10,7 +10,6 @@ import { BannerBeta } from '@/components/OBT/OBTBanner';
 import { OBTEventModal } from '@/components/OBT/OBTEventModal';
 import { OBTEventModalMobile } from '@/components/OBT/OBTEventModalMobile';
 import { markWeeklyVoucherGranted } from '@/utils/weeklyVoucher';
-import { CorrectionNavbarContext } from '@/contexts/CorrectionNavbarContext';
 import { useEventControllerClaimEventReward } from '@/api/endpoints/event/event';
 import { cn } from '@/utils/utils';
 
@@ -21,11 +20,6 @@ const TERMS_FROM_SIGNUP_KEY = 'terms_from_signup';
 
 function isCorrectionNewPath(pathname: string) {
   return /^\/correction\/new\/?$/.test(pathname);
-}
-function isCorrectionDetailPath(pathname: string) {
-  return (
-    /^\/correction\/[^/]+$/.test(pathname) && !isCorrectionNewPath(pathname)
-  );
 }
 function isExperiencePath(pathname: string) {
   return pathname === '/experience' || pathname.startsWith('/experience/');
@@ -39,7 +33,6 @@ export default function LayoutContent({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [showNavbarOnResult, setShowNavbarOnResult] = useState(false);
   const [weeklyVoucherModalOpen, setWeeklyVoucherModalOpen] = useState(false);
   const claimAttemptedRef = useRef(false);
 
@@ -57,10 +50,6 @@ export default function LayoutContent({
     isCorrectionNewPath(path) ||
     (isExperiencePath(path) && !isMobileExperienceList);
   const showDesktopSidebar = !showMobileChrome && path !== '/';
-
-  useEffect(() => {
-    if (!isCorrectionDetailPath(path)) setShowNavbarOnResult(false);
-  }, [path]);
 
   // 확장 프로그램이 주입하는 재생속도 오버레이 숨김
   useEffect(() => {
@@ -193,14 +182,7 @@ export default function LayoutContent({
   }, [weeklyVoucherModalOpen, claimEventReward]);
 
   return (
-    <CorrectionNavbarContext.Provider
-      value={{
-        setShowNavbarOnResult: useCallback(
-          (show: boolean) => setShowNavbarOnResult(show),
-          [],
-        ),
-      }}
-    >
+    <>
       {showDesktopSidebar ? (
         <div className='flex min-h-[100dvh] w-full'>
           <Sidebar />
@@ -269,6 +251,6 @@ export default function LayoutContent({
           onButtonClick={() => router.push('/experience/settings')}
         />
       )}
-    </CorrectionNavbarContext.Provider>
+    </>
   );
 }

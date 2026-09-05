@@ -39,19 +39,10 @@ interface CorrectionPageHeaderProps {
     onOpenChange: (open: boolean) => void;
     onConfirm: () => void;
   };
-  startCorrectionModal: {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    onConfirm: () => void;
-  };
   pdfExtractModal: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onConfirm: () => void;
-  };
-  jdViewer?: {
-    previewUrl: string | null;
-    onClose: () => void;
   };
 }
 
@@ -64,9 +55,7 @@ export function CorrectionPageHeader({
   titleEdit,
   showDeleteButton,
   deleteModal,
-  startCorrectionModal,
   pdfExtractModal,
-  jdViewer,
 }: CorrectionPageHeaderProps) {
   return (
     <div className='flex items-center justify-between'>
@@ -119,21 +108,6 @@ export function CorrectionPageHeader({
         onSecondaryClick={deleteModal.onConfirm}
       />
       <CommonModal
-        open={startCorrectionModal.open}
-        onOpenChange={startCorrectionModal.onOpenChange}
-        title={
-          <>
-            포트폴리오 첨삭 1회권을 사용하여
-            <br />
-            진행하시겠습니까?
-          </>
-        }
-        cancelBtnText='취소'
-        primaryBtnText='진행'
-        onPrimaryClick={startCorrectionModal.onConfirm}
-        className='max-w-[24.75rem] items-center px-[5rem] py-[3.75rem] text-center'
-      />
-      <CommonModal
         open={pdfExtractModal.open}
         onOpenChange={pdfExtractModal.onOpenChange}
         title='이 파일의 텍스트를 추출하시겠습니까?'
@@ -142,26 +116,6 @@ export function CorrectionPageHeader({
         primaryBtnText='추출'
         onPrimaryClick={pdfExtractModal.onConfirm}
       />
-      {jdViewer?.previewUrl && (
-        <div
-          role='dialog'
-          aria-modal='true'
-          aria-label='JD 이미지 전체보기'
-          className='fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4'
-          onClick={jdViewer.onClose}
-        >
-          <div
-            className='flex max-h-full max-w-full items-center justify-center'
-            onClick={(event) => event.stopPropagation()}
-          >
-            <img
-              src={jdViewer.previewUrl}
-              alt='JD 이미지 전체보기'
-              className='max-h-[90vh] max-w-full object-contain'
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

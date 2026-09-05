@@ -34,7 +34,7 @@ export function CorrectionPdfUploadBlock({
   const isRestoredWithoutFile = isPdfTextExtracted && !pdfUploadedFile;
 
   return (
-    <div className='mt-[4.75rem] flex flex-col gap-[1.25rem]'>
+    <div className='flex flex-col gap-[1.25rem]'>
       <div>
         <div className='flex items-center gap-[0.25rem] text-[1.125rem] leading-[1.3] font-bold'>
           <span>PDF 포트폴리오 업로드</span>
