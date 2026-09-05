@@ -44,10 +44,6 @@ interface CorrectionPageHeaderProps {
     onOpenChange: (open: boolean) => void;
     onConfirm: () => void;
   };
-  jdViewer?: {
-    previewUrl: string | null;
-    onClose: () => void;
-  };
 }
 
 export function CorrectionPageHeader({
@@ -60,7 +56,6 @@ export function CorrectionPageHeader({
   showDeleteButton,
   deleteModal,
   pdfExtractModal,
-  jdViewer,
 }: CorrectionPageHeaderProps) {
   return (
     <div className='flex items-center justify-between'>
@@ -121,26 +116,6 @@ export function CorrectionPageHeader({
         primaryBtnText='추출'
         onPrimaryClick={pdfExtractModal.onConfirm}
       />
-      {jdViewer?.previewUrl && (
-        <div
-          role='dialog'
-          aria-modal='true'
-          aria-label='JD 이미지 전체보기'
-          className='fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4'
-          onClick={jdViewer.onClose}
-        >
-          <div
-            className='flex max-h-full max-w-full items-center justify-center'
-            onClick={(event) => event.stopPropagation()}
-          >
-            <img
-              src={jdViewer.previewUrl}
-              alt='JD 이미지 전체보기'
-              className='max-h-[90vh] max-w-full object-contain'
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

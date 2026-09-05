@@ -17,20 +17,6 @@ export default function NewCorrectionPage() {
     <CorrectionLayout
       layoutKey={s.layoutKey}
       layoutClassName={s.layoutClassName}
-      onDragEnter={
-        s.jdMode === 'image'
-          ? (event) => {
-              if (event.dataTransfer?.types.includes('Files')) {
-                s.setIsJdDropOverlayActive(true);
-              }
-            }
-          : undefined
-      }
-      jdDropOverlay={{
-        active: s.jdMode === 'image' && s.isJdDropOverlayActive,
-        onDrop: s.handleJdImageFile,
-        onClose: () => s.setIsJdDropOverlayActive(false),
-      }}
       pdfDropOverlay={{ active: false, onDrop: () => {}, onClose: () => {} }}
       header={
         <CorrectionPageHeader
@@ -45,14 +31,9 @@ export default function NewCorrectionPage() {
             },
           }}
           fileDeleteModal={{
-            target: s.fileDeleteConfirmTarget,
-            onOpenChange: (open) => !open && s.setFileDeleteConfirmTarget(null),
-            onConfirm: () => {
-              if (s.fileDeleteConfirmTarget?.type === 'jd') {
-                s.removeJdFileAt(s.fileDeleteConfirmTarget.index);
-              }
-              s.setFileDeleteConfirmTarget(null);
-            },
+            target: null,
+            onOpenChange: () => {},
+            onConfirm: () => {},
           }}
           activityDeleteModal={{
             targetId: null,
@@ -76,13 +57,6 @@ export default function NewCorrectionPage() {
             open: false,
             onOpenChange: () => {},
             onConfirm: () => {},
-          }}
-          jdViewer={{
-            previewUrl:
-              s.jdViewerFileIndex == null
-                ? null
-                : (s.jdUploadedFiles[s.jdViewerFileIndex]?.previewUrl ?? null),
-            onClose: () => s.setJdViewerFileIndex(null),
           }}
         />
       }
@@ -116,20 +90,9 @@ export default function NewCorrectionPage() {
                 jobDescription: false,
               }));
           }}
-          jdMode={s.jdMode}
-          onJdModeChange={s.handleJdModeChange}
           informationErrors={s.informationErrors}
-          jdImageError={s.jdImageError}
-          jdUploadedFiles={s.jdUploadedFiles}
           limitAllowedInput={s.limitAllowedInput}
           onStartCorrectionClick={s.handleStartCorrectionClick}
-          jdFileInputRef={s.jdFileInputRef}
-          onRequestFileDelete={(index) =>
-            s.setFileDeleteConfirmTarget({ type: 'jd', index })
-          }
-          onRequestJdViewer={s.setJdViewerFileIndex}
-          onJdImageFile={s.handleJdImageFile}
-          onPasteJdImage={s.handlePasteJdImageFromClipboard}
         />
       </div>
       {/* 첨삭 30개 초과 시 (API 에러) */}
