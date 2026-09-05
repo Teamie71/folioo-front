@@ -130,14 +130,14 @@ export function CorrectionPdfTextSection({
 
   if (isWaitingForData) {
     return (
-      <section className='mt-[3.75rem] flex min-h-[calc(100dvh-6.25rem)] flex-col'>
-        <h2 className='typo-h1 text-black'>PDF 포트폴리오 텍스트 정리</h2>
-        <div className='flex flex-1 flex-col items-center pt-[8rem]'>
-          <CorrectionLoadingSpinner size={100} />
-          <div className='mt-[4rem] flex flex-col items-center gap-[1rem] text-center text-[2rem] leading-[1.3] font-bold text-[#464B53]'>
-            <span>업로드하신 파일을 AI가 구조화하여 정리 중이에요.</span>
-            <span>페이지를 떠나도 작업은 계속돼요.</span>
-          </div>
+      <section className='mt-[6.875rem] flex flex-col'>
+        <h2 className='typo-h5 text-black'>PDF 포트폴리오 텍스트 정리</h2>
+        <div className='typo-c1 mt-[0.5rem] flex flex-col text-[#74777D]'>
+          <span>업로드하신 파일을 AI가 구조화하여 정리 중이에요.</span>
+          <span>페이지를 떠나도 작업은 계속돼요.</span>
+        </div>
+        <div className='mt-[6.25rem] flex justify-center'>
+          <CorrectionLoadingSpinner size={80} />
         </div>
       </section>
     );
@@ -145,18 +145,18 @@ export function CorrectionPdfTextSection({
 
   if (isFailed || showEmptyRetry) {
     return (
-      <section className='mt-[3.75rem] flex min-h-[calc(100dvh-6.25rem)] flex-col'>
-        <h2 className='typo-h1 text-black'>PDF 포트폴리오 텍스트 정리</h2>
-        <div className='flex flex-1 flex-col items-center pt-[8rem]'>
-          <div className='flex flex-col items-center gap-[1rem] text-center text-[2rem] leading-[1.3] font-bold text-[#464B53]'>
-            <span>포트폴리오를 텍스트로 정리하는 중 오류가 발생했어요.</span>
-            <span>아래 버튼을 눌러 다시 시도해주세요.</span>
-          </div>
+      <section className='mt-[5.625rem] flex flex-col'>
+        <h2 className='typo-h5 text-black'>PDF 포트폴리오 텍스트 정리</h2>
+        <div className='typo-c1 mt-[0.5rem] flex flex-col text-[#74777D]'>
+          <span>포트폴리오를 텍스트로 정리하는 중 오류가 발생했어요.</span>
+          <span>아래 버튼을 눌러 다시 시도해주세요.</span>
+        </div>
+        <div className='mt-[6.25rem] flex justify-center'>
           <CommonButton
             variantType='Outline'
             px='2.25rem'
             py='0.5rem'
-            className='mt-[4rem]'
+            className='font-bold'
             onClick={onRetryExtract}
           >
             다시 시도하기
