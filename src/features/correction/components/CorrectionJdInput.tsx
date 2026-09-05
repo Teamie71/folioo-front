@@ -24,7 +24,7 @@ export function CorrectionJdInput({
           <span>Job Description</span>
           <span className='text-[#DC0000]'>*</span>
         </div>
-        <div className='flex items-center justify-between'>
+        <div className='mb-[1rem] flex items-center justify-between'>
           <span className='font-regular text-[0.875rem] leading-[1.5] text-[#74777D]'>
             JD는 채용공고에 명시된 직무 설명서로, 주로 담당할 업무, 자격요건,
             우대사항 등이 포함돼요.
