@@ -38,6 +38,8 @@ export function useNewCorrectionForm() {
   const [isCorrectionLimitModalOpen, setIsCorrectionLimitModalOpen] =
     useState(false);
   const hasRestoredDraftRef = useRef(false);
+  const hasStartedPortfolioResumeRef = useRef(false);
+  const [isDraftRestoreReady, setIsDraftRestoreReady] = useState(false);
   const accessToken = useAuthStore((state) => state.accessToken);
   const sessionRestoreAttempted = useAuthStore(
     (state) => state.sessionRestoreAttempted,
@@ -47,12 +49,13 @@ export function useNewCorrectionForm() {
     if (!sessionRestoreAttempted || !accessToken || hasRestoredDraftRef.current)
       return;
     const draft = getPendingCorrectionDraft();
-    if (!draft) return;
-
-    setCompanyName(draft.companyName);
-    setJobTitle(draft.jobTitle);
-    setJobDescription(draft.jobDescription);
+    if (draft) {
+      setCompanyName(draft.companyName);
+      setJobTitle(draft.jobTitle);
+      setJobDescription(draft.jobDescription);
+    }
     hasRestoredDraftRef.current = true;
+    setIsDraftRestoreReady(true);
   }, [accessToken, sessionRestoreAttempted]);
 
   const queryClient = useQueryClient();
@@ -93,6 +96,34 @@ export function useNewCorrectionForm() {
       }
     }
   }, [companyName, jobTitle, jobDescription, router, queryClient]);
+
+  useEffect(() => {
+    const shouldResumePortfolio =
+      new URLSearchParams(window.location.search).get('resume') === 'portfolio';
+    if (
+      !shouldResumePortfolio ||
+      !sessionRestoreAttempted ||
+      !accessToken ||
+      !isDraftRestoreReady ||
+      hasStartedPortfolioResumeRef.current
+    ) {
+      return;
+    }
+
+    if (!getPendingCorrectionDraft()) {
+      router.replace('/correction/new');
+      return;
+    }
+
+    hasStartedPortfolioResumeRef.current = true;
+    void createCorrection();
+  }, [
+    accessToken,
+    createCorrection,
+    isDraftRestoreReady,
+    router,
+    sessionRestoreAttempted,
+  ]);
 
   const handleStartCorrectionClick = useCallback(() => {
     const companyNameEmpty = !companyName.trim();

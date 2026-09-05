@@ -416,7 +416,7 @@ export function useCorrectionState(correctionId: string | undefined) {
     const timer = window.setTimeout(() => {
       const numericId = Number(effectiveId);
       const redirectTo = Number.isNaN(numericId)
-        ? '/correction/new'
+        ? '/correction/new?resume=portfolio'
         : `${window.location.pathname}${window.location.search}`;
       router.push(`/login?redirect_to=${encodeURIComponent(redirectTo)}`);
     }, 2000);
