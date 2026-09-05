@@ -222,7 +222,7 @@ export default function LayoutContent({
                 </>
               ) : (
                 <>
-                  <Navbar />
+                  <Navbar wide={isCorrectionDetail && showNavbarOnResult} />
                   <BannerBeta />
                 </>
               )}

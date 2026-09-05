@@ -20,7 +20,7 @@ import {
 
 const LOGIN_REQUIRED_AUTO_CLOSE_MS = 2000;
 
-export default function Navbar() {
+export default function Navbar({ wide = false }: { wide?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const accessToken = useAuthStore((s) => s.accessToken);
@@ -150,7 +150,7 @@ export default function Navbar() {
 
   return (
     <nav className='fixed top-0 right-0 left-0 z-50 w-full bg-white'>
-      <div className={cn('mx-auto', 'w-[1056px]')}>
+      <div className={cn('mx-auto', wide ? 'w-[87rem]' : 'w-[66rem]')}>
         <div className='flex h-[80px] items-center justify-between'>
           <div className='flex items-center gap-[60px]'>
             <Link href='/'>
