@@ -1,10 +1,8 @@
 'use client';
 
 /**
- * 랜딩 섹션용 비디오. width/height로 크기를 직접 지정할 수 있음.
- * 미지정 시 기본 18.75rem × 31.25rem. 원본 화질 유지를 위해
- * mp4는 표시 해상도 이상(권장: 가로 1000px 이상)으로 인코딩하면 선명합니다.
- * public 폴더 기준 경로 사용 (예: /landing/log-intro.mp4).
+ * 랜딩 미디어 영역입니다. 영상이 준비되기 전에는 src 없이 사용해
+ * 동일한 크기의 회색 스켈레톤을 보여줍니다.
  */
 export function LandingVideo({
   src,
@@ -12,18 +10,20 @@ export function LandingVideo({
   height,
   className = '',
   poster,
+  label = '영상 준비 중',
   playsInline = true,
   muted = true,
   loop = true,
   autoPlay = true,
 }: {
-  src: string;
+  src?: string;
   /** CSS 값 (예: '31.25rem', '66rem', '100%') */
   width?: string;
   /** CSS 값 (예: '18.75rem', '37.125rem') */
   height?: string;
   className?: string;
   poster?: string;
+  label?: string;
   playsInline?: boolean;
   muted?: boolean;
   loop?: boolean;
@@ -34,11 +34,21 @@ export function LandingVideo({
     height: height ?? '18.75rem',
   };
 
+  if (!src) {
+    return (
+      <div
+        className={`flex items-center justify-center overflow-hidden rounded-[1rem] bg-[#D9D9D9] text-[1.125rem] font-semibold text-[#9EA4A9] ${className}`}
+        style={style}
+        aria-label={label}
+        role='img'
+      >
+        영상
+      </div>
+    );
+  }
+
   return (
-    <div
-      className={`overflow-hidden bg-[#D9D9D9] ${className}`}
-      style={style}
-    >
+    <div className={`overflow-hidden bg-[#D9D9D9] ${className}`} style={style}>
       <video
         className='h-full w-full object-cover outline-none [&::-webkit-media-controls]:!hidden [&::-webkit-media-controls-enclosure]:!hidden'
         src={src}

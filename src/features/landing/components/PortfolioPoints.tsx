@@ -30,12 +30,14 @@ export const PortfoliloPoints = () => {
         return (
           <div
             key={point.number}
-            className='flex items-center justify-between rounded-[1.75rem] bg-[#FFFFFF] px-[1.75rem] py-[2rem] shadow-[2px_4px_12px_0px_rgba(0,0,0,0.2)_inset] md:px-[2.5rem] md:py-[1.75rem]'
+            className='flex items-center justify-between rounded-[1.75rem] bg-[#FFFFFF] px-[1.75rem] py-[2rem] shadow-[2px_4px_12px_0px_rgba(0,0,0,0.2)_inset] md:px-[2.5rem] md:py-10'
           >
             <div className='flex flex-col gap-[0.75rem]'>
               <div className='flex items-center gap-[0.5rem]'>
-                <CheckSquareIcon />
-                <span className='text-[1.25rem] leading-[130%] font-bold text-[#9EA4A9]'>
+                <span className='flex h-6 w-6 shrink-0 md:h-7 md:w-7 [&_svg]:h-full [&_svg]:w-full'>
+                  <CheckSquareIcon />
+                </span>
+                <span className='text-[1rem] leading-[150%] font-bold text-[#9EA4A9] md:text-[1.25rem] md:leading-[130%]'>
                   POINT {point.number}.
                 </span>
               </div>
@@ -50,7 +52,7 @@ export const PortfoliloPoints = () => {
                 </span>
               </h3>
             </div>
-            <div className='flex h-[3.75rem] w-[3.75rem] shrink-0 items-center justify-center overflow-visible md:h-[6rem] md:w-[6rem] [&_svg]:h-full [&_svg]:w-full [&_svg]:flex-shrink-0'>
+            <div className='flex h-[3.75rem] w-[3.75rem] shrink-0 items-center justify-center overflow-visible md:h-[5.9375rem] md:w-[5.9375rem] [&_svg]:h-full [&_svg]:w-full [&_svg]:flex-shrink-0'>
               {PointIcon ? (
                 <PointIcon id={`${uniqueId}-${point.number}`} />
               ) : null}

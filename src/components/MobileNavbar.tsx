@@ -127,7 +127,7 @@ export default function MobileNavbar() {
       <nav
         className={cn(
           'fixed top-0 right-0 left-0 z-[60] flex h-[52px] min-w-[22.5rem] items-center justify-between bg-white px-[0.25rem]',
-          !hideBorder && 'border-b border-[#F0F0F0]',
+          pathname !== '/' && !hideBorder && 'border-b border-[#F0F0F0]',
         )}
       >
         <div className='flex items-center'>

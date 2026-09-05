@@ -8,6 +8,7 @@ const INITIAL_STATE = {
   interestAnswers: {} as Record<string, InterestLikertValue>,
   valueAnswers: {} as Record<string, ValueChoice>,
   valueQuestionIndex: 0,
+  hasSavedResult: false,
 };
 
 interface RecommendationTestStore {
@@ -15,14 +16,13 @@ interface RecommendationTestStore {
   interestAnswers: Record<string, InterestLikertValue>;
   valueAnswers: Record<string, ValueChoice>;
   valueQuestionIndex: number;
+  hasSavedResult: boolean;
   setMajorId: (majorId: string) => void;
-  setInterestAnswer: (
-    questionId: string,
-    value: InterestLikertValue,
-  ) => void;
+  setInterestAnswer: (questionId: string, value: InterestLikertValue) => void;
   setValueAnswer: (questionId: string, choice: ValueChoice) => void;
   clearValueAnswers: (questionIds: string[]) => void;
   setValueQuestionIndex: (index: number) => void;
+  setHasSavedResult: (hasSavedResult: boolean) => void;
   reset: () => void;
 }
 
@@ -53,7 +53,9 @@ export const useRecommendationTestStore = create<RecommendationTestStore>()(
           }
           return { valueAnswers };
         }),
-      setValueQuestionIndex: (valueQuestionIndex) => set({ valueQuestionIndex }),
+      setValueQuestionIndex: (valueQuestionIndex) =>
+        set({ valueQuestionIndex }),
+      setHasSavedResult: (hasSavedResult) => set({ hasSavedResult }),
       reset: () => set(INITIAL_STATE),
     }),
     {
@@ -64,6 +66,7 @@ export const useRecommendationTestStore = create<RecommendationTestStore>()(
         interestAnswers: state.interestAnswers,
         valueAnswers: state.valueAnswers,
         valueQuestionIndex: state.valueQuestionIndex,
+        hasSavedResult: state.hasSavedResult,
       }),
     },
   ),
