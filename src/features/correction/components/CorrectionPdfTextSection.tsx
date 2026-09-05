@@ -132,7 +132,7 @@ export function CorrectionPdfTextSection({
 
   if (isWaitingForData) {
     return (
-      <section className={`${extractionStatusSectionClass} pt-[9.4375rem]`}>
+      <section className={`mt-[5rem] ${extractionStatusSectionClass}`}>
         <h2 className='typo-h5 text-black'>PDF 포트폴리오 텍스트 정리</h2>
         <div className='typo-c1 mt-[0.5rem] flex flex-col text-[#74777D]'>
           <span>업로드하신 파일을 AI가 구조화하여 정리 중이에요.</span>
@@ -147,7 +147,7 @@ export function CorrectionPdfTextSection({
 
   if (isFailed || showEmptyRetry) {
     return (
-      <section className={`${extractionStatusSectionClass} pt-[8.1875rem]`}>
+      <section className={`mt-[5rem] ${extractionStatusSectionClass}`}>
         <h2 className='typo-h5 text-black'>PDF 포트폴리오 텍스트 정리</h2>
         <div className='typo-c1 mt-[0.5rem] flex flex-col text-[#74777D]'>
           <span>포트폴리오를 텍스트로 정리하는 중 오류가 발생했어요.</span>
@@ -169,7 +169,7 @@ export function CorrectionPdfTextSection({
   }
 
   return (
-    <div className='mt-[3.75rem] flex flex-col'>
+    <div className='mt-[5rem] flex flex-col'>
       <div className='mb-[0.5rem] flex items-center text-[1.125rem] leading-[1.3] font-bold'>
         <span>PDF 포트폴리오 텍스트 정리</span>
       </div>
