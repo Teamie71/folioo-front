@@ -54,10 +54,6 @@ export function useNewCorrectionForm() {
   );
   const [isJdDropOverlayActive, setIsJdDropOverlayActive] = useState(false);
   const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
-  const [isStartCorrectionModalOpen, setIsStartCorrectionModalOpen] =
-    useState(false);
-  const [isTicketExhaustedModalOpen, setIsTicketExhaustedModalOpen] =
-    useState(false);
   const [isCorrectionLimitModalOpen, setIsCorrectionLimitModalOpen] =
     useState(false);
   const hasRestoredDraftRef = useRef(false);
@@ -104,6 +100,46 @@ export function useNewCorrectionForm() {
     [],
   );
 
+  const queryClient = useQueryClient();
+
+  const createCorrection = useCallback(async () => {
+    const body = {
+      title: '새로운 포트폴리오 첨삭',
+      jobDescriptionType:
+        jdMode === 'text' ? ('TEXT' as const) : ('IMAGE' as const),
+      companyName: companyName.trim(),
+      positionName: jobTitle.trim(),
+      jobDescription: jdMode === 'text' ? jobDescription.trim() : undefined,
+    };
+    try {
+      await portfolioCorrectionControllerCreateCorrection(body);
+      const listRes = await portfolioCorrectionControllerGetCorrections();
+
+      // 새 첨삭이 생성되었으므로 목록 쿼리 무효화 (새로고침 없이 목록 업데이트)
+      queryClient.invalidateQueries({
+        queryKey: ['/portfolio-corrections'],
+      });
+
+      const list = listRes?.result ?? [];
+      const newId = list[0]?.id;
+      if (newId != null) {
+        if (getPendingCorrectionDraft()) {
+          markPendingCorrectionId(newId);
+          clearPendingCorrectionDraft();
+        }
+        router.replace(`/correction/${newId}`);
+      }
+    } catch (err: unknown) {
+      const errObj = err as {
+        response?: { data?: { error?: { errorCode?: string } } };
+      };
+      const code = errObj?.response?.data?.error?.errorCode ?? '';
+      if (code === 'CORRECTION4091') {
+        setIsCorrectionLimitModalOpen(true);
+      }
+    }
+  }, [companyName, jobTitle, jobDescription, jdMode, router, queryClient]);
+
   const handleStartCorrectionClick = useCallback(() => {
     const companyNameEmpty = !companyName.trim();
     const jobTitleEmpty = !jobTitle.trim();
@@ -140,10 +176,10 @@ export function useNewCorrectionForm() {
           setIsCorrectionLimitModalOpen(true);
           return;
         }
-        setIsStartCorrectionModalOpen(true);
+        void createCorrection();
       })
       .catch(() => {
-        setIsStartCorrectionModalOpen(true);
+        void createCorrection();
       });
   }, [
     companyName,
@@ -152,51 +188,10 @@ export function useNewCorrectionForm() {
     jdMode,
     jdUploadedFiles,
     accessToken,
+    createCorrection,
     router,
     sessionRestoreAttempted,
   ]);
-
-  const queryClient = useQueryClient();
-
-  const handleStartCorrectionConfirm = useCallback(async () => {
-    const body = {
-      title: '새로운 포트폴리오 첨삭',
-      jobDescriptionType:
-        jdMode === 'text' ? ('TEXT' as const) : ('IMAGE' as const),
-      companyName: companyName.trim(),
-      positionName: jobTitle.trim(),
-      jobDescription: jdMode === 'text' ? jobDescription.trim() : undefined,
-    };
-    try {
-      await portfolioCorrectionControllerCreateCorrection(body);
-      const listRes = await portfolioCorrectionControllerGetCorrections();
-
-      // 새 첨삭이 생성되었으므로 목록 쿼리 무효화 (새로고침 없이 목록 업데이트)
-      queryClient.invalidateQueries({
-        queryKey: ['/portfolio-corrections'],
-      });
-
-      const list = listRes?.result ?? [];
-      const newId = list[0]?.id;
-      setIsStartCorrectionModalOpen(false);
-      if (newId != null) {
-        if (getPendingCorrectionDraft()) {
-          markPendingCorrectionId(newId);
-          clearPendingCorrectionDraft();
-        }
-        router.replace(`/correction/${newId}`);
-      }
-    } catch (err: unknown) {
-      const errObj = err as {
-        response?: { data?: { error?: { errorCode?: string } } };
-      };
-      const code = errObj?.response?.data?.error?.errorCode ?? '';
-      if (code === 'CORRECTION4091') {
-        setIsStartCorrectionModalOpen(false);
-        setIsCorrectionLimitModalOpen(true);
-      }
-    }
-  }, [companyName, jobTitle, jobDescription, jdMode, router, queryClient]);
 
   const handleJdModeChange = useCallback((mode: JdMode) => {
     setJdMode(mode);
@@ -317,16 +312,11 @@ export function useNewCorrectionForm() {
     setIsJdDropOverlayActive,
     isQuitModalOpen,
     setIsQuitModalOpen,
-    isStartCorrectionModalOpen,
-    setIsStartCorrectionModalOpen,
-    isTicketExhaustedModalOpen,
-    setIsTicketExhaustedModalOpen,
     isCorrectionLimitModalOpen,
     setIsCorrectionLimitModalOpen,
     jdFileInputRef,
     limitAllowedInput,
     handleStartCorrectionClick,
-    handleStartCorrectionConfirm,
     handleJdImageFile,
     handlePasteJdImageFromClipboard,
     removeJdFileAt,

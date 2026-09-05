@@ -39,11 +39,6 @@ interface CorrectionPageHeaderProps {
     onOpenChange: (open: boolean) => void;
     onConfirm: () => void;
   };
-  startCorrectionModal: {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    onConfirm: () => void;
-  };
   pdfExtractModal: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -64,7 +59,6 @@ export function CorrectionPageHeader({
   titleEdit,
   showDeleteButton,
   deleteModal,
-  startCorrectionModal,
   pdfExtractModal,
   jdViewer,
 }: CorrectionPageHeaderProps) {
@@ -117,21 +111,6 @@ export function CorrectionPageHeader({
         cancelBtnText='취소'
         secondaryBtnText='삭제'
         onSecondaryClick={deleteModal.onConfirm}
-      />
-      <CommonModal
-        open={startCorrectionModal.open}
-        onOpenChange={startCorrectionModal.onOpenChange}
-        title={
-          <>
-            포트폴리오 첨삭 1회권을 사용하여
-            <br />
-            진행하시겠습니까?
-          </>
-        }
-        cancelBtnText='취소'
-        primaryBtnText='진행'
-        onPrimaryClick={startCorrectionModal.onConfirm}
-        className='max-w-[24.75rem] items-center px-[5rem] py-[3.75rem] text-center'
       />
       <CommonModal
         open={pdfExtractModal.open}

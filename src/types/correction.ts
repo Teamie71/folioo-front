@@ -4,9 +4,6 @@ export type Step = 'information' | 'portfolio' | 'analysis' | 'result';
 /** 첨삭 상태 */
 export type Status = 'DRAFT' | 'ANALYZING' | 'ANALYZING_FAILED' | 'DONE';
 
-/** 포트폴리오 종류 (텍스트형 / PDF) */
-export type PortfolioType = 'text' | 'pdf';
-
 /** PDF 활동 카테고리명 (상세정보, 담당업무, 문제해결, 배운 점) */
 export type PdfCategoryName = '상세정보' | '담당업무' | '문제해결' | '배운 점';
 

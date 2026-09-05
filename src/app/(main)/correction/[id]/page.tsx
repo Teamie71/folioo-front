@@ -49,7 +49,7 @@ export default function CorrectionSettingsPage() {
       layoutKey={s.layoutKey}
       layoutClassName={s.layoutClassName}
       onDragEnter={
-        s.step === 'portfolio' && s.selectedPortfolioType === 'pdf'
+        s.step === 'portfolio'
           ? (e) => {
               if (e.dataTransfer?.types.includes('Files'))
                 s.setIsPdfDropOverlayActive(true);
@@ -57,10 +57,7 @@ export default function CorrectionSettingsPage() {
           : undefined
       }
       pdfDropOverlay={{
-        active:
-          s.step === 'portfolio' &&
-          s.selectedPortfolioType === 'pdf' &&
-          s.isPdfDropOverlayActive,
+        active: s.step === 'portfolio' && s.isPdfDropOverlayActive,
         onDrop: s.handlePdfFile,
         onClose: () => s.setIsPdfDropOverlayActive(false),
       }}
@@ -134,11 +131,6 @@ export default function CorrectionSettingsPage() {
               }
             },
           }}
-          startCorrectionModal={{
-            open: false,
-            onOpenChange: () => {},
-            onConfirm: () => {},
-          }}
           pdfExtractModal={{
             open: s.isPdfExtractConfirmModalOpen,
             onOpenChange: s.setIsPdfExtractConfirmModalOpen,
@@ -167,19 +159,6 @@ export default function CorrectionSettingsPage() {
           />
         ) : s.step === 'portfolio' ? (
           <CorrectionPortfolioStep
-            selectedPortfolioType={s.selectedPortfolioType}
-            onPortfolioSelect={s.handlePortfolioSelect}
-            showTextPortfolioWarning={s.showTextPortfolioWarning}
-            textPortfolios={s.textPortfolios}
-            selectedTextPortfolioIds={s.selectedTextPortfolioIds}
-            onTextPortfolioToggle={(portfolioId) => {
-              s.setShowTextPortfolioWarning(false);
-              s.setSelectedTextPortfolioIds((prev) =>
-                prev.includes(portfolioId)
-                  ? prev.filter((id) => id !== portfolioId)
-                  : [...prev, portfolioId],
-              );
-            }}
             pdfUploadedFile={s.pdfUploadedFile}
             pdfUploadError={s.pdfUploadError}
             pdfFileInputRef={s.pdfFileInputRef}
@@ -217,7 +196,6 @@ export default function CorrectionSettingsPage() {
             setPdfActivityHoverId={s.setPdfActivityHoverId}
             handleNextStep={s.handleNextStep}
             pdfCategoryOverLimit={s.pdfCategoryOverLimit}
-            isTextPortfoliosLoading={s.isTextPortfoliosLoading}
           />
         ) : s.step === 'analysis' ? (
           <CorrectionAnalysisStep

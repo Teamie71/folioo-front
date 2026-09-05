@@ -1,7 +1,6 @@
 'use client';
 
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
-import { OBTTicketModal } from '@/components/OBT/OBTTicketModal';
 import { CorrectionLimitModal } from '@/components/CorrectionLimitModal';
 import { CorrectionLayout } from '@/features/correction/components/CorrectionLayout';
 import { CorrectionPageHeader } from '@/features/correction/components/CorrectionPageHeader';
@@ -73,11 +72,6 @@ export default function NewCorrectionPage() {
             onOpenChange: () => {},
             onConfirm: () => {},
           }}
-          startCorrectionModal={{
-            open: s.isStartCorrectionModalOpen,
-            onOpenChange: s.setIsStartCorrectionModalOpen,
-            onConfirm: s.handleStartCorrectionConfirm,
-          }}
           pdfExtractModal={{
             open: false,
             onOpenChange: () => {},
@@ -138,13 +132,7 @@ export default function NewCorrectionPage() {
           onPasteJdImage={s.handlePasteJdImageFromClipboard}
         />
       </div>
-
-      {/* 포트폴리오 첨삭 이용권 소진 시 */}
-      <OBTTicketModal
-        open={s.isTicketExhaustedModalOpen}
-        onOpenChange={s.setIsTicketExhaustedModalOpen}
-      />
-      {/* 첨삭 15개 초과 시 (API 에러) */}
+      {/* 첨삭 30개 초과 시 (API 에러) */}
       <CorrectionLimitModal
         open={s.isCorrectionLimitModalOpen}
         onOpenChange={s.setIsCorrectionLimitModalOpen}
