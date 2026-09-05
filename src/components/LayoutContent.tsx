@@ -47,6 +47,7 @@ export default function LayoutContent({
     useEventControllerClaimEventReward();
 
   const path = pathname ?? '';
+  const isCorrectionDetail = isCorrectionDetailPath(path);
   const isMobileExperienceList =
     isMobileDevice &&
     (path === '/experience' ||
@@ -55,8 +56,10 @@ export default function LayoutContent({
   const showMobileChrome = isMobileDevice;
   const hideNavbar =
     isCorrectionNewPath(path) ||
+    (isCorrectionDetail && !showNavbarOnResult) ||
     (isExperiencePath(path) && !isMobileExperienceList);
-  const showDesktopSidebar = !showMobileChrome && path !== '/';
+  const showDesktopSidebar =
+    !showMobileChrome && path !== '/' && !isCorrectionDetail;
 
   useEffect(() => {
     if (!isCorrectionDetailPath(path)) setShowNavbarOnResult(false);
