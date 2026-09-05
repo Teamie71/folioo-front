@@ -299,7 +299,7 @@ export function useCorrectionState(correctionId: string | undefined) {
    * 재진입: step === 'portfolio'인데 이미 추출 요청이 된 적 있으면
    * extractionStatus 기준으로 PDF 텍스트 정리 UI를 복원한다.
    *
-   * - PENDING  → PDF + 스피너 (nonce 증가로 CorrectionPdfTextSection 폴링 개시)
+   * - PENDING  → 텍스트 추출 대기 화면 (nonce 증가로 폴링 개시)
    * - COMPLETED → PDF + 데이터 복원
    * - FAILED   → PDF + 재시도 버튼 (nonce 올리지 않아 showEmptyRetry 표시)
    * - undefined → 추출 요청 자체 없음 → 복원 안 함
@@ -337,7 +337,8 @@ export function useCorrectionState(correctionId: string | undefined) {
         }
 
         if (extractionStatus === 'GENERATING') {
-          // 추출 중: 섹션만 열고 nonce 올려 폴링 개시
+          // 추출 중: 전용 대기 화면을 유지하고 폴링을 시작한다.
+          setIsPdfTextExtracting(true);
           setPdfExtractNonce((n) => n + 1);
           return;
         }

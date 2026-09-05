@@ -128,6 +128,21 @@ export function CorrectionPdfTextSection({
     onPdfPortfoliosHydratedFromQuery,
   ]);
 
+  if (isWaitingForData) {
+    return (
+      <section className='mt-[3.75rem] flex min-h-[calc(100dvh-6.25rem)] flex-col'>
+        <h2 className='typo-h1 text-black'>PDF 포트폴리오 텍스트 정리</h2>
+        <div className='flex flex-1 flex-col items-center pt-[8rem]'>
+          <CorrectionLoadingSpinner size={100} />
+          <div className='mt-[4rem] flex flex-col items-center gap-[1rem] text-center text-[2rem] leading-[1.3] font-bold text-[#464B53]'>
+            <span>업로드하신 파일을 AI가 구조화하여 정리 중이에요.</span>
+            <span>페이지를 떠나도 작업은 계속돼요.</span>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <div className='mt-[3.75rem] flex flex-col'>
       <div className='mb-[0.5rem] flex items-center text-[1.125rem] leading-[1.3] font-bold'>
@@ -159,14 +174,6 @@ export function CorrectionPdfTextSection({
           >
             다시 시도하기
           </CommonButton>
-        </div>
-      ) : isWaitingForData ? (
-        <div className='flex flex-col items-center justify-center py-[4rem]'>
-          <CorrectionLoadingSpinner />
-          <div className='mt-[2rem] flex flex-col items-center gap-[0.5rem] text-center text-[1.125rem] leading-[1.3] font-bold text-[#464B53]'>
-            <span>업로드하신 파일을 AI가 구조화하여 정리 중이에요.</span>
-            <span>페이지를 떠나도 작업은 계속돼요.</span>
-          </div>
         </div>
       ) : showPortfolioBlock ? (
         <>

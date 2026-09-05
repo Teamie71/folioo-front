@@ -74,16 +74,18 @@ export function CorrectionPortfolioStep({
       <div
         className={`flex flex-col gap-[1.25rem] ${!isPdfTextExtracted || isPdfTextExtracting ? 'pb-[6.25rem]' : ''}`}
       >
-        <CorrectionPdfUploadBlock
-          pdfUploadedFile={pdfUploadedFile}
-          pdfUploadError={pdfUploadError}
-          pdfFileInputRef={pdfFileInputRef}
-          onPdfFileSelect={onPdfFileSelect}
-          onRequestPdfFileDelete={onRequestPdfFileDelete}
-          onRequestPdfExtract={onRequestPdfExtract}
-          isPdfTextExtracted={isPdfTextExtracted}
-          isPdfTextExtracting={isPdfTextExtracting}
-        />
+        {!isPdfTextExtracting && (
+          <CorrectionPdfUploadBlock
+            pdfUploadedFile={pdfUploadedFile}
+            pdfUploadError={pdfUploadError}
+            pdfFileInputRef={pdfFileInputRef}
+            onPdfFileSelect={onPdfFileSelect}
+            onRequestPdfFileDelete={onRequestPdfFileDelete}
+            onRequestPdfExtract={onRequestPdfExtract}
+            isPdfTextExtracted={isPdfTextExtracted}
+            isPdfTextExtracting={isPdfTextExtracting}
+          />
+        )}
         {isPdfTextExtracted && (
           <CorrectionPdfTextSection
             isPdfTextExtracting={isPdfTextExtracting}
