@@ -22,7 +22,11 @@ function limitAllowedInput(value: string, maxLength: number): string {
 }
 
 /** /correction/new 전용: 지원 정보 입력 + 첨삭 생성 후 /correction/{id}로 이동 */
-export function useNewCorrectionForm() {
+export function useNewCorrectionForm({
+  shouldResumePortfolio = false,
+}: {
+  shouldResumePortfolio?: boolean;
+} = {}) {
   const router = useRouter();
   const [companyName, setCompanyName] = useState('');
   const [jobTitle, setJobTitle] = useState('');
@@ -98,8 +102,6 @@ export function useNewCorrectionForm() {
   }, [companyName, jobTitle, jobDescription, router, queryClient]);
 
   useEffect(() => {
-    const shouldResumePortfolio =
-      new URLSearchParams(window.location.search).get('resume') === 'portfolio';
     if (
       !shouldResumePortfolio ||
       !sessionRestoreAttempted ||
@@ -123,6 +125,7 @@ export function useNewCorrectionForm() {
     isDraftRestoreReady,
     router,
     sessionRestoreAttempted,
+    shouldResumePortfolio,
   ]);
 
   const handleStartCorrectionClick = useCallback(() => {
