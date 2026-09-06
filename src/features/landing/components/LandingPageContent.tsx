@@ -538,9 +538,10 @@ function ServiceCard({
 
 function JobPreview() {
   return (
-    <LandingVideo
+    <FeatureMedia
+      src='/landing/job_search.png'
+      alt='직무 찾기 결과 예시'
       className='!h-[15.25rem] !w-full !rounded-none sm:!h-[32.5rem]'
-      label='직무 찾기 영상 준비 중'
     />
   );
 }
@@ -693,8 +694,18 @@ function VideoFeatureCard({
   );
 }
 
-function FeatureMedia({ src, className }: { src?: string; className: string }) {
-  if (!src?.endsWith('.svg')) {
+function FeatureMedia({
+  src,
+  alt = '',
+  className,
+}: {
+  src?: string;
+  alt?: string;
+  className: string;
+}) {
+  const isImage = src != null && /\.(svg|png|jpe?g|webp|gif)$/i.test(src);
+
+  if (!isImage) {
     return <LandingVideo src={src} className={className} />;
   }
 
@@ -702,9 +713,9 @@ function FeatureMedia({ src, className }: { src?: string; className: string }) {
     <div className={`overflow-hidden bg-[#D9D9D9] ${className}`}>
       <Image
         src={src}
-        alt=''
-        width={476}
-        height={267}
+        alt={alt}
+        width={1400}
+        height={1040}
         className='h-full w-full object-cover'
       />
     </div>
