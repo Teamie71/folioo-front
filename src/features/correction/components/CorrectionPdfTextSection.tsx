@@ -128,8 +128,48 @@ export function CorrectionPdfTextSection({
     onPdfPortfoliosHydratedFromQuery,
   ]);
 
+  const extractionStatusSectionClass = 'flex h-[37.3125rem] flex-col';
+
+  if (isWaitingForData) {
+    return (
+      <section className={`mt-[5rem] ${extractionStatusSectionClass}`}>
+        <h2 className='typo-h5 text-black'>PDF 포트폴리오 텍스트 정리</h2>
+        <div className='typo-c1 mt-[0.5rem] flex flex-col text-[#74777D]'>
+          <span>업로드하신 파일을 AI가 구조화하여 정리 중이에요.</span>
+          <span>페이지를 떠나도 작업은 계속돼요.</span>
+        </div>
+        <div className='mt-[6.25rem] flex justify-center'>
+          <CorrectionLoadingSpinner size={80} />
+        </div>
+      </section>
+    );
+  }
+
+  if (isFailed || showEmptyRetry) {
+    return (
+      <section className={`mt-[5rem] ${extractionStatusSectionClass}`}>
+        <h2 className='typo-h5 text-black'>PDF 포트폴리오 텍스트 정리</h2>
+        <div className='typo-c1 mt-[0.5rem] flex flex-col text-[#74777D]'>
+          <span>포트폴리오를 텍스트로 정리하는 중 오류가 발생했어요.</span>
+          <span>아래 버튼을 눌러 다시 시도해주세요.</span>
+        </div>
+        <div className='mt-[6.25rem] flex justify-center'>
+          <CommonButton
+            variantType='Outline'
+            px='2.25rem'
+            py='0.5rem'
+            className='font-bold'
+            onClick={onRetryExtract}
+          >
+            다시 시도하기
+          </CommonButton>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <div className='mt-[3.75rem] flex flex-col'>
+    <div className='mt-[5rem] flex flex-col'>
       <div className='mb-[0.5rem] flex items-center text-[1.125rem] leading-[1.3] font-bold'>
         <span>PDF 포트폴리오 텍스트 정리</span>
       </div>
@@ -145,30 +185,7 @@ export function CorrectionPdfTextSection({
         </div>
       )}
 
-      {!enabled ? null : isFailed || showEmptyRetry ? (
-        <div className='flex flex-col items-center justify-center py-[4rem]'>
-          <div className='mb-[2rem] flex flex-col items-center gap-[0.5rem] text-center text-[1.125rem] leading-[1.3] font-bold text-[#464B53]'>
-            <span>포트폴리오를 텍스트로 정리하는 중 오류가 발생했어요.</span>
-            <span>아래 버튼을 눌러 다시 시도해주세요.</span>
-          </div>
-          <CommonButton
-            variantType='Outline'
-            px='1.5rem'
-            py='0.5rem'
-            onClick={onRetryExtract}
-          >
-            다시 시도하기
-          </CommonButton>
-        </div>
-      ) : isWaitingForData ? (
-        <div className='flex flex-col items-center justify-center py-[4rem]'>
-          <CorrectionLoadingSpinner />
-          <div className='mt-[2rem] flex flex-col items-center gap-[0.5rem] text-center text-[1.125rem] leading-[1.3] font-bold text-[#464B53]'>
-            <span>업로드하신 파일을 AI가 구조화하여 정리 중이에요.</span>
-            <span>페이지를 떠나도 작업은 계속돼요.</span>
-          </div>
-        </div>
-      ) : showPortfolioBlock ? (
+      {!enabled ? null : showPortfolioBlock ? (
         <>
           <CorrectionPdfActivityTabs
             pdfActivities={pdfActivities}

@@ -21,7 +21,6 @@ import type {
   CorrectionStatusResDTOStatus,
   ExternalPortfolioControllerCreateExternalPortfolioBlock200,
 } from '@/api/models';
-import { usePortfolioControllerGetPortfolios } from '@/api/endpoints/portfolio/portfolio';
 import {
   assignPlaceholderLabelsForEmptyPdfNames,
   mapToPdfActivityBlock,
@@ -30,7 +29,6 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useCorrectionNavbar } from '@/contexts/CorrectionNavbarContext';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
   getPdfCategoryCharLimit,
@@ -39,7 +37,6 @@ import {
   INITIAL_PDF_ACTIVITIES,
   PDF_MAX_ACTIVITY_COUNT,
 } from '@/features/correction/constants';
-import { getHopeJobLabel } from '@/constants/hopeJob';
 import {
   clearPendingCorrectionPdf,
   consumePendingCorrectionPdf,
@@ -49,7 +46,6 @@ import type {
   FileDeleteConfirmTarget,
   PdfActivityBlock,
   PdfCategoryName,
-  PortfolioType,
   Status,
   Step,
 } from '@/types/correction';
@@ -88,10 +84,6 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [step, setStep] = useState<Step>('portfolio');
   const effectiveId = correctionId ?? EMPTY_CORRECTION_ID;
   const [status, setStatus] = useState<Status>('DRAFT');
-  const [selectedPortfolioType, setSelectedPortfolioType] =
-    useState<PortfolioType | null>(null);
-  const selectedPortfolioTypeRef = useRef<PortfolioType | null>(null);
-  selectedPortfolioTypeRef.current = selectedPortfolioType;
   const [pdfActivities, setPdfActivities] = useState<PdfActivityBlock[]>(
     INITIAL_PDF_ACTIVITIES,
   );
@@ -105,9 +97,6 @@ export function useCorrectionState(correctionId: string | undefined) {
   const [pdfActivityHoverId, setPdfActivityHoverId] = useState<string | null>(
     null,
   );
-  const [selectedTextPortfolioIds, setSelectedTextPortfolioIds] = useState<
-    string[]
-  >([]);
   const [title, setTitle] = useState('새로운 포트폴리오 첨삭');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [resultTab, setResultTab] = useState<string>('지원 정보');
@@ -147,8 +136,6 @@ export function useCorrectionState(correctionId: string | undefined) {
   const pdfFileInputRef = useRef<HTMLInputElement>(null);
   const bulletTextareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
   const lastBulletEnterAt = useRef<number>(0);
-  const [showTextPortfolioWarning, setShowTextPortfolioWarning] =
-    useState(false);
   const [analysisInfoValue, setAnalysisInfoValue] = useState('');
   const [showAnalysisInfoWarning, setShowAnalysisInfoWarning] = useState(false);
   const [emphasisPointsValue, setEmphasisPointsValue] = useState('');
@@ -161,35 +148,17 @@ export function useCorrectionState(correctionId: string | undefined) {
   const sessionRestoreAttempted = useAuthStore(
     (s) => s.sessionRestoreAttempted,
   );
-  const { data: portfoliosData, isLoading: isTextPortfoliosLoading } =
-    usePortfolioControllerGetPortfolios({
-      query: {
-        enabled:
-          !!accessToken &&
-          step === 'portfolio' &&
-          selectedPortfolioType === 'text',
-      },
-    });
-  const portfoliosList = portfoliosData?.result ?? [];
-  const textPortfolios = portfoliosList.map((p) => ({
-    id: String(p.id),
-    title: p.name,
-    tag: getHopeJobLabel(p.hopeJob),
-    date: p.createdAt.slice(0, 10),
-  }));
 
-  // portfolio + PDF 선택 시 창 어디로든 파일 드래그 들어오면 전체 페이지 드롭 오버레이 활성화
+  // 포트폴리오 단계에서는 창 어디로든 PDF 파일을 드래그할 수 있다.
   useEffect(() => {
-    if (step !== 'portfolio' || selectedPortfolioType !== 'pdf') return;
+    if (step !== 'portfolio') return;
     const onDragEnter = (e: DragEvent) => {
       if (e.dataTransfer?.types.includes('Files'))
         setIsPdfDropOverlayActive(true);
     };
     document.addEventListener('dragenter', onDragEnter);
     return () => document.removeEventListener('dragenter', onDragEnter);
-  }, [step, selectedPortfolioType]);
-
-  const { setShowNavbarOnResult } = useCorrectionNavbar() ?? {};
+  }, [step]);
 
   // correctionId 있을 때 GET /status로 step·status 복원
   useEffect(() => {
@@ -256,14 +225,9 @@ export function useCorrectionState(correctionId: string | undefined) {
 
     void consumePendingCorrectionPdf(id).then((file) => {
       if (!file) return;
-      setSelectedPortfolioType('pdf');
       setPdfUploadedFile({ name: file.name, file });
     });
   }, [accessToken, effectiveId, isInitializing]);
-
-  useEffect(() => {
-    setShowNavbarOnResult?.(step === 'result');
-  }, [step, setShowNavbarOnResult]);
 
   // result 단계에서 status === 'ANALYZING'이면 /status 주기적으로 폴링해서 DONE 되면 자동 반영
   useEffect(() => {
@@ -326,9 +290,9 @@ export function useCorrectionState(correctionId: string | undefined) {
 
   /**
    * 재진입: step === 'portfolio'인데 이미 추출 요청이 된 적 있으면
-   * extractionStatus 기준으로 PDF 선택 + 텍스트 정리 UI 복원
+   * extractionStatus 기준으로 PDF 텍스트 정리 UI를 복원한다.
    *
-   * - PENDING  → PDF + 스피너 (nonce 증가로 CorrectionPdfTextSection 폴링 개시)
+   * - PENDING  → 텍스트 추출 대기 화면 (nonce 증가로 폴링 개시)
    * - COMPLETED → PDF + 데이터 복원
    * - FAILED   → PDF + 재시도 버튼 (nonce 올리지 않아 showEmptyRetry 표시)
    * - undefined → 추출 요청 자체 없음 → 복원 안 함
@@ -337,7 +301,6 @@ export function useCorrectionState(correctionId: string | undefined) {
     if (isInitializing) return;
     if (step !== 'portfolio' || status !== 'DRAFT') return;
     if (!effectiveId) return;
-    if (selectedPortfolioTypeRef.current !== null) return;
 
     const id = Number(effectiveId);
     if (Number.isNaN(id) || id <= 0) return;
@@ -347,7 +310,6 @@ export function useCorrectionState(correctionId: string | undefined) {
     externalPortfolioControllerGetSelectedPortfolios({ correctionId: id })
       .then((res) => {
         if (cancelled) return;
-        if (selectedPortfolioTypeRef.current !== null) return;
         if (res?.isSuccess === false) return;
 
         const extractionStatus = res?.result?.status;
@@ -357,11 +319,10 @@ export function useCorrectionState(correctionId: string | undefined) {
           | undefined;
         const portfolios = res?.result?.portfolios ?? [];
 
-        // NONE → 추출 요청 전 → 타입 선택 화면 유지
+        // NONE → 추출 요청 전 → PDF 업로드 화면 유지
         if (!extractionStatus || extractionStatus === 'NONE') return;
 
         pdfPortfolioRestoreCompletedForIdRef.current = effectiveId;
-        setSelectedPortfolioType('pdf');
         setIsPdfTextExtracted(true);
         setIsPdfTextExtracting(false);
         if (originalFileName) {
@@ -369,7 +330,8 @@ export function useCorrectionState(correctionId: string | undefined) {
         }
 
         if (extractionStatus === 'GENERATING') {
-          // 추출 중: 섹션만 열고 nonce 올려 폴링 개시
+          // 추출 중: 전용 대기 화면을 유지하고 폴링을 시작한다.
+          setIsPdfTextExtracting(true);
           setPdfExtractNonce((n) => n + 1);
           return;
         }
@@ -448,7 +410,7 @@ export function useCorrectionState(correctionId: string | undefined) {
     const timer = window.setTimeout(() => {
       const numericId = Number(effectiveId);
       const redirectTo = Number.isNaN(numericId)
-        ? '/correction/new'
+        ? '/correction/new?resume=portfolio'
         : `${window.location.pathname}${window.location.search}`;
       router.push(`/login?redirect_to=${encodeURIComponent(redirectTo)}`);
     }, 2000);
@@ -535,22 +497,9 @@ export function useCorrectionState(correctionId: string | undefined) {
     if (id == null || Number.isNaN(id)) return;
 
     if (step === 'portfolio') {
-      if (
-        selectedPortfolioType === 'text' &&
-        selectedTextPortfolioIds.length === 0
-      ) {
-        // 텍스트형 포트폴리오가 0개일 때는 에러 메시지 없이 버튼만 비활성화
-        if (textPortfolios.length > 0) setShowTextPortfolioWarning(true);
-        return;
-      }
-      const portfolioIds =
-        selectedPortfolioType === 'pdf'
-          ? pdfActivities
-              .map((a) => a.portfolioId)
-              .filter((n): n is number => n != null)
-          : selectedTextPortfolioIds
-              .map((s) => Number(s))
-              .filter((n) => !Number.isNaN(n));
+      const portfolioIds = pdfActivities
+        .map((a) => a.portfolioId)
+        .filter((n): n is number => n != null);
       if (portfolioIds.length === 0) return;
       try {
         await portfolioCorrectionControllerMapCorrectionWithPortfolios(id, {
@@ -599,15 +548,7 @@ export function useCorrectionState(correctionId: string | undefined) {
         // 실패 시 단계 유지
       }
     }
-  }, [
-    step,
-    effectiveId,
-    selectedPortfolioType,
-    selectedTextPortfolioIds,
-    textPortfolios.length,
-    pdfActivities,
-    analysisInfoValue,
-  ]);
+  }, [step, effectiveId, pdfActivities, analysisInfoValue]);
 
   const handleStartNewExperience = useCallback(() => {
     router.push('/experience/settings');
@@ -638,18 +579,6 @@ export function useCorrectionState(correctionId: string | undefined) {
     if (id == null || Number.isNaN(id)) return;
     await portfolioCorrectionControllerCreateCompanyInsight(id);
   }, [effectiveId]);
-
-  const handlePortfolioSelect = useCallback((type: PortfolioType) => {
-    setSelectedPortfolioType(type);
-    setShowTextPortfolioWarning(false);
-    setSelectedTextPortfolioIds([]);
-    if (type !== 'pdf') {
-      setIsPdfTextExtracted(false);
-      setIsPdfExtractFailed(false);
-      setPdfUploadedFile(null);
-      setPdfUploadError(null);
-    }
-  }, []);
 
   const handlePdfFile = useCallback(
     (file: File) => {
@@ -685,21 +614,18 @@ export function useCorrectionState(correctionId: string | undefined) {
     step === 'result' ? 'w-[87rem] min-w-[87rem]' : 'w-[66rem] min-w-[66rem]';
   const layoutClassName = `mx-auto mt-[2.5rem] ${layoutWidth} ${pdfUploadError === 'too_large' || pdfUploadError === 'too_many' ? 'animate-shake' : ''}`;
 
-  const pdfCategoryOverLimit =
-    selectedPortfolioType === 'pdf' &&
-    pdfActivities.some((a) =>
-      a.categories.some(
-        (c) =>
-          c.bullets.reduce((s, b) => s + b.length, 0) >
-          getPdfCategoryCharLimit(c.name),
-      ),
-    );
+  const pdfCategoryOverLimit = pdfActivities.some((a) =>
+    a.categories.some(
+      (c) =>
+        c.bullets.reduce((s, b) => s + b.length, 0) >
+        getPdfCategoryCharLimit(c.name),
+    ),
+  );
 
   return {
     router,
     step,
     status,
-    selectedPortfolioType,
     pdfActivities,
     setPdfActivities,
     selectedActivityId,
@@ -710,13 +636,10 @@ export function useCorrectionState(correctionId: string | undefined) {
     setActivityDeleteTargetId,
     pdfActivityHoverId,
     setPdfActivityHoverId,
-    selectedTextPortfolioIds,
-    setSelectedTextPortfolioIds,
     title,
     setTitle,
     isEditingTitle,
     setIsEditingTitle,
-    textPortfolios,
     resultTab,
     setResultTab,
     detailInfoButton,
@@ -753,8 +676,6 @@ export function useCorrectionState(correctionId: string | undefined) {
     setFileDeleteConfirmTarget,
     bulletTextareaRefs,
     lastBulletEnterAt,
-    showTextPortfolioWarning,
-    setShowTextPortfolioWarning,
     analysisInfoValue,
     setAnalysisInfoValue,
     showAnalysisInfoWarning,
@@ -766,7 +687,6 @@ export function useCorrectionState(correctionId: string | undefined) {
     handleStartNewExperience,
     handleRetryAnalyzing,
     handleRetryCompanyInsight,
-    handlePortfolioSelect,
     handlePdfFile,
     handlePdfFileDelete,
     handleRequestPdfExtract,
@@ -779,7 +699,6 @@ export function useCorrectionState(correctionId: string | undefined) {
     layoutClassName,
     pdfCategoryOverLimit,
     isInitializing,
-    isTextPortfoliosLoading,
   };
 }
 
