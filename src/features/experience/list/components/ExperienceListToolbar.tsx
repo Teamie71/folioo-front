@@ -4,7 +4,8 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { cn } from '@/utils/utils';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { HoverTooltip } from '@/components/HoverTooltip';
-import { ExperienceListViewSwitchToggle } from '@/features/experience/list/components/ExperienceListViewSwitchToggle';
+// 임시 조치: 맵 뷰 비활성화. 복구 시 아래 import 주석을 해제한다.
+// import { ExperienceListViewSwitchToggle } from '@/features/experience/list/components/ExperienceListViewSwitchToggle';
 import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
 import {
   editSessionCanRedo,
@@ -159,11 +160,16 @@ export function ExperienceListToolbar({
           </HoverTooltip>
         )}
 
-        <ExperienceListViewSwitchToggle
+        {/*
+          임시 조치: 맵 뷰 토글을 내리고 리스트 뷰만 지원한다.
+          복구 시 아래 주석을 해제한다. (workspaceView.ts의 DEFAULT_WORKSPACE_VIEW /
+          parseWorkspaceView도 함께 되돌려야 한다)
+        */}
+        {/* <ExperienceListViewSwitchToggle
           value={view}
           onValueChange={onViewChange}
           onOptionIntent={onViewIntent}
-        />
+        /> */}
 
         <div className='flex items-center gap-[4px]'>
           <HoverTooltip label='실행 취소 (Ctrl + Z)'>

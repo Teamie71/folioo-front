@@ -4,7 +4,12 @@ export const WORKSPACE_VIEWS = ['list', 'map'] as const;
 
 export type WorkspaceView = (typeof WORKSPACE_VIEWS)[number];
 
-export const DEFAULT_WORKSPACE_VIEW: WorkspaceView = 'map';
+/**
+ * 임시 조치: 맵 뷰 토글을 내리고 리스트 뷰만 지원한다. (원래 값은 'map')
+ * 맵 뷰를 되살릴 때는 이 값을 'map'으로 되돌리고, 아래 parseWorkspaceView의
+ * 임시 고정 return도 함께 원래 로직으로 되돌리면 된다.
+ */
+export const DEFAULT_WORKSPACE_VIEW: WorkspaceView = 'list';
 
 export const WORKSPACE_VIEW_PARAM = 'view';
 
@@ -12,11 +17,14 @@ export function isWorkspaceView(value: unknown): value is WorkspaceView {
   return WORKSPACE_VIEWS.includes(value as WorkspaceView);
 }
 
-/** URL의 view 파라미터를 안전하게 해석한다. 값이 없거나 잘못되면 기본값(map). */
+/** URL의 view 파라미터를 안전하게 해석한다. 값이 없거나 잘못되면 기본값(list). */
 export function parseWorkspaceView(
   raw: string | null | undefined,
 ): WorkspaceView {
-  return isWorkspaceView(raw) ? raw : DEFAULT_WORKSPACE_VIEW;
+  // 임시 조치: 맵 뷰 비활성화 기간에는 URL에 ?view=map 이 있어도 항상 list로 고정한다.
+  // 복구 시 아래 return을 지우고 주석 처리된 원래 로직으로 되돌리면 된다.
+  return 'list';
+  // return isWorkspaceView(raw) ? raw : DEFAULT_WORKSPACE_VIEW;
 }
 
 /** 서버/링크에서 사용할 워크스페이스 URL을 만든다. */
