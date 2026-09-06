@@ -710,7 +710,7 @@ function FeatureMedia({
   }
 
   return (
-    <div className={`overflow-hidden bg-[#D9D9D9] ${className}`}>
+    <div className={`overflow-hidden ${className}`}>
       <Image
         src={src}
         alt={alt}
