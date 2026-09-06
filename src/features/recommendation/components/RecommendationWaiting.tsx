@@ -5,16 +5,21 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { RecommendationTestHeader } from '@/features/recommendation/components/RecommendationTestHeader';
+import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
 
 export function RecommendationWaiting() {
   const router = useRouter();
+  const setHasSavedResult = useRecommendationTestStore(
+    (state) => state.setHasSavedResult,
+  );
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
+      setHasSavedResult(true);
       router.replace('/recommendation/result');
     }, 2500);
     return () => window.clearTimeout(timer);
-  }, [router]);
+  }, [router, setHasSavedResult]);
 
   return (
     <div className='min-h-[100dvh] bg-white'>

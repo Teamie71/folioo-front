@@ -5,16 +5,21 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { RecommendationMobileProgressBar } from '@/features/recommendation/components/mobile/RecommendationMobileProgressBar';
+import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
 
 export function RecommendationWaitingMobile() {
   const router = useRouter();
+  const setHasSavedResult = useRecommendationTestStore(
+    (state) => state.setHasSavedResult,
+  );
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
+      setHasSavedResult(true);
       router.replace('/recommendation/result');
     }, 2500);
     return () => window.clearTimeout(timer);
-  }, [router]);
+  }, [router, setHasSavedResult]);
 
   return (
     <div className='flex min-h-[calc(100dvh-52px)] flex-col bg-white'>
@@ -31,12 +36,7 @@ export function RecommendationWaitingMobile() {
             ease: 'easeOut',
           }}
         >
-          <Image
-            src='/LoadingSpinnerIcon.svg'
-            alt=''
-            width={64}
-            height={64}
-          />
+          <Image src='/LoadingSpinnerIcon.svg' alt='' width={64} height={64} />
         </motion.div>
         <p className='typo-b2-sb text-gray9'>맞춤 직무를 분석 중이에요.</p>
       </div>

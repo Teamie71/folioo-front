@@ -1,0 +1,32 @@
+<svg
+  preserveAspectRatio="none"
+  overflow="visible"
+  style="display: block"
+  width="8"
+  height="80"
+  viewBox="0 0 8 80"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <g id="Group 1234">
+    <path
+      id="Ellipse 40"
+      d="M7.5 76C7.5 77.933 5.933 79.5 4 79.5C2.067 79.5 0.5 77.933 0.5 76C0.5 74.067 2.067 72.5 4 72.5C5.933 72.5 7.5 74.067 7.5 76Z"
+      fill="#D9D9D9"
+      stroke="#D9D9D9"
+    />
+    <path
+      id="Ellipse 41"
+      d="M7.5 40C7.5 41.933 5.933 43.5 4 43.5C2.067 43.5 0.5 41.933 0.5 40C0.5 38.067 2.067 36.5 4 36.5C5.933 36.5 7.5 38.067 7.5 40Z"
+      fill="#D9D9D9"
+      stroke="#D9D9D9"
+    />
+    <path
+      id="Ellipse 42"
+      d="M7.5 4C7.5 5.933 5.933 7.5 4 7.5C2.067 7.5 0.5 5.933 0.5 4C0.5 2.067 2.067 0.5 4 0.5C5.933 0.5 7.5 2.067 7.5 4Z"
+      fill="#D9D9D9"
+      stroke="#D9D9D9"
+    />
+    <line id="Line 80" x1="4.5" y1="4" x2="4.5" y2="76" stroke="#D9D9D9" />
+  </g>
+</svg>
