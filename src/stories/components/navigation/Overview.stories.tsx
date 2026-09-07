@@ -151,10 +151,6 @@ export const AllNavigationComponents: Story = {
                     <span className='mr-2 text-green-600'>▪</span>
                     <span>/correction (포트폴리오 첨삭)</span>
                   </li>
-                  <li className='flex items-start'>
-                    <span className='mr-2 text-green-600'>▪</span>
-                    <span>/topup (이용권 구매)</span>
-                  </li>
                   <li className='mt-2 text-gray-500 italic'>
                     ... 그 외 대부분의 페이지
                   </li>

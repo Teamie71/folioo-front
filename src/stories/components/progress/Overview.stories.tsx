@@ -2,7 +2,6 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { CorrectionProgressBar } from '@/components/CorrectionProgressBar';
 import { StepProgressBar } from '@/components/StepProgressBar';
-import { CreditExpireAlert } from '@/components/CreditExpireAlert';
 
 const meta = {
   title: 'Components/Progress/Overview',
@@ -22,8 +21,6 @@ const meta = {
 - **CorrectionProgressBar**: 첨삭 프로세스의 단계별 진행 상태를 표시
 - **StepProgressBar**: 일반적인 다단계 프로세스의 진행 상태를 표시
 
-### 알림
-- **CreditExpireAlert**: 이용권 만료 예정 알림
         `,
       },
     },
@@ -150,40 +147,6 @@ export const AllComponents: Story = {
                 steps={['1단계', '2단계', '3단계', '4단계', '5단계']}
                 currentStep={3}
               />
-            </div>
-          </div>
-        </section>
-
-        {/* CreditExpireAlert */}
-        <section className='mb-12'>
-          <div className='mb-4 border-b border-gray-200 pb-2'>
-            <h2 className='text-2xl font-bold text-gray-800'>
-              CreditExpireAlert
-            </h2>
-            <p className='text-sm text-gray-600'>
-              이용권 만료 예정 알림 (실제 데이터는 API에서 로드)
-            </p>
-          </div>
-          <div className='flex flex-col gap-4 rounded-lg bg-white p-6 shadow'>
-            <div>
-              <h3 className='mb-3 text-sm font-semibold text-gray-700'>
-                기본 알림
-              </h3>
-              <CreditExpireAlert message='만료 예정 이용권이 있어요' />
-            </div>
-            <div className='mt-4'>
-              <h3 className='mb-3 text-sm font-semibold text-gray-700'>
-                커스텀 메시지
-              </h3>
-              <CreditExpireAlert message='곧 만료되는 이용권을 확인하세요' />
-            </div>
-            <div className='mt-4'>
-              <p className='text-xs text-gray-500'>
-                참고: 실제 만료 예정 이용권이 없으면 컴포넌트가 표시되지
-                않습니다.
-                <br />
-                클릭하면 만료 예정 이용권 상세 정보가 팝오버로 표시됩니다.
-              </p>
             </div>
           </div>
         </section>
@@ -373,18 +336,6 @@ export const InteractiveDemo: Story = {
             <CorrectionSteps />
             <StepProgress />
           </div>
-
-          <section className='mt-12'>
-            <div className='mb-6 rounded-lg bg-red-50 p-4'>
-              <h2 className='text-2xl font-bold text-red-900'>Alert Demo</h2>
-              <p className='text-sm text-red-700'>
-                이용권 만료 예정 알림 (클릭하여 상세 정보 확인)
-              </p>
-            </div>
-            <div className='rounded-lg bg-white p-6 shadow'>
-              <CreditExpireAlert message='만료 예정 이용권이 있어요' />
-            </div>
-          </section>
         </div>
       </div>
     );

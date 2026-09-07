@@ -13,10 +13,10 @@ import { MobileLogIcon } from '@/components/icons/mobile/MobileLogIcon';
 import { MobileExperienceIcon } from '@/components/icons/mobile/MobileExperienceIcon';
 import { MobileCorrectionIcon } from '@/components/icons/mobile/MobileCorrectionIcon';
 import { MobileJobRecommendationIcon } from '@/components/icons/mobile/MobileJobRecommendationIcon';
-import { MobileTicketIcon } from '@/components/icons/mobile/MobileTicketIcon';
 import { MobileLogoutIcon } from '@/components/icons/mobile/MobileLogoutIcon';
 import { MobileProfileButtonIcon } from '@/components/icons/mobile/MobileProfileButtonIcon';
 import { LogoutModal } from '@/components/LogoutModal';
+import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { cn } from '@/utils/utils';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -25,6 +25,8 @@ import { CANONICAL_WORKSPACE_HREF } from '@/features/experience/workspace/model/
 export default function MobileNavbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isJobRecommendationModalOpen, setIsJobRecommendationModalOpen] =
+    useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const accessToken = useAuthStore((s) => s.accessToken);
@@ -81,7 +83,6 @@ export default function MobileNavbar() {
     if (path.startsWith('/experience')) return '경험 정리';
     if (path.startsWith('/correction')) return '포트폴리오 첨삭';
     if (path.startsWith('/recommendation')) return '직무 찾기';
-    if (path.startsWith('/topup')) return '이용권 구매';
     if (path.startsWith('/profile')) return '프로필';
     if (path.startsWith('/invoice/refund')) return '환불 신청';
     if (path.startsWith('/invoice')) return '이용권 거래 내역';
@@ -114,11 +115,11 @@ export default function MobileNavbar() {
       label: '직무 찾기',
       href: '/recommendation',
       icon: <MobileJobRecommendationIcon />,
-    },
-    {
-      label: '이용권 구매',
-      href: '/topup',
-      icon: <MobileTicketIcon />,
+      disabled: true,
+      onClick: () => {
+        setIsOpen(false);
+        setIsJobRecommendationModalOpen(true);
+      },
     },
   ];
 
@@ -275,20 +276,38 @@ export default function MobileNavbar() {
                 <div className='mt-4 flex flex-col gap-2 px-6'>
                   {menuItems.map((item, idx) => (
                     <div key={item.href}>
-                      <Link
-                        href={item.href}
-                        className='flex items-center justify-between py-4'
-                      >
-                        <div className='flex items-center gap-3'>
-                          <div className='flex h-5 w-5 items-center justify-center'>
-                            {item.icon}
+                      {item.disabled ? (
+                        <button
+                          type='button'
+                          onClick={item.onClick}
+                          className='flex w-full cursor-pointer items-center justify-between py-4 text-left'
+                        >
+                          <div className='flex items-center gap-3'>
+                            <div className='flex h-5 w-5 items-center justify-center'>
+                              {item.icon}
+                            </div>
+                            <span className='typo-b2 text-gray9'>
+                              {item.label}
+                            </span>
                           </div>
-                          <span className='typo-b2 text-gray9'>
-                            {item.label}
-                          </span>
-                        </div>
-                        <MobileProfileButtonIcon />
-                      </Link>
+                          <MobileProfileButtonIcon />
+                        </button>
+                      ) : (
+                        <Link
+                          href={item.href}
+                          className='flex items-center justify-between py-4'
+                        >
+                          <div className='flex items-center gap-3'>
+                            <div className='flex h-5 w-5 items-center justify-center'>
+                              {item.icon}
+                            </div>
+                            <span className='typo-b2 text-gray9'>
+                              {item.label}
+                            </span>
+                          </div>
+                          <MobileProfileButtonIcon />
+                        </Link>
+                      )}
                       {/* 포트폴리오 첨삭 밑에 구분선 (인덱스 기준 2번 아이템 뒤) */}
                       {idx === 2 && (
                         <div className='border-gray3 my-2 border-t' />
@@ -323,6 +342,10 @@ export default function MobileNavbar() {
         onOpenChange={setIsLogoutModalOpen}
         onConfirm={logout}
         variant='mobile'
+      />
+      <OBTRedirectModal
+        open={isJobRecommendationModalOpen}
+        onOpenChange={setIsJobRecommendationModalOpen}
       />
     </>
   );

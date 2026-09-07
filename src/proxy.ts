@@ -19,6 +19,11 @@ export function proxy(request: NextRequest) {
 
   const userAgent = request.headers.get('user-agent');
 
+  // 이용권 구매는 현재 제공하지 않는다. 쿼리나 직접 주소 입력도 모두 차단한다.
+  if (pathname === '/topup' || pathname.startsWith('/topup/')) {
+    return NextResponse.redirect(new URL('/', request.url));
+  }
+
   // /mobile-blocked에서 새로고침 시
   // - 스마트폰이면 그대로 유지
   // - 스마트폰이 아니면 기본 페이지(/)로 리다이렉트
@@ -79,7 +84,6 @@ export function proxy(request: NextRequest) {
     '/experience/list',
     WORKSPACE_PATH,
     '/correction',
-    '/topup',
     '/profile',
     '/invoice',
     '/invoice/refund',

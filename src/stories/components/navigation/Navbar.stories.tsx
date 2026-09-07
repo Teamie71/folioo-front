@@ -42,7 +42,6 @@ export const HomePage: Story = {
             <ul className='list-inside list-disc space-y-2 text-gray-700'>
               <li>활성 메뉴: 없음 (홈)</li>
               <li>로그인 버튼 표시</li>
-              <li>이용권 구매 링크 표시</li>
             </ul>
           </div>
         </div>
@@ -130,35 +129,6 @@ export const CorrectionPage: Story = {
             <ul className='list-inside list-disc space-y-2 text-gray-700'>
               <li>활성 메뉴: 포트폴리오 첨삭 (파란색 강조)</li>
               <li>로그인 필요 페이지</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  ),
-};
-
-// 로그아웃 상태 - 이용권 구매 페이지
-export const TopupPage: Story = {
-  parameters: {
-    nextjs: {
-      appDirectory: true,
-      navigation: {
-        pathname: '/topup',
-      },
-    },
-  },
-  render: () => (
-    <div>
-      <Navbar />
-      <div className='min-h-screen bg-gray-50 p-8 pt-[100px]'>
-        <div className='mx-auto max-w-4xl space-y-6'>
-          <h1 className='text-4xl font-bold'>이용권 구매</h1>
-          <div className='rounded-lg bg-white p-6 shadow-sm'>
-            <h2 className='mb-4 text-xl font-bold'>현재 상태</h2>
-            <ul className='list-inside list-disc space-y-2 text-gray-700'>
-              <li>활성 메뉴: 이용권 구매 (파란색 강조)</li>
-              <li>로그인 불필요 페이지</li>
             </ul>
           </div>
         </div>
@@ -375,44 +345,6 @@ export const LoggedInCorrectionPage: Story = {
               <li>활성 메뉴: 포트폴리오 첨삭 (파란색 강조)</li>
               <li>프로필 버튼 표시</li>
               <li>로그인 필요 페이지 접근 가능</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  ),
-};
-
-// 로그인 상태 - 이용권 구매 페이지
-export const LoggedInTopupPage: Story = {
-  parameters: {
-    nextjs: {
-      appDirectory: true,
-      navigation: {
-        pathname: '/topup',
-      },
-    },
-  },
-  decorators: [
-    (Story) => (
-      <LoggedInDecorator>
-        <Story />
-      </LoggedInDecorator>
-    ),
-  ],
-  render: () => (
-    <div>
-      <Navbar />
-      <div className='min-h-screen bg-gray-50 p-8 pt-[100px]'>
-        <div className='mx-auto max-w-4xl space-y-6'>
-          <h1 className='text-4xl font-bold'>이용권 구매 (로그인)</h1>
-          <div className='rounded-lg border border-green-200 bg-green-50 p-6'>
-            <h2 className='mb-4 text-xl font-bold text-green-900'>
-              ✓ 로그인 상태
-            </h2>
-            <ul className='list-inside list-disc space-y-2 text-green-800'>
-              <li>활성 메뉴: 이용권 구매 (파란색 강조)</li>
-              <li>프로필 버튼 표시</li>
             </ul>
           </div>
         </div>

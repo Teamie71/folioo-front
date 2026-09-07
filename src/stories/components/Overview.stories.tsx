@@ -92,7 +92,7 @@ export const AllCategories: Story = {
 
         <Section
           title='Modals'
-          description='CommonModal, LoginRequiredModal, PaymentModal 등'
+          description='CommonModal, LoginRequiredModal 등'
         >
           <div
             className='rounded border border-dashed p-4 text-sm'
@@ -142,7 +142,7 @@ export const AllCategories: Story = {
 
         <Section
           title='Progress'
-          description='CorrectionProgressBar, StepProgressBar, CreditExpireAlert'
+          description='CorrectionProgressBar, StepProgressBar'
         >
           <StepProgressBar
             steps={['1단계', '2단계', '3단계']}
