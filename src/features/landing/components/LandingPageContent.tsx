@@ -1026,75 +1026,89 @@ function LandingFaq() {
 
 function MobileLandingFooter() {
   const currentYear = new Date().getFullYear();
+  const [isJobRecommendationModalOpen, setIsJobRecommendationModalOpen] =
+    useState(false);
 
   return (
-    <footer className='relative h-[32.9375rem] bg-[#F6F8FA] px-4 pt-10 text-[0.75rem] leading-[150%] text-[#74777D] sm:hidden'>
-      <div className='flex items-center justify-between'>
-        <p className='font-bold text-[#1A1A1A]'>서비스</p>
-        <Link
-          href='/feedback'
-          className='cursor-pointer rounded-[0.375rem] border border-[#9EA4A9] bg-white px-4 py-2 font-semibold text-[#1A1A1A]'
-        >
-          서비스 피드백 남기기
-        </Link>
-      </div>
-      <nav className='mt-2 flex flex-col gap-2 text-[#1A1A1A]'>
-        <Link href='/recommendation' className='cursor-pointer'>
-          직무 찾기
-        </Link>
-        <Link href='/experience/workspace' className='cursor-pointer'>
-          경험 정리
-        </Link>
-        <Link href='/correction' className='cursor-pointer'>
-          포트폴리오 첨삭
-        </Link>
-      </nav>
-      <div className='mt-9 h-px w-full bg-[#CDD0D5]' />
-      <div className='mt-7 flex items-center justify-between'>
-        <Image src='/MainLogo.svg' alt='Folioo' width={96} height={24} />
-        <a
-          href='https://www.instagram.com/folioo_ai'
-          target='_blank'
-          rel='noopener noreferrer'
-          className='cursor-pointer'
-          aria-label='Folioo 인스타그램'
-        >
-          <Image src='/InstagramIcon.svg' alt='' width={40} height={40} />
-        </a>
-      </div>
-      <div className='mt-7 flex flex-col gap-2'>
-        <p>상호명: 티미(Teamie)</p>
-        <p>대표자: 김수빈</p>
-        <p>개인정보관리책임자: 김수빈</p>
-        <a
-          href='https://www.ftc.go.kr/bizCommPop.do?wrkr_no=5121602706'
-          target='_blank'
-          rel='noopener noreferrer'
-          className='cursor-pointer'
-        >
-          사업자등록번호: 512-16-02706
-        </a>
-        <p>전화번호: 010-5797-0358</p>
-        <p>이메일: teamie0701@gmail.com</p>
-        <p>주소: (23015) 인천광역시 강화군 하점면 창후로174번길 13-27, 일부</p>
-      </div>
-      <div className='mt-3.5 flex items-center gap-3 text-[#74777D]'>
-        <Link href='/privacy' className='cursor-pointer font-bold'>
-          개인정보 처리방침
-        </Link>
-        <span className='h-3 w-px bg-[#CDD0D5]' />
-        <Link href='/tos' className='cursor-pointer'>
-          서비스 이용약관
-        </Link>
-        <span className='h-3 w-px bg-[#CDD0D5]' />
-        <Link href='/marketing' className='cursor-pointer'>
-          마케팅 정보 수신
-        </Link>
-      </div>
-      <p className='mt-3'>
-        Copyright © {currentYear} Teamie. All rights reserved.
-      </p>
-    </footer>
+    <>
+      <footer className='relative h-[32.9375rem] bg-[#F6F8FA] px-4 pt-10 text-[0.75rem] leading-[150%] text-[#74777D] sm:hidden'>
+        <div className='flex items-center justify-between'>
+          <p className='font-bold text-[#1A1A1A]'>서비스</p>
+          <Link
+            href='/feedback'
+            className='cursor-pointer rounded-[0.375rem] border border-[#9EA4A9] bg-white px-4 py-2 font-semibold text-[#1A1A1A]'
+          >
+            서비스 피드백 남기기
+          </Link>
+        </div>
+        <nav className='mt-2 flex flex-col gap-2 text-[#1A1A1A]'>
+          <button
+            type='button'
+            className='cursor-pointer text-left'
+            onClick={() => setIsJobRecommendationModalOpen(true)}
+          >
+            직무 찾기
+          </button>
+          <Link href='/experience/workspace' className='cursor-pointer'>
+            경험 정리
+          </Link>
+          <Link href='/correction' className='cursor-pointer'>
+            포트폴리오 첨삭
+          </Link>
+        </nav>
+        <div className='mt-9 h-px w-full bg-[#CDD0D5]' />
+        <div className='mt-7 flex items-center justify-between'>
+          <Image src='/MainLogo.svg' alt='Folioo' width={96} height={24} />
+          <a
+            href='https://www.instagram.com/folioo_ai'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='cursor-pointer'
+            aria-label='Folioo 인스타그램'
+          >
+            <Image src='/InstagramIcon.svg' alt='' width={40} height={40} />
+          </a>
+        </div>
+        <div className='mt-7 flex flex-col gap-2'>
+          <p>상호명: 티미(Teamie)</p>
+          <p>대표자: 김수빈</p>
+          <p>개인정보관리책임자: 김수빈</p>
+          <a
+            href='https://www.ftc.go.kr/bizCommPop.do?wrkr_no=5121602706'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='cursor-pointer'
+          >
+            사업자등록번호: 512-16-02706
+          </a>
+          <p>전화번호: 010-5797-0358</p>
+          <p>이메일: teamie0701@gmail.com</p>
+          <p>
+            주소: (23015) 인천광역시 강화군 하점면 창후로174번길 13-27, 일부
+          </p>
+        </div>
+        <div className='mt-3.5 flex items-center gap-3 text-[#74777D]'>
+          <Link href='/privacy' className='cursor-pointer font-bold'>
+            개인정보 처리방침
+          </Link>
+          <span className='h-3 w-px bg-[#CDD0D5]' />
+          <Link href='/tos' className='cursor-pointer'>
+            서비스 이용약관
+          </Link>
+          <span className='h-3 w-px bg-[#CDD0D5]' />
+          <Link href='/marketing' className='cursor-pointer'>
+            마케팅 정보 수신
+          </Link>
+        </div>
+        <p className='mt-3'>
+          Copyright © {currentYear} Teamie. All rights reserved.
+        </p>
+      </footer>
+      <OBTRedirectModal
+        open={isJobRecommendationModalOpen}
+        onOpenChange={setIsJobRecommendationModalOpen}
+      />
+    </>
   );
 }
 
