@@ -443,15 +443,17 @@ function LoginEntryButton({
   const router = useRouter();
   const accessToken = useAuthStore((state) => state.accessToken);
 
+  if (accessToken) {
+    return null;
+  }
+
   return (
     <CommonButton
       variantType='Gradient'
       px='2.25rem'
       py='0.75rem'
       className='leading-[150%] font-bold'
-      onClick={() =>
-        router.push(accessToken ? '/experience/workspace' : '/login')
-      }
+      onClick={() => router.push('/login')}
     >
       {children}
     </CommonButton>
