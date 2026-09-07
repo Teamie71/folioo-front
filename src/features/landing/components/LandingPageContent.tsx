@@ -452,13 +452,17 @@ function LoginEntryButton({
     return null;
   }
 
+  if (accessToken) {
+    return null;
+  }
+
   return (
     <CommonButton
       variantType='Gradient'
       px='2.25rem'
       py='0.75rem'
       className='leading-[150%] font-bold'
-      onClick={() => router.push(accessToken ? '/recommendation' : '/login')}
+      onClick={() => router.push('/login')}
     >
       {children}
     </CommonButton>
