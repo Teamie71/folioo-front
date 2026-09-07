@@ -442,8 +442,13 @@ function LoginEntryButton({
 }) {
   const router = useRouter();
   const accessToken = useAuthStore((state) => state.accessToken);
+  const sessionRestoreAttempted = useAuthStore(
+    (state) => state.sessionRestoreAttempted,
+  );
 
-  if (accessToken) {
+  // 세션 복원이 끝난 비로그인 사용자에게만 시작 버튼을 노출한다.
+  // 초기 렌더에서 로그인 사용자의 버튼이 잠깐 보이는 현상도 방지한다.
+  if (!sessionRestoreAttempted || accessToken) {
     return null;
   }
 
