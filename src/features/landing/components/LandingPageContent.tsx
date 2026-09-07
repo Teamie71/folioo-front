@@ -449,7 +449,9 @@ function LoginEntryButton({
       px='2.25rem'
       py='0.75rem'
       className='leading-[150%] font-bold'
-      onClick={() => router.push(accessToken ? '/recommendation' : '/login')}
+      onClick={() =>
+        router.push(accessToken ? '/experience/workspace' : '/login')
+      }
     >
       {children}
     </CommonButton>
