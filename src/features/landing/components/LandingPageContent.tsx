@@ -1114,18 +1114,8 @@ function MobileLandingFooter() {
 
 export function LandingPageContent() {
   const router = useRouter();
-  const accessToken = useAuthStore((state) => state.accessToken);
   const [isJobRecommendationModalOpen, setIsJobRecommendationModalOpen] =
     useState(false);
-
-  const navigateWithLoginGuard = (href: string) => {
-    if (accessToken) {
-      router.push(href);
-      return;
-    }
-
-    router.push(`/login?redirect_to=${encodeURIComponent(href)}`);
-  };
 
   const scrollToIntroduction = (sectionId: string) => {
     document
@@ -1194,7 +1184,7 @@ export function LandingPageContent() {
                 '흩어진 경험의 기록을 모아\n취업 준비의 핵심 자산으로'
               }
               buttonText='경험 정리하기'
-              onClick={() => navigateWithLoginGuard('/experience/workspace')}
+              onClick={() => router.push('/experience/workspace')}
               onCardClick={() =>
                 scrollToIntroduction('experience-organization-introduction')
               }
@@ -1207,7 +1197,7 @@ export function LandingPageContent() {
                 '매번 새로 쓰는 부담 없이,\n공고마다 빠르게, 맞춤 전략으로'
               }
               buttonText='첨삭 의뢰하기'
-              onClick={() => navigateWithLoginGuard('/correction/new')}
+              onClick={() => router.push('/correction/new')}
               onCardClick={() =>
                 scrollToIntroduction('portfolio-correction-introduction')
               }
@@ -1290,7 +1280,7 @@ export function LandingPageContent() {
             px='2.25rem'
             py='0.75rem'
             className='mt-10 sm:mt-8'
-            onClick={() => navigateWithLoginGuard('/experience/workspace')}
+            onClick={() => router.push('/experience/workspace')}
           >
             경험 정리하기 →
           </CommonButton>
