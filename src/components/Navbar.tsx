@@ -186,10 +186,15 @@ export default function Navbar() {
               '/recommendation',
               () => setIsJobRecommendationModalOpen(true),
             )}
+            {/*
+              경험 정리는 비로그인 사용자도 조회·편집이 가능한 페이지다.
+              (experience/layout.tsx 참고: 의도적으로 로그인 가드를 두지 않음)
+              사이드바/모바일 네비와의 일관성을 위해 requireLogin을 false로 둔다.
+            */}
             {navLink(
               CANONICAL_WORKSPACE_HREF,
               '경험 정리',
-              true,
+              false,
               EXPERIENCE_ACTIVE_PATH,
             )}
             {navLink('/correction', '포트폴리오 첨삭')}
