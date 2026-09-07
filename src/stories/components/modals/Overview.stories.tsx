@@ -4,7 +4,6 @@ import { ChallengeModal } from '@/components/ChallengeModal';
 import { CommonModal } from '@/components/CommonModal';
 import { CorrectionLimitModal } from '@/components/CorrectionLimitModal';
 import { EventModal } from '@/components/EventModal';
-import { FeedbackModal } from '@/components/FeedbackModal';
 import { LoginRequiredModal } from '@/components/LoginRequiredModal';
 import { LogoutModal } from '@/components/LogoutModal';
 import { OutOfTicketModal } from '@/components/OutOfTicketModal';
@@ -44,7 +43,6 @@ const meta = {
 - **PaymentModal**: 결제 확인 모달
 
 ### 기타
-- **FeedbackModal**: 피드백 작성 안내 모달
 - **ProfileModal**: 프로필 정보 모달
         `,
       },
@@ -63,7 +61,6 @@ export const AllModals: Story = {
     const [correctionLimitModalOpen, setCorrectionLimitModalOpen] =
       useState(false);
     const [eventModalOpen, setEventModalOpen] = useState(false);
-    const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
     const [loginRequiredModalOpen, setLoginRequiredModalOpen] = useState(false);
     const [logoutModalOpen, setLogoutModalOpen] = useState(false);
     const [outOfTicketModalOpen, setOutOfTicketModalOpen] = useState(false);
@@ -198,34 +195,6 @@ export const AllModals: Story = {
                 open={eventModalOpen}
                 onOpenChange={setEventModalOpen}
                 notice={mockEventNotice}
-              />
-            </div>
-          </section>
-
-          {/* FeedbackModal */}
-          <section className='mb-12'>
-            <div className='mb-4 border-b border-gray-200 pb-2'>
-              <h2 className='text-2xl font-bold text-gray-800'>
-                FeedbackModal
-              </h2>
-              <p className='text-sm text-gray-600'>
-                피드백 작성 안내 모달 - 사용자 피드백 수집을 위한 모달
-              </p>
-            </div>
-            <div className='rounded-lg bg-white p-6 shadow'>
-              <CommonButton
-                variantType='Primary'
-                px='2rem'
-                py='0.75rem'
-                onClick={() => setFeedbackModalOpen(true)}
-              >
-                FeedbackModal 열기
-              </CommonButton>
-              <FeedbackModal
-                open={feedbackModalOpen}
-                onOpenChange={setFeedbackModalOpen}
-                isFirstFeedback={true}
-                onFeedbackClick={() => {}}
               />
             </div>
           </section>
@@ -379,7 +348,6 @@ export const ByCategory: Story = {
     const [eventModalOpen, setEventModalOpen] = useState(false);
     const [outOfTicketModalOpen, setOutOfTicketModalOpen] = useState(false);
     const [paymentModalOpen, setPaymentModalOpen] = useState(false);
-    const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
     const [profileModalOpen, setProfileModalOpen] = useState(false);
 
     const mockEventNotice: TicketGrantNoticeResDTO = {
@@ -629,27 +597,6 @@ export const ByCategory: Story = {
               <p className='text-sm text-red-700'>기타 특수 목적 모달들</p>
             </div>
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
-              <div className='rounded-lg bg-white p-6 shadow'>
-                <h3 className='mb-4 font-semibold text-gray-800'>
-                  FeedbackModal
-                </h3>
-                <p className='mb-4 text-sm text-gray-600'>피드백 작성 안내</p>
-                <CommonButton
-                  variantType='Outline'
-                  px='1.5rem'
-                  py='0.5rem'
-                  onClick={() => setFeedbackModalOpen(true)}
-                >
-                  열기
-                </CommonButton>
-                <FeedbackModal
-                  open={feedbackModalOpen}
-                  onOpenChange={setFeedbackModalOpen}
-                  isFirstFeedback={true}
-                  onFeedbackClick={() => {}}
-                />
-              </div>
-
               <div className='rounded-lg bg-white p-6 shadow'>
                 <h3 className='mb-4 font-semibold text-gray-800'>
                   ProfileModal

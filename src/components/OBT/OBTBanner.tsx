@@ -20,7 +20,7 @@ export const BannerBeta = () => {
   };
 
   return (
-    <div className='banner-beta fixed top-[80px] right-0 left-0 z-40 flex h-[3.75rem] w-full bg-gradient-to-r from-[#FFFDE5] to-[#FFF1FE]'>
+    <div className='banner-beta modal-scroll-lock-stable fixed top-[80px] right-0 left-0 z-40 flex h-[3.75rem] w-full bg-gradient-to-r from-[#FFFDE5] to-[#FFF1FE]'>
       <div
         className={cn(
           'mx-auto flex items-center justify-between',

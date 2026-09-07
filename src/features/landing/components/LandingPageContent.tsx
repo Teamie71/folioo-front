@@ -3,13 +3,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, type UIEvent, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { CommonButton } from '@/components/CommonButton';
 import Footer from '@/components/Footer';
+import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { ChevronColorLeftIcon } from '@/components/icons/ChevronColorLeftIcon';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
 import { LandingVideo } from './LandingVideo';
 import { PortfoliloPoints } from './PortfolioPoints';
 import { StartCorrectionButton } from './StartCorrectionButton';
@@ -61,24 +61,28 @@ const correctionSteps = [
     eyebrow: 'STEP 01',
     title: '지원 정보',
     description: '기업과 직무, JD를 입력하여 맞춤 첨삭을 시작하세요.',
+    videoSrc: '/landing/correction1.mp4',
   },
   {
     eyebrow: 'STEP 02',
     title: '포트폴리오 업로드',
     description:
       '가지고 있는 PDF 포트폴리오를 업로드하면, AI 컨설턴트가 문서의 구조와 내용을 빠짐없이 파악하여 첨삭을 준비해요.',
+    videoSrc: '/landing/correction2.mp4',
   },
   {
     eyebrow: 'STEP 03',
     title: '기업 분석',
     description:
       'AI 컨설턴트가 최신 정보를 반영하여 지원하는 기업의 심층 분석 자료를 생성해요. 강조할 부분을 정해주시면, 참고하여 첨삭을 진행할게요.',
+    videoSrc: '/landing/correction3.mp4',
   },
   {
     eyebrow: 'STEP 04',
     title: '첨삭 결과',
     description:
       '총평과 구체적인 개선 방향이 제시된 지원 맞춤 첨삭 보고서를 받아보세요! 수정 예시를 함께 제공하여, 가이드대로 고치기만 하면 바로 서류가 완성돼요.',
+    videoSrc: '/landing/correction4.mp4',
   },
 ];
 
@@ -724,12 +728,39 @@ function FeatureMedia({
 
 function CorrectionWorkflow() {
   const [activeStep, setActiveStep] = useState(0);
+  const mobileMediaScrollRef = useRef<HTMLDivElement>(null);
+  const desktopMediaScrollRef = useRef<HTMLDivElement>(null);
   const step = correctionSteps[activeStep];
 
+  const scrollToStep = (index: number) => {
+    const nextStep = Math.min(Math.max(index, 0), correctionSteps.length - 1);
+
+    setActiveStep(nextStep);
+
+    [mobileMediaScrollRef, desktopMediaScrollRef].forEach(({ current }) => {
+      if (!current || current.clientHeight === 0) return;
+
+      current.scrollTo({
+        top: nextStep * current.clientHeight,
+        behavior: 'smooth',
+      });
+    });
+  };
+
   const moveStep = (direction: -1 | 1) => {
-    setActiveStep((current) =>
-      Math.min(Math.max(current + direction, 0), correctionSteps.length - 1),
+    scrollToStep(activeStep + direction);
+  };
+
+  const handleMediaScroll = (event: UIEvent<HTMLDivElement>) => {
+    const { clientHeight, scrollTop } = event.currentTarget;
+    if (clientHeight === 0) return;
+
+    const nextStep = Math.min(
+      Math.max(Math.round(scrollTop / clientHeight), 0),
+      correctionSteps.length - 1,
     );
+
+    if (nextStep !== activeStep) setActiveStep(nextStep);
   };
   const hasPreviousStep = activeStep > 0;
   const hasNextStep = activeStep < correctionSteps.length - 1;
@@ -767,7 +798,7 @@ function CorrectionWorkflow() {
                     ? 'border-main text-main font-bold'
                     : 'border-gray3 text-gray4'
                 }`}
-                onClick={() => setActiveStep(index)}
+                onClick={() => scrollToStep(index)}
               >
                 {item.eyebrow}
               </button>
@@ -813,7 +844,20 @@ function CorrectionWorkflow() {
             </span>
           </button>
         )}
-        <LandingVideo className='absolute top-[13.625rem] left-4 !h-[11.5rem] !w-[calc(100%-2rem)] !rounded-none' />
+        <div
+          ref={mobileMediaScrollRef}
+          className='absolute top-[13.625rem] left-4 h-[11.5rem] w-[calc(100%-2rem)] snap-y snap-mandatory overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+          onScroll={handleMediaScroll}
+        >
+          {correctionSteps.map((item) => (
+            <div key={item.eyebrow} className='h-full w-full snap-start'>
+              <LandingVideo
+                src={item.videoSrc}
+                className='!h-full !w-full !rounded-none'
+              />
+            </div>
+          ))}
+        </div>
         <p className='text-gray9 absolute top-[27.625rem] left-4 flex h-[3.25rem] w-[calc(100%-2rem)] items-center justify-center text-center text-[0.875rem] leading-[150%]'>
           {step.description}
         </p>
@@ -842,7 +886,7 @@ function CorrectionWorkflow() {
                     ? 'border-main text-main font-bold'
                     : 'border-gray3 text-gray4'
                 }`}
-                onClick={() => setActiveStep(index)}
+                onClick={() => scrollToStep(index)}
               >
                 <span className='block text-[0.75rem] leading-[150%] sm:text-[0.875rem]'>
                   {item.eyebrow}
@@ -876,7 +920,20 @@ function CorrectionWorkflow() {
               </span>
             </button>
           )}
-          <LandingVideo className='!h-[15rem] !w-full !rounded-none sm:!h-[37.125rem]' />
+          <div
+            ref={desktopMediaScrollRef}
+            className='!h-[15rem] !w-full snap-y snap-mandatory overflow-y-auto !rounded-none [scrollbar-width:none] sm:!h-[37.125rem] [&::-webkit-scrollbar]:hidden'
+            onScroll={handleMediaScroll}
+          >
+            {correctionSteps.map((item) => (
+              <div key={item.eyebrow} className='h-full w-full snap-start'>
+                <LandingVideo
+                  src={item.videoSrc}
+                  className='!h-full !w-full !rounded-none'
+                />
+              </div>
+            ))}
+          </div>
           {hasNextStep && (
             <button
               type='button'
@@ -1044,9 +1101,8 @@ function MobileLandingFooter() {
 export function LandingPageContent() {
   const router = useRouter();
   const accessToken = useAuthStore((state) => state.accessToken);
-  const hasSavedRecommendationResult = useRecommendationTestStore(
-    (state) => state.hasSavedResult,
-  );
+  const [isJobRecommendationModalOpen, setIsJobRecommendationModalOpen] =
+    useState(false);
 
   const navigateWithLoginGuard = (href: string) => {
     if (accessToken) {
@@ -1055,14 +1111,6 @@ export function LandingPageContent() {
     }
 
     router.push(`/login?redirect_to=${encodeURIComponent(href)}`);
-  };
-
-  const navigateToRecommendation = () => {
-    router.push(
-      accessToken && hasSavedRecommendationResult
-        ? '/recommendation/result'
-        : '/recommendation',
-    );
   };
 
   const scrollToIntroduction = (sectionId: string) => {
@@ -1117,7 +1165,7 @@ export function LandingPageContent() {
                 '어렵고 막막한 진로 고민,\n3분 테스트로 찾는 나의 직무'
               }
               buttonText='테스트 시작하기'
-              onClick={navigateToRecommendation}
+              onClick={() => setIsJobRecommendationModalOpen(true)}
               onCardClick={() =>
                 scrollToIntroduction('job-search-introduction')
               }
@@ -1170,7 +1218,7 @@ export function LandingPageContent() {
             px='2.25rem'
             py='0.75rem'
             className='mt-10 sm:mt-8'
-            onClick={navigateToRecommendation}
+            onClick={() => setIsJobRecommendationModalOpen(true)}
           >
             테스트 시작하기 →
           </CommonButton>
@@ -1416,6 +1464,10 @@ export function LandingPageContent() {
 
       <MobileLandingFooter />
       <Footer />
+      <OBTRedirectModal
+        open={isJobRecommendationModalOpen}
+        onOpenChange={setIsJobRecommendationModalOpen}
+      />
     </div>
   );
 }

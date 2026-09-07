@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
@@ -59,7 +58,11 @@ export function ChallengeModal({
     : hasWrittenToday
       ? '확인'
       : '오늘의 로그 작성하기 →';
-  const handlePrimaryClick = isRewardReady ? handleRewardClick : hasWrittenToday ? handleConfirm : handleLogClick;
+  const handlePrimaryClick = isRewardReady
+    ? handleRewardClick
+    : hasWrittenToday
+      ? handleConfirm
+      : handleLogClick;
 
   const titleText = isRewardReady
     ? '인사이트 로그 작성 챌린지 성공!'
@@ -75,115 +78,112 @@ export function ChallengeModal({
 
   return (
     <>
-    <CommonModal
-      open={open}
-      onOpenChange={onOpenChange}
-      primaryBtnText={buttonText.replace(' →', '')}
-      onPrimaryClick={handlePrimaryClick}
-      footer={
-        <div className='flex w-full flex-col items-start gap-[1rem]'>
-          <CommonButton
-            variantType='Execute'
-            px='2.5rem'
-            py='0.5rem'
-            className='rounded-lg text-[1.125rem] font-semibold hover:bg-[#4352B3]'
-            onClick={handlePrimaryClick}
-          >
-            {buttonText}
-          </CommonButton>
-          <p className='text-[0.875rem] text-[#9EA4A9]'>
-            본 이벤트는{' '}
-            <Link
-              href='/topup'
-              className='cursor-pointer underline'
-              onClick={() => onOpenChange(false)}
+      <CommonModal
+        open={open}
+        onOpenChange={onOpenChange}
+        primaryBtnText={buttonText.replace(' →', '')}
+        onPrimaryClick={handlePrimaryClick}
+        footer={
+          <div className='flex w-full flex-col items-start gap-[1rem]'>
+            <CommonButton
+              variantType='Execute'
+              px='2.5rem'
+              py='0.5rem'
+              className='rounded-lg text-[1.125rem] font-semibold hover:bg-[#4352B3]'
+              onClick={handlePrimaryClick}
             >
-              이용권 구매
-            </Link>에서
-            다시 확인 가능합니다.
-          </p>
-        </div>
-      }
-      className='max-w-[46.25rem] w-full items-start px-[3.75rem] py-[3.75rem] text-left'
-      title={
-        <div className='flex flex-col gap-[1.5rem]'>
-          <h2 className='text-[1.5rem] font-bold text-[#1A1A1A] text-left'>
-            {titleText}
-          </h2>
-          <p className='text-[1rem] font-medium text-[#1A1A1A]'>
-            {descriptionText}
-          </p>
-        </div>
-      }
-    >
-      <div className='w-full flex flex-col mt-[1rem] gap-[2.5rem]'>
-        {/* 스탬프 보드 컨테이너 */}
-        <div className='relative w-full items-center flex flex-col gap-[1.875rem]'>
-          {/* 첫 번째 줄: 1 2 3 4 5 */}
-          <div className='relative flex items-center gap-[1.75rem]'>
-            <div className='absolute left-0 right-0 top-1/2 z-0 h-[3px] -translate-y-1/2 bg-[#CDD0D5] w-[29rem]' />
-            {[1, 2, 3, 4, 5].map((n) => (
-              <div key={n} className='relative z-10'>
-                <StampSlot index={n} active={n <= currentCount} />
-              </div>
-            ))}
-            {/* 5번과 6번을 잇는 곡선 */}
-            <svg
-              className='absolute right-[1.5rem] top-[2.5rem] -mr-[2.25rem]'
-              width={60}
-              height={115}
-              viewBox='0 0 60 115'
-              fill='none'
-              xmlns='http://www.w3.org/2000/svg'
+              {buttonText}
+            </CommonButton>
+          </div>
+        }
+        className='w-full max-w-[46.25rem] items-start px-[3.75rem] py-[3.75rem] text-left'
+        title={
+          <div className='flex flex-col gap-[1.5rem]'>
+            <h2 className='text-left text-[1.5rem] font-bold text-[#1A1A1A]'>
+              {titleText}
+            </h2>
+            <p className='text-[1rem] font-medium text-[#1A1A1A]'>
+              {descriptionText}
+            </p>
+          </div>
+        }
+      >
+        <div className='mt-[1rem] flex w-full flex-col gap-[2.5rem]'>
+          {/* 스탬프 보드 컨테이너 */}
+          <div className='relative flex w-full flex-col items-center gap-[1.875rem]'>
+            {/* 첫 번째 줄: 1 2 3 4 5 */}
+            <div className='relative flex items-center gap-[1.75rem]'>
+              <div className='absolute top-1/2 right-0 left-0 z-0 h-[3px] w-[29rem] -translate-y-1/2 bg-[#CDD0D5]' />
+              {[1, 2, 3, 4, 5].map((n) => (
+                <div key={n} className='relative z-10'>
+                  <StampSlot index={n} active={n <= currentCount} />
+                </div>
+              ))}
+              {/* 5번과 6번을 잇는 곡선 */}
+              <svg
+                className='absolute top-[2.5rem] right-[1.5rem] -mr-[2.25rem]'
+                width={60}
+                height={115}
+                viewBox='0 0 60 115'
+                fill='none'
+                xmlns='http://www.w3.org/2000/svg'
+              >
+                <path
+                  d='M-2.15386e-06 113.5C15.3826 113.5 30.1351 107.6 41.0122 97.098C51.8893 86.5959 58 72.3521 58 57.5C58 42.6479 51.8893 28.4041 41.0122 17.902C30.1351 7.39999 15.3826 1.5 1.05738e-05 1.5'
+                  stroke='#CDD0D5'
+                  strokeWidth={3}
+                />
+              </svg>
+            </div>
+
+            {/* 두 번째 줄: 리워드 9 8 7 6 */}
+            <div className='relative flex items-center gap-[1.75rem]'>
+              {/* 리워드~6번 뒤 일자선 (3px #CDD0D5) */}
+              <div className='absolute top-1/2 right-0 left-0 z-0 h-[3px] w-[30rem] -translate-y-1/2 bg-[#CDD0D5]' />
+              <StampSlot index={10} active={currentCount >= 10} isReward />
+              <StampSlot index={9} active={currentCount >= 9} />
+              <StampSlot index={8} active={currentCount >= 8} />
+              <StampSlot index={7} active={currentCount >= 7} />
+              <StampSlot index={6} active={currentCount >= 6} />
+            </div>
+          </div>
+
+          {/* 아코디언 가이드 */}
+          <div className='space-y-3'>
+            <button
+              type='button'
+              onClick={() => setIsOpen(!isOpen)}
+              className='flex cursor-pointer items-center gap-1 text-[1rem] font-bold text-[#1A1A1A]'
             >
-              <path
-                d='M-2.15386e-06 113.5C15.3826 113.5 30.1351 107.6 41.0122 97.098C51.8893 86.5959 58 72.3521 58 57.5C58 42.6479 51.8893 28.4041 41.0122 17.902C30.1351 7.39999 15.3826 1.5 1.05738e-05 1.5'
-                stroke='#CDD0D5'
-                strokeWidth={3}
+              <ChevronDownIcon
+                className={cn(
+                  'transition-transform duration-300',
+                  !isOpen && '-rotate-90',
+                )}
               />
-            </svg>
-          </div>
-
-          {/* 두 번째 줄: 리워드 9 8 7 6 */}
-          <div className='relative flex items-center gap-[1.75rem]'>
-            {/* 리워드~6번 뒤 일자선 (3px #CDD0D5) */}
-            <div className='absolute left-0 right-0 top-1/2 z-0 h-[3px] -translate-y-1/2 bg-[#CDD0D5] w-[30rem]' />
-            <StampSlot index={10} active={currentCount >= 10} isReward />
-            <StampSlot index={9} active={currentCount >= 9} />
-            <StampSlot index={8} active={currentCount >= 8} />
-            <StampSlot index={7} active={currentCount >= 7} />
-            <StampSlot index={6} active={currentCount >= 6} />
+              리워드 지급 및 인정 기준
+            </button>
+            {isOpen && (
+              <ul className='flex list-disc flex-col gap-[0.5rem] pl-[3.25rem] text-[0.875rem] text-[#464B53]'>
+                <li>
+                  이벤트 진행 기간 (2026년 4/1 ~ 4/31) 동안 작성된 로그만
+                  인정돼요.
+                </li>
+                <li>하루에 인사이트 로그 1개만 작성 인정돼요.</li>
+              </ul>
+            )}
           </div>
         </div>
-
-        {/* 아코디언 가이드 */}
-        <div className='space-y-3'>
-          <button
-            type='button'
-            onClick={() => setIsOpen(!isOpen)}
-            className='flex items-center gap-1 text-[1rem] font-bold text-[#1A1A1A] cursor-pointer'
-          >
-            <ChevronDownIcon className={cn('transition-transform duration-300', !isOpen && '-rotate-90')} />
-            리워드 지급 및 인정 기준
-          </button>
-          {isOpen && (
-            <ul className='list-disc flex flex-col gap-[0.5rem] pl-[3.25rem] text-[0.875rem] text-[#464B53]'>
-              <li>이벤트 진행 기간 (2026년 4/1 ~ 4/31) 동안 작성된 로그만 인정돼요.</li>
-              <li>하루에 인사이트 로그 1개만 작성 인정돼요.</li>
-            </ul>
-          )}
-        </div>
-      </div>
-    </CommonModal>
-    <OBTEventModal
-      open={eventModalOpen}
-      onOpenChange={setEventModalOpen}
-      eventTitle='인사이트 로그 작성 챌린지'
-      eventSubTitle='보상 지급 완료'
-      reward='경험 정리 1회권'
-      buttonText='경험 정리하기'
-      onButtonClick={handleEventModalButtonClick}
-    />
+      </CommonModal>
+      <OBTEventModal
+        open={eventModalOpen}
+        onOpenChange={setEventModalOpen}
+        eventTitle='인사이트 로그 작성 챌린지'
+        eventSubTitle='보상 지급 완료'
+        reward='경험 정리 1회권'
+        buttonText='경험 정리하기'
+        onButtonClick={handleEventModalButtonClick}
+      />
     </>
   );
 }
@@ -201,7 +201,7 @@ function StampSlot({
     return (
       <div
         className={cn(
-          'z-20 flex h-[6rem] w-[6rem] items-center justify-center rounded-full border-2 text-center text-[0.875rem] font-bold leading-tight border-[#5060C5] bg-[#F6F8FA] text-[#5060C5]'
+          'z-20 flex h-[6rem] w-[6rem] items-center justify-center rounded-full border-2 border-[#5060C5] bg-[#F6F8FA] text-center text-[0.875rem] leading-tight font-bold text-[#5060C5]',
         )}
       >
         {active ? (
@@ -218,11 +218,11 @@ function StampSlot({
   }
   if (active) {
     return (
-    <div className='z-20 flex h-[5.5rem] w-[5.5rem] items-center justify-center rounded-full bg-[#F6F8FA]'>
+      <div className='z-20 flex h-[5.5rem] w-[5.5rem] items-center justify-center rounded-full bg-[#F6F8FA]'>
         <div className='flex h-[4.375rem] w-[4.375rem] items-center justify-center rounded-full border border-[#E9EAEC]'>
-            <Stamp />
+          <Stamp />
         </div>
-    </div>
+      </div>
     );
   }
   return (

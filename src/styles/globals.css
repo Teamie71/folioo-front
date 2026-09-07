@@ -233,6 +233,12 @@ body[data-scroll-locked] {
   padding-right: var(--removed-body-scroll-bar-size, 0px) !important;
 }
 
+/* react-remove-scroll이 body 너비에 더하는 스크롤바 보정값을 고정 헤더에도
+   제외해, 모달이 열려도 네비게이션과 배너의 중앙 정렬 위치를 유지한다. */
+body[data-scroll-locked] .modal-scroll-lock-stable {
+  width: calc(100% - var(--removed-body-scroll-bar-size, 0px)) !important;
+}
+
 /* Navbar + OBT 배너 하단 고정 시 콘텐츠 상단 여백 (애니메이션 등 레이아웃 식별용) */
 .layout-content-below-header {
 }

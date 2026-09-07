@@ -41,11 +41,11 @@ type SidebarMenuItem = {
 
 const MENU_ITEMS: SidebarMenuItem[] = [
   {
-    label: '직무 찾기',
-    href: '/recommendation',
+    label: '직무 추천',
     expandedIcon: '/sidebar/job-recommendation.svg',
     collapsedIcon: '/sidebar/job-recommendation-hover.svg',
     collapsedActiveIcon: '/sidebar/job-recommendation-active.svg',
+    disabled: true,
   },
   {
     label: '경험 정리',
@@ -117,7 +117,7 @@ function MenuIcon({
       ? 'sidebar-menu-icon-active'
       : undefined;
 
-  if (collapsed && item.label === '직무 찾기') {
+  if (collapsed && item.label === '직무 추천') {
     return (
       <span className='relative block size-[24px] shrink-0 overflow-hidden'>
         <Image
@@ -194,9 +194,7 @@ function ExpandedMenuItem({
   );
 
   const itemContent = item.disabled ? (
-    <HoverTooltip label={item.tooltip ?? ''} wrapperClassName='block w-full'>
-      {content}
-    </HoverTooltip>
+    content
   ) : (
     <Link
       href={item.href ?? '#'}
@@ -236,7 +234,9 @@ function CollapsedMenuItem({
     </div>
   );
 
-  const itemContent = item.href ? (
+  const itemContent = item.disabled ? (
+    content
+  ) : item.href ? (
     <Link
       href={item.href}
       aria-current={active ? 'page' : undefined}
@@ -252,7 +252,7 @@ function CollapsedMenuItem({
 
   return (
     <div className='absolute left-[12px]' style={{ top }}>
-      {item.href ? (
+      {!item.disabled && item.href ? (
         <HoverTooltip label={item.label} wrapperClassName='block'>
           {itemContent}
         </HoverTooltip>
