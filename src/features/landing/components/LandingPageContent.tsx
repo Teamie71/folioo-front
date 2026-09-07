@@ -7,9 +7,9 @@ import { type ReactNode, type UIEvent, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { CommonButton } from '@/components/CommonButton';
 import Footer from '@/components/Footer';
+import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { ChevronColorLeftIcon } from '@/components/icons/ChevronColorLeftIcon';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
 import { LandingVideo } from './LandingVideo';
 import { PortfoliloPoints } from './PortfolioPoints';
 import { StartCorrectionButton } from './StartCorrectionButton';
@@ -1101,9 +1101,8 @@ function MobileLandingFooter() {
 export function LandingPageContent() {
   const router = useRouter();
   const accessToken = useAuthStore((state) => state.accessToken);
-  const hasSavedRecommendationResult = useRecommendationTestStore(
-    (state) => state.hasSavedResult,
-  );
+  const [isJobRecommendationModalOpen, setIsJobRecommendationModalOpen] =
+    useState(false);
 
   const navigateWithLoginGuard = (href: string) => {
     if (accessToken) {
@@ -1112,14 +1111,6 @@ export function LandingPageContent() {
     }
 
     router.push(`/login?redirect_to=${encodeURIComponent(href)}`);
-  };
-
-  const navigateToRecommendation = () => {
-    router.push(
-      accessToken && hasSavedRecommendationResult
-        ? '/recommendation/result'
-        : '/recommendation',
-    );
   };
 
   const scrollToIntroduction = (sectionId: string) => {
@@ -1174,7 +1165,7 @@ export function LandingPageContent() {
                 '어렵고 막막한 진로 고민,\n3분 테스트로 찾는 나의 직무'
               }
               buttonText='테스트 시작하기'
-              onClick={navigateToRecommendation}
+              onClick={() => setIsJobRecommendationModalOpen(true)}
               onCardClick={() =>
                 scrollToIntroduction('job-search-introduction')
               }
@@ -1227,7 +1218,7 @@ export function LandingPageContent() {
             px='2.25rem'
             py='0.75rem'
             className='mt-10 sm:mt-8'
-            onClick={navigateToRecommendation}
+            onClick={() => setIsJobRecommendationModalOpen(true)}
           >
             테스트 시작하기 →
           </CommonButton>
@@ -1473,6 +1464,10 @@ export function LandingPageContent() {
 
       <MobileLandingFooter />
       <Footer />
+      <OBTRedirectModal
+        open={isJobRecommendationModalOpen}
+        onOpenChange={setIsJobRecommendationModalOpen}
+      />
     </div>
   );
 }
