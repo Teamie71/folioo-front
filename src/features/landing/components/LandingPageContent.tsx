@@ -742,10 +742,10 @@ function CorrectionWorkflow() {
     setActiveStep(nextStep);
 
     [mobileMediaScrollRef, desktopMediaScrollRef].forEach(({ current }) => {
-      if (!current || current.clientHeight === 0) return;
+      if (!current || current.clientWidth === 0) return;
 
       current.scrollTo({
-        top: nextStep * current.clientHeight,
+        left: nextStep * current.clientWidth,
         behavior: 'smooth',
       });
     });
@@ -756,11 +756,11 @@ function CorrectionWorkflow() {
   };
 
   const handleMediaScroll = (event: UIEvent<HTMLDivElement>) => {
-    const { clientHeight, scrollTop } = event.currentTarget;
-    if (clientHeight === 0) return;
+    const { clientWidth, scrollLeft } = event.currentTarget;
+    if (clientWidth === 0) return;
 
     const nextStep = Math.min(
-      Math.max(Math.round(scrollTop / clientHeight), 0),
+      Math.max(Math.round(scrollLeft / clientWidth), 0),
       correctionSteps.length - 1,
     );
 
@@ -850,11 +850,14 @@ function CorrectionWorkflow() {
         )}
         <div
           ref={mobileMediaScrollRef}
-          className='absolute top-[13.625rem] left-4 h-[11.5rem] w-[calc(100%-2rem)] snap-y snap-mandatory overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+          className='absolute top-[13.625rem] left-4 flex h-[11.5rem] w-[calc(100%-2rem)] snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
           onScroll={handleMediaScroll}
         >
           {correctionSteps.map((item) => (
-            <div key={item.eyebrow} className='h-full w-full snap-start'>
+            <div
+              key={item.eyebrow}
+              className='h-full w-full shrink-0 snap-start'
+            >
               <LandingVideo
                 src={item.videoSrc}
                 className='!h-full !w-full !rounded-none'
@@ -926,11 +929,14 @@ function CorrectionWorkflow() {
           )}
           <div
             ref={desktopMediaScrollRef}
-            className='!h-[15rem] !w-full snap-y snap-mandatory overflow-y-auto !rounded-none [scrollbar-width:none] sm:!h-[37.125rem] [&::-webkit-scrollbar]:hidden'
+            className='flex !h-[15rem] !w-full snap-x snap-mandatory overflow-x-auto !rounded-none [scrollbar-width:none] sm:!h-[37.125rem] [&::-webkit-scrollbar]:hidden'
             onScroll={handleMediaScroll}
           >
             {correctionSteps.map((item) => (
-              <div key={item.eyebrow} className='h-full w-full snap-start'>
+              <div
+                key={item.eyebrow}
+                className='h-full w-full shrink-0 snap-start'
+              >
                 <LandingVideo
                   src={item.videoSrc}
                   className='!h-full !w-full !rounded-none'
