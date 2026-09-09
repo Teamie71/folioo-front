@@ -1,38 +1,110 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { RECOMMENDATION_QUERY_KEYS } from '@/features/recommendation/constants';
-import { MOCK_RECOMMENDATION_RESULT } from '@/features/recommendation/mock';
+import { useEffect, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
+import {
+  getAssessmentControllerGetResultQueryKey,
+  useAssessmentControllerClaim,
+  useAssessmentControllerGetResult,
+} from '@/api/endpoints/assessment/assessment';
+import { mapAssessmentResult } from '@/features/recommendation/lib/mapAssessmentResult';
 import type { RecommendationResultData } from '@/features/recommendation/types';
 import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
+import { useAuthStore } from '@/store/useAuthStore';
+
+export type RecommendationResultView = RecommendationResultData & {
+  locked: boolean;
+  uuid: string;
+};
 
 export function useRecommendationResult(
   scope: 'mine' | 'share' = 'mine',
 ): {
-  result: RecommendationResultData;
+  result: RecommendationResultView | null;
+  uuid: string;
   isLoading: boolean;
+  isError: boolean;
 } {
-  const majorId = useRecommendationTestStore((s) => s.majorId);
-  const interestAnswers = useRecommendationTestStore((s) => s.interestAnswers);
-  const valueAnswers = useRecommendationTestStore((s) => s.valueAnswers);
+  const searchParams = useSearchParams();
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const sessionRestoreAttempted = useAuthStore(
+    (s) => s.sessionRestoreAttempted,
+  );
+  const isLoggedIn = sessionRestoreAttempted && accessToken != null;
+  const authKey = accessToken ? 'authed' : 'anon';
 
-  const queryKey =
-    scope === 'share'
-      ? RECOMMENDATION_QUERY_KEYS.sharedResult
-      : [
-          ...RECOMMENDATION_QUERY_KEYS.result,
-          majorId,
-          interestAnswers,
-          valueAnswers,
-        ];
+  const storeUuid = useRecommendationTestStore((s) => s.assessmentUuid);
 
-  const { data, isPending } = useQuery({
-    queryKey,
-    queryFn: async () => MOCK_RECOMMENDATION_RESULT,
+  const shareUuid =
+    searchParams.get('uuid')?.trim() ||
+    searchParams.get('token')?.trim() ||
+    '';
+
+  const resolvedUuid =
+    scope === 'share' ? shareUuid || storeUuid : storeUuid || shareUuid;
+
+  const resultQuery = useAssessmentControllerGetResult(resolvedUuid, {
+    query: {
+      enabled: Boolean(resolvedUuid) && sessionRestoreAttempted,
+      queryKey: [
+        ...getAssessmentControllerGetResultQueryKey(resolvedUuid),
+        authKey,
+      ],
+      staleTime: isLoggedIn ? 0 : 5 * 60 * 1000,
+    },
   });
 
+  const { mutateAsync: claimAssessment } = useAssessmentControllerClaim();
+  const claimAttemptedRef = useRef<string | null>(null);
+  const claimedAt = resultQuery.data?.result?.claimedAt;
+  const canClaim =
+    scope === 'mine' &&
+    resultQuery.data?.isSuccess !== false &&
+    Boolean(resultQuery.data?.result) &&
+    claimedAt == null;
+
+  const refetchResult = resultQuery.refetch;
+
+  useEffect(() => {
+    if (!isLoggedIn || !resolvedUuid || !canClaim) return;
+    if (claimAttemptedRef.current === resolvedUuid) return;
+
+    claimAttemptedRef.current = resolvedUuid;
+    void claimAssessment({ uuid: resolvedUuid })
+      .then(() => {
+        void refetchResult();
+      })
+      .catch(() => {
+        claimAttemptedRef.current = null;
+      });
+  }, [canClaim, claimAssessment, isLoggedIn, refetchResult, resolvedUuid]);
+
+  const dto =
+    resultQuery.data?.isSuccess !== false
+      ? resultQuery.data?.result
+      : undefined;
+
+  const isLoading =
+    !sessionRestoreAttempted ||
+    (Boolean(resolvedUuid) && resultQuery.isPending);
+
+  const isError =
+    (!resolvedUuid && !isLoading) ||
+    (Boolean(resolvedUuid) &&
+      (resultQuery.isError || resultQuery.data?.isSuccess === false) &&
+      !dto);
+
+  const mapped = dto ? mapAssessmentResult(dto) : null;
+
   return {
-    result: data ?? MOCK_RECOMMENDATION_RESULT,
-    isLoading: isPending,
+    result: mapped
+      ? {
+          ...mapped,
+          locked: scope === 'share' ? false : !isLoggedIn,
+        }
+      : null,
+    uuid: resolvedUuid,
+    isLoading,
+    isError,
   };
 }
