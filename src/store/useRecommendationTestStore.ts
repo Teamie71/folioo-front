@@ -1,28 +1,41 @@
 import { create } from 'zustand/react';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { InterestLikertValue } from '@/features/recommendation/constants';
-import type { ValueChoice } from '@/features/recommendation/types';
+import type {
+  ValueBalanceHistoryItem,
+  ValueBalanceQuestion,
+  ValueKind,
+} from '@/features/recommendation/types';
 
 const INITIAL_STATE = {
   majorId: '',
   interestAnswers: {} as Record<string, InterestLikertValue>,
-  valueAnswers: {} as Record<string, ValueChoice>,
-  valueQuestionIndex: 0,
-  hasSavedResult: false,
+  valueSessionToken: '',
+  valueCurrent: null as ValueBalanceQuestion | null,
+  valueHistory: [] as ValueBalanceHistoryItem[],
+  valueRanking: null as ValueKind[] | null,
+  assessmentUuid: '',
 };
 
 interface RecommendationTestStore {
   majorId: string;
   interestAnswers: Record<string, InterestLikertValue>;
-  valueAnswers: Record<string, ValueChoice>;
-  valueQuestionIndex: number;
-  hasSavedResult: boolean;
+  valueSessionToken: string;
+  valueCurrent: ValueBalanceQuestion | null;
+  valueHistory: ValueBalanceHistoryItem[];
+  valueRanking: ValueKind[] | null;
+  assessmentUuid: string;
   setMajorId: (majorId: string) => void;
-  setInterestAnswer: (questionId: string, value: InterestLikertValue) => void;
-  setValueAnswer: (questionId: string, choice: ValueChoice) => void;
-  clearValueAnswers: (questionIds: string[]) => void;
-  setValueQuestionIndex: (index: number) => void;
-  setHasSavedResult: (hasSavedResult: boolean) => void;
+  setInterestAnswer: (
+    questionId: string,
+    value: InterestLikertValue,
+  ) => void;
+  setValueSessionToken: (token: string) => void;
+  setValueCurrent: (question: ValueBalanceQuestion | null) => void;
+  setValueHistory: (history: ValueBalanceHistoryItem[]) => void;
+  setValueRanking: (ranking: ValueKind[] | null) => void;
+  setAssessmentUuid: (uuid: string) => void;
+  resetValueSession: () => void;
   reset: () => void;
 }
 
@@ -38,24 +51,19 @@ export const useRecommendationTestStore = create<RecommendationTestStore>()(
             [questionId]: value,
           },
         })),
-      setValueAnswer: (questionId, choice) =>
-        set((state) => ({
-          valueAnswers: {
-            ...state.valueAnswers,
-            [questionId]: choice,
-          },
-        })),
-      clearValueAnswers: (questionIds) =>
-        set((state) => {
-          const valueAnswers = { ...state.valueAnswers };
-          for (const id of questionIds) {
-            delete valueAnswers[id];
-          }
-          return { valueAnswers };
+      setValueSessionToken: (valueSessionToken) => set({ valueSessionToken }),
+      setValueCurrent: (valueCurrent) => set({ valueCurrent }),
+      setValueHistory: (valueHistory) => set({ valueHistory }),
+      setValueRanking: (valueRanking) => set({ valueRanking }),
+      setAssessmentUuid: (assessmentUuid) => set({ assessmentUuid }),
+      resetValueSession: () =>
+        set({
+          valueSessionToken: '',
+          valueCurrent: null,
+          valueHistory: [],
+          valueRanking: null,
+          assessmentUuid: '',
         }),
-      setValueQuestionIndex: (valueQuestionIndex) =>
-        set({ valueQuestionIndex }),
-      setHasSavedResult: (hasSavedResult) => set({ hasSavedResult }),
       reset: () => set(INITIAL_STATE),
     }),
     {
@@ -64,9 +72,11 @@ export const useRecommendationTestStore = create<RecommendationTestStore>()(
       partialize: (state) => ({
         majorId: state.majorId,
         interestAnswers: state.interestAnswers,
-        valueAnswers: state.valueAnswers,
-        valueQuestionIndex: state.valueQuestionIndex,
-        hasSavedResult: state.hasSavedResult,
+        valueSessionToken: state.valueSessionToken,
+        valueCurrent: state.valueCurrent,
+        valueHistory: state.valueHistory,
+        valueRanking: state.valueRanking,
+        assessmentUuid: state.assessmentUuid,
       }),
     },
   ),

@@ -1,13 +1,5 @@
 import type { HollandCode, HollandTypeResult } from '@/features/recommendation/types';
 
-export const RECOMMENDATION_QUERY_KEYS = {
-  majors: ['recommendation', 'majors'] as const,
-  interestQuestions: ['recommendation', 'interest-questions'] as const,
-  valueQuestions: ['recommendation', 'value-questions'] as const,
-  result: ['recommendation', 'result'] as const,
-  sharedResult: ['recommendation', 'shared-result'] as const,
-};
-
 export const RECOMMENDATION_TEST_STEPS = ['전공', '흥미', '가치관'] as const;
 
 export const RECOMMENDATION_MAJOR_MOBILE_ROWS = [
