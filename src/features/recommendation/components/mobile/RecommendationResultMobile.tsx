@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { cn } from '@/utils/utils';
 import { LoginRequiredModal } from '@/components/LoginRequiredModal';
@@ -15,8 +15,12 @@ import {
   RecommendationJobCards,
 } from '@/features/recommendation/components/RecommendationResultCards';
 import type { RecommendationResultVariant } from '@/features/recommendation/components/RecommendationResult';
-import { useHollandTypesPreview } from '@/features/recommendation/hooks/useHollandTypesPreview';
 import { useRecommendationResult } from '@/features/recommendation/hooks/useRecommendationResult';
+import {
+  buildRecommendationResultLoginRedirect,
+  buildRecommendationShareUrl,
+  resolveRecommendationDisplayName,
+} from '@/features/recommendation/lib/recommendationShare';
 import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
 import { useUserControllerGetProfile } from '@/api/endpoints/user/user';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -34,6 +38,7 @@ export function RecommendationResultMobile({
 }: RecommendationResultMobileProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const isShare = variant === 'share';
   const resetTest = useRecommendationTestStore((s) => s.reset);
   const [typesOpen, setTypesOpen] = useState(false);
@@ -47,16 +52,29 @@ export function RecommendationResultMobile({
   const sessionRestoreAttempted = useAuthStore(
     (s) => s.sessionRestoreAttempted,
   );
-  const isLoggedIn = sessionRestoreAttempted && Boolean(accessToken);
-  const isLocked = isShare ? false : !isLoggedIn;
+  const isLoggedIn = sessionRestoreAttempted && accessToken != null;
   const { data: profileRes } = useUserControllerGetProfile({
     query: { enabled: isLoggedIn },
   });
-  const { result } = useRecommendationResult(isShare ? 'share' : 'mine');
-  const hollandTypes = useHollandTypesPreview(result.holland.types);
-  const userName = isLoggedIn
-    ? (profileRes?.result?.name ?? result.userName)
-    : result.userName;
+  const {
+    result,
+    uuid: resultShareUuid,
+    isLoading,
+    isError,
+  } = useRecommendationResult(isShare ? 'share' : 'mine');
+  const isLocked = !isShare && !isLoggedIn;
+  const hollandTypes = result?.holland.types ?? [];
+  const userName = resolveRecommendationDisplayName({
+    isShare,
+    shareName: searchParams.get('name'),
+    isLoggedIn,
+    profileName: profileRes?.result?.name,
+    resultUserName: result?.userName,
+  });
+  const loginRedirectPath = isShare
+    ? pathname || RESULT_SHARE_PATH
+    : buildRecommendationResultLoginRedirect(resultShareUuid);
+  const loginHref = `/login?redirect_to=${encodeURIComponent(loginRedirectPath)}`;
 
   useEffect(() => {
     if (!loginRequiredOpen) return;
@@ -79,13 +97,19 @@ export function RecommendationResultMobile({
   const handleShare = async () => {
     if (!sessionRestoreAttempted) return;
 
-    if (!accessToken) {
-      loginRedirectRef.current = pathname || RESULT_SHARE_PATH;
+    if (!isLoggedIn) {
+      loginRedirectRef.current = loginRedirectPath;
       setLoginRequiredOpen(true);
       return;
     }
 
-    const url = `${window.location.origin}${RESULT_SHARE_PATH}`;
+    const url = resultShareUuid
+      ? buildRecommendationShareUrl(
+          window.location.origin,
+          resultShareUuid,
+          profileRes?.result?.name,
+        )
+      : `${window.location.origin}${RESULT_SHARE_PATH}`;
     try {
       await navigator.clipboard.writeText(url);
     } catch {
@@ -98,7 +122,7 @@ export function RecommendationResultMobile({
   const handleExperienceStart = () => {
     if (!sessionRestoreAttempted) return;
 
-    if (!accessToken) {
+    if (!isLoggedIn) {
       loginRedirectRef.current = EXPERIENCE_HREF;
       setLoginRequiredOpen(true);
       return;
@@ -107,7 +131,26 @@ export function RecommendationResultMobile({
     router.push(EXPERIENCE_HREF);
   };
 
-  const loginHref = `/login?redirect_to=${encodeURIComponent(pathname || RESULT_SHARE_PATH)}`;
+  if (isLoading) {
+    return <div className='min-h-[calc(100dvh-52px)] bg-white' />;
+  }
+
+  if (isError || !result) {
+    return (
+      <div className='flex min-h-[calc(100dvh-52px)] flex-col items-center justify-center gap-[0.75rem] bg-white px-[1rem]'>
+        <p className='typo-b2 text-center text-gray9'>
+          결과를 불러오지 못했어요.
+        </p>
+        <button
+          type='button'
+          onClick={() => router.push('/recommendation')}
+          className='typo-b2 text-main underline'
+        >
+          직무 찾기로 돌아가기
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className='min-h-[calc(100dvh-52px)] bg-white pb-[2.5rem]'>

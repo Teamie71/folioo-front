@@ -4,6 +4,7 @@ interface RecommendationBalanceCardProps {
   text: string;
   selected: boolean;
   onClick: () => void;
+  disabled?: boolean;
   variant?: 'web' | 'mobile';
 }
 
@@ -11,6 +12,7 @@ export function RecommendationBalanceCard({
   text,
   selected,
   onClick,
+  disabled = false,
   variant = 'web',
 }: RecommendationBalanceCardProps) {
   const isMobile = variant === 'mobile';
@@ -19,6 +21,7 @@ export function RecommendationBalanceCard({
     <button
       type='button'
       onClick={onClick}
+      disabled={disabled}
       aria-pressed={selected}
       className={cn(
         'box-border flex w-full cursor-pointer items-center rounded-[16px] border border-solid bg-gray1 px-[1.25rem] py-[2.5rem] text-left whitespace-pre-line',

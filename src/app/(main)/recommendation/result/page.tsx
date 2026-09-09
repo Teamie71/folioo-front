@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { headers } from 'next/headers';
 import { RecommendationResult } from '@/features/recommendation/components/RecommendationResult';
 import { RecommendationResultMobile } from '@/features/recommendation/components/mobile/RecommendationResultMobile';
@@ -10,10 +11,12 @@ export default async function RecommendationResultPage() {
   const isMobile = isTopupMobileUserAgent(userAgent);
 
   return (
-    <RecommendationPageMobileGate
-      serverMobile={isMobile}
-      mobile={<RecommendationResultMobile variant='result' />}
-      desktop={<RecommendationResult variant='result' />}
-    />
+    <Suspense fallback={null}>
+      <RecommendationPageMobileGate
+        serverMobile={isMobile}
+        mobile={<RecommendationResultMobile variant='result' />}
+        desktop={<RecommendationResult variant='result' />}
+      />
+    </Suspense>
   );
 }

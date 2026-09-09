@@ -9,6 +9,7 @@ import type {
   RecommendedJob,
 } from '@/features/recommendation/types';
 import { RECOMMENDATION_WHITE_BUTTON_HOVER } from '@/features/recommendation/constants';
+import { useAuthStore } from '@/store/useAuthStore';
 import { cn } from '@/utils/utils';
 
 const CARD_SHADOW = 'shadow-[0px_2px_8px_0px_rgba(0,0,0,0.15)]';
@@ -66,6 +67,10 @@ function LoginToViewButton({
   variant: ResultCardsVariant;
 }) {
   const router = useRouter();
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const sessionRestoreAttempted = useAuthStore(
+    (s) => s.sessionRestoreAttempted,
+  );
 
   return (
     <div className='pointer-events-none absolute inset-0 z-[2] hidden items-center justify-center group-data-[state=open]:flex'>
@@ -75,7 +80,13 @@ function LoginToViewButton({
           'pointer-events-auto cursor-pointer rounded-[12px] border border-gray4 bg-white px-[0.625rem] py-[0.75rem] shadow-[0px_2px_10px_rgba(80,96,197,0.25)]',
           variant === 'web' && RECOMMENDATION_WHITE_BUTTON_HOVER,
         )}
-        onClick={() => router.push(loginHref)}
+        onClick={() => {
+          if (sessionRestoreAttempted && accessToken != null) {
+            router.refresh();
+            return;
+          }
+          router.push(loginHref);
+        }}
       >
         <span className='typo-b2 text-gray9'>로그인하고 결과 확인하기</span>
       </button>
