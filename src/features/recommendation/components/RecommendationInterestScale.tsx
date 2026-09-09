@@ -57,8 +57,10 @@ export function RecommendationInterestScale({
         })}
       </div>
       <div className='flex justify-between'>
-        <span className='text-gray9 text-[0.625rem] leading-[150%]'>그렇다</span>
-        <span className='text-gray9 text-[0.625rem] leading-[150%]'>
+        <span className='w-[44px] text-center text-[0.625rem] leading-[150%] whitespace-nowrap text-gray9'>
+          그렇다
+        </span>
+        <span className='w-[44px] text-center text-[0.625rem] leading-[150%] whitespace-nowrap text-gray9'>
           그렇지 않다
         </span>
       </div>

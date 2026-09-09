@@ -62,10 +62,10 @@ export function RecommendationInterestScaleMobile({
         );
       })}
 
-      <span className='absolute top-[3.25rem] left-[0.5625rem] text-[0.625rem] leading-[150%] text-gray9'>
+      <span className='absolute top-[3.25rem] left-0 w-[44px] text-center text-[0.625rem] leading-[150%] whitespace-nowrap text-gray9'>
         그렇다
       </span>
-      <span className='absolute top-[3.25rem] right-0 text-[0.625rem] leading-[150%] text-gray9'>
+      <span className='absolute top-[3.25rem] left-[256px] w-[44px] text-center text-[0.625rem] leading-[150%] whitespace-nowrap text-gray9'>
         그렇지 않다
       </span>
     </div>
