@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   getAssessmentControllerGetResultQueryKey,
+  getAssessmentControllerGetStatusQueryKey,
   useAssessmentControllerClaim,
   useAssessmentControllerGetResult,
 } from '@/api/endpoints/assessment/assessment';
@@ -11,6 +12,7 @@ import { mapAssessmentResult } from '@/features/recommendation/lib/mapAssessment
 import type { RecommendationResultData } from '@/features/recommendation/types';
 import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useQueryClient } from '@tanstack/react-query';
 
 export type RecommendationResultView = RecommendationResultData & {
   locked: boolean;
@@ -26,6 +28,7 @@ export function useRecommendationResult(
   isError: boolean;
 } {
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const accessToken = useAuthStore((s) => s.accessToken);
   const sessionRestoreAttempted = useAuthStore(
     (s) => s.sessionRestoreAttempted,
@@ -33,6 +36,7 @@ export function useRecommendationResult(
   const isLoggedIn = sessionRestoreAttempted && accessToken != null;
   const authKey = accessToken ? 'authed' : 'anon';
 
+  const hasHydrated = useRecommendationTestStore((s) => s.hasHydrated);
   const storeUuid = useRecommendationTestStore((s) => s.assessmentUuid);
 
   const shareUuid =
@@ -40,12 +44,14 @@ export function useRecommendationResult(
     searchParams.get('token')?.trim() ||
     '';
 
+  // share는 URL uuid만 사용. store fallback이면 다른 세션 결과가 노출될 수 있다.
   const resolvedUuid =
-    scope === 'share' ? shareUuid || storeUuid : storeUuid || shareUuid;
+    scope === 'share' ? shareUuid : storeUuid || shareUuid;
 
   const resultQuery = useAssessmentControllerGetResult(resolvedUuid, {
     query: {
-      enabled: Boolean(resolvedUuid) && sessionRestoreAttempted,
+      enabled:
+        Boolean(resolvedUuid) && sessionRestoreAttempted && hasHydrated,
       queryKey: [
         ...getAssessmentControllerGetResultQueryKey(resolvedUuid),
         authKey,
@@ -72,12 +78,22 @@ export function useRecommendationResult(
     claimAttemptedRef.current = resolvedUuid;
     void claimAssessment({ uuid: resolvedUuid })
       .then(() => {
+        void queryClient.invalidateQueries({
+          queryKey: getAssessmentControllerGetStatusQueryKey(),
+        });
         void refetchResult();
       })
       .catch(() => {
         claimAttemptedRef.current = null;
       });
-  }, [canClaim, claimAssessment, isLoggedIn, refetchResult, resolvedUuid]);
+  }, [
+    canClaim,
+    claimAssessment,
+    isLoggedIn,
+    queryClient,
+    refetchResult,
+    resolvedUuid,
+  ]);
 
   const dto =
     resultQuery.data?.isSuccess !== false
@@ -86,10 +102,11 @@ export function useRecommendationResult(
 
   const isLoading =
     !sessionRestoreAttempted ||
+    !hasHydrated ||
     (Boolean(resolvedUuid) && resultQuery.isPending);
 
   const isError =
-    (!resolvedUuid && !isLoading) ||
+    (hasHydrated && !resolvedUuid && !isLoading) ||
     (Boolean(resolvedUuid) &&
       (resultQuery.isError || resultQuery.data?.isSuccess === false) &&
       !dto);

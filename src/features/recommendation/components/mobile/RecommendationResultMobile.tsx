@@ -17,6 +17,7 @@ import {
 import type { RecommendationResultVariant } from '@/features/recommendation/components/RecommendationResult';
 import { useRecommendationResult } from '@/features/recommendation/hooks/useRecommendationResult';
 import { useRecommendationResultBackNavigation } from '@/features/recommendation/hooks/useRecommendationResultBackNavigation';
+import { RECOMMENDATION_MAIN_RETAKE_HREF } from '@/features/recommendation/hooks/useRecommendationEntryRedirect';
 import {
   buildRecommendationResultLoginRedirect,
   buildRecommendationShareUrl,
@@ -95,6 +96,13 @@ export function RecommendationResultMobile({
       }
     };
   }, [loginRequiredOpen, pathname, router]);
+
+  useEffect(() => {
+    if (isShare || isLoading) return;
+    if (isError || !result) {
+      router.replace(RECOMMENDATION_MAIN_RETAKE_HREF);
+    }
+  }, [isError, isLoading, isShare, result, router]);
 
   const handleShare = async () => {
     if (!sessionRestoreAttempted) return;
@@ -235,7 +243,7 @@ export function RecommendationResultMobile({
             type='button'
             onClick={() => {
               resetTest();
-              router.push('/recommendation');
+              router.push(RECOMMENDATION_MAIN_RETAKE_HREF);
             }}
             className='flex flex-1 cursor-pointer items-center justify-center rounded-[12px] border border-gray4 bg-white px-[0.625rem] py-[0.75rem]'
           >
