@@ -19,6 +19,7 @@ export function useInterestStepPreview(): number | null {
   const seededRef = useRef(false);
 
   useEffect(() => {
+    if (process.env.NODE_ENV === 'production') return;
     if (
       !Number.isFinite(targetQuestion) ||
       targetQuestion < 2 ||
@@ -35,6 +36,10 @@ export function useInterestStepPreview(): number | null {
       setInterestAnswer(questions[i].id, PREVIEW_ANSWER);
     }
   }, [questions, setInterestAnswer, targetQuestion]);
+
+  if (process.env.NODE_ENV === 'production') {
+    return null;
+  }
 
   if (!Number.isFinite(targetQuestion) || targetQuestion < 2) {
     return null;

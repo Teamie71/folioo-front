@@ -40,6 +40,7 @@ export function useValueBalanceGame() {
   const { mutateAsync, isPending: isMutating, reset: resetMutation } =
     useAssessmentControllerGetNextValueBalanceQuestion();
 
+  const hasHydrated = useRecommendationTestStore((s) => s.hasHydrated);
   const valueSessionToken = useRecommendationTestStore(
     (s) => s.valueSessionToken,
   );
@@ -140,8 +141,12 @@ export function useValueBalanceGame() {
   bootstrapRef.current = bootstrap;
 
   useEffect(() => {
+    if (!hasHydrated) return;
+
     if (assessmentUuid) {
-      router.replace('/recommendation/result');
+      router.replace(
+        `/recommendation/result?uuid=${encodeURIComponent(assessmentUuid)}`,
+      );
       return;
     }
 
@@ -159,7 +164,7 @@ export function useValueBalanceGame() {
     return () => {
       requestIdRef.current += 1;
     };
-  }, [assessmentUuid, router, valueCurrent, valueRanking]);
+  }, [assessmentUuid, hasHydrated, router, valueCurrent, valueRanking]);
 
   const select = useCallback(
     async (choice: ValueChoice) => {
@@ -248,6 +253,7 @@ export function useValueBalanceGame() {
     selected: pendingChoice ?? undefined,
     isFirstQuestion: valueHistory.length === 0,
     isLoading:
+      !hasHydrated ||
       isBootstrapping ||
       (valueCurrent == null &&
         valueRanking == null &&

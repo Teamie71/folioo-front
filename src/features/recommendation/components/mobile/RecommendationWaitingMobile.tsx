@@ -5,10 +5,14 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { RecommendationMobileProgressBar } from '@/features/recommendation/components/mobile/RecommendationMobileProgressBar';
 import { useCreateAssessment } from '@/features/recommendation/hooks/useCreateAssessment';
+import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
 
 export function RecommendationWaitingMobile() {
   const router = useRouter();
   const { error, retry } = useCreateAssessment();
+  const resetValueSession = useRecommendationTestStore(
+    (s) => s.resetValueSession,
+  );
 
   return (
     <div className='flex min-h-[calc(100dvh-52px)] flex-col bg-white'>
@@ -31,7 +35,11 @@ export function RecommendationWaitingMobile() {
             </button>
             <button
               type='button'
-              onClick={() => router.push('/recommendation/values')}
+              onClick={() => {
+                // ranking이 남아 있으면 values 진입 즉시 waiting으로 되돌아간다.
+                resetValueSession();
+                router.push('/recommendation/values');
+              }}
               className='typo-c1 text-gray6 underline'
             >
               가치관 단계로 돌아가기

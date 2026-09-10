@@ -7,14 +7,19 @@ import type {
   ValueKind,
 } from '@/features/recommendation/types';
 
-const INITIAL_STATE = {
+const DRAFT_STATE = {
   majorId: '',
   interestAnswers: {} as Record<string, InterestLikertValue>,
   valueSessionToken: '',
   valueCurrent: null as ValueBalanceQuestion | null,
   valueHistory: [] as ValueBalanceHistoryItem[],
   valueRanking: null as ValueKind[] | null,
+};
+
+const INITIAL_STATE = {
+  ...DRAFT_STATE,
   assessmentUuid: '',
+  hasHydrated: false,
 };
 
 interface RecommendationTestStore {
@@ -25,6 +30,8 @@ interface RecommendationTestStore {
   valueHistory: ValueBalanceHistoryItem[];
   valueRanking: ValueKind[] | null;
   assessmentUuid: string;
+  /** sessionStorage rehydrate 완료 여부. 완료 전 redirect/create 하면 빈 상태로 오판한다. */
+  hasHydrated: boolean;
   setMajorId: (majorId: string) => void;
   setInterestAnswer: (
     questionId: string,
@@ -35,7 +42,10 @@ interface RecommendationTestStore {
   setValueHistory: (history: ValueBalanceHistoryItem[]) => void;
   setValueRanking: (ranking: ValueKind[] | null) => void;
   setAssessmentUuid: (uuid: string) => void;
+  setHasHydrated: (hasHydrated: boolean) => void;
   resetValueSession: () => void;
+  /** 전공/흥미/가치관 진행값만 제거. 이탈 시 저장하지 않기 위함. */
+  clearDraft: () => void;
   reset: () => void;
 }
 
@@ -56,6 +66,7 @@ export const useRecommendationTestStore = create<RecommendationTestStore>()(
       setValueHistory: (valueHistory) => set({ valueHistory }),
       setValueRanking: (valueRanking) => set({ valueRanking }),
       setAssessmentUuid: (assessmentUuid) => set({ assessmentUuid }),
+      setHasHydrated: (hasHydrated) => set({ hasHydrated }),
       resetValueSession: () =>
         set({
           valueSessionToken: '',
@@ -64,20 +75,21 @@ export const useRecommendationTestStore = create<RecommendationTestStore>()(
           valueRanking: null,
           assessmentUuid: '',
         }),
-      reset: () => set(INITIAL_STATE),
+      clearDraft: () => set({ ...DRAFT_STATE }),
+      reset: () => set({ ...INITIAL_STATE, hasHydrated: true }),
     }),
     {
       name: 'recommendation-test',
       storage: createJSONStorage(() => sessionStorage),
+      // 완료 uuid만 유지. 전공/흥미/가치관은 이탈 시 저장하지 않는다.
       partialize: (state) => ({
-        majorId: state.majorId,
-        interestAnswers: state.interestAnswers,
-        valueSessionToken: state.valueSessionToken,
-        valueCurrent: state.valueCurrent,
-        valueHistory: state.valueHistory,
-        valueRanking: state.valueRanking,
         assessmentUuid: state.assessmentUuid,
       }),
+      onRehydrateStorage: () => (state) => {
+        // 예전 storage에 남아 있던 전공/흥미/가치관 draft는 복원하지 않는다.
+        state?.clearDraft();
+        state?.setHasHydrated(true);
+      },
     },
   ),
 );
