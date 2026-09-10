@@ -33,12 +33,14 @@ export function useRecommendationEntryRedirect() {
     },
   });
 
+  const rawUuid = statusQuery.data?.result?.uuid as unknown;
   const completedUuid =
     shouldCheckStatus &&
     statusQuery.data?.isSuccess !== false &&
     statusQuery.data?.result?.hasCompleted &&
-    statusQuery.data.result.uuid
-      ? statusQuery.data.result.uuid
+    typeof rawUuid === 'string' &&
+    rawUuid.trim() !== ''
+      ? rawUuid.trim()
       : null;
 
   useEffect(() => {
