@@ -133,23 +133,8 @@ export function RecommendationResult({
     router.push(EXPERIENCE_HREF);
   };
 
-  if (isLoading) {
+  if (isLoading || isError || !result) {
     return <div className='min-h-[100dvh] bg-white' />;
-  }
-
-  if (isError || !result) {
-    return (
-      <div className='flex min-h-[100dvh] flex-col items-center justify-center gap-[1rem] bg-white'>
-        <p className='typo-b2 text-gray9'>결과를 불러오지 못했어요.</p>
-        <button
-          type='button'
-          onClick={() => router.push('/recommendation')}
-          className='typo-b2 text-main underline'
-        >
-          직무 찾기로 돌아가기
-        </button>
-      </div>
-    );
   }
 
   return (
