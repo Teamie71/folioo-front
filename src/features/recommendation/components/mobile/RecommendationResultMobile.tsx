@@ -16,6 +16,7 @@ import {
 } from '@/features/recommendation/components/RecommendationResultCards';
 import type { RecommendationResultVariant } from '@/features/recommendation/components/RecommendationResult';
 import { useRecommendationResult } from '@/features/recommendation/hooks/useRecommendationResult';
+import { useRecommendationResultBackNavigation } from '@/features/recommendation/hooks/useRecommendationResultBackNavigation';
 import {
   buildRecommendationResultLoginRedirect,
   buildRecommendationShareUrl,
@@ -41,6 +42,7 @@ export function RecommendationResultMobile({
   const searchParams = useSearchParams();
   const isShare = variant === 'share';
   const resetTest = useRecommendationTestStore((s) => s.reset);
+  useRecommendationResultBackNavigation(!isShare);
   const [typesOpen, setTypesOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [loginRequiredOpen, setLoginRequiredOpen] = useState(false);
