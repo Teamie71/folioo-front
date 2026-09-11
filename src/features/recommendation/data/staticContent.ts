@@ -1,10 +1,9 @@
 import type {
   InterestQuestion,
   RecommendationMajorOption,
-  ValueQuestion,
 } from '@/features/recommendation/types';
 
-export const MOCK_RECOMMENDATION_MAJORS: RecommendationMajorOption[] = [
+export const RECOMMENDATION_MAJORS: RecommendationMajorOption[] = [
   { id: 'humanities-social', label: '인문·사회' },
   { id: 'language', label: '어문' },
   { id: 'business', label: '경영' },
@@ -19,7 +18,7 @@ export const MOCK_RECOMMENDATION_MAJORS: RecommendationMajorOption[] = [
   { id: 'any', label: '전공과 관계없이 찾기' },
 ];
 
-export const MOCK_INTEREST_QUESTIONS: InterestQuestion[] = [
+export const INTEREST_QUESTIONS: InterestQuestion[] = [
   {
     id: 'interest-1',
     text: '누군가에게 도움이 되는 일을 할 때 보람을 느낀다.',
@@ -79,20 +78,5 @@ export const MOCK_INTEREST_QUESTIONS: InterestQuestion[] = [
   {
     id: 'interest-15',
     text: '정확성과 일관성을 지키는 것보다 새로움과 개성을 더하는 쪽에 더 몰입한다.',
-  },
-];
-
-export const MOCK_VALUE_QUESTIONS: ValueQuestion[] = [
-  {
-    id: 'value-1',
-    left: '초봉이 평균의 1.5배지만,\n매일 야근하고 주말에도 연락을 받아요.',
-    right:
-      '매일 18시에 퇴근하고 주말은 온전히 쉴 수 있지만,\n초봉은 평균의 0.8배예요.',
-  },
-  {
-    id: 'value-2',
-    left: '2번예시문항ㅇ',
-    right:
-      '매일 18시에 퇴근하고 주말은 온전히 쉴 수 있지만,\n초봉은 평균의 0.8배예요.',
   },
 ];

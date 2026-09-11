@@ -1,16 +1,29 @@
+import type { ValueComparisonOptionResDTOValueKind } from '@/api/models';
+
 export type HollandCode = 'R' | 'I' | 'A' | 'S' | 'E' | 'C';
 export type HollandScores = Record<HollandCode, number>;
 export type ValueChoice = 'left' | 'right';
+export type ValueKind = ValueComparisonOptionResDTOValueKind;
 
 export type InterestQuestion = {
   id: string;
   text: string;
 };
 
-export type ValueQuestion = {
-  id: string;
-  left: string;
-  right: string;
+export type ValueBalanceOption = {
+  valueKind: ValueKind;
+  label: string;
+  card: string;
+};
+
+export type ValueBalanceQuestion = {
+  sequence: number;
+  left: ValueBalanceOption;
+  right: ValueBalanceOption;
+};
+
+export type ValueBalanceHistoryItem = ValueBalanceQuestion & {
+  chosen: ValueKind;
 };
 
 export type RecommendationMajorOption = {
@@ -49,6 +62,7 @@ export type RecommendationResultData = {
   userName: string;
   headline: readonly [string, string];
   major: string;
+  locked?: boolean;
   holland: {
     scores: HollandScores;
     types: HollandTypeResult[];

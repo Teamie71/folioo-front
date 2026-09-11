@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/constants/seo';
+import { RecommendationDraftCleanup } from '@/features/recommendation/components/RecommendationDraftCleanup';
 
 export const metadata: Metadata = {
   title: '직무 찾기 - Folioo',
@@ -21,5 +22,5 @@ export default function RecommendationLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return <RecommendationDraftCleanup>{children}</RecommendationDraftCleanup>;
 }

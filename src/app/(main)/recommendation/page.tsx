@@ -1,4 +1,5 @@
 import { headers } from 'next/headers';
+import { RecommendationEntryGate } from '@/features/recommendation/components/RecommendationEntryGate';
 import { RecommendationLanding } from '@/features/recommendation/components/RecommendationLanding';
 import { RecommendationLandingMobile } from '@/features/recommendation/components/mobile/RecommendationLandingMobile';
 import { RecommendationPageMobileGate } from '@/features/recommendation/components/RecommendationPageMobileGate';
@@ -10,10 +11,12 @@ export default async function RecommendationPage() {
   const isMobile = isTopupMobileUserAgent(userAgent);
 
   return (
-    <RecommendationPageMobileGate
-      serverMobile={isMobile}
-      mobile={<RecommendationLandingMobile />}
-      desktop={<RecommendationLanding />}
-    />
+    <RecommendationEntryGate>
+      <RecommendationPageMobileGate
+        serverMobile={isMobile}
+        mobile={<RecommendationLandingMobile />}
+        desktop={<RecommendationLanding />}
+      />
+    </RecommendationEntryGate>
   );
 }

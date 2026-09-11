@@ -1,73 +1,52 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { useValueQuestions } from '@/features/recommendation/hooks/useValueQuestions';
+import { useValueBalanceGame } from '@/features/recommendation/hooks/useValueBalanceGame';
 import type { ValueChoice } from '@/features/recommendation/types';
 import { RecommendationBalanceCard } from '@/features/recommendation/components/RecommendationBalanceCard';
 import { RecommendationPrevButton } from '@/features/recommendation/components/RecommendationPrevButton';
 import { RecommendationTestHeader } from '@/features/recommendation/components/RecommendationTestHeader';
-import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
-
-const SELECT_ADVANCE_MS = 200;
 
 export function RecommendationValuesStep() {
-  const router = useRouter();
-  const { questions } = useValueQuestions();
-  const questionIndex = useRecommendationTestStore((s) => s.valueQuestionIndex);
-  const answers = useRecommendationTestStore((s) => s.valueAnswers);
-  const setValueAnswer = useRecommendationTestStore((s) => s.setValueAnswer);
-  const clearValueAnswers = useRecommendationTestStore(
-    (s) => s.clearValueAnswers,
-  );
-  const setValueQuestionIndex = useRecommendationTestStore(
-    (s) => s.setValueQuestionIndex,
-  );
-  const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const question = questions[questionIndex];
-  const selected = question ? answers[question.id] : undefined;
-  const isFirstQuestion = questionIndex === 0;
-  const isLastQuestion = questionIndex === questions.length - 1;
-
-  const clearAdvanceTimer = () => {
-    if (advanceTimerRef.current == null) return;
-    clearTimeout(advanceTimerRef.current);
-    advanceTimerRef.current = null;
-  };
-
-  useEffect(() => () => clearAdvanceTimer(), []);
+  const {
+    question,
+    selected,
+    isFirstQuestion,
+    isLoading,
+    isSubmitting,
+    error,
+    select,
+    goBack,
+    retry,
+  } = useValueBalanceGame();
 
   const handleSelect = (choice: ValueChoice) => {
-    if (!question || advanceTimerRef.current != null) return;
-
-    setValueAnswer(question.id, choice);
-
-    advanceTimerRef.current = setTimeout(() => {
-      advanceTimerRef.current = null;
-      if (isLastQuestion) {
-        router.push('/recommendation/waiting');
-        return;
-      }
-      setValueQuestionIndex(questionIndex + 1);
-    }, SELECT_ADVANCE_MS);
+    if (isSubmitting) return;
+    void select(choice);
   };
 
-  const handlePrev = () => {
-    if (isFirstQuestion) return;
+  if (isLoading || !question) {
+    if (error && !isLoading) {
+      return (
+        <div className='min-h-[100dvh] bg-white'>
+          <div className='mx-auto w-[66rem] pt-[1.75rem]'>
+            <RecommendationTestHeader currentStep={3} />
+            <div className='mt-[5rem] flex flex-col gap-[1rem] px-[1rem]'>
+              <p className='typo-b2 text-gray9'>{error}</p>
+              <button
+                type='button'
+                onClick={() => void retry()}
+                className='typo-b2 w-fit text-main underline'
+              >
+                다시 시도
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
-    clearAdvanceTimer();
-
-    const current = questions[questionIndex];
-    const previous = questions[questionIndex - 1];
-    const idsToClear = [current?.id, previous?.id].filter(
-      (id): id is string => Boolean(id),
-    );
-    clearValueAnswers(idsToClear);
-    setValueQuestionIndex(questionIndex - 1);
-  };
-
-  if (!question) return null;
+    return null;
+  }
 
   return (
     <div className='min-h-[100dvh] bg-white'>
@@ -91,25 +70,31 @@ export function RecommendationValuesStep() {
             🤔
           </p>
 
+          {error ? (
+            <p className='typo-c2 mt-[1rem] text-red-500'>{error}</p>
+          ) : null}
+
           <div className='relative mt-[1.75rem] flex items-center gap-[3.75rem]'>
             <RecommendationBalanceCard
-              text={question.left}
+              text={question.left.card}
               selected={selected === 'left'}
+              disabled={isSubmitting}
               onClick={() => handleSelect('left')}
             />
             <span className='typo-h5 absolute left-1/2 -translate-x-1/2 text-gray9'>
               vs
             </span>
             <RecommendationBalanceCard
-              text={question.right}
+              text={question.right.card}
               selected={selected === 'right'}
+              disabled={isSubmitting}
               onClick={() => handleSelect('right')}
             />
           </div>
 
           {!isFirstQuestion && (
             <div className='mt-[1.75rem]'>
-              <RecommendationPrevButton onClick={handlePrev} />
+              <RecommendationPrevButton onClick={goBack} />
             </div>
           )}
         </div>
