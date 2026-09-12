@@ -1,3 +1,8 @@
+import {
+  buildNormalizedIconMap,
+  normalizeRecommendationIconKey,
+} from '@/features/recommendation/lib/normalizeRecommendationIconKey';
+
 const JOB_ICON_BY_NAME: Record<string, string> = {
   // 영업·고객관리
   'B2B/기술영업': '/recommendation/b2b-tech-sales.svg',
@@ -5,7 +10,6 @@ const JOB_ICON_BY_NAME: Record<string, string> = {
   '영업기획/관리': '/recommendation/sales-planning.svg',
   '유통영업/지점관리': '/recommendation/retail-branch-sales.svg',
   'CS.운영': '/recommendation/cs-operations.svg',
-  'CS/운영': '/recommendation/cs-operations.svg',
   'CX기획': '/recommendation/cx-planning.svg',
   'B2C영업': '/recommendation/b2c-sales.svg',
   '무역': '/recommendation/trade.svg',
@@ -48,12 +52,8 @@ const JOB_ICON_BY_NAME: Record<string, string> = {
   '데이터분석': '/recommendation/data-analysis.svg',
   'AI/ML엔지니어': '/recommendation/ai-ml-engineer.svg',
   'QA 엔지니어': '/recommendation/qa-engineer.svg',
-  'QA엔지니어': '/recommendation/qa-engineer.svg',
-  '게임 개발': '/recommendation/game-dev.svg',
   '게임개발': '/recommendation/game-dev.svg',
   'DevOps 엔지니어': '/recommendation/devops-engineer.svg',
-  'DevOps엔지니어': '/recommendation/devops-engineer.svg',
-  '정보보안/ 네트워크인프라': '/recommendation/security-network.svg',
   '정보보안/네트워크인프라': '/recommendation/security-network.svg',
   // 생산·품질·연구
   '생산/공정기술': '/recommendation/production-process.svg',
@@ -61,11 +61,11 @@ const JOB_ICON_BY_NAME: Record<string, string> = {
   'R&D/연구개발': '/recommendation/rnd-research.svg',
 };
 
-function normalizeJobName(name: string) {
-  return name.trim().replace(/\s+/g, ' ');
-}
+const JOB_ICON_BY_NORMALIZED_NAME = buildNormalizedIconMap(JOB_ICON_BY_NAME);
 
 export function getRecommendationJobIconSrc(jobName: string): string | null {
-  const key = normalizeJobName(jobName);
-  return JOB_ICON_BY_NAME[key] ?? null;
+  return (
+    JOB_ICON_BY_NORMALIZED_NAME.get(normalizeRecommendationIconKey(jobName)) ??
+    null
+  );
 }
