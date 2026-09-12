@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import * as Accordion from '@radix-ui/react-accordion';
 import { DropdownIcon } from '@/components/icons/DropdownIcon';
@@ -9,12 +10,49 @@ import type {
   RecommendedJob,
 } from '@/features/recommendation/types';
 import { RECOMMENDATION_WHITE_BUTTON_HOVER } from '@/features/recommendation/constants';
+import { getRecommendationCompanyIconSrc } from '@/features/recommendation/lib/companyIcons';
+import { getRecommendationJobIconSrc } from '@/features/recommendation/lib/jobIcons';
 import { useAuthStore } from '@/store/useAuthStore';
 import { cn } from '@/utils/utils';
 
 const CARD_SHADOW = 'shadow-[0px_2px_8px_0px_rgba(0,0,0,0.15)]';
 const HEADER_PAD = 'px-[0.75rem] py-[0.75rem]';
 const LOCKED_HEADER_BLUR_H = 'h-[4.25rem]';
+const RESULT_ICON_BOX = 'size-[2.6875rem] shrink-0 overflow-hidden rounded-[8px]';
+
+function JobIcon({ name }: { name: string }) {
+  const src = getRecommendationJobIconSrc(name);
+  if (src == null) {
+    return <span className={cn(RESULT_ICON_BOX, 'bg-[#d9d9d9]')} />;
+  }
+  return (
+    <Image
+      src={src}
+      alt=''
+      width={44}
+      height={44}
+      className={RESULT_ICON_BOX}
+      aria-hidden
+    />
+  );
+}
+
+function CompanyIcon({ name }: { name: string }) {
+  const src = getRecommendationCompanyIconSrc(name);
+  if (src == null) {
+    return <span className={cn(RESULT_ICON_BOX, 'bg-[#d9d9d9]')} />;
+  }
+  return (
+    <Image
+      src={src}
+      alt=''
+      width={40}
+      height={40}
+      className={RESULT_ICON_BOX}
+      aria-hidden
+    />
+  );
+}
 
 type ResultCardsVariant = 'web' | 'mobile';
 
@@ -159,7 +197,7 @@ export function RecommendationJobCards({
                 HEADER_PAD,
               )}
             >
-              <span className='size-[2.6875rem] shrink-0 rounded-[8px] bg-[#d9d9d9]' />
+              <JobIcon name={job.name} />
               <span className='flex min-w-0 flex-1 flex-col'>
                 <span className='typo-b2 text-gray9'>{job.name}</span>
                 <span
@@ -249,7 +287,7 @@ export function RecommendationCompanyCards({
                 HEADER_PAD,
               )}
             >
-              <span className='size-[2.6875rem] shrink-0 rounded-[8px] bg-[#d9d9d9]' />
+              <CompanyIcon name={company.name} />
               <span className='typo-b2 min-w-0 flex-1 text-gray9'>
                 {company.name}
               </span>
