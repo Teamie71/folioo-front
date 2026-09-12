@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
+import { LandingVideo } from '@/features/landing/components/LandingVideo';
 import { cn } from '@/utils/utils';
 import { LoginRequiredModal } from '@/components/LoginRequiredModal';
 import { ToastMessage } from '@/features/recommendation/components/ToastMessage';
@@ -28,6 +29,7 @@ import { useUserControllerGetProfile } from '@/api/endpoints/user/user';
 import { useAuthStore } from '@/store/useAuthStore';
 
 const RESULT_SHARE_PATH = '/recommendation/share';
+const EXPERIENCE_LIST_VIDEO_SRC = '/landing/experience_list.mp4';
 const EXPERIENCE_HREF = '/experience';
 const LOGIN_REQUIRED_REDIRECT_MS = 2000;
 
@@ -211,7 +213,12 @@ export function RecommendationResultMobile({
           <p className='typo-c1 mt-[0.25rem] text-gray9'>
             수업, 동아리, 아르바이트 경험도 모두 활용할 수 있어요.
           </p>
-          <div className='mt-[1rem] h-[11.5625rem] border border-gray4 bg-gray2' />
+          <LandingVideo
+            src={EXPERIENCE_LIST_VIDEO_SRC}
+            width='100%'
+            height='11.5625rem'
+            className='mt-[1rem] border border-gray4'
+          />
           <CommonButton
             variantType='Execute'
             px='0.625rem'

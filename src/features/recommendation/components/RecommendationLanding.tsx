@@ -1,6 +1,7 @@
 'use client';
 
 import { CommonButton } from '@/components/CommonButton';
+import { RecommendationLandingIllustration } from '@/features/recommendation/components/RecommendationLandingIllustration';
 import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
 
 export function RecommendationLanding() {
@@ -18,40 +19,7 @@ export function RecommendationLanding() {
           </h1>
         </div>
 
-        <div className='h-[280px] w-[250px] overflow-hidden'>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='250'
-            height='280'
-            viewBox='0 0 250.27 280.962'
-            fill='none'
-            preserveAspectRatio='none'
-            aria-hidden
-          >
-            <rect
-              x='0.770289'
-              y='1.46211'
-              width='249'
-              height='279'
-              fill='#FDFDFD'
-              stroke='#CDD0D5'
-            />
-            <line
-              y1='-0.5'
-              x2='374.991'
-              y2='-0.5'
-              transform='matrix(0.665178 0.746685 -0.27266 0.96211 0.556178 0.96211)'
-              stroke='#CDD0D5'
-            />
-            <line
-              y1='-0.5'
-              x2='373.877'
-              y2='-0.5'
-              transform='matrix(0.66867 -0.74356 0.270289 0.962779 0.270289 279.962)'
-              stroke='#CDD0D5'
-            />
-          </svg>
-        </div>
+        <RecommendationLandingIllustration />
 
         <CommonButton
           variantType='Primary'
