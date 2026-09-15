@@ -1,17 +1,22 @@
-import Image from 'next/image';
+'use client';
 
-const WIDTH = 232;
-const HEIGHT = 252;
+const ILLUSTRATION_VIDEO_SRC = '/recommendation/landing.mp4';
 
 export function RecommendationLandingIllustration() {
   return (
-    <Image
-      src='/recommendation/landing-illustration.svg'
-      alt=''
-      width={WIDTH}
-      height={HEIGHT}
-      className='h-[252px] w-[232px] shrink-0'
-      priority
+    <video
+      src={ILLUSTRATION_VIDEO_SRC}
+      className='h-[15.75rem] w-[14.5rem] shrink-0 object-contain outline-none [&::-webkit-media-controls]:!hidden [&::-webkit-media-controls-enclosure]:!hidden'
+      playsInline
+      muted
+      loop
+      autoPlay
+      preload='auto'
+      controls={false}
+      disablePictureInPicture
+      disableRemotePlayback
+      tabIndex={-1}
+      controlsList='nodownload nofullscreen noremoteplayback noplaybackrate'
       aria-hidden
     />
   );
