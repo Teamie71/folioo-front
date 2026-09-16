@@ -3,6 +3,9 @@
 import { useRef, useState } from 'react';
 import { AgentIcon } from '@/components/icons/agent/AgentIcon';
 import { AttachIcon } from '@/components/icons/AttachIcon';
+import { AgentValidationToast } from './AgentValidationToast';
+import { PdfIcon } from '@/components/icons/PdfIcon';
+import { FileText, X } from 'lucide-react';
 import { SendArrowIcon } from '@/components/icons/SendArrowIcon';
 
 const SCENARIOS = [
@@ -39,7 +42,12 @@ export function ExperienceAgentMain({
 }: Props) {
   const fileInput = useRef<HTMLInputElement>(null);
   const textarea = useRef<HTMLTextAreaElement>(null);
-  const [notice, setNotice] = useState('');
+  const composer = useRef<HTMLDivElement>(null);
+  const [notice, setNotice] = useState<{ message: string; id: number } | null>(
+    null,
+  );
+  const showNotice = (message: string) =>
+    setNotice((prev) => ({ message, id: (prev?.id ?? 0) + 1 }));
 
   return (
     <div
@@ -55,21 +63,46 @@ export function ExperienceAgentMain({
         </p>
       </div>
 
-      <div className='mt-[100px]' data-agent-composer>
-        {attachment && (
-          <div className='border-gray3 mb-[8px] flex items-center gap-[8px] rounded-[12px] border bg-white p-[10px] text-[14px]'>
-            <span className='min-w-0 flex-1 truncate'>{attachment.name}</span>
-            <button
-              type='button'
-              onClick={() => onAttachmentChange(null)}
-              aria-label='첨부 파일 삭제'
-              className='text-gray6 shrink-0'
+      <div ref={composer} className='mt-[100px]' data-agent-composer>
+        <div
+          className={`relative flex min-h-[48px] w-full rounded-[24px] bg-white shadow-[0px_1px_4px_0px_rgba(0,0,0,0.1)] ${attachment ? 'flex-col p-[16px]' : 'items-center'}`}
+        >
+          {attachment && (
+            <div
+              data-agent-attachment
+              className='border-gray3 relative mb-[8px] flex w-[260px] max-w-full items-center gap-[8px] rounded-[12px] border bg-white p-[10px] pr-[28px]'
             >
-              삭제
-            </button>
-          </div>
-        )}
-        <div className='relative flex min-h-[48px] w-full items-center rounded-[24px] bg-white shadow-[0px_1px_4px_0px_rgba(0,0,0,0.1)]'>
+              <span
+                aria-hidden
+                className='flex size-[40px] shrink-0 items-center justify-center'
+              >
+                {/\.pdf$/i.test(attachment.name) ? (
+                  <PdfIcon />
+                ) : (
+                  <FileText className='text-gray5 size-[32px]' />
+                )}
+              </span>
+              <div className='min-w-0 flex-1'>
+                <p
+                  title={attachment.name}
+                  className='text-gray9 truncate text-[14px] leading-[21px]'
+                >
+                  {attachment.name}
+                </p>
+                <p className='text-gray6 text-[12px] leading-[18px]'>
+                  {(attachment.size / (1024 * 1024)).toFixed(1)} MB
+                </p>
+              </div>
+              <button
+                type='button'
+                onClick={() => onAttachmentChange(null)}
+                aria-label='첨부 파일 삭제'
+                className='bg-gray6 absolute top-[8px] right-[8px] flex size-[18px] items-center justify-center rounded-[4px] text-white'
+              >
+                <X aria-hidden className='size-[16px]' />
+              </button>
+            </div>
+          )}
           <div
             aria-hidden
             className='pointer-events-none absolute inset-0 rounded-[24px] shadow-[inset_0px_2px_4px_0px_rgba(0,0,0,0.25)]'
@@ -83,10 +116,10 @@ export function ExperienceAgentMain({
             onChange={(event) => {
               const value = event.target.value;
               if (value.length > 500) {
-                setNotice('최대 500자까지 입력할 수 있어요.');
+                showNotice('입력 가능한 최대 글자수(500자)를 초과했어요.');
                 return;
               }
-              setNotice('');
+              setNotice(null);
               onInputChange(value);
             }}
             onKeyDown={(event) => {
@@ -98,7 +131,7 @@ export function ExperienceAgentMain({
               )
                 event.preventDefault();
             }}
-            className='text-gray9 placeholder:text-gray5 relative z-10 [field-sizing:content] min-h-[48px] min-w-0 flex-1 resize-none bg-transparent py-[13px] pr-[8px] pl-[16px] text-[14px] leading-[22px] outline-none'
+            className={`text-gray9 placeholder:text-gray5 relative z-10 [field-sizing:content] min-h-[48px] min-w-0 resize-none bg-transparent text-[14px] leading-[22px] outline-none ${attachment ? 'w-full py-[4px]' : 'flex-1 py-[13px] pr-[8px] pl-[16px]'}`}
           />
           <input
             ref={fileInput}
@@ -110,36 +143,40 @@ export function ExperienceAgentMain({
               event.target.value = '';
               if (!file) return;
               if (!/\.(pdf|png|jpe?g|docx|pptx|txt)$/i.test(file.name)) {
-                setNotice(
-                  'PDF, PNG, JPG/JPEG, DOCX, PPTX, TXT 파일만 첨부할 수 있어요.',
+                showNotice(
+                  'PDF, PNG, JPG/JPEG, DOCX, TXT 형식만 업로드 가능해요.',
                 );
                 return;
               }
               if (file.size > 5 * 1024 * 1024) {
-                setNotice('파일은 5MB 이하로 첨부해 주세요.');
+                showNotice('업로드 가능한 최대 용량(5MB)을 초과했어요.');
                 return;
               }
-              setNotice('');
+              setNotice(null);
               onAttachmentChange(file);
             }}
           />
-          <button
-            type='button'
-            onClick={() => fileInput.current?.click()}
-            aria-label='파일 첨부'
-            className='relative z-10 mr-[8px] flex size-[28px] shrink-0 items-center justify-center'
+          <div
+            className={`relative z-10 flex shrink-0 items-center ${attachment ? 'mt-[8px] justify-end' : ''}`}
           >
-            <AttachIcon className='h-[23px] w-[20px]' />
-          </button>
-          <button
-            type='button'
-            disabled
-            aria-label='전송'
-            title='채팅 전송 기능은 준비 중이에요.'
-            className='bg-main relative z-10 mr-[12px] flex size-[32px] shrink-0 items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-40'
-          >
-            <SendArrowIcon className='h-[17px] w-[14px]' />
-          </button>
+            <button
+              type='button'
+              onClick={() => fileInput.current?.click()}
+              aria-label='파일 첨부'
+              className='relative z-10 mr-[8px] flex size-[28px] shrink-0 items-center justify-center'
+            >
+              <AttachIcon className='h-[23px] w-[20px]' />
+            </button>
+            <button
+              type='button'
+              disabled
+              aria-label='전송'
+              title='채팅 전송 기능은 준비 중이에요.'
+              className='bg-main relative z-10 mr-[12px] flex size-[32px] shrink-0 items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-40'
+            >
+              <SendArrowIcon className='h-[17px] w-[14px]' />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -160,7 +197,7 @@ export function ExperienceAgentMain({
                   type='button'
                   onClick={() => {
                     onInputChange(prompt);
-                    setNotice('');
+                    setNotice(null);
                     textarea.current?.focus({ preventScroll: true });
                     if (scenario.file) fileInput.current?.click();
                   }}
@@ -174,9 +211,12 @@ export function ExperienceAgentMain({
         ))}
       </div>
       {notice && (
-        <p role='status' className='text-gray7 mt-[8px] text-[14px]'>
-          {notice}
-        </p>
+        <AgentValidationToast
+          key={notice.id}
+          message={notice.message}
+          anchor={composer}
+          onDismiss={() => setNotice(null)}
+        />
       )}
     </div>
   );
