@@ -1,6 +1,7 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
+import styles from '@/styles/experience-agent.module.css';
 import { AgentIcon } from '@/components/icons/agent/AgentIcon';
 import { AttachIcon } from '@/components/icons/AttachIcon';
 import { AgentValidationToast } from './AgentValidationToast';
@@ -43,6 +44,32 @@ export function ExperienceAgentMain({
   const fileInput = useRef<HTMLInputElement>(null);
   const textarea = useRef<HTMLTextAreaElement>(null);
   const composer = useRef<HTMLDivElement>(null);
+  const measure = useRef<HTMLDivElement>(null);
+  const composerContent = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const container = composer.current;
+    const content = composerContent.current;
+    if (!container || !content) return;
+    const updateHeight = () => {
+      container.style.height = `${content.getBoundingClientRect().height}px`;
+    };
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, []);
+  const [multiline, setMultiline] = useState(false);
+  const expanded = Boolean(attachment) || multiline;
+  useLayoutEffect(() => {
+    const update = () => {
+      if (measure.current)
+        setMultiline(measure.current.getBoundingClientRect().height > 22);
+    };
+    const observer = new ResizeObserver(update);
+    if (measure.current) observer.observe(measure.current);
+    update();
+    return () => observer.disconnect();
+  }, [input]);
   const [notice, setNotice] = useState<{ message: string; id: number } | null>(
     null,
   );
@@ -63,76 +90,90 @@ export function ExperienceAgentMain({
         </p>
       </div>
 
-      <div ref={composer} className='mt-[100px]' data-agent-composer>
+      <div
+        ref={composer}
+        className={`${styles.composer} mt-[100px]`}
+        data-agent-composer
+      >
         <div
-          className={`relative flex min-h-[48px] w-full rounded-[24px] bg-white shadow-[0px_1px_4px_0px_rgba(0,0,0,0.1)] ${attachment ? 'flex-col p-[16px]' : 'items-center'}`}
+          ref={composerContent}
+          className={`relative flex max-h-[252px] min-h-[48px] w-full rounded-[20px] bg-white ${expanded ? 'flex-col pt-[16px] pb-[48px]' : 'items-center pr-[80px]'}`}
         >
-          {attachment && (
-            <div
-              data-agent-attachment
-              className='border-gray3 relative mb-[8px] flex w-[260px] max-w-full items-center gap-[8px] rounded-[12px] border bg-white p-[10px] pr-[28px]'
-            >
-              <span
-                aria-hidden
-                className='flex size-[40px] shrink-0 items-center justify-center'
-              >
-                {/\.pdf$/i.test(attachment.name) ? (
-                  <PdfIcon />
-                ) : (
-                  <FileText className='text-gray5 size-[32px]' />
-                )}
-              </span>
-              <div className='min-w-0 flex-1'>
-                <p
-                  title={attachment.name}
-                  className='text-gray9 truncate text-[14px] leading-[21px]'
-                >
-                  {attachment.name}
-                </p>
-                <p className='text-gray6 text-[12px] leading-[18px]'>
-                  {(attachment.size / (1024 * 1024)).toFixed(1)} MB
-                </p>
-              </div>
-              <button
-                type='button'
-                onClick={() => onAttachmentChange(null)}
-                aria-label='첨부 파일 삭제'
-                className='bg-gray6 absolute top-[8px] right-[8px] flex size-[18px] cursor-pointer items-center justify-center rounded-[4px] text-white'
-              >
-                <X aria-hidden className='size-[16px]' />
-              </button>
-            </div>
-          )}
           <div
+            ref={measure}
             aria-hidden
-            className='pointer-events-none absolute inset-0 rounded-[24px] shadow-[inset_0px_2px_4px_0px_rgba(0,0,0,0.25)]'
-          />
-          <textarea
-            ref={textarea}
-            rows={1}
-            value={input}
-            aria-label='에이전트 채팅 입력'
-            placeholder='내용을 입력하거나 파일을 첨부해 주세요.'
-            onChange={(event) => {
-              const value = event.target.value;
-              if (value.length > 500) {
-                showNotice('입력 가능한 최대 글자수(500자)를 초과했어요.');
-                return;
-              }
-              setNotice(null);
-              onInputChange(value);
-            }}
-            onKeyDown={(event) => {
-              // 전송 API 연결 전에는 Enter로도 목업 대화를 생성하지 않는다.
-              if (
-                event.key === 'Enter' &&
-                !event.shiftKey &&
-                !event.nativeEvent.isComposing
-              )
-                event.preventDefault();
-            }}
-            className={`text-gray9 placeholder:text-gray5 relative z-10 [field-sizing:content] min-h-[48px] min-w-0 resize-none bg-transparent text-[14px] leading-[22px] outline-none ${attachment ? 'w-full py-[4px]' : 'flex-1 py-[13px] pr-[8px] pl-[16px]'}`}
-          />
+            className='pointer-events-none invisible absolute top-0 left-[16px] w-[calc(100%-108px)] text-[14px] leading-[22px] break-words whitespace-pre-wrap'
+          >
+            {input || ' '}
+            {input.endsWith('\n') ? '\u200b' : ''}
+          </div>
+          <div
+            data-agent-input-scroll
+            className={`${styles.inputScroll} relative z-10 min-h-0 ${expanded ? 'mx-0 mr-[12px] ml-[16px] max-h-[188px] overflow-y-auto pr-[8px]' : 'min-w-0 flex-1 overflow-hidden pr-[8px] pl-[16px]'}`}
+          >
+            {attachment && (
+              <div
+                data-agent-attachment
+                className='border-gray3 relative mb-[8px] flex w-[260px] max-w-full items-center gap-[8px] rounded-[12px] border bg-white p-[10px] pr-[28px]'
+              >
+                <span
+                  aria-hidden
+                  className='flex size-[40px] shrink-0 items-center justify-center'
+                >
+                  {/\.pdf$/i.test(attachment.name) ? (
+                    <PdfIcon />
+                  ) : (
+                    <FileText className='text-gray5 size-[32px]' />
+                  )}
+                </span>
+                <div className='min-w-0 flex-1'>
+                  <p
+                    title={attachment.name}
+                    className='text-gray9 truncate text-[14px] leading-[21px]'
+                  >
+                    {attachment.name}
+                  </p>
+                  <p className='text-gray6 text-[12px] leading-[18px]'>
+                    {(attachment.size / (1024 * 1024)).toFixed(1)} MB
+                  </p>
+                </div>
+                <button
+                  type='button'
+                  onClick={() => onAttachmentChange(null)}
+                  aria-label='첨부 파일 삭제'
+                  className='bg-gray6 absolute top-[8px] right-[8px] flex size-[18px] cursor-pointer items-center justify-center rounded-[4px] text-white'
+                >
+                  <X aria-hidden className='size-[16px]' />
+                </button>
+              </div>
+            )}
+            <textarea
+              ref={textarea}
+              rows={1}
+              value={input}
+              aria-label='에이전트 채팅 입력'
+              placeholder='내용을 입력하거나 파일을 첨부해 주세요.'
+              onChange={(event) => {
+                const value = event.target.value;
+                if (value.length > 500) {
+                  showNotice('입력 가능한 최대 글자수(500자)를 초과했어요.');
+                  return;
+                }
+                setNotice(null);
+                onInputChange(value);
+              }}
+              onKeyDown={(event) => {
+                // 전송 API 연결 전에는 Enter로도 목업 대화를 생성하지 않는다.
+                if (
+                  event.key === 'Enter' &&
+                  !event.shiftKey &&
+                  !event.nativeEvent.isComposing
+                )
+                  event.preventDefault();
+              }}
+              className={`text-gray9 placeholder:text-gray5 block [field-sizing:content] min-h-[22px] w-full resize-none overflow-hidden bg-transparent text-[14px] leading-[22px] outline-none ${expanded ? 'p-0' : 'py-[13px]'}`}
+            />
+          </div>
           <input
             ref={fileInput}
             type='file'
@@ -156,27 +197,29 @@ export function ExperienceAgentMain({
               onAttachmentChange(file);
             }}
           />
-          <div
-            className={`relative z-10 flex shrink-0 items-center ${attachment ? 'mt-[8px] justify-end' : ''}`}
+        </div>
+        <div
+          aria-hidden
+          className='pointer-events-none absolute inset-0 rounded-[20px] shadow-[inset_0px_2px_4px_0px_rgba(0,0,0,0.25)]'
+        />
+        <div className='absolute right-0 bottom-[8px] z-10 flex items-center'>
+          <button
+            type='button'
+            onClick={() => fileInput.current?.click()}
+            aria-label='파일 첨부'
+            className='relative z-10 mr-[8px] flex size-[28px] shrink-0 cursor-pointer items-center justify-center'
           >
-            <button
-              type='button'
-              onClick={() => fileInput.current?.click()}
-              aria-label='파일 첨부'
-              className='relative z-10 mr-[8px] flex size-[28px] shrink-0 cursor-pointer items-center justify-center'
-            >
-              <AttachIcon className='h-[23px] w-[20px]' />
-            </button>
-            <button
-              type='button'
-              disabled
-              aria-label='전송'
-              title='채팅 전송 기능은 준비 중이에요.'
-              className='bg-main relative z-10 mr-[12px] flex size-[32px] shrink-0 cursor-pointer items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-40'
-            >
-              <SendArrowIcon className='h-[17px] w-[14px]' />
-            </button>
-          </div>
+            <AttachIcon className='h-[23px] w-[20px]' />
+          </button>
+          <button
+            type='button'
+            disabled
+            aria-label='전송'
+            title='채팅 전송 기능은 준비 중이에요.'
+            className='bg-main relative z-10 mr-[12px] flex size-[32px] shrink-0 cursor-pointer items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-40'
+          >
+            <SendArrowIcon className='h-[17px] w-[14px]' />
+          </button>
         </div>
       </div>
 
