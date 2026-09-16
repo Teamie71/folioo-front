@@ -80,7 +80,6 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
   );
   const selectedBlockIds = useExperienceListStore((s) => s.selectedBlockIds);
   const setBlockSelection = useExperienceListStore((s) => s.setBlockSelection);
-  const selectGroup = useExperienceListStore((s) => s.selectGroup);
   const selectExperience = useExperienceListStore((s) => s.selectExperience);
 
   const { setCenter, fitView, zoomTo } = useReactFlow();
@@ -197,6 +196,17 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
     [groups, experiences, setCenter],
   );
 
+  useEffect(() => {
+    const onAgentFocus = (event: Event) => {
+      const experienceId = (event as CustomEvent<string>).detail;
+      setDetail('standard');
+      focusOnStandard(experienceNodeId(experienceId));
+    };
+    window.addEventListener('experience-agent:focus', onAgentFocus);
+    return () =>
+      window.removeEventListener('experience-agent:focus', onAgentFocus);
+  }, [focusOnStandard]);
+
   /**
    * 활동 미리보기 모달을 닫을 때, 화살표로 마지막까지 보고 있던 활동으로 확대한다.
    * 표준 수준이 아니었다면(맵 뷰 최소화 상태에서 리스트로 확인하기를 눌렀을 리는
@@ -252,7 +262,10 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       }
 
       // 뷰 전환 시 같은 그룹/활동을 이어서 보여주기 위해 탐색 대상을 공용 선택 상태에 남긴다.
-      if (node.kind === 'group') selectGroup(node.refId);
+      if (node.kind === 'group')
+        useExperienceListStore.setState({
+          selection: { kind: 'group', id: node.refId },
+        });
       else if (node.kind === 'experience') selectExperience(node.refId);
       else if (node.experienceId) selectExperience(node.experienceId);
 
@@ -271,7 +284,6 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       experiences,
       selectedBlockIds,
       setBlockSelection,
-      selectGroup,
       selectExperience,
       detail,
       focusOnStandard,
@@ -393,6 +405,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
         // 캔버스를 움직이기 시작하면 열려 있는 블록 추가 드롭다운을 닫는다. (화면에 고정된 채로 어긋나 보이는 상태 방지)
         onMoveStart={() => setMenuCloseSignal((s) => s + 1)}
         onPaneClick={() => {
+          useExperienceListStore.setState({ selection: null });
           setActiveId(null);
           setEditingId(null);
         }}
