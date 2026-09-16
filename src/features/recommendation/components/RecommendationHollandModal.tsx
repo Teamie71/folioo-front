@@ -60,7 +60,11 @@ export function RecommendationHollandModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        overlayClassName='bg-black/40'
+        overlayClassName={cn(
+          'bg-black/40',
+          // 모바일 네브바(z-60) 위까지 딤 처리
+          isMobile && 'z-[99]',
+        )}
         className={cn(
           isMobile
             ? 'flex h-[28.25rem] w-[19.5rem] max-w-[calc(100vw-2rem)] flex-col gap-0 overflow-hidden rounded-[16px] px-[1.25rem] py-[1.25rem] shadow-[0px_8px_20px_0px_rgba(0,0,0,0.2)]'
