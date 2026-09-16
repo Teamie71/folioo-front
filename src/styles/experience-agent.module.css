@@ -30,3 +30,247 @@
 .inputScroll::-webkit-scrollbar-button {
   display: none;
 }
+
+.conversation {
+  padding-top: 28px;
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.userMessageRow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.userBubble {
+  max-width: calc(100% - 60px);
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 10px 10px 2px 10px;
+  background: white;
+  color: var(--color-gray9);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.assistantMessage {
+  color: var(--color-gray9);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.workingStatus {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 32px;
+  color: var(--color-gray6);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 21px;
+  letter-spacing: 0;
+}
+
+.workingDotSlot {
+  display: flex;
+  flex: 0 0 12px;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+}
+
+.workingDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--gradient-sub2);
+  animation: agent-dot-pulse 800ms ease-in-out infinite alternate;
+}
+
+.workingText {
+  background-image: linear-gradient(
+    90deg,
+    var(--color-gray6) 0%,
+    var(--color-gray6) 40%,
+    #fff 50%,
+    var(--color-gray6) 60%,
+    var(--color-gray6) 100%
+  );
+  background-size: 250% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: agent-text-shimmer 1800ms linear infinite;
+}
+
+@keyframes agent-dot-pulse {
+  from {
+    transform: scale(0.333333);
+    opacity: 0.45;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes agent-text-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workingDot {
+    animation: none;
+  }
+  .workingText {
+    animation: none;
+    background: none;
+    color: var(--color-gray6);
+  }
+}
+
+.assistantMessageRow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.revertButton,
+.revertedNotice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  background: var(--color-gray2);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 21px;
+  letter-spacing: 0;
+  text-align: center;
+}
+
+.revertButton {
+  border: 0;
+  color: var(--color-gray6);
+  cursor: pointer;
+}
+
+.revertButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.revertedResponse {
+  color: var(--color-gray5);
+  text-decoration: line-through;
+}
+
+.revertedNotice {
+  color: var(--color-gray7);
+}
+
+.revertError {
+  margin-top: 8px;
+  color: var(--color-gray7);
+  font-size: 14px;
+  line-height: 21px;
+}
+
+.failure {
+  margin-top: 32px;
+}
+.retryButton {
+  margin-top: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--color-gray4);
+  border-radius: 100px;
+  background: white;
+  color: var(--color-gray9);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 21px;
+  letter-spacing: 0;
+  text-align: center;
+  cursor: pointer;
+}
+.retryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.dailyCount {
+  margin-right: 12px;
+  flex-shrink: 0;
+  color: var(--color-gray6);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  letter-spacing: 0;
+  text-align: right;
+}
+.dailyCountLimit {
+  color: var(--color-error);
+}
+.sentAttachment {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 60px);
+  padding: 10px;
+  border: 1px solid var(--color-gray3);
+  border-radius: 12px;
+  background: white;
+}
+.sentAttachment > span {
+  flex-shrink: 0;
+}
+.sentAttachmentText {
+  min-width: 0;
+  font-size: 16px;
+  line-height: 24px;
+}
+.sentAttachmentText p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sentAttachmentText span {
+  color: var(--color-gray6);
+  font-size: 14px;
+}
+
+.revertButton:hover:not(:disabled),
+.revertButton:focus-visible {
+  background: var(--color-gray3);
+  color: var(--color-gray7);
+}
+
+.revertIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  background: currentColor;
+  mask: url('/RevertIcon.svg') center / contain no-repeat;
+  -webkit-mask: url('/RevertIcon.svg') center / contain no-repeat;
+}
