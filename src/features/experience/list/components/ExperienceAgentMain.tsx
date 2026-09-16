@@ -97,7 +97,7 @@ export function ExperienceAgentMain({
                 type='button'
                 onClick={() => onAttachmentChange(null)}
                 aria-label='첨부 파일 삭제'
-                className='bg-gray6 absolute top-[8px] right-[8px] flex size-[18px] items-center justify-center rounded-[4px] text-white'
+                className='bg-gray6 absolute top-[8px] right-[8px] flex size-[18px] cursor-pointer items-center justify-center rounded-[4px] text-white'
               >
                 <X aria-hidden className='size-[16px]' />
               </button>
@@ -163,7 +163,7 @@ export function ExperienceAgentMain({
               type='button'
               onClick={() => fileInput.current?.click()}
               aria-label='파일 첨부'
-              className='relative z-10 mr-[8px] flex size-[28px] shrink-0 items-center justify-center'
+              className='relative z-10 mr-[8px] flex size-[28px] shrink-0 cursor-pointer items-center justify-center'
             >
               <AttachIcon className='h-[23px] w-[20px]' />
             </button>
@@ -172,7 +172,7 @@ export function ExperienceAgentMain({
               disabled
               aria-label='전송'
               title='채팅 전송 기능은 준비 중이에요.'
-              className='bg-main relative z-10 mr-[12px] flex size-[32px] shrink-0 items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-40'
+              className='bg-main relative z-10 mr-[12px] flex size-[32px] shrink-0 cursor-pointer items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-40'
             >
               <SendArrowIcon className='h-[17px] w-[14px]' />
             </button>
@@ -201,7 +201,7 @@ export function ExperienceAgentMain({
                     textarea.current?.focus({ preventScroll: true });
                     if (scenario.file) fileInput.current?.click();
                   }}
-                  className={`border-gray3 text-gray7 rounded-[12px] border p-[10px] text-left text-[14px] leading-[150%] font-normal tracking-normal ${!scenario.file && index === 0 ? 'bg-white' : 'bg-gray2'} focus-visible:outline-main focus-visible:outline-2`}
+                  className={`border-gray3 text-gray7 cursor-pointer rounded-[12px] border p-[10px] text-left text-[14px] leading-[150%] font-normal tracking-normal ${!scenario.file && index === 0 ? 'bg-white' : 'bg-gray2'} focus-visible:outline-main focus-visible:outline-2`}
                 >
                   {prompt}
                 </button>
