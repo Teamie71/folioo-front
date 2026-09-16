@@ -77,7 +77,7 @@ export function ExperienceListAgentPanel() {
                         [group.id]: !prev[group.id],
                       }))
                     }
-                    className='text-gray9 flex min-h-[36px] w-full items-center gap-[8px] text-left text-[16px] leading-[24px]'
+                    className='text-gray9 flex min-h-[36px] w-full cursor-pointer items-center gap-[8px] text-left text-[16px] leading-[24px]'
                   >
                     <Chevron
                       aria-hidden
@@ -92,7 +92,7 @@ export function ExperienceListAgentPanel() {
                         <li key={item.id}>
                           <button
                             type='button'
-                            className='text-gray9 hover:bg-gray2 min-h-[36px] w-full rounded-[4px] py-[6px] pl-[24px] text-left text-[16px] leading-[24px] break-words'
+                            className='text-gray9 hover:bg-gray2 min-h-[36px] w-full cursor-pointer rounded-[4px] py-[6px] pl-[24px] text-left text-[16px] leading-[24px] break-words'
                             onClick={() => {
                               selectExperience(item.id);
                               window.dispatchEvent(
