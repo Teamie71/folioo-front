@@ -5,12 +5,20 @@ import { motion } from 'framer-motion';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { SidebarPanelIcon } from '@/components/icons/SidebarPanelIcon';
+import type { AgentConversation } from './ExperienceAgentConversation';
 import { ExperienceAgentMain } from './ExperienceAgentMain';
 
 const PANEL_WIDTH = '400px';
 const PANEL_TRANSITION = { duration: 0.3, ease: [0.4, 0, 0.2, 1] as const };
 
-export function ExperienceListAgentPanel() {
+export function ExperienceListAgentPanel({
+  conversations = {},
+  dailyChatCount = 0,
+}: {
+  conversations?: Readonly<Record<string, AgentConversation>>;
+  /** 로그인 사용자 전체 활동의 서버 기준 일일 합산 횟수 */
+  dailyChatCount?: number;
+}) {
   const open = useExperienceListStore((s) => s.agentOpen);
   const onToggle = useExperienceListStore((s) => s.toggleAgent);
   const groups = useExperienceListStore((s) => s.groups);
@@ -39,7 +47,7 @@ export function ExperienceListAgentPanel() {
       className='border-gray3 flex h-full shrink-0 flex-col border-l bg-[#f7f7f8]'
       aria-hidden={!open}
     >
-      <div className='flex h-full min-h-0 w-[400px] flex-col' inert={!open}>
+      <div className='flex h-full min-h-0 w-[399px] flex-col' inert={!open}>
         <header className='flex shrink-0 items-center gap-[6px] px-[20px] pt-[24px]'>
           <button
             type='button'
@@ -114,6 +122,8 @@ export function ExperienceListAgentPanel() {
         ) : (
           <ExperienceAgentMain
             key={experience.id}
+            conversation={conversations[experience.id]}
+            dailyChatCount={dailyChatCount}
             input={drafts[experience.id] ?? ''}
             onInputChange={(value) =>
               setDrafts((prev) => ({ ...prev, [experience.id]: value }))
