@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { LandingVideo } from '@/features/landing/components/LandingVideo';
 import { RECOMMENDATION_WHITE_BUTTON_HOVER } from '@/features/recommendation/constants';
@@ -74,6 +74,7 @@ export function RecommendationResult({
   const hollandTypes = result?.holland.types ?? [];
   const userName = resolveRecommendationDisplayName({
     isShare,
+    shareName: searchParams.get('name'),
     isLoggedIn,
     profileName: profileRes?.result?.name,
     resultUserName: result?.userName,
@@ -119,7 +120,11 @@ export function RecommendationResult({
     }
 
     const url = resultShareUuid
-      ? buildRecommendationShareUrl(window.location.origin, resultShareUuid)
+      ? buildRecommendationShareUrl(
+          window.location.origin,
+          resultShareUuid,
+          profileRes?.result?.name,
+        )
       : `${window.location.origin}${RESULT_SHARE_PATH}`;
     try {
       await navigator.clipboard.writeText(url);

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { CommonButton } from '@/components/CommonButton';
 import { LandingVideo } from '@/features/landing/components/LandingVideo';
 import { cn } from '@/utils/utils';
@@ -72,6 +72,7 @@ export function RecommendationResultMobile({
   const hollandTypes = result?.holland.types ?? [];
   const userName = resolveRecommendationDisplayName({
     isShare,
+    shareName: searchParams.get('name'),
     isLoggedIn,
     profileName: profileRes?.result?.name,
     resultUserName: result?.userName,
