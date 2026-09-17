@@ -3,11 +3,11 @@ import type { HollandCode, HollandTypeResult } from '@/features/recommendation/t
 export const RECOMMENDATION_TEST_STEPS = ['전공', '흥미', '가치관'] as const;
 
 export const RECOMMENDATION_MAJOR_MOBILE_ROWS = [
+  ['any'],
   ['humanities-social', 'language', 'business', 'economics'],
   ['media-communication', 'natural-science'],
   ['math-stats', 'engineering', 'computer-science'],
   ['art-design', 'other'],
-  ['any'],
 ] as const;
 
 export const INTEREST_LIKERT_OPTIONS = [
