@@ -1,6 +1,7 @@
 import { create } from 'zustand/react';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { InterestLikertValue } from '@/features/recommendation/constants';
+import { clearRecommendationRetake } from '@/features/recommendation/lib/recommendationRetake';
 import type {
   ValueBalanceHistoryItem,
   ValueBalanceQuestion,
@@ -65,7 +66,12 @@ export const useRecommendationTestStore = create<RecommendationTestStore>()(
       setValueCurrent: (valueCurrent) => set({ valueCurrent }),
       setValueHistory: (valueHistory) => set({ valueHistory }),
       setValueRanking: (valueRanking) => set({ valueRanking }),
-      setAssessmentUuid: (assessmentUuid) => set({ assessmentUuid }),
+      setAssessmentUuid: (assessmentUuid) => {
+        if (assessmentUuid.trim()) {
+          clearRecommendationRetake();
+        }
+        set({ assessmentUuid });
+      },
       setHasHydrated: (hasHydrated) => set({ hasHydrated }),
       resetValueSession: () =>
         set({

@@ -18,12 +18,13 @@ import {
 import type { RecommendationResultVariant } from '@/features/recommendation/components/RecommendationResult';
 import { useRecommendationResult } from '@/features/recommendation/hooks/useRecommendationResult';
 import { useRecommendationResultBackNavigation } from '@/features/recommendation/hooks/useRecommendationResultBackNavigation';
-import { RECOMMENDATION_MAIN_RETAKE_HREF } from '@/features/recommendation/hooks/useRecommendationEntryRedirect';
+import { RECOMMENDATION_MAIN_PATH } from '@/features/recommendation/hooks/useRecommendationEntryRedirect';
 import {
   buildRecommendationResultLoginRedirect,
   buildRecommendationShareUrl,
   resolveRecommendationDisplayName,
 } from '@/features/recommendation/lib/recommendationShare';
+import { markRecommendationRetake } from '@/features/recommendation/lib/recommendationRetake';
 import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
 import { useUserControllerGetProfile } from '@/api/endpoints/user/user';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -102,7 +103,8 @@ export function RecommendationResultMobile({
   useEffect(() => {
     if (isShare || isLoading) return;
     if (isError || !result) {
-      router.replace(RECOMMENDATION_MAIN_RETAKE_HREF);
+      markRecommendationRetake();
+      router.replace(RECOMMENDATION_MAIN_PATH);
     }
   }, [isError, isLoading, isShare, result, router]);
 
@@ -250,7 +252,8 @@ export function RecommendationResultMobile({
             type='button'
             onClick={() => {
               resetTest();
-              router.push(RECOMMENDATION_MAIN_RETAKE_HREF);
+              markRecommendationRetake();
+              router.push(RECOMMENDATION_MAIN_PATH);
             }}
             className='flex flex-1 cursor-pointer items-center justify-center rounded-[12px] border border-gray4 bg-white px-[0.625rem] py-[0.75rem]'
           >
@@ -297,6 +300,7 @@ function ShareBannerMobile() {
           style={{ width: '100%' }}
           onClick={() => {
             resetTest();
+            markRecommendationRetake();
             router.push('/recommendation/major');
           }}
         >
