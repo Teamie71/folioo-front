@@ -18,12 +18,13 @@ import {
 } from '@/features/recommendation/components/RecommendationResultCards';
 import { useRecommendationResult } from '@/features/recommendation/hooks/useRecommendationResult';
 import { useRecommendationResultBackNavigation } from '@/features/recommendation/hooks/useRecommendationResultBackNavigation';
-import { RECOMMENDATION_MAIN_RETAKE_HREF } from '@/features/recommendation/hooks/useRecommendationEntryRedirect';
+import { RECOMMENDATION_MAIN_PATH } from '@/features/recommendation/hooks/useRecommendationEntryRedirect';
 import {
   buildRecommendationResultLoginRedirect,
   buildRecommendationShareUrl,
   resolveRecommendationDisplayName,
 } from '@/features/recommendation/lib/recommendationShare';
+import { markRecommendationRetake } from '@/features/recommendation/lib/recommendationRetake';
 import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
 import { useUserControllerGetProfile } from '@/api/endpoints/user/user';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -104,7 +105,8 @@ export function RecommendationResult({
   useEffect(() => {
     if (isShare || isLoading) return;
     if (isError || !result) {
-      router.replace(RECOMMENDATION_MAIN_RETAKE_HREF);
+      markRecommendationRetake();
+      router.replace(RECOMMENDATION_MAIN_PATH);
     }
   }, [isError, isLoading, isShare, result, router]);
 
@@ -238,38 +240,43 @@ export function RecommendationResult({
             </CommonButton>
           </section>
 
-          <p className='typo-c1 mt-[2.5rem] text-center text-gray9'>
-            내 친구들의 맞춤 직무는 무엇일까요?
-            <br />
-            결과를 공유해 보세요!
-          </p>
+          {!isShare && (
+            <>
+              <p className='typo-c1 mt-[2.5rem] text-center text-gray9'>
+                내 친구들의 맞춤 직무는 무엇일까요?
+                <br />
+                결과를 공유해 보세요!
+              </p>
 
-          <div className='mt-[2.5rem] flex items-center justify-center gap-[1rem]'>
-            <button
-              type='button'
-              onClick={handleShare}
-              className={cn(
-                'flex w-[9.75rem] cursor-pointer items-center justify-center gap-[0.375rem] rounded-[12px] border border-gray4 bg-white px-[0.625rem] py-[0.75rem]',
-                RECOMMENDATION_WHITE_BUTTON_HOVER,
-              )}
-            >
-              <RecommendationShareIcon />
-              <span className='typo-b2 text-gray9'>결과 공유하기</span>
-            </button>
-            <button
-              type='button'
-              onClick={() => {
-                resetTest();
-                router.push(RECOMMENDATION_MAIN_RETAKE_HREF);
-              }}
-              className={cn(
-                'flex w-[9.75rem] cursor-pointer items-center justify-center rounded-[12px] border border-gray4 bg-white px-[0.625rem] py-[0.75rem]',
-                RECOMMENDATION_WHITE_BUTTON_HOVER,
-              )}
-            >
-              <span className='typo-b2 text-gray9'>테스트 다시하기</span>
-            </button>
-          </div>
+              <div className='mt-[2.5rem] flex items-center justify-center gap-[1rem]'>
+                <button
+                  type='button'
+                  onClick={handleShare}
+                  className={cn(
+                    'flex w-[9.75rem] cursor-pointer items-center justify-center gap-[0.375rem] rounded-[12px] border border-gray4 bg-white px-[0.625rem] py-[0.75rem]',
+                    RECOMMENDATION_WHITE_BUTTON_HOVER,
+                  )}
+                >
+                  <RecommendationShareIcon />
+                  <span className='typo-b2 text-gray9'>결과 공유하기</span>
+                </button>
+                <button
+                  type='button'
+                  onClick={() => {
+                    resetTest();
+                    markRecommendationRetake();
+                    router.push(RECOMMENDATION_MAIN_PATH);
+                  }}
+                  className={cn(
+                    'flex w-[9.75rem] cursor-pointer items-center justify-center rounded-[12px] border border-gray4 bg-white px-[0.625rem] py-[0.75rem]',
+                    RECOMMENDATION_WHITE_BUTTON_HOVER,
+                  )}
+                >
+                  <span className='typo-b2 text-gray9'>테스트 다시하기</span>
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -313,6 +320,7 @@ function ShareBanner() {
           style={{ width: '46.625rem' }}
           onClick={() => {
             resetTest();
+            markRecommendationRetake();
             router.push('/recommendation/major');
           }}
         >

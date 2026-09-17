@@ -9,11 +9,31 @@ import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
 import { RecommendationNextButton } from '@/features/recommendation/components/RecommendationNextButton';
 import { RecommendationTestHeader } from '@/features/recommendation/components/RecommendationTestHeader';
 
+const MAJOR_CHIP_CLS = cn(
+  'typo-b2 box-border h-auto min-h-0 min-w-0 shrink-0 rounded-[8px] border-[1.5px] border-gray4 bg-white px-[0.75rem] py-[0.375rem] font-normal text-gray9 shadow-none hover:text-gray9',
+  RECOMMENDATION_WHITE_BUTTON_HOVER,
+  'data-[state=on]:border-main data-[state=on]:bg-sub1 data-[state=on]:font-semibold data-[state=on]:text-main',
+);
+
+function MajorChipLabel({ label }: { label: string }) {
+  return (
+    <span className='relative inline-flex'>
+      <span className='invisible font-semibold whitespace-nowrap' aria-hidden>
+        {label}
+      </span>
+      <span className='absolute inset-0 whitespace-nowrap'>{label}</span>
+    </span>
+  );
+}
+
 export function RecommendationMajorStep() {
   const router = useRouter();
   const { majors } = useRecommendationMajors();
   const selected = useRecommendationTestStore((s) => s.majorId);
   const setMajorId = useRecommendationTestStore((s) => s.setMajorId);
+
+  const anyMajor = majors.find((major) => major.id === 'any');
+  const otherMajors = majors.filter((major) => major.id !== 'any');
 
   return (
     <div className='min-h-[100dvh] bg-white'>
@@ -34,31 +54,28 @@ export function RecommendationMajorStep() {
             type='single'
             value={selected}
             onValueChange={(value) => setMajorId(value ?? '')}
-            className='mt-[1.5rem] flex max-w-[26.8125rem] flex-wrap items-start justify-start gap-x-[0.625rem] gap-y-[0.75rem]'
+            className='mt-[1.5rem] flex max-w-[26.8125rem] flex-col items-start gap-y-[0.75rem]'
           >
-            {majors.map((major) => (
+            {anyMajor && (
               <ToggleGroupItem
-                key={major.id}
-                value={major.id}
-                className={cn(
-                  'typo-b2 box-border h-auto min-h-0 min-w-0 rounded-[8px] border-[1.5px] border-gray4 bg-white px-[0.75rem] py-[0.375rem] font-normal text-gray9 shadow-none hover:text-gray9',
-                  RECOMMENDATION_WHITE_BUTTON_HOVER,
-                  'data-[state=on]:border-main data-[state=on]:bg-sub1 data-[state=on]:font-semibold data-[state=on]:text-main',
-                )}
+                key={anyMajor.id}
+                value={anyMajor.id}
+                className={MAJOR_CHIP_CLS}
               >
-                <span className='relative inline-flex'>
-                  <span
-                    className='invisible font-semibold whitespace-nowrap'
-                    aria-hidden
-                  >
-                    {major.label}
-                  </span>
-                  <span className='absolute inset-0 whitespace-nowrap'>
-                    {major.label}
-                  </span>
-                </span>
+                <MajorChipLabel label={anyMajor.label} />
               </ToggleGroupItem>
-            ))}
+            )}
+            <div className='flex flex-wrap items-start justify-start gap-x-[0.625rem] gap-y-[0.75rem]'>
+              {otherMajors.map((major) => (
+                <ToggleGroupItem
+                  key={major.id}
+                  value={major.id}
+                  className={MAJOR_CHIP_CLS}
+                >
+                  <MajorChipLabel label={major.label} />
+                </ToggleGroupItem>
+              ))}
+            </div>
           </ToggleGroup>
 
           <div className='mt-[3.75rem]'>

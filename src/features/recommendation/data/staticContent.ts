@@ -4,6 +4,7 @@ import type {
 } from '@/features/recommendation/types';
 
 export const RECOMMENDATION_MAJORS: RecommendationMajorOption[] = [
+  { id: 'any', label: '전공과 관계없이 찾기' },
   { id: 'humanities-social', label: '인문·사회' },
   { id: 'language', label: '어문' },
   { id: 'business', label: '경영' },
@@ -15,7 +16,6 @@ export const RECOMMENDATION_MAJORS: RecommendationMajorOption[] = [
   { id: 'computer-science', label: '컴퓨터공학' },
   { id: 'art-design', label: '예술·디자인' },
   { id: 'other', label: '기타' },
-  { id: 'any', label: '전공과 관계없이 찾기' },
 ];
 
 export const INTEREST_QUESTIONS: InterestQuestion[] = [

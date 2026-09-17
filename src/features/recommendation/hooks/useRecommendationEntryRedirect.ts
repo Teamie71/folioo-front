@@ -1,19 +1,18 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAssessmentControllerGetStatus } from '@/api/endpoints/assessment/assessment';
+import {
+  isRecommendationRetakeActive,
+  markRecommendationRetake,
+} from '@/features/recommendation/lib/recommendationRetake';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export const RECOMMENDATION_RETAKE_PARAM = 'retake';
 export const RECOMMENDATION_MAIN_PATH = '/recommendation';
-export const RECOMMENDATION_MAIN_RETAKE_HREF = `${RECOMMENDATION_MAIN_PATH}?${RECOMMENDATION_RETAKE_PARAM}=1`;
+export const RECOMMENDATION_MAIN_RETAKE_HREF = RECOMMENDATION_MAIN_PATH;
 
-/**
- * /recommendation 진입 시:
- * - 로그인 + 저장된 결과 있음 → 결과 페이지
- * - 비로그인 / 결과 없음 / retake=1 → 메인 유지
- */
 export function useRecommendationEntryRedirect() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -21,10 +20,23 @@ export function useRecommendationEntryRedirect() {
   const sessionRestoreAttempted = useAuthStore(
     (s) => s.sessionRestoreAttempted,
   );
+  const [isRetake, setIsRetake] = useState(false);
+  const [retakeReady, setRetakeReady] = useState(false);
 
-  const isRetake = searchParams.get(RECOMMENDATION_RETAKE_PARAM) === '1';
+  useEffect(() => {
+    const hasRetakeQuery =
+      searchParams.get(RECOMMENDATION_RETAKE_PARAM) === '1';
+    if (hasRetakeQuery) {
+      markRecommendationRetake();
+      router.replace(RECOMMENDATION_MAIN_PATH);
+    }
+    setIsRetake(isRecommendationRetakeActive() || hasRetakeQuery);
+    setRetakeReady(true);
+  }, [router, searchParams]);
+
   const isLoggedIn = sessionRestoreAttempted && accessToken != null;
-  const shouldCheckStatus = sessionRestoreAttempted && isLoggedIn && !isRetake;
+  const shouldCheckStatus =
+    sessionRestoreAttempted && isLoggedIn && retakeReady && !isRetake;
 
   const statusQuery = useAssessmentControllerGetStatus({
     query: {
@@ -52,6 +64,7 @@ export function useRecommendationEntryRedirect() {
 
   const isCheckingEntry =
     !sessionRestoreAttempted ||
+    !retakeReady ||
     (shouldCheckStatus && statusQuery.isPending) ||
     Boolean(completedUuid);
 
