@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuthControllerHandleLogout } from '@/api/endpoints/auth/auth';
 import { useUserControllerGetProfile } from '@/api/endpoints/user/user';
@@ -350,6 +350,7 @@ function CollapsedBrand({ onClick }: { onClick: () => void }) {
 }
 
 export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
+  const sidebarRef = useRef<HTMLElement>(null);
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -361,6 +362,26 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
   );
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const isLoggedIn = accessToken != null;
+
+  useEffect(() => {
+    if (!isExpanded) return;
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      const sidebar = sidebarRef.current;
+      if (
+        sidebar &&
+        event.target instanceof Node &&
+        !sidebar.contains(event.target)
+      ) {
+        setIsExpanded(false);
+      }
+    };
+
+    // 클릭 대상의 동작을 유지하고, 이벤트 전파를 막는 외부 영역도 감지한다.
+    document.addEventListener('click', handleOutsideClick, true);
+    return () =>
+      document.removeEventListener('click', handleOutsideClick, true);
+  }, [isExpanded]);
 
   const { data: profileData } = useUserControllerGetProfile({
     query: { enabled: isLoggedIn },
@@ -389,6 +410,7 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
 
   return (
     <motion.aside
+      ref={sidebarRef}
       initial={false}
       animate={{
         width: isExpanded ? SIDEBAR_WIDTH.expanded : SIDEBAR_WIDTH.collapsed,
