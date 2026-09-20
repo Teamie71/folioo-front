@@ -27,6 +27,8 @@ const SIDEBAR_TRANSITION = {
   ease: [0.4, 0, 0.2, 1] as const,
 };
 
+const EXPAND_CURSOR = 'url("/sidebar/expand-cursor.svg") 20 18, e-resize';
+
 type SidebarMenuItem = {
   label: string;
   href?: string;
@@ -313,7 +315,9 @@ function CollapsedBrand({ onClick }: { onClick: () => void }) {
         type='button'
         onClick={onClick}
         className='group relative flex size-[32px] cursor-pointer items-center justify-center rounded-[8px] p-[4px]'
+        style={{ cursor: EXPAND_CURSOR }}
         aria-label='사이드바 최대화'
+        aria-expanded={false}
       >
         <Image
           src='/sidebar/logo-symbol.svg'
@@ -486,6 +490,14 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
         </div>
       ) : (
         <div className='relative h-full w-[60px]'>
+          <button
+            type='button'
+            className='focus-visible:outline-main absolute inset-0 focus-visible:outline-2 focus-visible:-outline-offset-2'
+            style={{ cursor: EXPAND_CURSOR }}
+            onClick={() => setIsExpanded(true)}
+            aria-label='사이드바 열기'
+            aria-expanded={false}
+          />
           <CollapsedBrand onClick={() => setIsExpanded(true)} />
 
           <Image
@@ -493,14 +505,14 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
             alt=''
             width={44}
             height={1}
-            className='absolute top-[216px] left-[8px]'
+            className='pointer-events-none absolute top-[216px] left-[8px]'
           />
           <Image
             src='/sidebar/divider-collapsed.svg'
             alt=''
             width={44}
             height={1}
-            className='absolute top-[272px] left-[8px]'
+            className='pointer-events-none absolute top-[272px] left-[8px]'
           />
 
           <nav aria-label='주요 메뉴'>
