@@ -23,16 +23,22 @@ export function RecommendationBalanceCard({
       onClick={onClick}
       disabled={disabled}
       aria-pressed={selected}
+      style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}
       className={cn(
-        'box-border flex w-full cursor-pointer items-center rounded-[16px] border border-solid bg-gray1 px-[1.25rem] py-[2.5rem] text-left whitespace-pre-line',
-        isMobile ? 'typo-c1' : 'min-h-[8.125rem] max-w-[30.125rem] typo-b2',
-        !isMobile && 'w-[30.125rem]',
+        'box-border flex items-center rounded-[16px] border-[1.5px] border-solid px-[1.25rem] py-[2.5rem] text-left whitespace-pre-line',
+        isMobile
+          ? 'typo-c1 w-full'
+          : 'typo-b2 min-h-[8.125rem] w-[30.125rem] shrink-0',
         selected
           ? cn(
-              'border-[1.5px] border-main bg-sub1 text-main',
+              'border-main bg-sub1 text-main',
               isMobile ? 'typo-c1-sb' : 'font-semibold',
             )
-          : 'border-gray4 font-normal text-gray9',
+          : cn(
+              'border-gray4 bg-white font-normal text-gray9',
+              !disabled &&
+                '[@media(hover:hover)_and_(pointer:fine)]:hover:bg-gray2',
+            ),
       )}
     >
       {text}

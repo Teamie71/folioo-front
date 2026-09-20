@@ -1,10 +1,10 @@
 'use client';
 
 import { useValueBalanceGame } from '@/features/recommendation/hooks/useValueBalanceGame';
-import type { ValueChoice } from '@/features/recommendation/types';
 import { RecommendationBalanceCard } from '@/features/recommendation/components/RecommendationBalanceCard';
 import { RecommendationPrevButton } from '@/features/recommendation/components/RecommendationPrevButton';
 import { RecommendationTestHeader } from '@/features/recommendation/components/RecommendationTestHeader';
+import { RecommendationValueQuestionTransition } from '@/features/recommendation/components/RecommendationValueQuestionTransition';
 
 export function RecommendationValuesStep() {
   const {
@@ -12,25 +12,21 @@ export function RecommendationValuesStep() {
     selected,
     isFirstQuestion,
     isLoading,
-    isSubmitting,
     error,
     select,
     goBack,
     retry,
   } = useValueBalanceGame();
 
-  const handleSelect = (choice: ValueChoice) => {
-    if (isSubmitting) return;
-    void select(choice);
-  };
-
   if (isLoading || !question) {
     if (error && !isLoading) {
       return (
         <div className='min-h-[100dvh] bg-white'>
-          <div className='mx-auto w-[66rem] pt-[1.75rem]'>
-            <RecommendationTestHeader currentStep={3} />
-            <div className='mt-[5rem] flex flex-col gap-[1rem] px-[1rem]'>
+          <div className='mx-auto w-[66rem]'>
+            <div className='pt-[1.75rem] pb-[1.25rem]'>
+              <RecommendationTestHeader currentStep={3} />
+            </div>
+            <div className='mt-[2.5rem] flex flex-col gap-[1rem] px-[1rem]'>
               <p className='typo-b2 text-gray9'>{error}</p>
               <button
                 type='button'
@@ -50,10 +46,12 @@ export function RecommendationValuesStep() {
 
   return (
     <div className='min-h-[100dvh] bg-white'>
-      <div className='mx-auto w-[66rem] pt-[1.75rem]'>
-        <RecommendationTestHeader currentStep={3} />
+      <div className='mx-auto w-[66rem]'>
+        <div className='pt-[1.75rem] pb-[1.25rem]'>
+          <RecommendationTestHeader currentStep={3} />
+        </div>
 
-        <div className='mt-[5rem] px-[1rem]'>
+        <div className='mt-[2.5rem] px-[1rem]'>
           <div className='flex flex-col gap-[0.25rem]'>
             <h2 className='typo-h4 text-gray9'>
               어떤 근무 조건을 중요하게 생각하나요?
@@ -74,22 +72,34 @@ export function RecommendationValuesStep() {
             <p className='typo-c2 mt-[1rem] text-red-500'>{error}</p>
           ) : null}
 
-          <div className='relative mt-[1.75rem] flex items-center gap-[3.75rem]'>
-            <RecommendationBalanceCard
-              text={question.left.card}
-              selected={selected === 'left'}
-              disabled={isSubmitting}
-              onClick={() => handleSelect('left')}
-            />
-            <span className='typo-h5 absolute left-1/2 -translate-x-1/2 text-gray9'>
+          <div className='relative mt-[1.75rem] flex items-center justify-center gap-[3.75rem]'>
+            <RecommendationValueQuestionTransition
+              question={question}
+              selected={selected}
+              onSelect={select}
+              className='flex items-center gap-[3.75rem]'
+            >
+              {(panel, selectChoice) => (
+                <>
+                  <RecommendationBalanceCard
+                    text={panel.question.left.card}
+                    selected={panel.selected === 'left'}
+                    onClick={() => selectChoice('left')}
+                  />
+                  <RecommendationBalanceCard
+                    text={panel.question.right.card}
+                    selected={panel.selected === 'right'}
+                    onClick={() => selectChoice('right')}
+                  />
+                </>
+              )}
+            </RecommendationValueQuestionTransition>
+            <span
+              className='typo-h5 pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-gray9'
+              aria-hidden
+            >
               vs
             </span>
-            <RecommendationBalanceCard
-              text={question.right.card}
-              selected={selected === 'right'}
-              disabled={isSubmitting}
-              onClick={() => handleSelect('right')}
-            />
           </div>
 
           {!isFirstQuestion && (

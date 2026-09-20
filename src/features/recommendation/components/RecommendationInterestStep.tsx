@@ -69,12 +69,12 @@ export function RecommendationInterestStep() {
       <div className='mx-auto w-[66rem]'>
         <div
           ref={stickyHeaderRef}
-          className='sticky top-0 z-10 bg-white pt-[1.75rem] pb-[1rem]'
+          className='sticky top-0 z-10 bg-white pt-[1.75rem] pb-[1.25rem]'
         >
           <RecommendationTestHeader currentStep={2} />
         </div>
 
-        <div className='px-[1rem]'>
+        <div className='mt-[2.5rem] px-[1rem]'>
           <div className='flex flex-col gap-[0.25rem]'>
             <h2 className='typo-h4 text-gray9'>어떤 일에 흥미를 느끼나요?</h2>
             <p className='typo-c2 text-gray6'>

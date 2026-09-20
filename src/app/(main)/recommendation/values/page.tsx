@@ -2,6 +2,7 @@ import { headers } from 'next/headers';
 import { RecommendationValuesStep } from '@/features/recommendation/components/RecommendationValuesStep';
 import { RecommendationValuesStepMobile } from '@/features/recommendation/components/mobile/RecommendationValuesStepMobile';
 import { RecommendationPageMobileGate } from '@/features/recommendation/components/RecommendationPageMobileGate';
+import { RecommendationStepGate } from '@/features/recommendation/components/RecommendationStepGate';
 import { isTopupMobileUserAgent } from '@/utils/device';
 
 export default async function RecommendationValuesPage() {
@@ -10,10 +11,12 @@ export default async function RecommendationValuesPage() {
   const isMobile = isTopupMobileUserAgent(userAgent);
 
   return (
-    <RecommendationPageMobileGate
-      serverMobile={isMobile}
-      mobile={<RecommendationValuesStepMobile />}
-      desktop={<RecommendationValuesStep />}
-    />
+    <RecommendationStepGate step='values'>
+      <RecommendationPageMobileGate
+        serverMobile={isMobile}
+        mobile={<RecommendationValuesStepMobile />}
+        desktop={<RecommendationValuesStep />}
+      />
+    </RecommendationStepGate>
   );
 }

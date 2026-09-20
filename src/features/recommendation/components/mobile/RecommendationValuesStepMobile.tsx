@@ -1,9 +1,9 @@
 'use client';
 
 import { useValueBalanceGame } from '@/features/recommendation/hooks/useValueBalanceGame';
-import type { ValueChoice } from '@/features/recommendation/types';
 import { RecommendationBalanceCard } from '@/features/recommendation/components/RecommendationBalanceCard';
 import { RecommendationPrevButton } from '@/features/recommendation/components/RecommendationPrevButton';
+import { RecommendationValueQuestionTransition } from '@/features/recommendation/components/RecommendationValueQuestionTransition';
 import { RecommendationMobileProgressBar } from '@/features/recommendation/components/mobile/RecommendationMobileProgressBar';
 
 export function RecommendationValuesStepMobile() {
@@ -12,17 +12,11 @@ export function RecommendationValuesStepMobile() {
     selected,
     isFirstQuestion,
     isLoading,
-    isSubmitting,
     error,
     select,
     goBack,
     retry,
   } = useValueBalanceGame();
-
-  const handleSelect = (choice: ValueChoice) => {
-    if (isSubmitting) return;
-    void select(choice);
-  };
 
   if (isLoading || !question) {
     if (error && !isLoading) {
@@ -72,22 +66,32 @@ export function RecommendationValuesStepMobile() {
           <p className='typo-c2 mt-[1rem] text-red-500'>{error}</p>
         ) : null}
 
-        <div className='mt-[1.75rem] flex w-full flex-col gap-[1.125rem]'>
-          <RecommendationBalanceCard
-            variant='mobile'
-            text={question.left.card}
-            selected={selected === 'left'}
-            disabled={isSubmitting}
-            onClick={() => handleSelect('left')}
-          />
-          <RecommendationBalanceCard
-            variant='mobile'
-            text={question.right.card}
-            selected={selected === 'right'}
-            disabled={isSubmitting}
-            onClick={() => handleSelect('right')}
-          />
-        </div>
+          <div className='mt-[1.75rem]'>
+            <RecommendationValueQuestionTransition
+              question={question}
+              selected={selected}
+              onSelect={select}
+              axis='x'
+              className='flex w-full flex-col gap-[1.125rem]'
+            >
+              {(panel, selectChoice) => (
+                <>
+                  <RecommendationBalanceCard
+                    variant='mobile'
+                    text={panel.question.left.card}
+                    selected={panel.selected === 'left'}
+                    onClick={() => selectChoice('left')}
+                  />
+                  <RecommendationBalanceCard
+                    variant='mobile'
+                    text={panel.question.right.card}
+                    selected={panel.selected === 'right'}
+                    onClick={() => selectChoice('right')}
+                  />
+                </>
+              )}
+            </RecommendationValueQuestionTransition>
+          </div>
       </div>
 
       {!isFirstQuestion && (

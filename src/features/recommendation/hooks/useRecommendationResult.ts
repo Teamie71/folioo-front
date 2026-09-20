@@ -9,6 +9,7 @@ import {
   useAssessmentControllerGetResult,
 } from '@/api/endpoints/assessment/assessment';
 import { mapAssessmentResult } from '@/features/recommendation/lib/mapAssessmentResult';
+import { isRecommendationResultUuidInvalidated } from '@/features/recommendation/lib/recommendationRetake';
 import type { RecommendationResultData } from '@/features/recommendation/types';
 import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -45,8 +46,14 @@ export function useRecommendationResult(
     '';
 
   // share는 URL uuid만 사용. store fallback이면 다른 세션 결과가 노출될 수 있다.
-  const resolvedUuid =
+  const candidateUuid =
     scope === 'share' ? shareUuid : storeUuid || shareUuid;
+  const resolvedUuid =
+    scope === 'mine' &&
+    candidateUuid &&
+    isRecommendationResultUuidInvalidated(candidateUuid)
+      ? ''
+      : candidateUuid;
 
   const resultQuery = useAssessmentControllerGetResult(resolvedUuid, {
     query: {
