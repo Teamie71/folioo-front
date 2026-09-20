@@ -71,7 +71,7 @@ export const HOLLAND_TYPES: HollandTypeResult[] = [
 ];
 
 export const RECOMMENDATION_WHITE_BUTTON_HOVER =
-  'transition-colors [@media(hover:hover)_and_(pointer:fine)]:hover:bg-sub-hover';
+  'transition-colors hover:bg-gray2';
 
 export const RECOMMENDATION_SUB_BUTTON_CLASS =
   'bg-sub1 [@media(hover:hover)_and_(pointer:fine)]:hover:bg-sub-hover [@media(hover:hover)_and_(pointer:fine)]:transition-colors';

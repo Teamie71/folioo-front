@@ -16,6 +16,7 @@ import {
   RecommendationJobCards,
 } from '@/features/recommendation/components/RecommendationResultCards';
 import type { RecommendationResultVariant } from '@/features/recommendation/components/RecommendationResult';
+import { RECOMMENDATION_WHITE_BUTTON_HOVER } from '@/features/recommendation/constants';
 import { useRecommendationResult } from '@/features/recommendation/hooks/useRecommendationResult';
 import { useRecommendationResultBackNavigation } from '@/features/recommendation/hooks/useRecommendationResultBackNavigation';
 import { RECOMMENDATION_MAIN_PATH } from '@/features/recommendation/hooks/useRecommendationEntryRedirect';
@@ -245,7 +246,10 @@ export function RecommendationResultMobile({
               <button
                 type='button'
                 onClick={handleShare}
-                className='flex flex-1 cursor-pointer items-center justify-center gap-[0.375rem] rounded-[12px] border border-gray4 bg-white px-[0.625rem] py-[0.75rem]'
+                className={cn(
+                  'flex flex-1 cursor-pointer items-center justify-center gap-[0.375rem] rounded-[12px] border border-gray4 bg-white px-[0.625rem] py-[0.75rem]',
+                  RECOMMENDATION_WHITE_BUTTON_HOVER,
+                )}
               >
                 <RecommendationShareIcon />
                 <span className='typo-b2 text-gray9'>결과 공유하기</span>
@@ -257,7 +261,10 @@ export function RecommendationResultMobile({
                   markRecommendationRetake();
                   router.push(RECOMMENDATION_MAIN_PATH);
                 }}
-                className='flex flex-1 cursor-pointer items-center justify-center rounded-[12px] border border-gray4 bg-white px-[0.625rem] py-[0.75rem]'
+                className={cn(
+                  'flex flex-1 cursor-pointer items-center justify-center rounded-[12px] border border-gray4 bg-white px-[0.625rem] py-[0.75rem]',
+                  RECOMMENDATION_WHITE_BUTTON_HOVER,
+                )}
               >
                 <span className='typo-b2 text-gray9'>테스트 다시하기</span>
               </button>
