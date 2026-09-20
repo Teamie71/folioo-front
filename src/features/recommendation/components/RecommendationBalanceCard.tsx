@@ -24,7 +24,7 @@ export function RecommendationBalanceCard({
       disabled={disabled}
       aria-pressed={selected}
       className={cn(
-        'box-border flex w-full cursor-pointer items-center rounded-[16px] border border-solid bg-gray1 px-[1.25rem] py-[2.5rem] text-left whitespace-pre-line',
+        'box-border flex w-full cursor-pointer items-center rounded-[16px] border border-solid px-[1.25rem] py-[2.5rem] text-left whitespace-pre-line transition-colors',
         isMobile ? 'typo-c1' : 'min-h-[8.125rem] max-w-[30.125rem] typo-b2',
         !isMobile && 'w-[30.125rem]',
         selected
@@ -32,7 +32,7 @@ export function RecommendationBalanceCard({
               'border-[1.5px] border-main bg-sub1 text-main',
               isMobile ? 'typo-c1-sb' : 'font-semibold',
             )
-          : 'border-gray4 font-normal text-gray9',
+          : 'border-gray4 bg-white font-normal text-gray9 hover:bg-gray2',
       )}
     >
       {text}
