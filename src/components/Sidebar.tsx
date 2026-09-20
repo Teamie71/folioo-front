@@ -291,13 +291,13 @@ function SocialEmailLogo({ socialType }: { socialType?: string }) {
 function ExpandedBrand({ onClick }: { onClick: () => void }) {
   return (
     <>
-      <Image
-        src='/sidebar/logo.svg'
-        alt='Folioo'
-        width={112}
-        height={28}
-        className='absolute top-[32px] left-[20px]'
-      />
+      <Link
+        href='/'
+        aria-label='Folioo 홈으로 이동'
+        className='absolute top-[32px] left-[20px] block h-[28px] w-[112px] cursor-pointer'
+      >
+        <Image src='/sidebar/logo.svg' alt='Folioo' width={112} height={28} />
+      </Link>
       <button
         type='button'
         onClick={onClick}
