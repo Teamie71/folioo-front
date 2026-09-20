@@ -53,13 +53,24 @@ export function RecommendationValueQuestionTransition({
     selected,
   });
   const [visible, setVisible] = useState(true);
-  const [direction, setDirection] = useState(1);
+  const [direction, setDirection] = useState<1 | -1>(1);
+  const [motionActive, setMotionActive] = useState(false);
   const busyRef = useRef(false);
   const pendingNextRef = useRef<ValueBalanceQuestion | null>(null);
+  const shouldExitRef = useRef(false);
+  const isEnteringRef = useRef(false);
   const panelSeqRef = useRef(panel.question.sequence);
   const questionRef = useRef(question);
   panelSeqRef.current = panel.question.sequence;
   questionRef.current = question;
+
+  const queueTransition = (next: ValueBalanceQuestion, dir: 1 | -1) => {
+    pendingNextRef.current = next;
+    setDirection(dir);
+    isEnteringRef.current = false;
+    shouldExitRef.current = true;
+    setMotionActive(true);
+  };
 
   useEffect(() => {
     if (busyRef.current) return;
@@ -70,13 +81,22 @@ export function RecommendationValueQuestionTransition({
     }
 
     busyRef.current = true;
-    setDirection(question.sequence < panelSeqRef.current ? -1 : 1);
-    pendingNextRef.current = question;
-    setVisible(false);
+    const dir: 1 | -1 =
+      question.sequence < panelSeqRef.current ? -1 : 1;
+    queueTransition(question, dir);
   }, [question, selected]);
 
+  useEffect(() => {
+    if (!motionActive || !shouldExitRef.current) return;
+    shouldExitRef.current = false;
+    const id = window.requestAnimationFrame(() => {
+      setVisible(false);
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [motionActive]);
+
   const selectChoice = (choice: ValueChoice) => {
-    if (busyRef.current || !visible) return;
+    if (busyRef.current || motionActive) return;
 
     busyRef.current = true;
     const seqBefore = panel.question.sequence;
@@ -99,45 +119,58 @@ export function RecommendationValueQuestionTransition({
         return;
       }
 
-      setDirection(1);
-      pendingNextRef.current = next;
-      setVisible(false);
+      queueTransition(next, 1);
     })();
   };
 
   const handleExitComplete = () => {
     const next = pendingNextRef.current;
-    if (!next) return;
+    if (!next) {
+      setVisible(true);
+      setMotionActive(false);
+      busyRef.current = false;
+      return;
+    }
 
     pendingNextRef.current = null;
+    isEnteringRef.current = true;
     setPanel({ question: next, selected: undefined });
     setVisible(true);
-    busyRef.current = false;
   };
 
+  const content = children(panel, selectChoice);
+
+  if (!motionActive) {
+    return <div className={className}>{content}</div>;
+  }
+
   return (
-    <div className='relative w-full overflow-hidden'>
-      <AnimatePresence
-        mode='wait'
-        initial={false}
-        custom={direction}
-        onExitComplete={handleExitComplete}
-      >
-        {visible ? (
-          <motion.div
-            key={panel.question.sequence}
-            className={className}
-            custom={direction}
-            variants={variants}
-            initial='initial'
-            animate='animate'
-            exit='exit'
-            transition={{ duration: DURATION, ease: EASE }}
-          >
-            {children(panel, selectChoice)}
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-    </div>
+    <AnimatePresence
+      mode='wait'
+      custom={direction}
+      onExitComplete={handleExitComplete}
+    >
+      {visible ? (
+        <motion.div
+          key={panel.question.sequence}
+          className={className}
+          custom={direction}
+          variants={variants}
+          initial={isEnteringRef.current ? 'initial' : false}
+          animate='animate'
+          exit='exit'
+          transition={{ duration: DURATION, ease: EASE }}
+          onAnimationComplete={(definition) => {
+            if (definition === 'animate' && isEnteringRef.current) {
+              isEnteringRef.current = false;
+              setMotionActive(false);
+              busyRef.current = false;
+            }
+          }}
+        >
+          {content}
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
   );
 }

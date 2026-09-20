@@ -68,12 +68,12 @@ export function RecommendationValuesStep() {
             <p className='typo-c2 mt-[1rem] text-red-500'>{error}</p>
           ) : null}
 
-          <div className='relative mt-[1.75rem] flex items-center gap-[3.75rem]'>
+          <div className='relative mt-[1.75rem] flex items-center justify-center gap-[3.75rem]'>
             <RecommendationValueQuestionTransition
               question={question}
               selected={selected}
               onSelect={select}
-              className='flex w-full items-center gap-[3.75rem]'
+              className='flex items-center gap-[3.75rem]'
             >
               {(panel, selectChoice) => (
                 <>
@@ -91,7 +91,7 @@ export function RecommendationValuesStep() {
               )}
             </RecommendationValueQuestionTransition>
             <span
-              className='typo-h5 pointer-events-none absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 text-gray9'
+              className='typo-h5 pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-gray9'
               aria-hidden
             >
               vs
