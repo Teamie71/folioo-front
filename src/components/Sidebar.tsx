@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuthControllerHandleLogout } from '@/api/endpoints/auth/auth';
 import { useUserControllerGetProfile } from '@/api/endpoints/user/user';
@@ -27,6 +27,8 @@ const SIDEBAR_TRANSITION = {
   ease: [0.4, 0, 0.2, 1] as const,
 };
 
+const EXPAND_CURSOR = 'url("/sidebar/expand-cursor.svg") 20 18, e-resize';
+
 type SidebarMenuItem = {
   label: string;
   href?: string;
@@ -42,10 +44,10 @@ type SidebarMenuItem = {
 const MENU_ITEMS: SidebarMenuItem[] = [
   {
     label: '직무 추천',
+    href: '/recommendation',
     expandedIcon: '/sidebar/job-recommendation.svg',
     collapsedIcon: '/sidebar/job-recommendation-hover.svg',
     collapsedActiveIcon: '/sidebar/job-recommendation-active.svg',
-    disabled: true,
   },
   {
     label: '경험 정리',
@@ -251,7 +253,13 @@ function CollapsedMenuItem({
   );
 
   return (
-    <div className='absolute left-[12px]' style={{ top }}>
+    <div
+      className={cn(
+        'absolute left-[12px]',
+        item.disabled ? 'cursor-default' : 'cursor-pointer',
+      )}
+      style={{ top }}
+    >
       {!item.disabled && item.href ? (
         <HoverTooltip label={item.label} wrapperClassName='block'>
           {itemContent}
@@ -283,13 +291,13 @@ function SocialEmailLogo({ socialType }: { socialType?: string }) {
 function ExpandedBrand({ onClick }: { onClick: () => void }) {
   return (
     <>
-      <Image
-        src='/sidebar/logo.svg'
-        alt='Folioo'
-        width={112}
-        height={28}
-        className='absolute top-[32px] left-[20px]'
-      />
+      <Link
+        href='/'
+        aria-label='Folioo 홈으로 이동'
+        className='absolute top-[32px] left-[20px] block h-[28px] w-[112px] cursor-pointer'
+      >
+        <Image src='/sidebar/logo.svg' alt='Folioo' width={112} height={28} />
+      </Link>
       <button
         type='button'
         onClick={onClick}
@@ -307,13 +315,14 @@ function CollapsedBrand({ onClick }: { onClick: () => void }) {
     <HoverTooltip
       label='사이드바 열기'
       placement='bottom'
-      wrapperClassName='absolute top-[29px] left-[14px] block size-[32px]'
+      wrapperClassName='absolute top-[29px] left-[14px] block size-[32px] cursor-pointer'
     >
       <button
         type='button'
         onClick={onClick}
         className='group relative flex size-[32px] cursor-pointer items-center justify-center rounded-[8px] p-[4px]'
         aria-label='사이드바 최대화'
+        aria-expanded={false}
       >
         <Image
           src='/sidebar/logo-symbol.svg'
@@ -341,6 +350,7 @@ function CollapsedBrand({ onClick }: { onClick: () => void }) {
 }
 
 export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
+  const sidebarRef = useRef<HTMLElement>(null);
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -352,6 +362,26 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
   );
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const isLoggedIn = accessToken != null;
+
+  useEffect(() => {
+    if (!isExpanded) return;
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      const sidebar = sidebarRef.current;
+      if (
+        sidebar &&
+        event.target instanceof Node &&
+        !sidebar.contains(event.target)
+      ) {
+        setIsExpanded(false);
+      }
+    };
+
+    // 클릭 대상의 동작을 유지하고, 이벤트 전파를 막는 외부 영역도 감지한다.
+    document.addEventListener('click', handleOutsideClick, true);
+    return () =>
+      document.removeEventListener('click', handleOutsideClick, true);
+  }, [isExpanded]);
 
   const { data: profileData } = useUserControllerGetProfile({
     query: { enabled: isLoggedIn },
@@ -380,11 +410,19 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
 
   return (
     <motion.aside
+      ref={sidebarRef}
       initial={false}
       animate={{
         width: isExpanded ? SIDEBAR_WIDTH.expanded : SIDEBAR_WIDTH.collapsed,
       }}
       transition={SIDEBAR_TRANSITION}
+      style={{ cursor: isExpanded ? undefined : EXPAND_CURSOR }}
+      onClick={(event) => {
+        // 내부 버튼 밖의 사이드바 경계도 동일하게 열린다.
+        if (!isExpanded && event.target === event.currentTarget) {
+          setIsExpanded(true);
+        }
+      }}
       className={cn(
         'sticky top-0 h-[100dvh] shrink-0 self-start overflow-hidden bg-white',
         isExpanded
@@ -428,25 +466,27 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
               <button
                 type='button'
                 onClick={() => setIsProfileModalOpen(true)}
-                className='absolute top-[288px] left-[20px] cursor-pointer text-left'
+                className='absolute top-[288px] left-[20px] w-[200px] cursor-pointer text-left'
                 aria-label='프로필 열기'
               >
-                <span className='relative flex items-center'>
-                  <span className='typo-b2-b text-gray9 whitespace-nowrap'>
+                <span className='flex min-w-0 items-center gap-[4px]'>
+                  <span className='typo-b2-b text-gray9 truncate'>
                     {profile?.name || '사용자'}
                   </span>
-                  <span className='typo-c1 text-gray9 absolute top-[2px] left-[50px] whitespace-nowrap'>
+                  <span className='typo-c1 text-gray9 shrink-0 whitespace-nowrap'>
                     님 프로필
                   </span>
                   <SidebarIcon
                     src='/sidebar/profile-chevron.svg'
                     size={20}
-                    className='absolute top-[2px] left-[106px] rotate-90'
+                    className='shrink-0 rotate-90'
                   />
                 </span>
                 <span className='mt-[4px] flex items-center gap-[8px]'>
-                  <SocialEmailLogo socialType={socialAccount?.socialType} />
-                  <span className='typo-c1 text-gray6 whitespace-nowrap'>
+                  <span className='shrink-0'>
+                    <SocialEmailLogo socialType={socialAccount?.socialType} />
+                  </span>
+                  <span className='typo-c1 text-gray6 truncate'>
                     {socialEmail}
                   </span>
                 </span>
@@ -486,6 +526,13 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
         </div>
       ) : (
         <div className='relative h-full w-[60px]'>
+          <button
+            type='button'
+            className='focus-visible:outline-main absolute inset-0 [cursor:inherit] focus-visible:outline-2 focus-visible:-outline-offset-2'
+            onClick={() => setIsExpanded(true)}
+            aria-label='사이드바 열기'
+            aria-expanded={false}
+          />
           <CollapsedBrand onClick={() => setIsExpanded(true)} />
 
           <Image
@@ -493,14 +540,14 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
             alt=''
             width={44}
             height={1}
-            className='absolute top-[216px] left-[8px]'
+            className='pointer-events-none absolute top-[216px] left-[8px]'
           />
           <Image
             src='/sidebar/divider-collapsed.svg'
             alt=''
             width={44}
             height={1}
-            className='absolute top-[272px] left-[8px]'
+            className='pointer-events-none absolute top-[272px] left-[8px]'
           />
 
           <nav aria-label='주요 메뉴'>

@@ -10,7 +10,6 @@ import { ProfileButton } from '@/components/ProfileButton';
 import { ProfileDropdown } from '@/components/ProfileDropdown';
 import { ProfileModal } from '@/components/ProfileModal';
 import { LogoutModal } from '@/components/LogoutModal';
-import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useAuthControllerHandleLogout } from '@/api/endpoints/auth/auth';
 import { cn } from '@/utils/utils';
@@ -33,8 +32,6 @@ export default function Navbar() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isLoginRequiredModalOpen, setIsLoginRequiredModalOpen] =
-    useState(false);
-  const [isJobRecommendationModalOpen, setIsJobRecommendationModalOpen] =
     useState(false);
   const myButtonRef = useRef<HTMLButtonElement>(null);
   const loginRequiredTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
@@ -112,7 +109,6 @@ export default function Navbar() {
     label: string,
     requireLogin = false,
     activePath: string = href,
-    onClick?: () => void,
   ) => {
     const content = (
       <span className={linkClass(activePath)}>
@@ -135,17 +131,6 @@ export default function Navbar() {
         </span>
       </span>
     );
-    if (onClick) {
-      return (
-        <button
-          type='button'
-          className='group inline-block cursor-pointer border-none bg-transparent p-0 py-[8px] font-[16px] no-underline transition-colors'
-          onClick={onClick}
-        >
-          {content}
-        </button>
-      );
-    }
     if (requireLogin && !isLoggedIn) {
       return (
         <button
@@ -179,13 +164,7 @@ export default function Navbar() {
             </Link>
 
             {/* 네비게이션 링크 — hover 시 bold만 적용, 레이아웃 시프트 없음 */}
-            {navLink(
-              '/recommendation',
-              '직무 찾기',
-              false,
-              '/recommendation',
-              () => setIsJobRecommendationModalOpen(true),
-            )}
+            {navLink('/recommendation', '직무 찾기')}
             {/*
               경험 정리는 비로그인 사용자도 조회·편집이 가능한 페이지다.
               (experience/layout.tsx 참고: 의도적으로 로그인 가드를 두지 않음)
@@ -244,10 +223,6 @@ export default function Navbar() {
       <LoginRequiredModal
         open={isLoginRequiredModalOpen}
         onOpenChange={handleLoginRequiredModalOpenChange}
-      />
-      <OBTRedirectModal
-        open={isJobRecommendationModalOpen}
-        onOpenChange={setIsJobRecommendationModalOpen}
       />
     </nav>
   );

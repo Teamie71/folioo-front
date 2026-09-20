@@ -7,7 +7,6 @@ import { type ReactNode, type UIEvent, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { CommonButton } from '@/components/CommonButton';
 import Footer from '@/components/Footer';
-import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { ChevronColorLeftIcon } from '@/components/icons/ChevronColorLeftIcon';
 import { useAuthStore } from '@/store/useAuthStore';
 import { LandingVideo } from './LandingVideo';
@@ -1041,8 +1040,6 @@ function LandingFaq() {
 
 function MobileLandingFooter() {
   const currentYear = new Date().getFullYear();
-  const [isJobRecommendationModalOpen, setIsJobRecommendationModalOpen] =
-    useState(false);
 
   return (
     <>
@@ -1057,13 +1054,9 @@ function MobileLandingFooter() {
           </Link>
         </div>
         <nav className='mt-2 flex flex-col gap-2 text-[#1A1A1A]'>
-          <button
-            type='button'
-            className='cursor-pointer text-left'
-            onClick={() => setIsJobRecommendationModalOpen(true)}
-          >
+          <Link href='/recommendation' className='cursor-pointer text-left'>
             직무 찾기
-          </button>
+          </Link>
           <Link href='/experience/workspace' className='cursor-pointer'>
             경험 정리
           </Link>
@@ -1119,18 +1112,12 @@ function MobileLandingFooter() {
           Copyright © {currentYear} Teamie. All rights reserved.
         </p>
       </footer>
-      <OBTRedirectModal
-        open={isJobRecommendationModalOpen}
-        onOpenChange={setIsJobRecommendationModalOpen}
-      />
     </>
   );
 }
 
 export function LandingPageContent() {
   const router = useRouter();
-  const [isJobRecommendationModalOpen, setIsJobRecommendationModalOpen] =
-    useState(false);
 
   const scrollToIntroduction = (sectionId: string) => {
     document
@@ -1184,7 +1171,7 @@ export function LandingPageContent() {
                 '어렵고 막막한 진로 고민,\n3분 테스트로 찾는 나의 직무'
               }
               buttonText='테스트 시작하기'
-              onClick={() => setIsJobRecommendationModalOpen(true)}
+              onClick={() => router.push('/recommendation')}
               onCardClick={() =>
                 scrollToIntroduction('job-search-introduction')
               }
@@ -1237,7 +1224,7 @@ export function LandingPageContent() {
             px='2.25rem'
             py='0.75rem'
             className='mt-10 sm:mt-8'
-            onClick={() => setIsJobRecommendationModalOpen(true)}
+            onClick={() => router.push('/recommendation')}
           >
             테스트 시작하기 →
           </CommonButton>
@@ -1483,10 +1470,6 @@ export function LandingPageContent() {
 
       <MobileLandingFooter />
       <Footer />
-      <OBTRedirectModal
-        open={isJobRecommendationModalOpen}
-        onOpenChange={setIsJobRecommendationModalOpen}
-      />
     </div>
   );
 }

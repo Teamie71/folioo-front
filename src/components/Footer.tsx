@@ -1,15 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { OBTRedirectModal } from '@/components/OBT/OBTRedirectModal';
 import { CANONICAL_WORKSPACE_HREF } from '@/features/experience/workspace/model/workspaceView';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  const [isJobRecommendationModalOpen, setIsJobRecommendationModalOpen] =
-    useState(false);
 
   return (
     <>
@@ -19,13 +15,9 @@ export default function Footer() {
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-[5rem] text-[1rem] leading-[150%]'>
                 <p className='font-bold'>서비스</p>
-                <button
-                  type='button'
-                  className='cursor-pointer'
-                  onClick={() => setIsJobRecommendationModalOpen(true)}
-                >
+                <Link href='/recommendation' className='cursor-pointer'>
                   직무 찾기
-                </button>
+                </Link>
                 <Link
                   href={CANONICAL_WORKSPACE_HREF}
                   className='cursor-pointer'
@@ -128,10 +120,6 @@ export default function Footer() {
           </div>
         </div>
       </div>
-      <OBTRedirectModal
-        open={isJobRecommendationModalOpen}
-        onOpenChange={setIsJobRecommendationModalOpen}
-      />
     </>
   );
 }
