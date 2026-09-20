@@ -10,7 +10,7 @@ import { RecommendationNextButton } from '@/features/recommendation/components/R
 import { RecommendationTestHeader } from '@/features/recommendation/components/RecommendationTestHeader';
 
 const MAJOR_CHIP_CLS = cn(
-  'typo-b2 box-border h-auto min-h-0 min-w-0 shrink-0 rounded-[8px] border-[1.5px] border-gray4 bg-white px-[0.75rem] py-[0.375rem] font-normal text-gray9 shadow-none hover:text-gray9',
+  'typo-b2 box-border h-auto min-h-0 min-w-0 shrink-0 cursor-pointer rounded-[8px] border-[1.5px] border-gray4 bg-white px-[0.75rem] py-[0.375rem] font-normal text-gray9 shadow-none hover:text-gray9',
   RECOMMENDATION_WHITE_BUTTON_HOVER,
   'data-[state=on]:border-main data-[state=on]:bg-sub1 data-[state=on]:font-semibold data-[state=on]:text-main',
 );
@@ -53,7 +53,10 @@ export function RecommendationMajorStep() {
           <ToggleGroup
             type='single'
             value={selected}
-            onValueChange={(value) => setMajorId(value ?? '')}
+            onValueChange={(value) => {
+              if (!value) return;
+              setMajorId(value);
+            }}
             className='mt-[1.5rem] flex max-w-[26.8125rem] flex-col items-start gap-y-[0.75rem]'
           >
             {anyMajor && (

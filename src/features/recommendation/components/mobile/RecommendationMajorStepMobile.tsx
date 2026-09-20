@@ -25,7 +25,7 @@ function RecommendationMajorChipItem({
       aria-pressed={selected}
       onClick={() => onSelect(major.id)}
       className={cn(
-        'typo-b2 box-border shrink-0 rounded-[8px] border-[1.5px] bg-white px-[0.75rem] py-[0.375rem] font-normal whitespace-nowrap text-gray9',
+        'typo-b2 box-border shrink-0 cursor-pointer rounded-[8px] border-[1.5px] bg-white px-[0.75rem] py-[0.375rem] font-normal whitespace-nowrap text-gray9',
         selected
           ? 'border-main bg-sub1 font-semibold text-main'
           : 'border-gray4',
