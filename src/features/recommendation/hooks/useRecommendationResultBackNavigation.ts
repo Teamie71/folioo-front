@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { RECOMMENDATION_MAIN_PATH } from '@/features/recommendation/hooks/useRecommendationEntryRedirect';
-import { markRecommendationRetake } from '@/features/recommendation/lib/recommendationRetake';
+import { beginRecommendationRetake } from '@/features/recommendation/lib/recommendationRetake';
 import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
 
 export function useRecommendationResultBackNavigation(enabled: boolean) {
@@ -19,8 +19,9 @@ export function useRecommendationResultBackNavigation(enabled: boolean) {
     const onPopState = () => {
       if (navigatingRef.current) return;
       navigatingRef.current = true;
+      const uuid = useRecommendationTestStore.getState().assessmentUuid;
+      beginRecommendationRetake(uuid);
       resetTest();
-      markRecommendationRetake();
       router.replace(RECOMMENDATION_MAIN_PATH);
     };
 
