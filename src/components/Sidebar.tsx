@@ -253,7 +253,13 @@ function CollapsedMenuItem({
   );
 
   return (
-    <div className='absolute left-[12px]' style={{ top }}>
+    <div
+      className={cn(
+        'absolute left-[12px]',
+        item.disabled ? 'cursor-default' : 'cursor-pointer',
+      )}
+      style={{ top }}
+    >
       {!item.disabled && item.href ? (
         <HoverTooltip label={item.label} wrapperClassName='block'>
           {itemContent}
@@ -314,8 +320,7 @@ function CollapsedBrand({ onClick }: { onClick: () => void }) {
       <button
         type='button'
         onClick={onClick}
-        className='group relative flex size-[32px] cursor-pointer items-center justify-center rounded-[8px] p-[4px]'
-        style={{ cursor: EXPAND_CURSOR }}
+        className='group relative flex size-[32px] [cursor:inherit] items-center justify-center rounded-[8px] p-[4px]'
         aria-label='사이드바 최대화'
         aria-expanded={false}
       >
@@ -389,6 +394,13 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
         width: isExpanded ? SIDEBAR_WIDTH.expanded : SIDEBAR_WIDTH.collapsed,
       }}
       transition={SIDEBAR_TRANSITION}
+      style={{ cursor: isExpanded ? undefined : EXPAND_CURSOR }}
+      onClick={(event) => {
+        // 내부 버튼 밖의 사이드바 경계도 동일하게 열린다.
+        if (!isExpanded && event.target === event.currentTarget) {
+          setIsExpanded(true);
+        }
+      }}
       className={cn(
         'sticky top-0 h-[100dvh] shrink-0 self-start overflow-hidden bg-white',
         isExpanded
@@ -494,8 +506,7 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
         <div className='relative h-full w-[60px]'>
           <button
             type='button'
-            className='focus-visible:outline-main absolute inset-0 focus-visible:outline-2 focus-visible:-outline-offset-2'
-            style={{ cursor: EXPAND_CURSOR }}
+            className='focus-visible:outline-main absolute inset-0 [cursor:inherit] focus-visible:outline-2 focus-visible:-outline-offset-2'
             onClick={() => setIsExpanded(true)}
             aria-label='사이드바 열기'
             aria-expanded={false}
