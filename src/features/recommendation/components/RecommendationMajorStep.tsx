@@ -37,10 +37,12 @@ export function RecommendationMajorStep() {
 
   return (
     <div className='min-h-[100dvh] bg-white'>
-      <div className='mx-auto w-[66rem] pt-[1.75rem]'>
-        <RecommendationTestHeader currentStep={1} />
+      <div className='mx-auto w-[66rem]'>
+        <div className='pt-[1.75rem] pb-[1.25rem]'>
+          <RecommendationTestHeader currentStep={1} />
+        </div>
 
-        <div className='mt-[5rem] px-[1rem]'>
+        <div className='mt-[2.5rem] px-[1rem]'>
           <div className='flex flex-col gap-[0.25rem]'>
             <h2 className='typo-h4 text-gray9'>전공이 무엇인가요?</h2>
             <p className='typo-c2 text-gray6'>

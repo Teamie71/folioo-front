@@ -22,9 +22,11 @@ export function RecommendationValuesStep() {
     if (error && !isLoading) {
       return (
         <div className='min-h-[100dvh] bg-white'>
-          <div className='mx-auto w-[66rem] pt-[1.75rem]'>
-            <RecommendationTestHeader currentStep={3} />
-            <div className='mt-[5rem] flex flex-col gap-[1rem] px-[1rem]'>
+          <div className='mx-auto w-[66rem]'>
+            <div className='pt-[1.75rem] pb-[1.25rem]'>
+              <RecommendationTestHeader currentStep={3} />
+            </div>
+            <div className='mt-[2.5rem] flex flex-col gap-[1rem] px-[1rem]'>
               <p className='typo-b2 text-gray9'>{error}</p>
               <button
                 type='button'
@@ -44,10 +46,12 @@ export function RecommendationValuesStep() {
 
   return (
     <div className='min-h-[100dvh] bg-white'>
-      <div className='mx-auto w-[66rem] pt-[1.75rem]'>
-        <RecommendationTestHeader currentStep={3} />
+      <div className='mx-auto w-[66rem]'>
+        <div className='pt-[1.75rem] pb-[1.25rem]'>
+          <RecommendationTestHeader currentStep={3} />
+        </div>
 
-        <div className='mt-[5rem] px-[1rem]'>
+        <div className='mt-[2.5rem] px-[1rem]'>
           <div className='flex flex-col gap-[0.25rem]'>
             <h2 className='typo-h4 text-gray9'>
               어떤 근무 조건을 중요하게 생각하나요?
