@@ -315,12 +315,12 @@ function CollapsedBrand({ onClick }: { onClick: () => void }) {
     <HoverTooltip
       label='사이드바 열기'
       placement='bottom'
-      wrapperClassName='absolute top-[29px] left-[14px] block size-[32px]'
+      wrapperClassName='absolute top-[29px] left-[14px] block size-[32px] cursor-pointer'
     >
       <button
         type='button'
         onClick={onClick}
-        className='group relative flex size-[32px] [cursor:inherit] items-center justify-center rounded-[8px] p-[4px]'
+        className='group relative flex size-[32px] cursor-pointer items-center justify-center rounded-[8px] p-[4px]'
         aria-label='사이드바 최대화'
         aria-expanded={false}
       >
