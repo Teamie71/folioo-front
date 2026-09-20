@@ -14,11 +14,12 @@ export type ValueQuestionPanel = {
 
 const DURATION = 0.4;
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const OFFSET = 56;
 
-const variants = {
+const verticalVariants = {
   initial: (direction: number) => ({
     opacity: 0,
-    y: direction > 0 ? 36 : -36,
+    y: direction > 0 ? OFFSET : -OFFSET,
   }),
   animate: {
     opacity: 1,
@@ -26,13 +27,30 @@ const variants = {
   },
   exit: (direction: number) => ({
     opacity: 0,
-    y: direction > 0 ? -36 : 36,
+    y: direction > 0 ? -OFFSET : OFFSET,
+  }),
+};
+
+/** 다음(direction>0): 왼쪽 아웃 / 오른쪽 인. 이전(direction<0): 오른쪽 아웃 / 왼쪽 인 */
+const horizontalVariants = {
+  initial: (direction: number) => ({
+    opacity: 0,
+    x: direction > 0 ? OFFSET : -OFFSET,
+  }),
+  animate: {
+    opacity: 1,
+    x: 0,
+  },
+  exit: (direction: number) => ({
+    opacity: 0,
+    x: direction > 0 ? -OFFSET : OFFSET,
   }),
 };
 
 interface RecommendationValueQuestionTransitionProps {
   question: ValueBalanceQuestion;
   selected?: ValueChoice;
+  axis?: 'x' | 'y';
   className?: string;
   onSelect: (choice: ValueChoice) => void | Promise<void>;
   children: (
@@ -44,6 +62,7 @@ interface RecommendationValueQuestionTransitionProps {
 export function RecommendationValueQuestionTransition({
   question,
   selected,
+  axis = 'y',
   className,
   onSelect,
   children,
@@ -52,25 +71,14 @@ export function RecommendationValueQuestionTransition({
     question,
     selected,
   });
-  const [visible, setVisible] = useState(true);
-  const [direction, setDirection] = useState<1 | -1>(1);
-  const [motionActive, setMotionActive] = useState(false);
+  const [direction, setDirection] = useState(1);
   const busyRef = useRef(false);
-  const pendingNextRef = useRef<ValueBalanceQuestion | null>(null);
-  const shouldExitRef = useRef(false);
-  const isEnteringRef = useRef(false);
-  const panelSeqRef = useRef(panel.question.sequence);
   const questionRef = useRef(question);
-  panelSeqRef.current = panel.question.sequence;
+  const panelSeqRef = useRef(panel.question.sequence);
   questionRef.current = question;
+  panelSeqRef.current = panel.question.sequence;
 
-  const queueTransition = (next: ValueBalanceQuestion, dir: 1 | -1) => {
-    pendingNextRef.current = next;
-    setDirection(dir);
-    isEnteringRef.current = false;
-    shouldExitRef.current = true;
-    setMotionActive(true);
-  };
+  const variants = axis === 'x' ? horizontalVariants : verticalVariants;
 
   useEffect(() => {
     if (busyRef.current) return;
@@ -80,23 +88,13 @@ export function RecommendationValueQuestionTransition({
       return;
     }
 
-    busyRef.current = true;
-    const dir: 1 | -1 =
-      question.sequence < panelSeqRef.current ? -1 : 1;
-    queueTransition(question, dir);
+    // goBack 등 외부 sequence 변경 → 이전/다음 방향 결정
+    setDirection(question.sequence < panelSeqRef.current ? -1 : 1);
+    setPanel({ question, selected: undefined });
   }, [question, selected]);
 
-  useEffect(() => {
-    if (!motionActive || !shouldExitRef.current) return;
-    shouldExitRef.current = false;
-    const id = window.requestAnimationFrame(() => {
-      setVisible(false);
-    });
-    return () => window.cancelAnimationFrame(id);
-  }, [motionActive]);
-
   const selectChoice = (choice: ValueChoice) => {
-    if (busyRef.current || motionActive) return;
+    if (busyRef.current) return;
 
     busyRef.current = true;
     const seqBefore = panel.question.sequence;
@@ -119,58 +117,29 @@ export function RecommendationValueQuestionTransition({
         return;
       }
 
-      queueTransition(next, 1);
+      // 다음 문항: 항상 forward
+      setDirection(1);
+      setPanel({ question: next, selected: undefined });
+      busyRef.current = false;
     })();
   };
 
-  const handleExitComplete = () => {
-    const next = pendingNextRef.current;
-    if (!next) {
-      setVisible(true);
-      setMotionActive(false);
-      busyRef.current = false;
-      return;
-    }
-
-    pendingNextRef.current = null;
-    isEnteringRef.current = true;
-    setPanel({ question: next, selected: undefined });
-    setVisible(true);
-  };
-
-  const content = children(panel, selectChoice);
-
-  if (!motionActive) {
-    return <div className={className}>{content}</div>;
-  }
-
   return (
-    <AnimatePresence
-      mode='wait'
-      custom={direction}
-      onExitComplete={handleExitComplete}
-    >
-      {visible ? (
+    <div className={axis === 'x' ? 'relative overflow-hidden' : undefined}>
+      <AnimatePresence mode='wait' custom={direction} initial={false}>
         <motion.div
           key={panel.question.sequence}
           className={className}
           custom={direction}
           variants={variants}
-          initial={isEnteringRef.current ? 'initial' : false}
+          initial='initial'
           animate='animate'
           exit='exit'
           transition={{ duration: DURATION, ease: EASE }}
-          onAnimationComplete={(definition) => {
-            if (definition === 'animate' && isEnteringRef.current) {
-              isEnteringRef.current = false;
-              setMotionActive(false);
-              busyRef.current = false;
-            }
-          }}
         >
-          {content}
+          {children(panel, selectChoice)}
         </motion.div>
-      ) : null}
-    </AnimatePresence>
+      </AnimatePresence>
+    </div>
   );
 }

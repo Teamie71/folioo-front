@@ -71,6 +71,7 @@ export function RecommendationValuesStepMobile() {
               question={question}
               selected={selected}
               onSelect={select}
+              axis='x'
               className='flex w-full flex-col gap-[1.125rem]'
             >
               {(panel, selectChoice) => (
