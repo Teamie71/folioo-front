@@ -432,25 +432,27 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
               <button
                 type='button'
                 onClick={() => setIsProfileModalOpen(true)}
-                className='absolute top-[288px] left-[20px] cursor-pointer text-left'
+                className='absolute top-[288px] left-[20px] w-[200px] cursor-pointer text-left'
                 aria-label='프로필 열기'
               >
-                <span className='relative flex items-center'>
-                  <span className='typo-b2-b text-gray9 whitespace-nowrap'>
+                <span className='flex min-w-0 items-center gap-[4px]'>
+                  <span className='typo-b2-b text-gray9 truncate'>
                     {profile?.name || '사용자'}
                   </span>
-                  <span className='typo-c1 text-gray9 absolute top-[2px] left-[50px] whitespace-nowrap'>
+                  <span className='typo-c1 text-gray9 shrink-0 whitespace-nowrap'>
                     님 프로필
                   </span>
                   <SidebarIcon
                     src='/sidebar/profile-chevron.svg'
                     size={20}
-                    className='absolute top-[2px] left-[106px] rotate-90'
+                    className='shrink-0 rotate-90'
                   />
                 </span>
                 <span className='mt-[4px] flex items-center gap-[8px]'>
-                  <SocialEmailLogo socialType={socialAccount?.socialType} />
-                  <span className='typo-c1 text-gray6 whitespace-nowrap'>
+                  <span className='shrink-0'>
+                    <SocialEmailLogo socialType={socialAccount?.socialType} />
+                  </span>
+                  <span className='typo-c1 text-gray6 truncate'>
                     {socialEmail}
                   </span>
                 </span>
