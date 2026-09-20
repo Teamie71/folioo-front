@@ -44,10 +44,10 @@ type SidebarMenuItem = {
 const MENU_ITEMS: SidebarMenuItem[] = [
   {
     label: '직무 추천',
+    href: '/recommendation',
     expandedIcon: '/sidebar/job-recommendation.svg',
     collapsedIcon: '/sidebar/job-recommendation-hover.svg',
     collapsedActiveIcon: '/sidebar/job-recommendation-active.svg',
-    disabled: true,
   },
   {
     label: '경험 정리',
