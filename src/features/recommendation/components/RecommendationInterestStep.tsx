@@ -10,7 +10,7 @@ import { RecommendationTestHeader } from '@/features/recommendation/components/R
 import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
 import type { InterestLikertValue } from '@/features/recommendation/constants';
 
-const CIRCLE_CUT_BELOW_CENTER_PX = 7;
+const AUTO_SCROLL_BELOW_HEADER_PX = 311;
 
 export function RecommendationInterestStep() {
   const router = useRouter();
@@ -36,27 +36,19 @@ export function RecommendationInterestStep() {
     const targetIndex = questions.findIndex(
       (question) => answers[question.id] == null,
     );
-    if (targetIndex < 0) return;
+    if (targetIndex < 2) return;
 
     const target = questionRefs.current[targetIndex];
     if (!target) return;
 
     const headerHeight =
       stickyHeaderRef.current?.getBoundingClientRect().height ?? 0;
-    const prevQuestion = questionRefs.current[targetIndex - 1];
-    const circleRow = prevQuestion?.querySelector('[data-likert-circles]');
-
-    if (!circleRow) {
-      const top =
-        target.getBoundingClientRect().top + window.scrollY - headerHeight;
-      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
-      return;
-    }
-
-    const circleRect = circleRow.getBoundingClientRect();
-    const cutY =
-      circleRect.top + circleRect.height / 2 + CIRCLE_CUT_BELOW_CENTER_PX;
-    window.scrollBy({ top: cutY - headerHeight, behavior: 'smooth' });
+    const top =
+      target.getBoundingClientRect().top +
+      window.scrollY -
+      headerHeight -
+      AUTO_SCROLL_BELOW_HEADER_PX;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
   }, [answers, questions]);
 
   const handleChange = (questionId: string, value: InterestLikertValue) => {
