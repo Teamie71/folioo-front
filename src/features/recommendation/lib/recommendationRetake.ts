@@ -1,3 +1,5 @@
+import { clearRecommendationPostAuthUuid } from '@/features/recommendation/lib/recommendationPostAuth';
+
 const RECOMMENDATION_RETAKE_STORAGE_KEY = 'recommendation-retake';
 const RECOMMENDATION_INVALIDATED_UUIDS_KEY =
   'recommendation-invalidated-result-uuids';
@@ -58,4 +60,5 @@ export function isRecommendationResultUuidInvalidated(uuid: string): boolean {
 export function beginRecommendationRetake(uuid?: string | null): void {
   if (uuid) invalidateRecommendationResultUuid(uuid);
   markRecommendationRetake();
+  clearRecommendationPostAuthUuid();
 }

@@ -149,11 +149,9 @@ export default function LayoutContent({
     if (!isDismissed) setIsOBTBannerVisible(true);
 
     const fromSignup = sessionStorage.getItem(TERMS_FROM_SIGNUP_KEY);
-    if (fromSignup) {
+    if (fromSignup && path === '/') {
       sessionStorage.removeItem(TERMS_FROM_SIGNUP_KEY);
-      if (path === '/') {
-        setWeeklyVoucherModalOpen(true);
-      }
+      setWeeklyVoucherModalOpen(true);
     }
   }, [path]);
 
