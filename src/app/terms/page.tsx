@@ -14,6 +14,7 @@ import Footer from '@/components/Footer';
 import Image from 'next/image';
 import { ButtonSpinnerIcon } from '@/components/icons/ButtonSpinnerIcon';
 import { DropdownIcon } from '@/components/icons/DropdownIcon';
+import { resolveRecommendationPostSignupPath } from '@/features/recommendation/lib/recommendationPostAuth';
 import { useAuthStore } from '@/store/useAuthStore';
 import { cn } from '@/utils/utils';
 import { isTopupMobileUserAgent } from '@/utils/device';
@@ -52,8 +53,7 @@ function TermsPageContent({ variant }: { variant: 'desktop' | 'mobile' }) {
           queryClient.invalidateQueries({
             queryKey: getUserControllerGetProfileQueryKey(),
           });
-          // 랜딩(/)으로 이동 → LayoutContent에서 회원가입 보상 모달 띄우고 키 제거
-          router.replace('/');
+          router.replace(resolveRecommendationPostSignupPath());
         },
         onError: () => {
           window.alert(

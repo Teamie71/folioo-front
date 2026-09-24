@@ -21,7 +21,6 @@ import { useRecommendationResult } from '@/features/recommendation/hooks/useReco
 import { useRecommendationResultBackNavigation } from '@/features/recommendation/hooks/useRecommendationResultBackNavigation';
 import { RECOMMENDATION_MAIN_PATH } from '@/features/recommendation/hooks/useRecommendationEntryRedirect';
 import {
-  buildRecommendationResultLoginRedirect,
   buildRecommendationShareUrl,
   resolveRecommendationDisplayName,
 } from '@/features/recommendation/lib/recommendationShare';
@@ -81,10 +80,6 @@ export function RecommendationResultMobile({
     profileName: profileRes?.result?.name,
     resultUserName: result?.userName,
   });
-  const loginRedirectPath = isShare
-    ? pathname || RESULT_SHARE_PATH
-    : buildRecommendationResultLoginRedirect(resultShareUuid);
-  const loginHref = `/login?redirect_to=${encodeURIComponent(loginRedirectPath)}`;
 
   useEffect(() => {
     if (!loginRequiredOpen) return;
@@ -122,7 +117,7 @@ export function RecommendationResultMobile({
     if (!sessionRestoreAttempted) return;
 
     if (!isLoggedIn) {
-      loginRedirectRef.current = loginRedirectPath;
+      loginRedirectRef.current = pathname || RESULT_SHARE_PATH;
       setLoginRequiredOpen(true);
       return;
     }
@@ -198,7 +193,7 @@ export function RecommendationResultMobile({
             <RecommendationJobCards
               jobs={result.jobs}
               locked={isLocked}
-              loginHref={loginHref}
+              resultUuid={resultShareUuid}
               variant='mobile'
             />
           </div>
@@ -212,7 +207,7 @@ export function RecommendationResultMobile({
             <RecommendationCompanyCards
               companies={result.companies}
               locked={isLocked}
-              loginHref={loginHref}
+              resultUuid={resultShareUuid}
               variant='mobile'
             />
           </div>

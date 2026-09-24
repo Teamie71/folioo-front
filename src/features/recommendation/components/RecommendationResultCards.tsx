@@ -12,6 +12,7 @@ import type {
 import { RECOMMENDATION_WHITE_BUTTON_HOVER } from '@/features/recommendation/constants';
 import { getRecommendationCompanyIconSrc } from '@/features/recommendation/lib/companyIcons';
 import { getRecommendationJobIconSrc } from '@/features/recommendation/lib/jobIcons';
+import { beginRecommendationResultLogin } from '@/features/recommendation/lib/recommendationPostAuth';
 import { useAuthStore } from '@/store/useAuthStore';
 import { cn } from '@/utils/utils';
 
@@ -98,10 +99,10 @@ function LockedFrost({ variant }: { variant: ResultCardsVariant }) {
 }
 
 function LoginToViewButton({
-  loginHref,
+  resultUuid,
   variant,
 }: {
-  loginHref: string;
+  resultUuid?: string;
   variant: ResultCardsVariant;
 }) {
   const router = useRouter();
@@ -123,7 +124,7 @@ function LoginToViewButton({
             router.refresh();
             return;
           }
-          router.push(loginHref);
+          router.push(beginRecommendationResultLogin(resultUuid));
         }}
       >
         <span className='typo-b2 text-gray9'>로그인하고 결과 확인하기</span>
@@ -162,7 +163,7 @@ function LockedHeaderChrome({
 interface RecommendationJobCardsProps {
   jobs: RecommendedJob[];
   locked?: boolean;
-  loginHref?: string;
+  resultUuid?: string;
   variant?: ResultCardsVariant;
   defaultOpenFirst?: boolean;
 }
@@ -170,7 +171,7 @@ interface RecommendationJobCardsProps {
 export function RecommendationJobCards({
   jobs,
   locked = false,
-  loginHref = '/login?redirect_to=%2Frecommendation%2Fresult',
+  resultUuid,
   variant = 'web',
   defaultOpenFirst = false,
 }: RecommendationJobCardsProps) {
@@ -242,7 +243,9 @@ export function RecommendationJobCards({
           {locked && (
             <LockedHeaderChrome title={job.name} fitPercent={job.fitPercent} />
           )}
-          {locked && <LoginToViewButton loginHref={loginHref} variant={variant} />}
+          {locked && (
+            <LoginToViewButton resultUuid={resultUuid} variant={variant} />
+          )}
         </Accordion.Item>
       ))}
     </Accordion.Root>
@@ -252,7 +255,7 @@ export function RecommendationJobCards({
 interface RecommendationCompanyCardsProps {
   companies: RecommendedCompany[];
   locked?: boolean;
-  loginHref?: string;
+  resultUuid?: string;
   variant?: ResultCardsVariant;
   defaultOpenFirst?: boolean;
 }
@@ -260,7 +263,7 @@ interface RecommendationCompanyCardsProps {
 export function RecommendationCompanyCards({
   companies,
   locked = false,
-  loginHref = '/login?redirect_to=%2Frecommendation%2Fresult',
+  resultUuid,
   variant = 'web',
   defaultOpenFirst = false,
 }: RecommendationCompanyCardsProps) {
@@ -315,7 +318,9 @@ export function RecommendationCompanyCards({
           </Accordion.Content>
           {locked && <LockedFrost variant={variant} />}
           {locked && <LockedHeaderChrome title={company.name} />}
-          {locked && <LoginToViewButton loginHref={loginHref} variant={variant} />}
+          {locked && (
+            <LoginToViewButton resultUuid={resultUuid} variant={variant} />
+          )}
         </Accordion.Item>
       ))}
     </Accordion.Root>

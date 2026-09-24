@@ -4,9 +4,15 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAssessmentControllerGetStatus } from '@/api/endpoints/assessment/assessment';
 import {
+  clearRecommendationPostAuthUuid,
+  readRecommendationPostAuthUuid,
+} from '@/features/recommendation/lib/recommendationPostAuth';
+import {
+  isRecommendationResultUuidInvalidated,
   isRecommendationRetakeActive,
   markRecommendationRetake,
 } from '@/features/recommendation/lib/recommendationRetake';
+import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export const RECOMMENDATION_RETAKE_PARAM = 'retake';
@@ -20,6 +26,10 @@ export function useRecommendationEntryRedirect() {
   const sessionRestoreAttempted = useAuthStore(
     (s) => s.sessionRestoreAttempted,
   );
+  const hasHydrated = useRecommendationTestStore((s) => s.hasHydrated);
+  const setAssessmentUuid = useRecommendationTestStore(
+    (s) => s.setAssessmentUuid,
+  );
   const [isRetake, setIsRetake] = useState(false);
   const [retakeReady, setRetakeReady] = useState(false);
 
@@ -28,6 +38,7 @@ export function useRecommendationEntryRedirect() {
       searchParams.get(RECOMMENDATION_RETAKE_PARAM) === '1';
     if (hasRetakeQuery) {
       markRecommendationRetake();
+      clearRecommendationPostAuthUuid();
       router.replace(RECOMMENDATION_MAIN_PATH);
     }
     setIsRetake(isRecommendationRetakeActive() || hasRetakeQuery);
@@ -36,7 +47,11 @@ export function useRecommendationEntryRedirect() {
 
   const isLoggedIn = sessionRestoreAttempted && accessToken != null;
   const shouldCheckStatus =
-    sessionRestoreAttempted && isLoggedIn && retakeReady && !isRetake;
+    sessionRestoreAttempted &&
+    hasHydrated &&
+    isLoggedIn &&
+    retakeReady &&
+    !isRetake;
 
   const statusQuery = useAssessmentControllerGetStatus({
     query: {
@@ -46,7 +61,7 @@ export function useRecommendationEntryRedirect() {
   });
 
   const rawUuid = statusQuery.data?.result?.uuid as unknown;
-  const completedUuid =
+  const statusUuid =
     shouldCheckStatus &&
     statusQuery.data?.isSuccess !== false &&
     statusQuery.data?.result?.hasCompleted &&
@@ -55,18 +70,32 @@ export function useRecommendationEntryRedirect() {
       ? rawUuid.trim()
       : null;
 
+  const postAuthUuid = shouldCheckStatus
+    ? readRecommendationPostAuthUuid()
+    : '';
+  const recoverableUuid = (() => {
+    if (!shouldCheckStatus || statusQuery.isPending) return null;
+    const candidate = statusUuid || postAuthUuid;
+    if (!candidate) return null;
+    if (isRecommendationResultUuidInvalidated(candidate)) return null;
+    return candidate;
+  })();
+
   useEffect(() => {
-    if (isRetake || !completedUuid) return;
+    if (isRetake || !recoverableUuid) return;
+    setAssessmentUuid(recoverableUuid);
+    clearRecommendationPostAuthUuid();
     router.replace(
-      `/recommendation/result?uuid=${encodeURIComponent(completedUuid)}`,
+      `/recommendation/result?uuid=${encodeURIComponent(recoverableUuid)}`,
     );
-  }, [completedUuid, isRetake, router]);
+  }, [isRetake, recoverableUuid, router, setAssessmentUuid]);
 
   const isCheckingEntry =
     !sessionRestoreAttempted ||
+    !hasHydrated ||
     !retakeReady ||
     (shouldCheckStatus && statusQuery.isPending) ||
-    Boolean(completedUuid);
+    Boolean(recoverableUuid);
 
   return { isCheckingEntry };
 }

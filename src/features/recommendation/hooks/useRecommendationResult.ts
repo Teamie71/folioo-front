@@ -9,6 +9,7 @@ import {
   useAssessmentControllerGetResult,
 } from '@/api/endpoints/assessment/assessment';
 import { mapAssessmentResult } from '@/features/recommendation/lib/mapAssessmentResult';
+import { clearRecommendationPostAuthUuid } from '@/features/recommendation/lib/recommendationPostAuth';
 import { isRecommendationResultUuidInvalidated } from '@/features/recommendation/lib/recommendationRetake';
 import type { RecommendationResultData } from '@/features/recommendation/types';
 import { useRecommendationTestStore } from '@/store/useRecommendationTestStore';
@@ -85,6 +86,7 @@ export function useRecommendationResult(
     claimAttemptedRef.current = resolvedUuid;
     void claimAssessment({ uuid: resolvedUuid })
       .then(() => {
+        clearRecommendationPostAuthUuid();
         void queryClient.invalidateQueries({
           queryKey: getAssessmentControllerGetStatusQueryKey(),
         });
@@ -106,6 +108,11 @@ export function useRecommendationResult(
     resultQuery.data?.isSuccess !== false
       ? resultQuery.data?.result
       : undefined;
+
+  useEffect(() => {
+    if (!isLoggedIn || scope !== 'mine' || !resolvedUuid || !dto) return;
+    clearRecommendationPostAuthUuid();
+  }, [dto, isLoggedIn, resolvedUuid, scope]);
 
   const isLoading =
     !sessionRestoreAttempted ||
