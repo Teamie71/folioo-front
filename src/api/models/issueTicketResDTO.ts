@@ -7,9 +7,9 @@
  */
 
 export interface IssueTicketResDTO {
-  /** HS256으로 서명된 티켓. sub/sid/iat/exp를 담는다. */
+  /** HS256으로 서명된 티켓. sub/sid/bid/iat/exp를 담는다. */
   ticket: string;
-  /** 사용자의 AI 경험 정리 세션 id */
+  /** 활동(block_id)별 AI 경험 정리 세션 id */
   session_id: string;
   /** 이번 턴의 request_id. 커밋 시 그대로 사용된다. */
   request_id: string;

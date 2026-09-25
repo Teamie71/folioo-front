@@ -25,10 +25,10 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AppSchemasExperienceMapCreateSessionResponse,
   AppSchemasExperienceMapSessionStateResponse,
   BodyChatStreamApiV1ExperienceMapSessionsSessionIdChatStreamPost,
   CreateSessionRequest,
-  CreateSessionResponse,
   GetMessagesApiV1ExperienceMapSessionsSessionIdMessagesGetParams,
   HTTPValidationError,
   MessagesResponse,
@@ -53,7 +53,7 @@ export const createSessionApiV1ExperienceMapSessionsPost = (
 ) => {
       
       
-      return aiCustomInstance<CreateSessionResponse>(
+      return aiCustomInstance<AppSchemasExperienceMapCreateSessionResponse>(
       {url: `/api/v1/experience-map/sessions`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: createSessionRequest, signal

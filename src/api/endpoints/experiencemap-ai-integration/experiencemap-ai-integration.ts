@@ -31,7 +31,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 /**
- * 프론트가 AI 서버에 SSE로 직결하기 전에 신원을 발급받습니다. 경험 맵이 없는 사용자는 이 호출에서 초기 데이터(26블록)가 함께 생성됩니다. AI 세션이 없으면 AI 서버 POST /sessions를 호출해 생성합니다. request_id를 body로 전달하면 새로 만들지 않고 그대로 재사용합니다(재시도 턴 유지).
+ * 프론트가 AI 서버에 SSE로 직결하기 전에 신원을 발급받습니다. AI 에이전트 세션은 활동(EXPERIENCE 블록)마다 하나이며, 해당 활동의 세션이 없으면 AI 서버 POST /sessions를 호출해 생성합니다. request_id를 body로 전달하면 새로 만들지 않고 그대로 재사용합니다(재시도 턴 유지).
  * @summary AI 경험 정리 세션 티켓 발급
  */
 export const experienceMapAiControllerIssueTicket = (

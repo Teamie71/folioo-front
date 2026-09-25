@@ -7,6 +7,8 @@
  */
 
 export interface IssueTicketReqDTO {
+  /** 대화할 활동(EXPERIENCE) 블록 id. bigint라 문자열로 주고받는다. */
+  block_id: string;
   /** 재시도 시 실패한 요청의 request_id를 그대로 전달하면 새 UUID를 생성하지 않고 재사용합니다. */
   request_id?: string;
 }

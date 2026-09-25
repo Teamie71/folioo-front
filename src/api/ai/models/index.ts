@@ -7,6 +7,8 @@
  */
 
 export * from './appliedItem';
+export * from './appSchemasExperienceMapCreateSessionResponse';
+export * from './appSchemasExperienceMapCreateSessionResponseStatus';
 export * from './appSchemasExperienceMapSessionStateResponse';
 export * from './appSchemasExperienceMapSessionStateResponseStatus';
 export * from './appSchemasInterviewCreateSessionRequest';
