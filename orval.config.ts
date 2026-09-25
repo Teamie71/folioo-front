@@ -20,4 +20,23 @@ export default defineConfig({
       },
     },
   },
+  foliooAiApi: {
+    input: {
+      target: 'https://folioo-ai-dev.onrender.com/openapi.json',
+    },
+    output: {
+      mode: 'tags-split',
+      target: 'src/api/ai/endpoints',
+      schemas: 'src/api/ai/models',
+      client: 'react-query',
+      httpClient: 'axios',
+      mock: false,
+      override: {
+        mutator: {
+          path: 'src/lib/aiAxios.ts',
+          name: 'aiCustomInstance',
+        },
+      },
+    },
+  },
 });
