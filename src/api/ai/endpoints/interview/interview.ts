@@ -26,10 +26,10 @@ import type {
 
 import type {
   AppSchemasInterviewCreateSessionRequest,
-  AppSchemasInterviewCreateSessionResponse,
   BodyChatApiV1InterviewSessionsSessionIdChatPost,
   BodyChatStreamApiV1InterviewSessionsSessionIdChatStreamPost,
   ChatResponse,
+  CreateSessionResponse,
   ErrorResponse,
   ExtendSessionResponse,
   HTTPValidationError,
@@ -54,7 +54,7 @@ export const createSessionApiV1InterviewSessionsPost = (
 ) => {
       
       
-      return aiCustomInstance<AppSchemasInterviewCreateSessionResponse>(
+      return aiCustomInstance<CreateSessionResponse>(
       {url: `/api/v1/interview/sessions`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: appSchemasInterviewCreateSessionRequest, signal
@@ -190,7 +190,7 @@ if(bodyChatApiV1InterviewSessionsSessionIdChatPost.mentioned_insight !== undefin
  formData.append(`mentioned_insight`, bodyChatApiV1InterviewSessionsSessionIdChatPost.mentioned_insight);
  }
 if(bodyChatApiV1InterviewSessionsSessionIdChatPost.files !== undefined && bodyChatApiV1InterviewSessionsSessionIdChatPost.files !== null) {
- formData.append(`files`, bodyChatApiV1InterviewSessionsSessionIdChatPost.files);
+ bodyChatApiV1InterviewSessionsSessionIdChatPost.files.forEach(value => formData.append(`files`, value));
  }
 
       return aiCustomInstance<ChatResponse>(
@@ -570,7 +570,7 @@ if(bodyChatStreamApiV1InterviewSessionsSessionIdChatStreamPost.mentioned_insight
  formData.append(`mentioned_insight`, bodyChatStreamApiV1InterviewSessionsSessionIdChatStreamPost.mentioned_insight);
  }
 if(bodyChatStreamApiV1InterviewSessionsSessionIdChatStreamPost.files !== undefined && bodyChatStreamApiV1InterviewSessionsSessionIdChatStreamPost.files !== null) {
- formData.append(`files`, bodyChatStreamApiV1InterviewSessionsSessionIdChatStreamPost.files);
+ bodyChatStreamApiV1InterviewSessionsSessionIdChatStreamPost.files.forEach(value => formData.append(`files`, value));
  }
 
       return aiCustomInstance<unknown>(

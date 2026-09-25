@@ -1,4 +1,31 @@
-import { defineConfig } from 'orval';
+import { defineConfig, defineTransformer } from 'orval';
+
+const normalizeAiFileArrays = defineTransformer((spec) => {
+  for (const name of [
+    'Body_chat_api_v1_interview_sessions__session_id__chat_post',
+    'Body_chat_stream_api_v1_interview_sessions__session_id__chat_stream_post',
+  ]) {
+    const schema = spec.components?.schemas?.[name];
+    if (!schema || !('properties' in schema)) continue;
+    const files = schema.properties?.files;
+    if (!files || !('anyOf' in files) || !Array.isArray(files.anyOf)) continue;
+    const array = files.anyOf.find(
+      (option: unknown) =>
+        typeof option === 'object' &&
+        option !== null &&
+        'type' in option &&
+        option.type === 'array',
+    );
+    if (!array || !('items' in array)) continue;
+    schema.properties.files = {
+      type: 'array',
+      items: array.items,
+      nullable: true,
+      title: 'Files',
+    };
+  }
+  return spec;
+});
 
 export default defineConfig({
   foliooApi: {
@@ -23,6 +50,7 @@ export default defineConfig({
   foliooAiApi: {
     input: {
       target: 'https://folioo-ai-dev.onrender.com/openapi.json',
+      override: { transformer: normalizeAiFileArrays },
     },
     output: {
       mode: 'tags-split',
