@@ -10,8 +10,9 @@ import { AgentIcon } from '@/components/icons/agent/AgentIcon';
 import { AttachIcon } from '@/components/icons/AttachIcon';
 import { AgentValidationToast } from './AgentValidationToast';
 import { PdfIcon } from '@/components/icons/PdfIcon';
-import { FileText, X } from 'lucide-react';
+import { FileText, Square, X } from 'lucide-react';
 import { SendArrowIcon } from '@/components/icons/SendArrowIcon';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const SCENARIOS = [
   {
@@ -39,6 +40,15 @@ type Props = {
   onInputChange: (value: string) => void;
   attachment: File | null;
   onAttachmentChange: (file: File | null) => void;
+  onSend?: (
+    text: string,
+    file: File | null,
+    onAccepted: () => void,
+  ) => Promise<void>;
+  onStop?: () => Promise<void>;
+  ready?: boolean;
+  isWorking?: boolean;
+  error?: string | null;
 };
 
 export function ExperienceAgentMain({
@@ -48,7 +58,15 @@ export function ExperienceAgentMain({
   onInputChange,
   attachment,
   onAttachmentChange,
+  onSend,
+  onStop,
+  ready = true,
+  isWorking = false,
+  error,
 }: Props) {
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const [submitting, setSubmitting] = useState(false);
+  const sendInFlight = useRef(false);
   const hasConversation = Boolean(
     conversation &&
     (conversation.messages.length ||
@@ -94,6 +112,35 @@ export function ExperienceAgentMain({
   );
   const showNotice = (message: string) =>
     setNotice((prev) => ({ message, id: (prev?.id ?? 0) + 1 }));
+  const canSend = Boolean(
+    accessToken &&
+    ready &&
+    onSend &&
+    !limitReached &&
+    !isWorking &&
+    !submitting &&
+    (input.trim() || attachment),
+  );
+  const send = async () => {
+    if (!canSend || !onSend || sendInFlight.current) return;
+    sendInFlight.current = true;
+    setSubmitting(true);
+    try {
+      await onSend(input, attachment, () => {
+        onInputChange('');
+        onAttachmentChange(null);
+      });
+    } catch (cause) {
+      if (!(cause instanceof DOMException && cause.name === 'AbortError')) {
+        showNotice(
+          cause instanceof Error ? cause.message : '채팅을 전송하지 못했어요.',
+        );
+      }
+    } finally {
+      sendInFlight.current = false;
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div
@@ -189,13 +236,14 @@ export function ExperienceAgentMain({
               onKeyDown={(event) => {
                 if (limitReached && event.key === 'Enter')
                   showNotice(limitMessage);
-                // 전송 API 연결 전에는 Enter로도 목업 대화를 생성하지 않는다.
                 if (
                   event.key === 'Enter' &&
                   !event.shiftKey &&
                   !event.nativeEvent.isComposing
-                )
+                ) {
                   event.preventDefault();
+                  void send();
+                }
               }}
               className={`text-gray9 placeholder:text-gray5 block [field-sizing:content] min-h-[22px] w-full resize-none overflow-hidden bg-transparent text-[14px] leading-[22px] outline-none ${expanded ? 'p-0' : 'py-[13px]'}`}
             />
@@ -246,19 +294,39 @@ export function ExperienceAgentMain({
           >
             <AttachIcon className='h-[23px] w-[20px]' />
           </button>
-          <button
-            type='button'
-            disabled
-            aria-label='전송'
-            title={
-              limitReached
-                ? '오늘 사용 가능한 채팅 횟수를 모두 사용했어요.'
-                : '채팅 전송 기능은 준비 중이에요.'
-            }
-            className='bg-main disabled:bg-gray4 relative z-10 mr-[12px] flex size-[32px] shrink-0 cursor-pointer items-center justify-center rounded-full disabled:cursor-not-allowed'
-          >
-            <SendArrowIcon className='h-[17px] w-[14px]' />
-          </button>
+          {isWorking ? (
+            <button
+              type='button'
+              onClick={() => {
+                void onStop?.().catch((cause) =>
+                  showNotice(
+                    cause instanceof Error
+                      ? cause.message
+                      : '작업을 중지하지 못했어요.',
+                  ),
+                );
+              }}
+              aria-label='에이전트 작업 중지'
+              className='bg-main relative z-10 mr-[12px] flex size-[32px] shrink-0 cursor-pointer items-center justify-center rounded-full text-white'
+            >
+              <Square className='size-[13px] fill-current' />
+            </button>
+          ) : (
+            <button
+              type='button'
+              onClick={() => void send()}
+              disabled={!canSend}
+              aria-label='전송'
+              title={
+                limitReached
+                  ? '오늘 사용 가능한 채팅 횟수를 모두 사용했어요.'
+                  : undefined
+              }
+              className='bg-main disabled:bg-gray4 relative z-10 mr-[12px] flex size-[32px] shrink-0 cursor-pointer items-center justify-center rounded-full disabled:cursor-not-allowed'
+            >
+              <SendArrowIcon className='h-[17px] w-[14px]' />
+            </button>
+          )}
         </div>
       </div>
 
@@ -302,6 +370,11 @@ export function ExperienceAgentMain({
           anchor={composer}
           onDismiss={() => setNotice(null)}
         />
+      )}
+      {error && (
+        <p role='alert' className='text-error mt-[8px] text-[12px]'>
+          {error}
+        </p>
       )}
     </div>
   );

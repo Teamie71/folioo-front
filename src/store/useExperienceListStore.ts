@@ -39,6 +39,8 @@ function createInitialListState() {
     experienceCounter: 0,
     selection: null as Selection,
     mapVersion: null as string | null,
+    revertibleRequestId: null as string | null,
+    agentLimitDayKst: null as string | null,
     syncError: null as unknown,
     sidebarOpen: true,
     agentOpen: true,
@@ -192,6 +194,9 @@ interface ExperienceListState {
 
   /** 서버 낙관적 잠금 버전. 쓰기 동기화 계층이 관리한다. */
   mapVersion: string | null;
+  revertibleRequestId: string | null;
+  agentLimitDayKst: string | null;
+  setAgentLimitDayKst: (day: string | null) => void;
   /** 마지막 동기화 실패. 실패 후에는 서버 상태로 되돌린다. */
   syncError: unknown;
 
@@ -325,6 +330,8 @@ export const useExperienceListStore = create<ExperienceListState>()(
       return {
         ...createInitialListState(),
 
+        setAgentLimitDayKst: (day) => set({ agentLimitDayKst: day }),
+
         hydrateFromServer: (snapshot) =>
           set((s) => {
             /*
@@ -361,6 +368,7 @@ export const useExperienceListStore = create<ExperienceListState>()(
               groups: orderedGroups,
               experiences: snapshot.experiences,
               mapVersion: snapshot.mapVersion,
+              revertibleRequestId: snapshot.revertibleRequestId,
               isContentLoading: false,
               // 이름 카운터는 서버에 저장되지 않으므로 현재 이름에서 이어 받는다.
               groupCounter: Math.max(

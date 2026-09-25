@@ -11,7 +11,7 @@ export type AgentChatMessage = {
   id: string;
   role: 'user' | 'assistant';
   content: string;
-  attachment?: { name: string; size: number };
+  attachment?: { name: string; size?: number };
   /** 성공 응답에만 제공. 실제 복원이 성공한 뒤 resolve해야 한다. */
   onRevert?: () => Promise<void>;
   reverted?: boolean;
@@ -177,9 +177,11 @@ export function ExperienceAgentConversation({
                     <p title={message.attachment.name}>
                       {message.attachment.name}
                     </p>
-                    <span>
-                      {(message.attachment.size / 1024 / 1024).toFixed(1)} MB
-                    </span>
+                    {message.attachment.size != null && (
+                      <span>
+                        {(message.attachment.size / 1024 / 1024).toFixed(1)} MB
+                      </span>
+                    )}
                   </div>
                 </div>
               )}

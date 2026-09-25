@@ -21,6 +21,7 @@ import {
 
 export type ListStateFromServer = {
   mapVersion: string;
+  revertibleRequestId: string | null;
   groups: Group[];
   experiences: Experience[];
 };
@@ -167,7 +168,12 @@ export function toListState(dto: ExperienceMapResDTO): ListStateFromServer {
       .map((child) => toExperience(child, root.id)),
   );
 
-  return { mapVersion: dto.mapVersion, groups, experiences };
+  return {
+    mapVersion: dto.mapVersion,
+    revertibleRequestId: dto.revertibleRequestId,
+    groups,
+    experiences,
+  };
 }
 
 /**
