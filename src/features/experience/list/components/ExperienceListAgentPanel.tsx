@@ -7,9 +7,45 @@ import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { SidebarPanelIcon } from '@/components/icons/SidebarPanelIcon';
 import type { AgentConversation } from './ExperienceAgentConversation';
 import { ExperienceAgentMain } from './ExperienceAgentMain';
+import { useExperienceAgent } from '@/features/experience/list/hooks/useExperienceAgent';
 
 const PANEL_WIDTH = '400px';
 const PANEL_TRANSITION = { duration: 0.3, ease: [0.4, 0, 0.2, 1] as const };
+
+function ConnectedAgent({
+  experienceId,
+  conversationOverride,
+  dailyChatCount,
+  input,
+  onInputChange,
+  attachment,
+  onAttachmentChange,
+}: {
+  experienceId: string;
+  conversationOverride?: AgentConversation;
+  dailyChatCount: number;
+  input: string;
+  onInputChange: (value: string) => void;
+  attachment: File | null;
+  onAttachmentChange: (file: File | null) => void;
+}) {
+  const agent = useExperienceAgent(experienceId);
+  return (
+    <ExperienceAgentMain
+      conversation={conversationOverride ?? agent.conversation}
+      dailyChatCount={agent.limitReached ? 10 : dailyChatCount}
+      input={input}
+      onInputChange={onInputChange}
+      attachment={attachment}
+      onAttachmentChange={onAttachmentChange}
+      onSend={agent.send}
+      onStop={agent.stop}
+      ready={agent.ready}
+      isWorking={agent.isWorking}
+      error={agent.error}
+    />
+  );
+}
 
 export function ExperienceListAgentPanel({
   conversations = {},
@@ -120,9 +156,10 @@ export function ExperienceListAgentPanel({
             })}
           </nav>
         ) : (
-          <ExperienceAgentMain
+          <ConnectedAgent
             key={experience.id}
-            conversation={conversations[experience.id]}
+            experienceId={experience.id}
+            conversationOverride={conversations[experience.id]}
             dailyChatCount={dailyChatCount}
             input={drafts[experience.id] ?? ''}
             onInputChange={(value) =>

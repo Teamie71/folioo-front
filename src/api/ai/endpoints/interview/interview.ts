@@ -26,10 +26,10 @@ import type {
 
 import type {
   AppSchemasInterviewCreateSessionRequest,
+  AppSchemasInterviewCreateSessionResponse,
   BodyChatApiV1InterviewSessionsSessionIdChatPost,
   BodyChatStreamApiV1InterviewSessionsSessionIdChatStreamPost,
   ChatResponse,
-  CreateSessionResponse,
   ErrorResponse,
   ExtendSessionResponse,
   HTTPValidationError,
@@ -54,7 +54,7 @@ export const createSessionApiV1InterviewSessionsPost = (
 ) => {
       
       
-      return aiCustomInstance<CreateSessionResponse>(
+      return aiCustomInstance<AppSchemasInterviewCreateSessionResponse>(
       {url: `/api/v1/interview/sessions`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: appSchemasInterviewCreateSessionRequest, signal
