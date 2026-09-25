@@ -11,4 +11,9 @@ export interface ExperienceMapResDTO {
   /** 낙관적 잠금 버전 (bigint라 문자열로 반환) */
   mapVersion: string;
   roots: BlockResDTO[];
+  /**
+   * 지금 되돌릴 수 있는 AI 작업의 request_id. 채팅의 request_id와 같을 때만 되돌리기 버튼을 노출한다. 최신 AI 작업이 아니거나, 24시간이 지났거나, 이후 맵 변경이 있으면 null.
+   * @nullable
+   */
+  revertibleRequestId: string | null;
 }
