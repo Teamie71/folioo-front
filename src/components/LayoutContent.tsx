@@ -31,6 +31,7 @@ export default function LayoutContent({
       path === '/experience/list' ||
       path === '/experience/workspace');
   const showMobileChrome = isMobileDevice;
+  const isMobileProfile = isMobileDevice && path === '/profile';
   const hideNavbar =
     isCorrectionNewPath(path) ||
     (isExperiencePath(path) && !isMobileExperienceList);
@@ -154,7 +155,7 @@ export default function LayoutContent({
               {showMobileChrome ? (
                 <>
                   <MobileNavbar />
-                  {isOBTBannerVisible && (
+                  {isOBTBannerVisible && !isMobileProfile && (
                     <OBTBannerMobile onDismiss={handleDismissBanner} />
                   )}
                 </>
@@ -168,12 +169,14 @@ export default function LayoutContent({
           )}
           <div
             className={cn(
-              hideNavbar ? '' : 'layout-content-below-header',
+              !hideNavbar && !isMobileProfile && 'layout-content-below-header',
               !hideNavbar &&
                 (showMobileChrome
-                  ? isOBTBannerVisible
-                    ? 'pt-[102px]'
-                    : 'pt-[52px]'
+                  ? isMobileProfile
+                    ? 'pt-14'
+                    : isOBTBannerVisible
+                      ? 'pt-[102px]'
+                      : 'pt-[52px]'
                   : 'pt-[140px]'),
             )}
           >
