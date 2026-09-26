@@ -27,7 +27,7 @@ export function FeedbackSubmittedModal({
       open={open}
       onOpenChange={handleOpenChange}
       closeButtonOnly
-      className='w-full max-w-[40rem] items-center gap-0 rounded-[1.5rem] px-[5rem] py-[3.75rem] text-center'
+      className='w-[calc(100%-2rem)] max-w-[40rem] items-center gap-0 rounded-[1.5rem] px-6 py-10 text-center md:px-[5rem] md:py-[3.75rem]'
     >
       <div className='flex w-full flex-col items-center gap-[1.75rem]'>
         <div className='flex flex-col items-center gap-3'>
