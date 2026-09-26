@@ -37,6 +37,6 @@ export interface CommitItemReqDTO {
    * @nullable
    */
   after_id?: CommitItemReqDTOAfterId;
-  /** update 시 필수 */
+  /** update/delete 시 필수. delete는 CONTENT(4·5단계) 블록만 가능하고 하위 블록도 함께 삭제된다. */
   target_id?: string;
 }

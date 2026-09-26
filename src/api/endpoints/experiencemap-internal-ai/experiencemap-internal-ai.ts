@@ -29,7 +29,9 @@ import type {
   CommonResponse,
   ExperienceMapInternalControllerCommit200,
   ExperienceMapInternalControllerGetCommitStatus200,
-  ExperienceMapInternalControllerGetTemplates200
+  ExperienceMapInternalControllerGetTemplates200,
+  ExperienceMapInternalControllerMarkRequestFailed200,
+  MarkRequestFailedReqDTO
 } from '../../models';
 
 import { customInstance } from '../../../lib/axios';
@@ -285,3 +287,68 @@ export function useExperienceMapInternalControllerGetCommitStatus<TData = Awaite
 
 
 
+/**
+ * 턴이 실패로 끝나면 호출한다. 해당 request_id는 사용 횟수에서 빠지고, 같은 request_id로 재시도하면 다시 차감된다. 멱등하며 없는 request_id는 무시한다.
+ * @summary 실패한 턴을 일일 사용 횟수에서 제외 (AI 서버용)
+ */
+export const experienceMapInternalControllerMarkRequestFailed = (
+    markRequestFailedReqDTO: MarkRequestFailedReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ExperienceMapInternalControllerMarkRequestFailed200>(
+      {url: `/api/v1/experience-map/usage/failed`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: markRequestFailedReqDTO, signal
+    },
+      options);
+    }
+  
+
+
+export const getExperienceMapInternalControllerMarkRequestFailedMutationOptions = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof experienceMapInternalControllerMarkRequestFailed>>, TError,{data: MarkRequestFailedReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof experienceMapInternalControllerMarkRequestFailed>>, TError,{data: MarkRequestFailedReqDTO}, TContext> => {
+
+const mutationKey = ['experienceMapInternalControllerMarkRequestFailed'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof experienceMapInternalControllerMarkRequestFailed>>, {data: MarkRequestFailedReqDTO}> = (props) => {
+          const {data} = props ?? {};
+
+          return  experienceMapInternalControllerMarkRequestFailed(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ExperienceMapInternalControllerMarkRequestFailedMutationResult = NonNullable<Awaited<ReturnType<typeof experienceMapInternalControllerMarkRequestFailed>>>
+    export type ExperienceMapInternalControllerMarkRequestFailedMutationBody = MarkRequestFailedReqDTO
+    export type ExperienceMapInternalControllerMarkRequestFailedMutationError = CommonResponse
+
+    /**
+ * @summary 실패한 턴을 일일 사용 횟수에서 제외 (AI 서버용)
+ */
+export const useExperienceMapInternalControllerMarkRequestFailed = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof experienceMapInternalControllerMarkRequestFailed>>, TError,{data: MarkRequestFailedReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof experienceMapInternalControllerMarkRequestFailed>>,
+        TError,
+        {data: MarkRequestFailedReqDTO},
+        TContext
+      > => {
+      return useMutation(getExperienceMapInternalControllerMarkRequestFailedMutationOptions(options), queryClient);
+    }
+    

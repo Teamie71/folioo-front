@@ -5,9 +5,11 @@
  * API document of Folioo Development
  * OpenAPI spec version: 1.0.0
  */
+import type { CommitAppliedItemResDTOAction } from './commitAppliedItemResDTOAction';
 
 export interface CommitAppliedItemResDTO {
   item_id: string;
+  action: CommitAppliedItemResDTOAction;
   block_id: string;
   path: string;
 }
