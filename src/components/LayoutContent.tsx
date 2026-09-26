@@ -1,22 +1,13 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import MobileNavbar from '@/components/MobileNavbar';
 import Sidebar from '@/components/Sidebar';
 import { OBTBannerMobile } from '@/components/OBT/OBTBannerMobile';
 import { BannerBeta } from '@/components/OBT/OBTBanner';
-import { OBTEventModal } from '@/components/OBT/OBTEventModal';
-import { OBTEventModalMobile } from '@/components/OBT/OBTEventModalMobile';
-import { markWeeklyVoucherGranted } from '@/utils/weeklyVoucher';
-import { useEventControllerClaimEventReward } from '@/api/endpoints/event/event';
 import { cn } from '@/utils/utils';
-
-/** 회원가입 직후 / 주간 이용권 지급 이벤트 코드 (백엔드와 동일해야 함) */
-const WEEKLY_VOUCHER_EVENT_CODE = 'weekly-voucher';
-/** terms에서 약관 동의 후 가입 시 세션에 세팅되는 키 (랜딩에서 모달 띄운 뒤 제거) */
-const TERMS_FROM_SIGNUP_KEY = 'terms_from_signup';
 
 function isCorrectionNewPath(pathname: string) {
   return /^\/correction\/new\/?$/.test(pathname);
@@ -32,12 +23,6 @@ export default function LayoutContent({
   isMobileDevice: boolean;
 }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const [weeklyVoucherModalOpen, setWeeklyVoucherModalOpen] = useState(false);
-  const claimAttemptedRef = useRef(false);
-
-  const { mutateAsync: claimEventReward } =
-    useEventControllerClaimEventReward();
 
   const path = pathname ?? '';
   const isMobileExperienceList =
@@ -144,15 +129,8 @@ export default function LayoutContent({
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    setWeeklyVoucherModalOpen(false);
     const isDismissed = sessionStorage.getItem('obt_banner_mobile_dismissed');
     if (!isDismissed) setIsOBTBannerVisible(true);
-
-    const fromSignup = sessionStorage.getItem(TERMS_FROM_SIGNUP_KEY);
-    if (fromSignup && path === '/') {
-      sessionStorage.removeItem(TERMS_FROM_SIGNUP_KEY);
-      setWeeklyVoucherModalOpen(true);
-    }
   }, [path]);
 
   const handleDismissBanner = () => {
@@ -161,23 +139,6 @@ export default function LayoutContent({
       sessionStorage.setItem('obt_banner_mobile_dismissed', 'true');
     }
   };
-
-  // 회원가입 직후 첫 번째 모달이 열릴 때 보상 수령 API 호출
-  useEffect(() => {
-    if (!weeklyVoucherModalOpen) {
-      claimAttemptedRef.current = false;
-      return;
-    }
-    if (claimAttemptedRef.current) return;
-    claimAttemptedRef.current = true;
-    claimEventReward({ eventCode: WEEKLY_VOUCHER_EVENT_CODE })
-      .then(() => {
-        markWeeklyVoucherGranted();
-      })
-      .catch(() => {
-        claimAttemptedRef.current = false;
-      });
-  }, [weeklyVoucherModalOpen, claimEventReward]);
 
   return (
     <>
@@ -219,35 +180,6 @@ export default function LayoutContent({
             {children}
           </div>
         </>
-      )}
-
-      {/* 주간 이용권 지급 */}
-      {isMobileDevice ? (
-        <OBTEventModalMobile
-          open={weeklyVoucherModalOpen}
-          onOpenChange={setWeeklyVoucherModalOpen}
-          eventTitle='이번 주의 무료 이용권'
-          eventSubTitle='보상 지급 완료'
-          reward='경험 정리 2회권 + 포트폴리오 첨삭 6회권'
-          rewardMessage='{reward}이 지급되었어요.'
-          subMessage='Folioo와 함께 경험을 강력한 서류로 만들어보세요.'
-          validityMessage='지급된 이용권은 일요일까지 사용 가능해요.'
-          buttonText='경험 정리하기'
-          onButtonClick={() => router.push('/experience/settings')}
-        />
-      ) : (
-        <OBTEventModal
-          open={weeklyVoucherModalOpen}
-          onOpenChange={setWeeklyVoucherModalOpen}
-          eventTitle='이번 주의 무료 이용권'
-          eventSubTitle='보상 지급 완료'
-          reward='경험 정리 2회권 + 포트폴리오 첨삭 6회권'
-          rewardMessage='{reward}이 지급되었어요.'
-          subMessage='Folioo와 함께 경험을 강력한 서류로 만들어보세요.'
-          validityMessage='지급된 이용권은 일요일까지 사용 가능해요.'
-          buttonText='경험 정리하기'
-          onButtonClick={() => router.push('/experience/settings')}
-        />
       )}
     </>
   );
