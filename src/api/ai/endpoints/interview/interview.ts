@@ -25,10 +25,10 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  AppSchemasInterviewCreateSessionRequest,
   BodyChatApiV1InterviewSessionsSessionIdChatPost,
   BodyChatStreamApiV1InterviewSessionsSessionIdChatStreamPost,
   ChatResponse,
+  CreateSessionRequest,
   CreateSessionResponse,
   ErrorResponse,
   ExtendSessionResponse,
@@ -49,7 +49,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  * @summary 인터뷰 세션 생성
  */
 export const createSessionApiV1InterviewSessionsPost = (
-    appSchemasInterviewCreateSessionRequest: AppSchemasInterviewCreateSessionRequest,
+    createSessionRequest: CreateSessionRequest,
  options?: SecondParameter<typeof aiCustomInstance>,signal?: AbortSignal
 ) => {
       
@@ -57,7 +57,7 @@ export const createSessionApiV1InterviewSessionsPost = (
       return aiCustomInstance<CreateSessionResponse>(
       {url: `/api/v1/interview/sessions`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: appSchemasInterviewCreateSessionRequest, signal
+      data: createSessionRequest, signal
     },
       options);
     }
@@ -65,8 +65,8 @@ export const createSessionApiV1InterviewSessionsPost = (
 
 
 export const getCreateSessionApiV1InterviewSessionsPostMutationOptions = <TError = ErrorResponse | HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSessionApiV1InterviewSessionsPost>>, TError,{data: AppSchemasInterviewCreateSessionRequest}, TContext>, request?: SecondParameter<typeof aiCustomInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof createSessionApiV1InterviewSessionsPost>>, TError,{data: AppSchemasInterviewCreateSessionRequest}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSessionApiV1InterviewSessionsPost>>, TError,{data: CreateSessionRequest}, TContext>, request?: SecondParameter<typeof aiCustomInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof createSessionApiV1InterviewSessionsPost>>, TError,{data: CreateSessionRequest}, TContext> => {
 
 const mutationKey = ['createSessionApiV1InterviewSessionsPost'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -78,7 +78,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSessionApiV1InterviewSessionsPost>>, {data: AppSchemasInterviewCreateSessionRequest}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSessionApiV1InterviewSessionsPost>>, {data: CreateSessionRequest}> = (props) => {
           const {data} = props ?? {};
 
           return  createSessionApiV1InterviewSessionsPost(data,requestOptions)
@@ -92,18 +92,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type CreateSessionApiV1InterviewSessionsPostMutationResult = NonNullable<Awaited<ReturnType<typeof createSessionApiV1InterviewSessionsPost>>>
-    export type CreateSessionApiV1InterviewSessionsPostMutationBody = AppSchemasInterviewCreateSessionRequest
+    export type CreateSessionApiV1InterviewSessionsPostMutationBody = CreateSessionRequest
     export type CreateSessionApiV1InterviewSessionsPostMutationError = ErrorResponse | HTTPValidationError
 
     /**
  * @summary 인터뷰 세션 생성
  */
 export const useCreateSessionApiV1InterviewSessionsPost = <TError = ErrorResponse | HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSessionApiV1InterviewSessionsPost>>, TError,{data: AppSchemasInterviewCreateSessionRequest}, TContext>, request?: SecondParameter<typeof aiCustomInstance>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSessionApiV1InterviewSessionsPost>>, TError,{data: CreateSessionRequest}, TContext>, request?: SecondParameter<typeof aiCustomInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof createSessionApiV1InterviewSessionsPost>>,
         TError,
-        {data: AppSchemasInterviewCreateSessionRequest},
+        {data: CreateSessionRequest},
         TContext
       > => {
       return useMutation(getCreateSessionApiV1InterviewSessionsPostMutationOptions(options), queryClient);
@@ -113,7 +113,7 @@ export const useCreateSessionApiV1InterviewSessionsPost = <TError = ErrorRespons
  * @summary 인터뷰 세션 생성 (SSE 스트리밍)
  */
 export const createSessionStreamApiV1InterviewSessionsStreamPost = (
-    appSchemasInterviewCreateSessionRequest: AppSchemasInterviewCreateSessionRequest,
+    createSessionRequest: CreateSessionRequest,
  options?: SecondParameter<typeof aiCustomInstance>,signal?: AbortSignal
 ) => {
       
@@ -121,7 +121,7 @@ export const createSessionStreamApiV1InterviewSessionsStreamPost = (
       return aiCustomInstance<unknown>(
       {url: `/api/v1/interview/sessions/stream`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: appSchemasInterviewCreateSessionRequest, signal
+      data: createSessionRequest, signal
     },
       options);
     }
@@ -129,8 +129,8 @@ export const createSessionStreamApiV1InterviewSessionsStreamPost = (
 
 
 export const getCreateSessionStreamApiV1InterviewSessionsStreamPostMutationOptions = <TError = ErrorResponse | HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSessionStreamApiV1InterviewSessionsStreamPost>>, TError,{data: AppSchemasInterviewCreateSessionRequest}, TContext>, request?: SecondParameter<typeof aiCustomInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof createSessionStreamApiV1InterviewSessionsStreamPost>>, TError,{data: AppSchemasInterviewCreateSessionRequest}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSessionStreamApiV1InterviewSessionsStreamPost>>, TError,{data: CreateSessionRequest}, TContext>, request?: SecondParameter<typeof aiCustomInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof createSessionStreamApiV1InterviewSessionsStreamPost>>, TError,{data: CreateSessionRequest}, TContext> => {
 
 const mutationKey = ['createSessionStreamApiV1InterviewSessionsStreamPost'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -142,7 +142,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSessionStreamApiV1InterviewSessionsStreamPost>>, {data: AppSchemasInterviewCreateSessionRequest}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSessionStreamApiV1InterviewSessionsStreamPost>>, {data: CreateSessionRequest}> = (props) => {
           const {data} = props ?? {};
 
           return  createSessionStreamApiV1InterviewSessionsStreamPost(data,requestOptions)
@@ -156,18 +156,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type CreateSessionStreamApiV1InterviewSessionsStreamPostMutationResult = NonNullable<Awaited<ReturnType<typeof createSessionStreamApiV1InterviewSessionsStreamPost>>>
-    export type CreateSessionStreamApiV1InterviewSessionsStreamPostMutationBody = AppSchemasInterviewCreateSessionRequest
+    export type CreateSessionStreamApiV1InterviewSessionsStreamPostMutationBody = CreateSessionRequest
     export type CreateSessionStreamApiV1InterviewSessionsStreamPostMutationError = ErrorResponse | HTTPValidationError
 
     /**
  * @summary 인터뷰 세션 생성 (SSE 스트리밍)
  */
 export const useCreateSessionStreamApiV1InterviewSessionsStreamPost = <TError = ErrorResponse | HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSessionStreamApiV1InterviewSessionsStreamPost>>, TError,{data: AppSchemasInterviewCreateSessionRequest}, TContext>, request?: SecondParameter<typeof aiCustomInstance>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSessionStreamApiV1InterviewSessionsStreamPost>>, TError,{data: CreateSessionRequest}, TContext>, request?: SecondParameter<typeof aiCustomInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof createSessionStreamApiV1InterviewSessionsStreamPost>>,
         TError,
-        {data: AppSchemasInterviewCreateSessionRequest},
+        {data: CreateSessionRequest},
         TContext
       > => {
       return useMutation(getCreateSessionStreamApiV1InterviewSessionsStreamPostMutationOptions(options), queryClient);

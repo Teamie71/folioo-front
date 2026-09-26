@@ -6,10 +6,10 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type CommitItemReqDTOAction = typeof CommitItemReqDTOAction[keyof typeof CommitItemReqDTOAction];
+export type CommitAppliedItemResDTOAction = typeof CommitAppliedItemResDTOAction[keyof typeof CommitAppliedItemResDTOAction];
 
 
-export const CommitItemReqDTOAction = {
+export const CommitAppliedItemResDTOAction = {
   add: 'add',
   update: 'update',
   delete: 'delete',
