@@ -1,4 +1,14 @@
 import { defineConfig, defineTransformer } from 'orval';
+import { loadEnvConfig } from '@next/env';
+
+loadEnvConfig(process.cwd());
+
+const swaggerUsername = process.env.FOLIOO_API_DOCS_USERNAME;
+const swaggerPassword = process.env.FOLIOO_API_DOCS_PASSWORD;
+const swaggerAuthorization =
+  swaggerUsername && swaggerPassword
+    ? `Basic ${Buffer.from(`${swaggerUsername}:${swaggerPassword}`).toString('base64')}`
+    : undefined;
 
 const normalizeAiFileArrays = defineTransformer((spec) => {
   for (const name of [
@@ -30,7 +40,17 @@ const normalizeAiFileArrays = defineTransformer((spec) => {
 export default defineConfig({
   foliooApi: {
     input: {
-      target: 'https://dev-api.folioo.ai.kr/api-json', // API 문서 URL
+      target: 'https://dev-api.folioo.ai.kr/docs-json',
+      ...(swaggerAuthorization && {
+        parserOptions: {
+          headers: [
+            {
+              domains: ['dev-api.folioo.ai.kr'],
+              headers: { Authorization: swaggerAuthorization },
+            },
+          ],
+        },
+      }),
     },
     output: {
       mode: 'tags-split',
