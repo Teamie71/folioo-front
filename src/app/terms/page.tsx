@@ -50,6 +50,7 @@ function TermsPageContent({ variant }: { variant: 'desktop' | 'mobile' }) {
     useUserControllerAgreeTerms({
       mutation: {
         onSuccess: () => {
+          sessionStorage.removeItem(TERMS_FROM_SIGNUP_KEY);
           queryClient.invalidateQueries({
             queryKey: getUserControllerGetProfileQueryKey(),
           });

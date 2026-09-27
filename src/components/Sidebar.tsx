@@ -13,9 +13,10 @@ import { ProfileModal } from '@/components/ProfileModal';
 import { useAuthStore } from '@/store/useAuthStore';
 import { cn } from '@/utils/utils';
 import {
-  CANONICAL_WORKSPACE_HREF,
-  EXPERIENCE_ACTIVE_PATH,
-} from '@/features/experience/workspace/model/workspaceView';
+  SIDEBAR_MENU_ITEMS,
+  isSidebarItemActive,
+  type SidebarMenuItem,
+} from '@/constants/sidebarNavigation';
 
 const SIDEBAR_WIDTH = {
   expanded: 240,
@@ -28,47 +29,6 @@ const SIDEBAR_TRANSITION = {
 };
 
 const EXPAND_CURSOR = 'url("/sidebar/expand-cursor.svg") 20 18, e-resize';
-
-type SidebarMenuItem = {
-  label: string;
-  href?: string;
-  /** href에 query가 붙는 경우 활성 상태 판정에 쓸 경로 */
-  activePath?: string;
-  expandedIcon: string;
-  collapsedIcon: string;
-  collapsedActiveIcon?: string;
-  disabled?: boolean;
-  tooltip?: string;
-};
-
-const MENU_ITEMS: SidebarMenuItem[] = [
-  {
-    label: '직무 추천',
-    href: '/recommendation',
-    expandedIcon: '/sidebar/job-recommendation.svg',
-    collapsedIcon: '/sidebar/job-recommendation-hover.svg',
-    collapsedActiveIcon: '/sidebar/job-recommendation-active.svg',
-  },
-  {
-    label: '경험 정리',
-    href: CANONICAL_WORKSPACE_HREF,
-    activePath: EXPERIENCE_ACTIVE_PATH,
-    expandedIcon: '/sidebar/experience.svg',
-    collapsedIcon: '/sidebar/experience-collapsed.svg',
-  },
-  {
-    label: '포트폴리오 첨삭',
-    href: '/correction',
-    expandedIcon: '/sidebar/correction.svg',
-    collapsedIcon: '/sidebar/correction-collapsed.svg',
-  },
-  {
-    label: '피드백',
-    href: '/feedback',
-    expandedIcon: '/sidebar/feedback.svg',
-    collapsedIcon: '/sidebar/feedback-collapsed.svg',
-  },
-];
 
 const EXPANDED_MENU_TOPS = [80, 124, 168, 224];
 const COLLAPSED_MENU_TOPS = [82, 126, 170, 226];
@@ -402,9 +362,6 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
     },
   });
 
-  const isActive = (href?: string) =>
-    href != null && (pathname === href || pathname.startsWith(`${href}/`));
-
   // 세션 복원 전에는 로그인 상태가 바뀌는 순간이 보여서 계정 영역을 숨긴다.
   const showAccount = sessionRestoreAttempted;
 
@@ -436,12 +393,12 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
           <ExpandedBrand onClick={() => setIsExpanded(false)} />
 
           <nav aria-label='주요 메뉴'>
-            {MENU_ITEMS.map((item, index) => (
+            {SIDEBAR_MENU_ITEMS.map((item, index) => (
               <ExpandedMenuItem
                 key={item.label}
                 item={item}
                 top={EXPANDED_MENU_TOPS[index]}
-                active={isActive(item.activePath ?? item.href)}
+                active={isSidebarItemActive(pathname, item)}
               />
             ))}
           </nav>
@@ -551,12 +508,12 @@ export default function Sidebar({ defaultExpanded = false }: SidebarProps) {
           />
 
           <nav aria-label='주요 메뉴'>
-            {MENU_ITEMS.map((item, index) => (
+            {SIDEBAR_MENU_ITEMS.map((item, index) => (
               <CollapsedMenuItem
                 key={item.label}
                 item={item}
                 top={COLLAPSED_MENU_TOPS[index]}
-                active={isActive(item.activePath ?? item.href)}
+                active={isSidebarItemActive(pathname, item)}
               />
             ))}
           </nav>

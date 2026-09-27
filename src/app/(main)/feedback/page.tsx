@@ -21,12 +21,12 @@ export const metadata: Metadata = {
 
 export default function FeedbackPage() {
   return (
-    <main className='flex flex-col gap-[4.5rem] pb-[6.25rem]'>
-      <div className='bg-sub1 mx-auto flex h-[10.9375rem] w-full min-w-[66rem] flex-col justify-center pt-[2rem]'>
-        <div className='mx-auto w-full max-w-[66rem] min-w-[66rem] px-6'>
+    <main className='flex min-w-0 flex-col gap-10 pb-[6.25rem] md:gap-[4.5rem]'>
+      <div className='bg-sub1 mx-auto flex w-full flex-col justify-center py-8 md:h-[10.9375rem] md:pb-0'>
+        <div className='mx-auto w-full max-w-[66rem] px-4 md:px-6'>
           <div className='flex items-start gap-6'>
-            <BackButton className='shrink-0' />
-            <div className='flex min-w-0 flex-col gap-6'>
+            <BackButton className='hidden shrink-0 md:block' />
+            <div className='flex min-w-0 flex-col gap-4 md:gap-6'>
               <h1 className='typo-h3'>Folioo 사용 후기</h1>
               <p className='typo-b2-sb text-main'>{FEEDBACK_REWARD_HEADLINE}</p>
             </div>
@@ -34,7 +34,7 @@ export default function FeedbackPage() {
         </div>
       </div>
 
-      <div className='mx-auto flex w-full max-w-[66rem] min-w-[66rem] flex-col px-6'>
+      <div className='mx-auto flex w-full max-w-[66rem] flex-col px-4 md:px-6'>
         <FeedbackForm />
       </div>
     </main>

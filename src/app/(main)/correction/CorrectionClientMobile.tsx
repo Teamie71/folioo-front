@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { CorrectionLoadingSpinner } from '@/features/correction/components/CorrectionLoadingSpinner';
 import type { PortfolioCorrectionControllerGetCorrections200 } from '@/api/models';
 import { usePortfolioCorrectionControllerGetCorrections } from '@/api/endpoints/portfolio-correction/portfolio-correction';
@@ -13,7 +12,6 @@ function formatDate(createdAt: string): string {
 }
 
 export default function CorrectionClientMobile() {
-  const router = useRouter();
   const [keyword, setKeyword] = useState('');
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -35,7 +33,8 @@ export default function CorrectionClientMobile() {
   const responseData = data as
     | PortfolioCorrectionControllerGetCorrections200
     | undefined;
-  const list = responseData?.result ?? [];
+  // PC와 동일하게 인증이 없으면 이전 사용자의 캐시를 목록에 사용하지 않는다.
+  const list = isLoggedIn ? (responseData?.result ?? []) : [];
   const items = list.map((c) => ({
     title: c.title,
     tag: c.positionName,

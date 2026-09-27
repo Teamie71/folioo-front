@@ -97,6 +97,7 @@ export function proxy(request: NextRequest) {
     '/withdraw',
     '/error',
     '/recommendation',
+    '/feedback',
   ];
 
   const isExactAllowed = exactAllowedMobilePaths.includes(pathname);

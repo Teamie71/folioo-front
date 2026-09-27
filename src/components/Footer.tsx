@@ -3,12 +3,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { CANONICAL_WORKSPACE_HREF } from '@/features/experience/workspace/model/workspaceView';
+import { MobileFooter } from '@/components/MobileFooter';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
     <>
+      <MobileFooter />
       <div className='mx-auto hidden w-full bg-[#F6F8FA] pt-[1.25rem] pb-[2.5rem] md:flex'>
         <div className='mx-auto flex min-w-[66rem] flex-col items-start justify-center gap-[2.5rem]'>
           <div className='flex w-full flex-col gap-[1.25rem]'>

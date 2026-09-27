@@ -15,78 +15,11 @@ import {
   getUserControllerGetProfileQueryKey,
 } from '@/api/endpoints/user/user';
 import type { UserProfileResDTO } from '@/api/models/userProfileResDTO';
-import type { UserSocialAccountResDTO } from '@/api/models/userSocialAccountResDTO';
-import type { UserSocialAccountResDTOSocialType } from '@/api/models/userSocialAccountResDTOSocialType';
 import { ProfileEditButton } from '@/components/ProfileEditButton';
 import Link from 'next/link';
 import { ChevronLeftIcon } from './icons/ChevronLeftIcon';
 import { ToggleOnOff } from './ToggleOnOff';
-import Image from 'next/image';
-
-/* Orval socialEmail 등 표시용 */
-function toDisplayString(v: unknown): string {
-  if (v == null) return '-';
-  if (typeof v === 'string') return v || '-';
-  return '-';
-}
-
-function SocialEmailLogo({
-  type,
-}: {
-  type?: UserSocialAccountResDTOSocialType;
-}) {
-  switch (type) {
-    case 'KAKAO':
-      return (
-        <Image src='/KakaoEmailLogo.svg' alt='Kakao' width={20} height={20} />
-      );
-    case 'NAVER':
-      return (
-        <Image src='/NaverEmailLogo.svg' alt='Naver' width={20} height={20} />
-      );
-    case 'GOOGLE':
-      return (
-        <Image src='/GoogleEmailLogo.svg' alt='Google' width={20} height={20} />
-      );
-    default:
-      return (
-        <div className='h-[1.25rem] w-[1.25rem] flex-shrink-0 rounded-full bg-[#D9D9D9]' />
-      );
-  }
-}
-
-/* 카카오, 네이버, 구글 순으로 로그인한 소셜 계정마다 로고+이메일 표시 */
-const SOCIAL_ORDER: UserSocialAccountResDTOSocialType[] = [
-  'KAKAO',
-  'NAVER',
-  'GOOGLE',
-];
-function SocialAccountRows({
-  socialAccounts,
-}: {
-  socialAccounts: UserSocialAccountResDTO[];
-}) {
-  const byType = new Map(socialAccounts.map((a) => [a.socialType, a]));
-  const ordered = SOCIAL_ORDER.filter((t) => byType.has(t)).map(
-    (t) => byType.get(t)!,
-  );
-  if (ordered.length === 0) return null;
-  return (
-    <div className='flex flex-col gap-[0.25rem]'>
-      {ordered.map((account) => (
-        <div
-          key={account.socialType}
-          className='flex items-center gap-[0.25rem]'
-        >
-          <SocialEmailLogo type={account.socialType} />
-          <span className='text-[1rem] leading-[150%] text-[#74777D]'>
-            {toDisplayString(account.socialEmail)}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
+import { ProfileSocialAccounts } from '@/components/ProfileSocialAccounts';
 
 interface ProfileModalProps {
   open: boolean;
@@ -170,7 +103,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
                 />
               </div>
 
-              <SocialAccountRows
+              <ProfileSocialAccounts
                 socialAccounts={profile?.socialAccounts ?? []}
               />
             </div>

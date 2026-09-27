@@ -107,10 +107,7 @@ export function CheckboxOtherInlineRow({
         {label}
       </span>
       <textarea
-        className={cn(
-          INLINE_UNDERLINE_INPUT,
-          !active && 'opacity-50',
-        )}
+        className={cn(INLINE_UNDERLINE_INPUT, !active && 'opacity-50')}
         value={value}
         rows={1}
         maxLength={maxLength}
@@ -159,7 +156,7 @@ export function LongFormTextField(props: {
   placeholder?: string;
 }) {
   return (
-    <div className='ml-[1.25rem] w-full'>
+    <div className='ml-[1.25rem] min-w-0'>
       <TextField
         className={cn(
           FEEDBACK_TEXT_FIELD_RADIUS_CLASS,
