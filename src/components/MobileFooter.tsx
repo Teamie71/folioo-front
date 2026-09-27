@@ -32,15 +32,10 @@ export function MobileFooter() {
         )}
       </nav>
 
-      <div className='mt-[27px] h-px bg-[url(/mobile/footer-divider.svg)] bg-repeat-x' />
+      <div className='bg-gray4 mt-[27px] h-px' />
       <div className='mt-5 flex h-10 items-center justify-between'>
         <Link href='/' aria-label='Folioo 홈으로 이동'>
-          <Image
-            src='/mobile/footer-logo.svg'
-            alt='Folioo'
-            width={96}
-            height={24}
-          />
+          <Image src='/MainLogo.svg' alt='Folioo' width={96} height={24} />
         </Link>
         <a
           href='https://www.instagram.com/folioo_ai'
@@ -48,7 +43,7 @@ export function MobileFooter() {
           rel='noopener noreferrer'
           aria-label='Folioo 인스타그램'
         >
-          <Image src='/mobile/instagram.svg' alt='' width={40} height={40} />
+          <Image src='/InstagramIcon.svg' alt='' width={40} height={40} />
         </a>
       </div>
 
@@ -78,31 +73,9 @@ export function MobileFooter() {
         <Link href='/privacy' className='font-bold'>
           개인정보 처리방침
         </Link>
-        <span
-          aria-hidden
-          className='flex h-[14px] w-px items-center justify-center'
-        >
-          <Image
-            src='/mobile/footer-policy-divider.svg'
-            alt=''
-            width={14}
-            height={1}
-            className='max-w-none shrink-0 rotate-90'
-          />
-        </span>
+        <span aria-hidden className='bg-gray4 h-[14px] w-px shrink-0' />
         <Link href='/tos'>서비스 이용약관</Link>
-        <span
-          aria-hidden
-          className='flex h-[14px] w-px items-center justify-center'
-        >
-          <Image
-            src='/mobile/footer-policy-divider.svg'
-            alt=''
-            width={14}
-            height={1}
-            className='max-w-none shrink-0 rotate-90'
-          />
-        </span>
+        <span aria-hidden className='bg-gray4 h-[14px] w-px shrink-0' />
         <Link href='/marketing'>마케팅 정보 수신</Link>
       </nav>
       <p className='typo-c1 mt-3'>

@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/Input';
 import { CheckCircleIcon } from '@/components/icons/CheckCircleIcon';
 import { ModifyIcon } from '@/components/icons/ModifyIcon';
 import { cn } from '@/utils/utils';
-import Image from 'next/image';
 
 interface ProfileEditButtonProps {
   value: string;
@@ -93,16 +92,7 @@ export function ProfileEditButton({
             className='shrink-0 cursor-pointer border-none bg-transparent disabled:cursor-not-allowed disabled:opacity-40'
             aria-label='수정 완료'
           >
-            {isMobile ? (
-              <Image
-                src='/mobile/profile-save.svg'
-                alt=''
-                width={20}
-                height={20}
-              />
-            ) : (
-              <CheckCircleIcon />
-            )}
+            <CheckCircleIcon className={isMobile ? 'size-5' : undefined} />
           </button>
         </>
       ) : (
@@ -125,19 +115,7 @@ export function ProfileEditButton({
             )}
             aria-label='이름 수정'
           >
-            {isMobile ? (
-              <span className='relative block size-5'>
-                <Image
-                  src='/mobile/profile-edit.svg'
-                  alt=''
-                  width={14.4086}
-                  height={16.8148}
-                  className='absolute top-[3.03px] left-[2.56px]'
-                />
-              </span>
-            ) : (
-              <ModifyIcon />
-            )}
+            <ModifyIcon className={isMobile ? 'size-5' : undefined} />
           </button>
         </>
       )}

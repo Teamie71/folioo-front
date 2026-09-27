@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { cn } from '@/utils/utils';
-import Image from 'next/image';
 
 interface ToggleOnOffProps {
   checked?: boolean;
@@ -45,25 +44,15 @@ export function ToggleOnOff({
         className,
       )}
     >
-      {variant === 'mobile' && !isOn ? (
-        <Image
-          src='/mobile/switch-off.svg'
-          alt=''
-          width={53}
-          height={28}
-          className='absolute top-0 left-0 max-w-none'
-        />
-      ) : (
-        <span
-          className={cn(
-            'h-[1.25rem] w-[1.25rem] shrink-0 rounded-full bg-white transition-transform duration-200 ease-in-out',
-            isOn &&
-              (variant === 'mobile'
-                ? 'translate-x-[25px]'
-                : 'translate-x-[1.625rem]'),
-          )}
-        />
-      )}
+      <span
+        className={cn(
+          'h-[1.25rem] w-[1.25rem] shrink-0 rounded-full bg-white transition-transform duration-200 ease-in-out',
+          isOn &&
+            (variant === 'mobile'
+              ? 'translate-x-[25px]'
+              : 'translate-x-[1.625rem]'),
+        )}
+      />
     </button>
   );
 }

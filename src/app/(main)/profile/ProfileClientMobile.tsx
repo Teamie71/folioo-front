@@ -114,7 +114,7 @@ export default function ProfileClientMobile() {
           />
         </div>
 
-        <div className='mx-4 h-px bg-[url(/mobile/profile-divider.svg)] bg-repeat-x' />
+        <div className='bg-gray4 mx-4 h-px' />
 
         {/* Withdrawal */}
         <Link

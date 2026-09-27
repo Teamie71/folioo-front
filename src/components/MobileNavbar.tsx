@@ -8,6 +8,9 @@ import { useAuthControllerHandleLogout } from '@/api/endpoints/auth/auth';
 import { useUserControllerGetProfile } from '@/api/endpoints/user/user';
 import { MobileLogoutIcon } from '@/components/icons/mobile/MobileLogoutIcon';
 import { MobileProfileButtonIcon } from '@/components/icons/mobile/MobileProfileButtonIcon';
+import { HamburgerIcon } from '@/components/icons/HamburgerIcon';
+import { ChevronLeftIcon } from '@/components/icons/ChevronLeftIcon';
+import { CloseIcon } from '@/components/icons/CloseIcon';
 import { LogoutModal } from '@/components/LogoutModal';
 import {
   SIDEBAR_MENU_ITEMS,
@@ -102,13 +105,7 @@ export default function MobileNavbar() {
                 aria-label='뒤로 가기'
                 className='flex h-10 w-10 items-center justify-center'
               >
-                <Image
-                  src='/mobile/back.svg'
-                  alt=''
-                  width={24}
-                  height={24}
-                  className='-rotate-90'
-                />
+                <ChevronLeftIcon className='size-6' />
               </button>
             )}
             {pathname === '/' ? (
@@ -139,15 +136,7 @@ export default function MobileNavbar() {
               aria-label='사이드바 열기'
               className='flex h-10 w-10 items-center justify-center'
             >
-              <span className='relative size-6'>
-                <Image
-                  src='/mobile/menu.svg'
-                  alt=''
-                  width={18}
-                  height={19.814}
-                  className='absolute top-1 left-[3px]'
-                />
-              </span>
+              <HamburgerIcon />
             </button>
           </Dialog.Trigger>
         </nav>
@@ -178,12 +167,7 @@ export default function MobileNavbar() {
                   aria-label='사이드바 닫기'
                   className='flex size-10 items-center justify-center'
                 >
-                  <Image
-                    src='/mobile/sidebar-close.svg'
-                    alt=''
-                    width={24}
-                    height={24}
-                  />
+                  <CloseIcon className='[&_path]:fill-gray5 size-6' />
                 </button>
               </Dialog.Close>
             </div>
@@ -197,7 +181,7 @@ export default function MobileNavbar() {
                 return (
                   <div key={item.href}>
                     {item.href === '/feedback' && (
-                      <div className='mx-[5.5px] mt-1 mb-[7px] h-px bg-[url(/mobile/sidebar-divider.svg)] bg-repeat-x' />
+                      <div className='bg-gray3 mx-[5.5px] mt-1 mb-[7px] h-px' />
                     )}
                     <Link
                       href={item.href}
@@ -233,7 +217,7 @@ export default function MobileNavbar() {
               })}
             </nav>
 
-            <div className='mx-[20.5px] mt-2 h-px shrink-0 bg-[url(/mobile/sidebar-divider.svg)] bg-repeat-x' />
+            <div className='bg-gray3 mx-[20.5px] mt-2 h-px shrink-0' />
 
             {sessionRestoreAttempted && (
               <div className='px-5 pt-[15px] pb-5'>
