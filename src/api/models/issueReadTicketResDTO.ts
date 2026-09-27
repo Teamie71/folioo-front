@@ -6,13 +6,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface IssueTicketResDTO {
-  /** HS256으로 서명된 턴 실행용 티켓. sub/sid/bid/scope(turn)/rid(request_id)/iat/exp를 담는다. */
+export interface IssueReadTicketResDTO {
+  /** HS256으로 서명된 조회용 티켓. sub/sid/bid/scope(read)/iat/exp를 담는다. 턴 실행에는 쓸 수 없다. */
   ticket: string;
   /** 활동(block_id)별 AI 경험 정리 세션 id */
   session_id: string;
-  /** 이번 턴의 request_id. 커밋 시 그대로 사용된다. */
-  request_id: string;
   /** 티켓 만료까지 남은 초 */
   expires_in: number;
 }

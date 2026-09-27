@@ -27,8 +27,10 @@ import type {
 import type {
   CommonResponse,
   ExperienceMapAiControllerGetUsage200,
+  ExperienceMapAiControllerIssueReadTicket200,
   ExperienceMapAiControllerIssueTicket200,
   ExperienceMapAiControllerRevert200,
+  IssueReadTicketReqDTO,
   IssueTicketReqDTO,
   RevertReqDTO
 } from '../../models';
@@ -103,6 +105,70 @@ export const useExperienceMapAiControllerIssueTicket = <TError = CommonResponse,
         TContext
       > => {
       return useMutation(getExperienceMapAiControllerIssueTicketMutationOptions(options), queryClient);
+    }
+    /**
+ * 프론트가 AI 서버에서 대화 내역을 조회할 때 쓰는 티켓을 발급합니다. 일일 사용 한도를 차감하지 않으며, scope=read라 AI 서버는 이 티켓으로 턴을 실행하지 않습니다. 해당 활동의 세션이 없으면 AI 서버 POST /sessions를 호출해 생성합니다.
+ * @summary AI 경험 정리 대화 내역 조회용 티켓 발급
+ */
+export const experienceMapAiControllerIssueReadTicket = (
+    issueReadTicketReqDTO: IssueReadTicketReqDTO,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ExperienceMapAiControllerIssueReadTicket200>(
+      {url: `/api/v1/experience-map/ticket/read`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: issueReadTicketReqDTO, signal
+    },
+      options);
+    }
+  
+
+
+export const getExperienceMapAiControllerIssueReadTicketMutationOptions = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof experienceMapAiControllerIssueReadTicket>>, TError,{data: IssueReadTicketReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof experienceMapAiControllerIssueReadTicket>>, TError,{data: IssueReadTicketReqDTO}, TContext> => {
+
+const mutationKey = ['experienceMapAiControllerIssueReadTicket'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof experienceMapAiControllerIssueReadTicket>>, {data: IssueReadTicketReqDTO}> = (props) => {
+          const {data} = props ?? {};
+
+          return  experienceMapAiControllerIssueReadTicket(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ExperienceMapAiControllerIssueReadTicketMutationResult = NonNullable<Awaited<ReturnType<typeof experienceMapAiControllerIssueReadTicket>>>
+    export type ExperienceMapAiControllerIssueReadTicketMutationBody = IssueReadTicketReqDTO
+    export type ExperienceMapAiControllerIssueReadTicketMutationError = CommonResponse
+
+    /**
+ * @summary AI 경험 정리 대화 내역 조회용 티켓 발급
+ */
+export const useExperienceMapAiControllerIssueReadTicket = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof experienceMapAiControllerIssueReadTicket>>, TError,{data: IssueReadTicketReqDTO}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof experienceMapAiControllerIssueReadTicket>>,
+        TError,
+        {data: IssueReadTicketReqDTO},
+        TContext
+      > => {
+      return useMutation(getExperienceMapAiControllerIssueReadTicketMutationOptions(options), queryClient);
     }
     /**
  * 되돌리기도 하나의 변경이라 map_version은 증가한다. 맵 내용만 이전 시점과 같아진다. 최신 AI 커밋이 아니거나 생성 후 24시간이 지나면 되돌릴 수 없다(410). AI 커밋 뒤 다른 변경으로 버전이 달라졌으면 409.
