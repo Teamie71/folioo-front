@@ -1233,7 +1233,7 @@ export function LandingPageContent() {
               className='sm:col-span-2'
               title='나의 경험을 구조적으로 볼 수 있는 두 가지 뷰'
               description='맵 뷰로 경험의 구조를 한눈에 파악하고, 리스트 뷰로 경험을 깊이 있게 정리해요.'
-              mobileTitle={'나의 경험을 구조적으로 볼 수 있는 두 가지\n뷰'}
+              mobileTitle={'나의 경험을 구조적으로 볼 수 있는\n두 가지 뷰'}
               mobileDescription={
                 '맵 뷰로 경험의 구조를 한눈에 파악하고,\n리스트 뷰로 경험을 깊이 있게 정리해요.'
               }
