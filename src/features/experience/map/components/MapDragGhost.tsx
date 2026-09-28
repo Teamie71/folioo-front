@@ -1,23 +1,38 @@
-'use client';
+/** 맵 블록의 실제 모습을 복제하고 누른 지점을 커서에 맞춰 이동한다. */
+export function createMapDragGhost(source: HTMLElement, x: number, y: number) {
+  const rect = source.getBoundingClientRect();
+  const scale = source.offsetWidth ? rect.width / source.offsetWidth : 1;
+  const pointerOffsetX = x - rect.left;
+  const pointerOffsetY = y - rect.top;
+  const wrapper = document.createElement('div');
+  const clone = source.cloneNode(true) as HTMLElement;
 
-import { createPortal } from 'react-dom';
-import type { MapDragGhost as MapDragGhostState } from '@/features/experience/map/hooks/useMapBlockDrag';
+  clone.removeAttribute('id');
+  clone
+    .querySelectorAll('[id]')
+    .forEach((element) => element.removeAttribute('id'));
+  clone.style.width = `${source.offsetWidth}px`;
+  clone.style.transform = `scale(${scale})`;
+  clone.style.transformOrigin = 'top left';
 
-const OFFSET_X = 12;
-const OFFSET_Y = 12;
+  wrapper.setAttribute('aria-hidden', 'true');
+  wrapper.style.cssText = [
+    'position:fixed',
+    'z-index:300',
+    'pointer-events:none',
+    'opacity:0.92',
+    `width:${rect.width}px`,
+    `height:${rect.height}px`,
+    'filter:drop-shadow(0 4px 12px #00000026)',
+  ].join(';');
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
 
-/** 드래그 중 커서를 따라다니는 블록 미리보기 */
-export function MapDragGhost({ ghost }: { ghost: MapDragGhostState }) {
-  if (typeof document === 'undefined') return null;
+  const move = (clientX: number, clientY: number) => {
+    wrapper.style.left = `${clientX - pointerOffsetX}px`;
+    wrapper.style.top = `${clientY - pointerOffsetY}px`;
+  };
+  move(x, y);
 
-  return createPortal(
-    <div
-      aria-hidden
-      className='border-gray3 typo-c1 text-gray9 pointer-events-none fixed z-[300] max-w-[240px] truncate rounded-[8px] border bg-white px-[12px] py-[6px] opacity-90 shadow-[0px_4px_12px_0px_#00000026]'
-      style={{ top: ghost.y + OFFSET_Y, left: ghost.x + OFFSET_X }}
-    >
-      {ghost.text}
-    </div>,
-    document.body,
-  );
+  return { move, remove: () => wrapper.remove() };
 }

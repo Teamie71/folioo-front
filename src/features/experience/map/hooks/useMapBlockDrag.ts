@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import {
   canDropAt,
@@ -8,6 +8,7 @@ import {
 } from '@/features/experience/list/utils/blockTreeUtils';
 import { parseMapNodeId } from '@/features/experience/map/model/mapNodeId';
 import type { MapLayoutNode } from '@/features/experience/map/utils/mapLayout';
+import { createMapDragGhost } from '@/features/experience/map/components/MapDragGhost';
 
 const LONG_PRESS_MS = 350;
 /** 이 거리 이상 움직이면 long press를 취소하고 일반 클릭으로 처리한다. */
@@ -19,12 +20,6 @@ export type MapDropTarget = {
   id: string;
   place: MapDropPlace;
   rect: DOMRect;
-};
-
-export type MapDragGhost = {
-  x: number;
-  y: number;
-  text: string;
 };
 
 /**
@@ -49,10 +44,11 @@ export function useMapBlockDrag() {
 
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<MapDropTarget | null>(null);
-  const [ghost, setGhost] = useState<MapDragGhost | null>(null);
-
   const dropTargetRef = useRef<MapDropTarget | null>(null);
+  const ghostRef = useRef<ReturnType<typeof createMapDragGhost> | null>(null);
   const suppressClickRef = useRef(false);
+
+  useEffect(() => () => ghostRef.current?.remove(), []);
 
   const isCandidate = (dragged: MapLayoutNode, el: HTMLElement): boolean => {
     const id = el.getAttribute('data-id');
@@ -64,7 +60,9 @@ export function useMapBlockDrag() {
     if (dragged.kind === 'experience') {
       return parsed.kind === 'experience' || parsed.kind === 'group';
     }
-    return parsed.kind === 'block' && parsed.experienceId === dragged.experienceId;
+    return (
+      parsed.kind === 'block' && parsed.experienceId === dragged.experienceId
+    );
   };
 
   const resolvePlace = (
@@ -121,11 +119,15 @@ export function useMapBlockDrag() {
 
     if (dragged.kind === 'experience') {
       if (parsed.kind === 'group') return true;
-      if (parsed.kind === 'experience') return parsed.experienceId !== dragged.refId;
+      if (parsed.kind === 'experience')
+        return parsed.experienceId !== dragged.refId;
       return false;
     }
 
-    if (parsed.kind !== 'block' || parsed.experienceId !== dragged.experienceId) {
+    if (
+      parsed.kind !== 'block' ||
+      parsed.experienceId !== dragged.experienceId
+    ) {
       return false;
     }
     const experience = experiences.find((e) => e.id === dragged.experienceId);
@@ -193,7 +195,11 @@ export function useMapBlockDrag() {
       return;
     }
 
-    if (dragged.kind === 'block' && parsed.kind === 'block' && dragged.experienceId) {
+    if (
+      dragged.kind === 'block' &&
+      parsed.kind === 'block' &&
+      dragged.experienceId
+    ) {
       moveBlock(dragged.experienceId, dragged.refId, {
         kind: target.place,
         targetId: parsed.blockId,
@@ -205,28 +211,39 @@ export function useMapBlockDrag() {
     dropTargetRef.current = null;
     setDraggingId(null);
     setDropTarget(null);
-    setGhost(null);
+    ghostRef.current?.remove();
+    ghostRef.current = null;
   };
 
-  const activateDrag = (node: MapLayoutNode, point: { x: number; y: number }) => {
+  const activateDrag = (
+    node: MapLayoutNode,
+    source: HTMLElement,
+    point: { x: number; y: number },
+  ) => {
+    ghostRef.current = createMapDragGhost(source, point.x, point.y);
     setDraggingId(node.id);
-    setGhost({ x: point.x, y: point.y, text: node.text || node.placeholder || '' });
 
     const onMove = (e: PointerEvent) => {
-      setGhost((g) => (g ? { ...g, x: e.clientX, y: e.clientY } : g));
+      ghostRef.current?.move(e.clientX, e.clientY);
       updateDropTarget(node, e.clientX, e.clientY);
     };
 
-    const onUp = () => {
+    const cleanup = () => {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
-      commitDrop(node);
-      suppressClickRef.current = true;
+      window.removeEventListener('pointercancel', onCancel);
       endDrag();
     };
+    const onUp = () => {
+      commitDrop(node);
+      suppressClickRef.current = true;
+      cleanup();
+    };
+    const onCancel = () => cleanup();
 
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onCancel);
   };
 
   const onBlockPressStart = (
@@ -236,11 +253,12 @@ export function useMapBlockDrag() {
     if (event.button !== 0) return;
 
     const start = { x: event.clientX, y: event.clientY };
+    const source = event.currentTarget;
     let timer: ReturnType<typeof setTimeout> | null = setTimeout(() => {
       timer = null;
       window.removeEventListener('pointermove', onEarlyMove);
       window.removeEventListener('pointerup', onEarlyUp);
-      activateDrag(node, start);
+      activateDrag(node, source, start);
     }, LONG_PRESS_MS);
 
     const cancelPress = () => {
@@ -270,5 +288,5 @@ export function useMapBlockDrag() {
     return true;
   };
 
-  return { draggingId, dropTarget, ghost, onBlockPressStart, consumeSuppressedClick };
+  return { draggingId, dropTarget, onBlockPressStart, consumeSuppressedClick };
 }

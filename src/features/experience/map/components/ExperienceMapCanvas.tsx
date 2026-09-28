@@ -39,7 +39,6 @@ import { resetMeasureCache } from '@/features/experience/map/utils/measureBlockB
 import { MapActivityAreas } from '@/features/experience/map/components/MapActivityAreas';
 import { MapActivityPreviewModal } from '@/features/experience/map/components/MapActivityPreviewModal';
 import { MapBlockNode } from '@/features/experience/map/components/MapBlockNode';
-import { MapDragGhost } from '@/features/experience/map/components/MapDragGhost';
 import { MapDropIndicator } from '@/features/experience/map/components/MapDropIndicator';
 import { MapElbowEdge } from '@/features/experience/map/components/MapElbowEdge';
 import { MapListPreviewNode } from '@/features/experience/map/components/MapListPreviewNode';
@@ -343,13 +342,8 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
     setEditingId((prev) => (editing ? id : prev === id ? null : prev));
   }, []);
 
-  const {
-    draggingId,
-    dropTarget,
-    ghost,
-    onBlockPressStart,
-    consumeSuppressedClick,
-  } = useMapBlockDrag();
+  const { draggingId, dropTarget, onBlockPressStart, consumeSuppressedClick } =
+    useMapBlockDrag();
 
   const interaction = useMemo(
     () => ({
@@ -427,7 +421,6 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
         </ReactFlow>
       </div>
       {dropTarget && <MapDropIndicator target={dropTarget} />}
-      {ghost && <MapDragGhost ghost={ghost} />}
       <MapActivityPreviewModal onClose={onPreviewClose} />
     </MapInteractionProvider>
   );
