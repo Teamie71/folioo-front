@@ -106,7 +106,7 @@ export function ExperienceWorkspaceShell() {
           )}
         </section>
 
-        <ExperienceListAgentPanel />
+        <ExperienceListAgentPanel view={view} />
       </div>
 
       <ExperienceListModals />

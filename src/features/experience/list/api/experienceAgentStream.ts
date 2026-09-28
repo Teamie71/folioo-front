@@ -2,6 +2,7 @@ import type {
   BodyChatStreamApiV1ExperienceMapSessionsSessionIdChatStreamPost,
   RetryStreamRequest,
 } from '@/api/ai/models';
+import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
 
 const aiBaseUrl =
   process.env.NEXT_PUBLIC_AI_API_BASE_URL ??
@@ -36,9 +37,14 @@ function parseEvent(frame: string): StreamEvent | null {
   }
 }
 
-async function readStream(response: Response, onEvent: StreamOptions['onEvent']) {
+async function readStream(
+  response: Response,
+  onEvent: StreamOptions['onEvent'],
+) {
   if (!response.ok) {
-    throw new Error(`AI stream request failed (${response.status}): ${await response.text()}`);
+    throw new Error(
+      `AI stream request failed (${response.status}): ${await response.text()}`,
+    );
   }
   if (!response.body) throw new Error('AI stream response has no body');
 
@@ -71,11 +77,22 @@ function streamUrl(sessionId: string, suffix: string) {
 /** AI 서버의 TicketAuth를 사용한다. Folioo access token은 전달하지 않는다. */
 export async function streamExperienceAgentChat(
   options: StreamOptions & {
+    requestId: string;
+    contextExperienceId: string;
+    view: WorkspaceView;
     body: BodyChatStreamApiV1ExperienceMapSessionsSessionIdChatStreamPost;
   },
 ) {
   const form = new FormData();
-  form.append('request', options.body.request);
+  form.append(
+    'request',
+    JSON.stringify({
+      user_message: options.body.request,
+      context_experience_id: options.contextExperienceId,
+      view: options.view,
+      request_id: options.requestId,
+    }),
+  );
   for (const file of options.body.files ?? []) form.append('files', file);
   const response = await fetch(streamUrl(options.sessionId, 'chat/stream'), {
     method: 'POST',

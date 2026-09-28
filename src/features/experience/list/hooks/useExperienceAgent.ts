@@ -2,8 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  getExperienceMapAiControllerGetUsageQueryKey,
+  experienceMapAiControllerIssueReadTicket,
   experienceMapAiControllerIssueTicket,
   experienceMapAiControllerRevert,
+  useExperienceMapAiControllerGetUsage,
 } from '@/api/endpoints/experiencemap-ai-integration/experiencemap-ai-integration';
 import {
   cancelRequestApiV1ExperienceMapSessionsSessionIdRequestsRequestIdCancelPost,
@@ -23,10 +26,15 @@ import type {
 } from '@/features/experience/list/components/ExperienceAgentConversation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
+import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
+import { useQueryClient } from '@tanstack/react-query';
 
-type SessionTicket = {
+type SessionAuth = {
   ticket: string;
   sessionId: string;
+};
+
+type SessionTicket = SessionAuth & {
   requestId: string;
 };
 
@@ -50,7 +58,19 @@ async function issueTicket(
   };
 }
 
-async function readAllMessages(session: SessionTicket): Promise<MessageItem[]> {
+async function issueReadTicket(blockId: string): Promise<SessionAuth> {
+  const response = await experienceMapAiControllerIssueReadTicket({
+    block_id: blockId,
+  });
+  if (!response.result)
+    throw new Error('에이전트 조회용 티켓을 발급받지 못했어요.');
+  return {
+    ticket: response.result.ticket,
+    sessionId: response.result.session_id,
+  };
+}
+
+async function readAllMessages(session: SessionAuth): Promise<MessageItem[]> {
   const messages: MessageItem[] = [];
   let cursor: string | null | undefined;
   do {
@@ -131,8 +151,23 @@ function toChatMessages(items: MessageItem[]): AgentChatMessage[] {
   });
 }
 
-export function useExperienceAgent(blockId: string | undefined) {
+export function useExperienceAgent(
+  blockId: string | undefined,
+  view: WorkspaceView = 'list',
+) {
   const accessToken = useAuthStore((state) => state.accessToken);
+  const queryClient = useQueryClient();
+  const usageQuery = useExperienceMapAiControllerGetUsage({
+    query: { enabled: Boolean(accessToken), refetchOnWindowFocus: true },
+  });
+  const usage = usageQuery.data?.result;
+  const refreshUsage = useCallback(
+    () =>
+      queryClient.invalidateQueries({
+        queryKey: getExperienceMapAiControllerGetUsageQueryKey(),
+      }),
+    [queryClient],
+  );
   const revertibleRequestId = useExperienceListStore(
     (state) => state.revertibleRequestId,
   );
@@ -142,7 +177,7 @@ export function useExperienceAgent(blockId: string | undefined) {
   const setAgentLimitDayKst = useExperienceListStore(
     (state) => state.setAgentLimitDayKst,
   );
-  const [session, setSession] = useState<SessionTicket | null>(null);
+  const [session, setSession] = useState<SessionAuth | null>(null);
   const [ready, setReady] = useState(false);
   const [items, setItems] = useState<MessageItem[]>([]);
   const [workingRequestId, setWorkingRequestId] = useState<string | null>(null);
@@ -152,7 +187,9 @@ export function useExperienceAgent(blockId: string | undefined) {
   const [pendingMessage, setPendingMessage] = useState<AgentChatMessage | null>(
     null,
   );
-  const limitReached = agentLimitDayKst === todayKst();
+  const limitReached = usage
+    ? usage.used >= usage.limit
+    : agentLimitDayKst === todayKst();
   const abort = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -169,7 +206,18 @@ export function useExperienceAgent(blockId: string | undefined) {
     return () => window.clearTimeout(timeout);
   }, [limitReached, setAgentLimitDayKst]);
 
-  const refresh = useCallback(async (activeSession: SessionTicket) => {
+  useEffect(() => {
+    if (!accessToken || !usage?.reset_at) return;
+    const resetAt = Date.parse(usage.reset_at);
+    if (!Number.isFinite(resetAt)) return;
+    const timeout = window.setTimeout(
+      () => void refreshUsage(),
+      Math.max(1000, resetAt - Date.now() + 1000),
+    );
+    return () => window.clearTimeout(timeout);
+  }, [accessToken, usage?.reset_at, refreshUsage]);
+
+  const refresh = useCallback(async (activeSession: SessionAuth) => {
     const [history, state] = await Promise.all([
       readAllMessages(activeSession),
       getSessionStateApiV1ExperienceMapSessionsSessionIdStateGet(
@@ -198,7 +246,7 @@ export function useExperienceAgent(blockId: string | undefined) {
     let active = true;
     let ticketIssued = false;
     setReady(false);
-    issueTicket(blockId)
+    issueReadTicket(blockId)
       .then(async (next) => {
         if (!active) return;
         ticketIssued = true;
@@ -228,11 +276,6 @@ export function useExperienceAgent(blockId: string | undefined) {
           !(cause instanceof DOMException && cause.name === 'AbortError')
         ) {
           if (ticketIssued) setReady(true);
-          if (
-            (cause as { response?: { status?: number } })?.response?.status ===
-            429
-          )
-            setAgentLimitDayKst(todayKst());
           setError(describeError(cause));
         }
       });
@@ -240,7 +283,7 @@ export function useExperienceAgent(blockId: string | undefined) {
       active = false;
       abort.current?.abort();
     };
-  }, [blockId, accessToken, refresh, setAgentLimitDayKst]);
+  }, [blockId, accessToken, refresh]);
 
   const send = useCallback(
     async (text: string, file: File | null, onAccepted: () => void) => {
@@ -249,12 +292,15 @@ export function useExperienceAgent(blockId: string | undefined) {
       let next: SessionTicket;
       try {
         next = await issueTicket(blockId);
+        void refreshUsage();
       } catch (cause) {
         if (
           (cause as { response?: { status?: number } })?.response?.status ===
           429
-        )
+        ) {
           setAgentLimitDayKst(todayKst());
+          void refreshUsage();
+        }
         throw new Error(describeError(cause));
       }
       setSession(next);
@@ -273,6 +319,9 @@ export function useExperienceAgent(blockId: string | undefined) {
         await streamExperienceAgentChat({
           sessionId: next.sessionId,
           ticket: next.ticket,
+          requestId: next.requestId,
+          contextExperienceId: blockId,
+          view,
           signal: controller.signal,
           body: { request: text, ...(file ? { files: [file] } : {}) },
           onEvent: () => {},
@@ -297,14 +346,17 @@ export function useExperienceAgent(blockId: string | undefined) {
       } finally {
         setWorkingRequestId(null);
         abort.current = null;
+        void refreshUsage();
       }
     },
     [
       blockId,
+      view,
       accessToken,
       workingRequestId,
       limitReached,
       refresh,
+      refreshUsage,
       setAgentLimitDayKst,
     ],
   );
@@ -318,12 +370,26 @@ export function useExperienceAgent(blockId: string | undefined) {
     );
     abort.current?.abort();
     setWorkingRequestId(null);
-  }, [session, workingRequestId]);
+    void refreshUsage();
+  }, [session, workingRequestId, refreshUsage]);
 
   const retry = useCallback(
     async (requestId: string) => {
       if (!blockId || !accessToken) return;
-      const next = await issueTicket(blockId, requestId);
+      let next: SessionTicket;
+      try {
+        next = await issueTicket(blockId, requestId);
+      } catch (cause) {
+        if (
+          (cause as { response?: { status?: number } })?.response?.status ===
+          429
+        ) {
+          setAgentLimitDayKst(todayKst());
+          void refreshUsage();
+        }
+        throw cause;
+      }
+      void refreshUsage();
       setSession(next);
       setWorkingRequestId(requestId);
       setFailedRequestId(null);
@@ -348,18 +414,23 @@ export function useExperienceAgent(blockId: string | undefined) {
       } finally {
         setWorkingRequestId(null);
         abort.current = null;
+        void refreshUsage();
       }
     },
-    [blockId, accessToken, refresh],
+    [blockId, accessToken, refresh, refreshUsage, setAgentLimitDayKst],
   );
 
-  const revert = useCallback(async (requestId: string) => {
-    const response = await experienceMapAiControllerRevert({
-      request_id: requestId,
-    });
-    if (!response.result) throw new Error('이전으로 되돌리지 못했어요.');
-    await loadExperienceMap();
-  }, []);
+  const revert = useCallback(
+    async (requestId: string) => {
+      const response = await experienceMapAiControllerRevert({
+        request_id: requestId,
+      });
+      if (!response.result) throw new Error('이전으로 되돌리지 못했어요.');
+      await loadExperienceMap();
+      void refreshUsage();
+    },
+    [refreshUsage],
+  );
 
   const messages = toChatMessages(items).map((message) => {
     if (
@@ -400,6 +471,7 @@ export function useExperienceAgent(blockId: string | undefined) {
     ready,
     isWorking: Boolean(workingRequestId),
     limitReached,
+    dailyChatCount: usage?.used,
     error,
   };
 }

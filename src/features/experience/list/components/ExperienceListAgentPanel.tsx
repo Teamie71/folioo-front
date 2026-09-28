@@ -8,12 +8,14 @@ import { SidebarPanelIcon } from '@/components/icons/SidebarPanelIcon';
 import type { AgentConversation } from './ExperienceAgentConversation';
 import { ExperienceAgentMain } from './ExperienceAgentMain';
 import { useExperienceAgent } from '@/features/experience/list/hooks/useExperienceAgent';
+import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
 
 const PANEL_WIDTH = '400px';
 const PANEL_TRANSITION = { duration: 0.3, ease: [0.4, 0, 0.2, 1] as const };
 
 function ConnectedAgent({
   experienceId,
+  view,
   conversationOverride,
   dailyChatCount,
   input,
@@ -22,6 +24,7 @@ function ConnectedAgent({
   onAttachmentChange,
 }: {
   experienceId: string;
+  view: WorkspaceView;
   conversationOverride?: AgentConversation;
   dailyChatCount: number;
   input: string;
@@ -29,11 +32,13 @@ function ConnectedAgent({
   attachment: File | null;
   onAttachmentChange: (file: File | null) => void;
 }) {
-  const agent = useExperienceAgent(experienceId);
+  const agent = useExperienceAgent(experienceId, view);
   return (
     <ExperienceAgentMain
       conversation={conversationOverride ?? agent.conversation}
-      dailyChatCount={agent.limitReached ? 10 : dailyChatCount}
+      dailyChatCount={
+        agent.limitReached ? 10 : (agent.dailyChatCount ?? dailyChatCount)
+      }
       input={input}
       onInputChange={onInputChange}
       attachment={attachment}
@@ -50,10 +55,12 @@ function ConnectedAgent({
 export function ExperienceListAgentPanel({
   conversations = {},
   dailyChatCount = 0,
+  view = 'list',
 }: {
   conversations?: Readonly<Record<string, AgentConversation>>;
   /** 로그인 사용자 전체 활동의 서버 기준 일일 합산 횟수 */
   dailyChatCount?: number;
+  view?: WorkspaceView;
 }) {
   const open = useExperienceListStore((s) => s.agentOpen);
   const onToggle = useExperienceListStore((s) => s.toggleAgent);
@@ -159,6 +166,7 @@ export function ExperienceListAgentPanel({
           <ConnectedAgent
             key={experience.id}
             experienceId={experience.id}
+            view={view}
             conversationOverride={conversations[experience.id]}
             dailyChatCount={dailyChatCount}
             input={drafts[experience.id] ?? ''}
