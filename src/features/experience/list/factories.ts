@@ -24,7 +24,7 @@ import {
  *
  * 각 섹션 아래에 만들어지는 4단계 슬롯이다.
  * 담당업무·문제해결의 5단계는 아래 *_TEMPLATE_LEVEL5의 '기본' 템플릿에서 가져온다.
- * (담당업무: 4단계 하나에 5단계 4개 / 문제해결: 4단계 4개에 5단계 하나씩)
+ * 담당업무·문제해결 모두 4단계 하나에 5단계 4개를 넣는다.
  */
 const SECTION_SLOTS: Record<Exclude<SectionKind, 'free'>, string[]> = {
   detail: [
@@ -39,12 +39,7 @@ const SECTION_SLOTS: Record<Exclude<SectionKind, 'free'>, string[]> = {
     '간접적인 지표로 확인할 수 있는 정성적인 성과는 무엇인가요?',
   ],
   duty: [DUTY_EPISODE_PLACEHOLDER],
-  problem: [
-    PROBLEM_EPISODE_PLACEHOLDER,
-    PROBLEM_EPISODE_PLACEHOLDER,
-    PROBLEM_EPISODE_PLACEHOLDER,
-    PROBLEM_EPISODE_PLACEHOLDER,
-  ],
+  problem: [PROBLEM_EPISODE_PLACEHOLDER],
   learning: [LEARNING_PLACEHOLDER],
 };
 
@@ -149,8 +144,7 @@ export function sectionBlockPlaceholderAt(
 /**
  * 섹션 아래에 붙일 4·5단계 블록을 만든다. (§1 기본 제공 데이터 / §2 3단계 템플릿)
  *
- * 담당업무는 4단계 하나 아래에 5단계 4개를 모두 넣고,
- * 문제해결은 4단계 4개에 5단계를 하나씩 나눠 넣는다.
+ * 담당업무·문제해결 모두 4단계 하나 아래에 5단계 슬롯을 넣는다.
  */
 export function buildSectionChildren(
   kind: Exclude<SectionKind, 'free'>,
@@ -171,13 +165,13 @@ export function buildSectionChildren(
 
   if (kind === 'problem') {
     const level5 = defaultSubTemplateSlots('problem');
-    return slots.map((placeholder, index) =>
+    return [
       placeholderBlock(
-        placeholder,
-        level5[index] ? [placeholderBlock(level5[index])] : [],
+        PROBLEM_EPISODE_PLACEHOLDER,
+        level5.map((p) => placeholderBlock(p)),
         childKind,
       ),
-    );
+    ];
   }
 
   return slots.map((placeholder) =>
@@ -287,7 +281,7 @@ export function createProblemLevel5FromTemplate(
 /**
  * 활동 하나의 기본 제공 데이터. (§1)
  *
- * 섹션 5종과 그 아래 4·5단계 슬롯까지 모두 만든다. (섹션 포함 26블록)
+ * 섹션 5종과 그 아래 4·5단계 슬롯까지 모두 만든다. (섹션 포함 23블록)
  * 로그인 상태에서는 서버가 같은 구조를 만들어 주므로 비로그인 기본 데이터에 쓴다.
  */
 export function createExperienceTemplateBlocks(): Block[] {
