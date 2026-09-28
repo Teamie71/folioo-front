@@ -84,6 +84,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
 
   const { setCenter, fitView, zoomTo } = useReactFlow();
   const nodesInitialized = useNodesInitialized();
+  const mapViewportRef = useRef<HTMLDivElement>(null);
   const didFitRef = useRef(false);
   // 수준 전환 중 발생하는 onMove가 다시 전환을 유발하지 않도록 잠근다.
   const steppingRef = useRef(false);
@@ -182,13 +183,20 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
    * 표준 수준 레이아웃에서 같은 블록의 위치를 다시 찾아 중앙에 맞춘다.
    */
   const focusOnStandard = useCallback(
-    (nodeId: string) => {
+    (nodeId: string, alignLeft = false) => {
       const standardLayout = buildMapLayout(groups, experiences, 5);
       const target = standardLayout.nodes.find((n) => n.id === nodeId);
       if (!target) return;
 
+      // 활동 노드는 세로 중앙을 유지하고, 가로로는 화면 중앙보다 왼쪽에 둔다.
+      // flow 좌표로 변환해 뷰포트 크기와 배율이 달라도 같은 비율로 정렬한다.
+      const viewportWidth = mapViewportRef.current?.clientWidth ?? 0;
+      const horizontalOffset = alignLeft
+        ? (viewportWidth * 0.2) / FOCUS_ZOOM
+        : 0;
+
       void setCenter(
-        target.x + target.width / 2,
+        target.x + target.width / 2 + horizontalOffset,
         target.y + target.height / 2,
         { zoom: FOCUS_ZOOM, duration: 300 },
       );
@@ -272,7 +280,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       // 최소화 · 중간 수준에서는 편집 대신 해당 블록을 중앙에 두고 표준 수준으로 확대한다.
       if (detail !== 'standard') {
         setDetail('standard');
-        focusOnStandard(node.id);
+        focusOnStandard(node.id, node.kind === 'experience');
         return;
       }
 
@@ -368,54 +376,56 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
 
   return (
     <MapInteractionProvider value={interaction}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
-        minZoom={MAP_MIN_ZOOM}
-        maxZoom={MAP_MAX_ZOOM}
-        nodesDraggable={false}
-        nodesConnectable={false}
-        elementsSelectable={false}
-        /*
-         * 피그마와 동일한 마우스 조작:
-         * 휠 = 상하 스크롤, Shift + 휠 = 좌우 스크롤,
-         * Ctrl/Cmd + 휠 = 확대/축소 (zoomOnPinch가 ctrlKey 휠을 처리한다)
-         */
-        panOnScroll={!isCoarsePointer}
-        panOnScrollMode={PanOnScrollMode.Free}
-        // 터치 기기: 한 손가락 드래그로 캔버스 이동, 두 손가락으로 확대/축소.
-        // (데스크톱도 react-flow 기본값이 드래그 팬 허용이라 동작은 그대로다)
-        panOnDrag
-        zoomOnScroll={false}
-        zoomOnPinch
-        zoomOnDoubleClick={false}
-        proOptions={{ hideAttribution: true }}
-        onNodeClick={(_, flowNode) => {
-          if (consumeSuppressedClick()) return;
-          const payload = flowNode.data as { node?: MapLayoutNode };
-          if (payload.node) onBlockClick(payload.node);
-        }}
-        onNodeDoubleClick={(_, flowNode) => {
-          const payload = flowNode.data as { node?: MapLayoutNode };
-          if (payload.node) onBlockDoubleClick(payload.node);
-        }}
-        onMove={(_, viewport) => onViewportChange(viewport.zoom)}
-        // 캔버스를 움직이기 시작하면 열려 있는 블록 추가 드롭다운을 닫는다. (화면에 고정된 채로 어긋나 보이는 상태 방지)
-        onMoveStart={() => setMenuCloseSignal((s) => s + 1)}
-        onPaneClick={() => {
-          useExperienceListStore.setState({ selection: null });
-          setActiveId(null);
-          setEditingId(null);
-        }}
-        className='bg-white'
-      >
-        {/* 활동 배경은 모든 블록이 보이는 표준 수준에서만 표시한다. */}
-        <MapActivityAreas
-          areas={detail === 'standard' ? layout.areas : EMPTY_AREAS}
-        />
-      </ReactFlow>
+      <div ref={mapViewportRef} className='absolute inset-0'>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          minZoom={MAP_MIN_ZOOM}
+          maxZoom={MAP_MAX_ZOOM}
+          nodesDraggable={false}
+          nodesConnectable={false}
+          elementsSelectable={false}
+          /*
+           * 피그마와 동일한 마우스 조작:
+           * 휠 = 상하 스크롤, Shift + 휠 = 좌우 스크롤,
+           * Ctrl/Cmd + 휠 = 확대/축소 (zoomOnPinch가 ctrlKey 휠을 처리한다)
+           */
+          panOnScroll={!isCoarsePointer}
+          panOnScrollMode={PanOnScrollMode.Free}
+          // 터치 기기: 한 손가락 드래그로 캔버스 이동, 두 손가락으로 확대/축소.
+          // (데스크톱도 react-flow 기본값이 드래그 팬 허용이라 동작은 그대로다)
+          panOnDrag
+          zoomOnScroll={false}
+          zoomOnPinch
+          zoomOnDoubleClick={false}
+          proOptions={{ hideAttribution: true }}
+          onNodeClick={(_, flowNode) => {
+            if (consumeSuppressedClick()) return;
+            const payload = flowNode.data as { node?: MapLayoutNode };
+            if (payload.node) onBlockClick(payload.node);
+          }}
+          onNodeDoubleClick={(_, flowNode) => {
+            const payload = flowNode.data as { node?: MapLayoutNode };
+            if (payload.node) onBlockDoubleClick(payload.node);
+          }}
+          onMove={(_, viewport) => onViewportChange(viewport.zoom)}
+          // 캔버스를 움직이기 시작하면 열려 있는 블록 추가 드롭다운을 닫는다. (화면에 고정된 채로 어긋나 보이는 상태 방지)
+          onMoveStart={() => setMenuCloseSignal((s) => s + 1)}
+          onPaneClick={() => {
+            useExperienceListStore.setState({ selection: null });
+            setActiveId(null);
+            setEditingId(null);
+          }}
+          className='bg-white'
+        >
+          {/* 활동 배경은 모든 블록이 보이는 표준 수준에서만 표시한다. */}
+          <MapActivityAreas
+            areas={detail === 'standard' ? layout.areas : EMPTY_AREAS}
+          />
+        </ReactFlow>
+      </div>
       {dropTarget && <MapDropIndicator target={dropTarget} />}
       {ghost && <MapDragGhost ghost={ghost} />}
       <MapActivityPreviewModal onClose={onPreviewClose} />
