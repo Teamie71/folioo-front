@@ -9,6 +9,7 @@ import {
   useReactFlow,
   type Edge,
   type Node,
+  type OnMove,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -57,6 +58,7 @@ const edgeTypes = {
 };
 
 const EDGE_STYLE = { stroke: '#9EA4A9', strokeWidth: 1 };
+const PRO_OPTIONS = { hideAttribution: true };
 
 const EMPTY_AREAS: MapLayoutArea[] = [];
 
@@ -92,7 +94,6 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [fontVersion, setFontVersion] = useState(0);
-  const [menuCloseSignal, setMenuCloseSignal] = useState(0);
 
   // 폰트가 늦게 로드되면 canvas 측정값이 달라지므로 한 번 다시 계산한다.
   useEffect(() => {
@@ -352,7 +353,6 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       editingId,
       onBlockClick,
       onEditingChange,
-      menuCloseSignal,
       draggingId,
       onBlockPressStart,
     }),
@@ -362,11 +362,42 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       editingId,
       onBlockClick,
       onEditingChange,
-      menuCloseSignal,
       draggingId,
       onBlockPressStart,
     ],
   );
+
+  const handleNodeClick = useCallback(
+    (_: React.MouseEvent, flowNode: Node) => {
+      if (consumeSuppressedClick()) return;
+      const payload = flowNode.data as { node?: MapLayoutNode };
+      if (payload.node) onBlockClick(payload.node);
+    },
+    [consumeSuppressedClick, onBlockClick],
+  );
+
+  const handleNodeDoubleClick = useCallback(
+    (_: React.MouseEvent, flowNode: Node) => {
+      const payload = flowNode.data as { node?: MapLayoutNode };
+      if (payload.node) onBlockDoubleClick(payload.node);
+    },
+    [onBlockDoubleClick],
+  );
+
+  const handleMove = useCallback<OnMove>(
+    (_, viewport) => onViewportChange(viewport.zoom),
+    [onViewportChange],
+  );
+
+  const handleMoveStart = useCallback(() => {
+    window.dispatchEvent(new Event('experience-map:move-start'));
+  }, []);
+
+  const handlePaneClick = useCallback(() => {
+    useExperienceListStore.setState({ selection: null });
+    setActiveId(null);
+    setEditingId(null);
+  }, []);
 
   return (
     <MapInteractionProvider value={interaction}>
@@ -394,24 +425,13 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
           zoomOnScroll={false}
           zoomOnPinch
           zoomOnDoubleClick={false}
-          proOptions={{ hideAttribution: true }}
-          onNodeClick={(_, flowNode) => {
-            if (consumeSuppressedClick()) return;
-            const payload = flowNode.data as { node?: MapLayoutNode };
-            if (payload.node) onBlockClick(payload.node);
-          }}
-          onNodeDoubleClick={(_, flowNode) => {
-            const payload = flowNode.data as { node?: MapLayoutNode };
-            if (payload.node) onBlockDoubleClick(payload.node);
-          }}
-          onMove={(_, viewport) => onViewportChange(viewport.zoom)}
+          proOptions={PRO_OPTIONS}
+          onNodeClick={handleNodeClick}
+          onNodeDoubleClick={handleNodeDoubleClick}
+          onMove={handleMove}
           // 캔버스를 움직이기 시작하면 열려 있는 블록 추가 드롭다운을 닫는다. (화면에 고정된 채로 어긋나 보이는 상태 방지)
-          onMoveStart={() => setMenuCloseSignal((s) => s + 1)}
-          onPaneClick={() => {
-            useExperienceListStore.setState({ selection: null });
-            setActiveId(null);
-            setEditingId(null);
-          }}
+          onMoveStart={handleMoveStart}
+          onPaneClick={handlePaneClick}
           className='bg-white'
         >
           {/* 활동 배경은 모든 블록이 보이는 표준 수준에서만 표시한다. */}

@@ -1,8 +1,26 @@
 'use client';
 
+import { memo } from 'react';
 import { useViewport } from '@xyflow/react';
 import { ACTIVITY_AREA_RADIUS } from '@/features/experience/map/constants';
 import type { MapLayoutArea } from '@/features/experience/map/utils/mapLayout';
+
+const AreaElements = memo(function AreaElements({ areas }: { areas: MapLayoutArea[] }) {
+  return areas.map((area) => (
+    <div
+      key={area.id}
+      className='absolute'
+      style={{
+        left: area.x,
+        top: area.y,
+        width: area.width,
+        height: area.height,
+        borderRadius: ACTIVITY_AREA_RADIUS,
+        backgroundColor: '#F6F5FF66',
+      }}
+    />
+  ));
+});
 
 /**
  * 활동 서브트리를 감싸는 배경(#F6F5FF66).
@@ -22,20 +40,7 @@ export function MapActivityAreas({ areas }: { areas: MapLayoutArea[] }) {
           transformOrigin: '0 0',
         }}
       >
-        {areas.map((area) => (
-          <div
-            key={area.id}
-            className='absolute'
-            style={{
-              left: area.x,
-              top: area.y,
-              width: area.width,
-              height: area.height,
-              borderRadius: ACTIVITY_AREA_RADIUS,
-              backgroundColor: '#F6F5FF66',
-            }}
-          />
-        ))}
+        <AreaElements areas={areas} />
       </div>
     </div>
   );

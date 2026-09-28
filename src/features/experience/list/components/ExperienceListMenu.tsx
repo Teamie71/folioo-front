@@ -366,6 +366,8 @@ type MenuButtonProps = {
   anchorRef?: RefObject<HTMLElement | null>;
   /** 값이 바뀔 때마다 열려 있는 메뉴를 닫는다. (예: 맵 캔버스를 움직이기 시작했을 때) */
   closeSignal?: number;
+  /** 맵 이동이 시작되면 열려 있는 메뉴만 닫는다. */
+  closeOnMapMove?: boolean;
 };
 
 export function MenuButton({
@@ -383,6 +385,7 @@ export function MenuButton({
   submenuMode = 'cascade',
   anchorRef,
   closeSignal,
+  closeOnMapMove = false,
 }: MenuButtonProps) {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<MenuPosition | null>(null);
@@ -401,6 +404,13 @@ export function MenuButton({
     if (closeSignal == null) return;
     setOpen(false);
   }, [closeSignal]);
+
+  useEffect(() => {
+    if (!closeOnMapMove || !open) return;
+    const close = () => setOpen(false);
+    window.addEventListener('experience-map:move-start', close);
+    return () => window.removeEventListener('experience-map:move-start', close);
+  }, [closeOnMapMove, open]);
 
   useLayoutEffect(() => {
     if (!open || !triggerRef.current) {
