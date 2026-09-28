@@ -119,29 +119,10 @@ export function canDropAt(
 
   const targetLevel = kind === 'inside' ? targetLoc.level + 1 : targetLoc.level;
 
-  if (draggedLoc.level === 3) {
-    if (kind === 'inside') {
-      return (
-        dragged.kind === 'free' &&
-        targetLoc.level === 3 &&
-        canMoveToLevel(dragged, 4)
-      );
-    }
-    if (targetLoc.level !== 3) return false;
-    return canMoveToLevel(dragged, 3);
-  }
-
-  if (targetLoc.level === 3 && kind !== 'inside') return false;
-
   if (kind === 'inside' && targetLoc.level >= 5) return false;
-
-  if (
-    kind === 'inside' &&
-    targetLoc.level === 4 &&
-    dragged.children.length > 0
-  ) {
+  // 고정 섹션은 3단계에 남겨 둔다. 자유 블록만 위계를 바꿀 수 있다.
+  if (draggedLoc.level === 3 && dragged.kind !== 'free' && targetLevel !== 3)
     return false;
-  }
 
   return canMoveToLevel(dragged, targetLevel);
 }
@@ -215,7 +196,22 @@ export function applyBlockMove(
     }
   }
 
-  return insertBlockAt(without, parentId, adjustedIndex, extracted);
+  const targetLevel = drop.kind === 'inside' ? targetLoc.level + 1 : targetLoc.level;
+  const parent = parentId ? findBlock(without, parentId) : null;
+  const sectionKind = targetLevel === 4 ? parent?.kind : null;
+  const normalize = (block: Block, level: number): Block => ({
+    ...block,
+    kind:
+      level === 4 && (sectionKind === 'duty' || sectionKind === 'problem')
+        ? sectionKind
+        : 'free',
+    editable: true,
+    children: block.children.map((child) => normalize(child, level + 1)),
+  });
+  const moved =
+    extracted.editable ? normalize(extracted, targetLevel) : extracted;
+
+  return insertBlockAt(without, parentId, adjustedIndex, moved);
 }
 
 /** 5단계 블록을 4단계로 올리면서 화면의 블록 순서를 유지한다. */

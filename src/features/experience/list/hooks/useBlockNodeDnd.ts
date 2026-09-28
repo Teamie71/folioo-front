@@ -109,7 +109,13 @@ export function useBlockNodeDnd({
       return;
     }
 
-    if (draggedLoc.level === 3 && level > 3) {
+    if (
+      draggedLoc.level === 3 &&
+      level > 3 &&
+      !(['before', 'after', 'inside'] as const).some((kind) =>
+        canDropAt(dnd.rootBlocks, draggedId, block.id, kind),
+      )
+    ) {
       const loc = findBlockLocation(dnd.rootBlocks, block.id);
       if (!loc) {
         e.dataTransfer.dropEffect = 'none';
@@ -190,15 +196,14 @@ export function useBlockNodeDnd({
     }
 
     const allowInside =
-      draggedLoc.level !== 3 &&
-      level === 4 &&
+      level <= 4 &&
       canDropAt(dnd.rootBlocks, draggedId, block.id, 'inside');
 
     const stickyKind =
       dnd.dropHint?.targetId === block.id ? dnd.dropHint.kind : null;
 
     let kind: 'before' | 'after' | 'inside';
-    if (draggedLoc.level === 3 && level === 3) {
+    if (draggedLoc.level === 3 && level === 3 && !allowInside) {
       kind = siblingDropKindFromY(
         e,
         sectionDropMeasureEl(e.currentTarget),
@@ -265,7 +270,10 @@ export function useBlockNodeDnd({
 
     if (level === 3) {
       const draggedLoc = findBlockLocation(dnd.rootBlocks, active.id);
-      if (draggedLoc?.level === 3) {
+      if (
+        draggedLoc?.level === 3 &&
+        !canDropAt(dnd.rootBlocks, active.id, block.id, 'inside')
+      ) {
         if (active.id === block.id) {
           e.dataTransfer.dropEffect = 'none';
           dnd.setDropHint(null);
@@ -285,7 +293,7 @@ export function useBlockNodeDnd({
       }
     }
 
-    if (level !== 4) {
+    if (level !== 3 && level !== 4) {
       e.dataTransfer.dropEffect = 'none';
       dnd.setDropHint(null);
       return;
@@ -323,7 +331,10 @@ export function useBlockNodeDnd({
     dnd.markDropped();
     if (level === 3) {
       const draggedLoc = findBlockLocation(dnd.rootBlocks, payload.id);
-      if (draggedLoc?.level === 3) {
+      if (
+        draggedLoc?.level === 3 &&
+        !canDropAt(dnd.rootBlocks, payload.id, block.id, 'inside')
+      ) {
         if (
           dropHint &&
           (dropHint.kind === 'before' || dropHint.kind === 'after') &&

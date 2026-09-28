@@ -14,8 +14,7 @@ import { useGuestExperienceMode } from '@/features/experience/list/hooks/useGues
 import { GuestLoginSnackbar } from '@/features/experience/list/components/GuestLoginSnackbar';
 import { GuestLeaveGuardModal } from '@/features/experience/list/components/GuestLeaveGuardModal';
 import { useWorkspaceView } from '@/features/experience/workspace/hooks/useWorkspaceView';
-// 임시 조치: 맵 뷰 비활성화. 복구 시 아래 import와 usePreloadMapView 호출 주석을 해제한다.
-// import { usePreloadMapView } from '@/features/experience/workspace/hooks/usePreloadMapView';
+import { usePreloadMapView } from '@/features/experience/workspace/hooks/usePreloadMapView';
 import { preloadExperienceMapView } from '@/features/experience/workspace/model/mapViewLoader';
 
 const ExperienceMapView = dynamic(
@@ -52,8 +51,7 @@ export function ExperienceWorkspaceShell() {
       : undefined;
   });
 
-  // 임시 조치: 맵 뷰가 URL로도 도달 불가능해져 preload가 무의미해졌다.
-  // usePreloadMapView(view === 'list');
+  usePreloadMapView(view === 'list');
 
   const changeView = useCallback(
     (next: 'list' | 'map') => {
