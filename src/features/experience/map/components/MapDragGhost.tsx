@@ -18,9 +18,11 @@ export function createMapDragGhost(source: HTMLElement, x: number, y: number) {
   wrapper.setAttribute('aria-hidden', 'true');
   wrapper.style.cssText = [
     'position:fixed',
+    'top:0',
+    'left:0',
     'z-index:300',
     'pointer-events:none',
-    'opacity:0.92',
+    'opacity:0.5',
     `width:${rect.width}px`,
     `height:${rect.height}px`,
     'filter:drop-shadow(0 4px 12px #00000026)',

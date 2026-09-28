@@ -274,6 +274,7 @@ export function useMapBlockDrag() {
 
     const start = { x: event.clientX, y: event.clientY };
     const source = event.currentTarget;
+    const isTouch = event.pointerType === 'touch';
     let timer: ReturnType<typeof setTimeout> | null = setTimeout(() => {
       timer = null;
       window.removeEventListener('pointermove', onEarlyMove);
@@ -291,7 +292,14 @@ export function useMapBlockDrag() {
     function onEarlyMove(e: PointerEvent) {
       const dx = e.clientX - start.x;
       const dy = e.clientY - start.y;
-      if (Math.hypot(dx, dy) > MOVE_CANCEL_PX) cancelPress();
+      if (Math.hypot(dx, dy) <= MOVE_CANCEL_PX) return;
+      cancelPress();
+      // 마우스·펜은 일반적인 드래그 동작으로 바로 시작한다.
+      // 터치는 스크롤과 충돌하지 않도록 기존 길게 누르기를 유지한다.
+      if (!isTouch) {
+        activateDrag(node, source, start);
+        ghostRef.current?.move(e.clientX, e.clientY);
+      }
     }
     function onEarlyUp() {
       cancelPress();
