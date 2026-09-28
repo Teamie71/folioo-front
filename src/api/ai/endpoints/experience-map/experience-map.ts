@@ -25,7 +25,6 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  AppSchemasExperienceMapSessionStateResponse,
   BodyChatStreamApiV1ExperienceMapSessionsSessionIdChatStreamPost,
   CreateSessionRequest,
   CreateSessionResponse,
@@ -33,7 +32,7 @@ import type {
   HTTPValidationError,
   MessagesResponse,
   RequestStateResponse,
-  RetryStreamRequest
+  SessionStateResponse
 } from '../../models';
 
 import { aiCustomInstance } from '../../../../lib/aiAxios';
@@ -117,7 +116,7 @@ export const getSessionStateApiV1ExperienceMapSessionsSessionIdStateGet = (
 ) => {
       
       
-      return aiCustomInstance<AppSchemasExperienceMapSessionStateResponse>(
+      return aiCustomInstance<SessionStateResponse>(
       {url: `/api/v1/experience-map/sessions/${sessionId}/state`, method: 'GET', signal
     },
       options);
@@ -533,15 +532,12 @@ export const useChatStreamApiV1ExperienceMapSessionsSessionIdChatStreamPost = <T
  */
 export const retryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPost = (
     sessionId: string,
-    retryStreamRequest: RetryStreamRequest,
  options?: SecondParameter<typeof aiCustomInstance>,signal?: AbortSignal
 ) => {
       
       
       return aiCustomInstance<unknown>(
-      {url: `/api/v1/experience-map/sessions/${sessionId}/retry/stream`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: retryStreamRequest, signal
+      {url: `/api/v1/experience-map/sessions/${sessionId}/retry/stream`, method: 'POST', signal
     },
       options);
     }
@@ -549,8 +545,8 @@ export const retryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPost = (
 
 
 export const getRetryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPostMutationOptions = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof retryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPost>>, TError,{sessionId: string;data: RetryStreamRequest}, TContext>, request?: SecondParameter<typeof aiCustomInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof retryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPost>>, TError,{sessionId: string;data: RetryStreamRequest}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof retryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPost>>, TError,{sessionId: string}, TContext>, request?: SecondParameter<typeof aiCustomInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof retryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPost>>, TError,{sessionId: string}, TContext> => {
 
 const mutationKey = ['retryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPost'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -562,10 +558,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof retryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPost>>, {sessionId: string;data: RetryStreamRequest}> = (props) => {
-          const {sessionId,data} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof retryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPost>>, {sessionId: string}> = (props) => {
+          const {sessionId} = props ?? {};
 
-          return  retryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPost(sessionId,data,requestOptions)
+          return  retryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPost(sessionId,requestOptions)
         }
 
 
@@ -576,18 +572,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type RetryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPostMutationResult = NonNullable<Awaited<ReturnType<typeof retryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPost>>>
-    export type RetryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPostMutationBody = RetryStreamRequest
+    
     export type RetryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPostMutationError = HTTPValidationError
 
     /**
  * @summary 재시도 스트림
  */
 export const useRetryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPost = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof retryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPost>>, TError,{sessionId: string;data: RetryStreamRequest}, TContext>, request?: SecondParameter<typeof aiCustomInstance>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof retryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPost>>, TError,{sessionId: string}, TContext>, request?: SecondParameter<typeof aiCustomInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof retryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPost>>,
         TError,
-        {sessionId: string;data: RetryStreamRequest},
+        {sessionId: string},
         TContext
       > => {
       return useMutation(getRetryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPostMutationOptions(options), queryClient);
