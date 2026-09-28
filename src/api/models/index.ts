@@ -8,6 +8,8 @@
 
 export * from './activityNameReqDTO';
 export * from './activityNameResDTO';
+export * from './activityStatusResDTO';
+export * from './activityStatusResDTOStatus';
 export * from './adminEventRewardControllerGetManualRewardEvents200';
 export * from './adminEventRewardControllerGetManualRewardEvents200Error';
 export * from './adminEventRewardControllerGetManualRewardEventsParams';
@@ -175,12 +177,17 @@ export * from './experienceControllerGetExperiences200Error';
 export * from './experienceControllerGetExperiencesParams';
 export * from './experienceControllerUpdateExperience200';
 export * from './experienceControllerUpdateExperience200Error';
+export * from './experienceMapAiControllerGetActivityStatuses200';
+export * from './experienceMapAiControllerGetActivityStatuses200Error';
 export * from './experienceMapAiControllerGetUsage200';
 export * from './experienceMapAiControllerGetUsage200Error';
 export * from './experienceMapAiControllerIssueReadTicket200';
 export * from './experienceMapAiControllerIssueReadTicket200Error';
 export * from './experienceMapAiControllerIssueTicket200';
 export * from './experienceMapAiControllerIssueTicket200Error';
+export * from './experienceMapAiControllerMarkSeen200';
+export * from './experienceMapAiControllerMarkSeen200Error';
+export * from './experienceMapAiControllerMarkSeen200Result';
 export * from './experienceMapAiControllerRevert200';
 export * from './experienceMapAiControllerRevert200Error';
 export * from './experienceMapControllerCreateBlock200';

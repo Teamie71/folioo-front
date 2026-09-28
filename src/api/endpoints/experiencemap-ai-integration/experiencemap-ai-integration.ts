@@ -26,9 +26,11 @@ import type {
 
 import type {
   CommonResponse,
+  ExperienceMapAiControllerGetActivityStatuses200,
   ExperienceMapAiControllerGetUsage200,
   ExperienceMapAiControllerIssueReadTicket200,
   ExperienceMapAiControllerIssueTicket200,
+  ExperienceMapAiControllerMarkSeen200,
   ExperienceMapAiControllerRevert200,
   IssueReadTicketReqDTO,
   IssueTicketReqDTO,
@@ -325,3 +327,157 @@ export function useExperienceMapAiControllerGetUsage<TData = Awaited<ReturnType<
 
 
 
+/**
+ * 맵뷰의 활동 상태 아이콘(처리 중/완료/실패)용. 활동마다 가장 최근 요청 1건의 상태를 돌려준다. AI 요청이 한 번도 없는 활동은 목록에 없다. 처리 중인 활동이 있을 때만 주기적으로 다시 조회하면 된다.
+ * @summary 활동별 AI 처리 상태 조회
+ */
+export const experienceMapAiControllerGetActivityStatuses = (
+    
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ExperienceMapAiControllerGetActivityStatuses200>(
+      {url: `/api/v1/experience-map/activity-status`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getExperienceMapAiControllerGetActivityStatusesQueryKey = () => {
+    return [
+    `/api/v1/experience-map/activity-status`
+    ] as const;
+    }
+
+    
+export const getExperienceMapAiControllerGetActivityStatusesQueryOptions = <TData = Awaited<ReturnType<typeof experienceMapAiControllerGetActivityStatuses>>, TError = CommonResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof experienceMapAiControllerGetActivityStatuses>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getExperienceMapAiControllerGetActivityStatusesQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof experienceMapAiControllerGetActivityStatuses>>> = ({ signal }) => experienceMapAiControllerGetActivityStatuses(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof experienceMapAiControllerGetActivityStatuses>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ExperienceMapAiControllerGetActivityStatusesQueryResult = NonNullable<Awaited<ReturnType<typeof experienceMapAiControllerGetActivityStatuses>>>
+export type ExperienceMapAiControllerGetActivityStatusesQueryError = CommonResponse
+
+
+export function useExperienceMapAiControllerGetActivityStatuses<TData = Awaited<ReturnType<typeof experienceMapAiControllerGetActivityStatuses>>, TError = CommonResponse>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof experienceMapAiControllerGetActivityStatuses>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof experienceMapAiControllerGetActivityStatuses>>,
+          TError,
+          Awaited<ReturnType<typeof experienceMapAiControllerGetActivityStatuses>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useExperienceMapAiControllerGetActivityStatuses<TData = Awaited<ReturnType<typeof experienceMapAiControllerGetActivityStatuses>>, TError = CommonResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof experienceMapAiControllerGetActivityStatuses>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof experienceMapAiControllerGetActivityStatuses>>,
+          TError,
+          Awaited<ReturnType<typeof experienceMapAiControllerGetActivityStatuses>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useExperienceMapAiControllerGetActivityStatuses<TData = Awaited<ReturnType<typeof experienceMapAiControllerGetActivityStatuses>>, TError = CommonResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof experienceMapAiControllerGetActivityStatuses>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 활동별 AI 처리 상태 조회
+ */
+
+export function useExperienceMapAiControllerGetActivityStatuses<TData = Awaited<ReturnType<typeof experienceMapAiControllerGetActivityStatuses>>, TError = CommonResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof experienceMapAiControllerGetActivityStatuses>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getExperienceMapAiControllerGetActivityStatusesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
+ * 채팅을 열었을 때, 그리고 채팅을 연 상태에서 처리가 끝났을 때 호출한다. 해당 활동의 최신 요청을 확인한 것으로 기록한다. 최신 요청이 처리 중이면 기록하지 않는다(완료 후 다시 호출). 요청이 없는 활동이어도 성공으로 응답한다.
+ * @summary 활동 결과 확인 처리
+ */
+export const experienceMapAiControllerMarkSeen = (
+    blockId: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ExperienceMapAiControllerMarkSeen200>(
+      {url: `/api/v1/experience-map/activity-status/${blockId}/seen`, method: 'POST', signal
+    },
+      options);
+    }
+  
+
+
+export const getExperienceMapAiControllerMarkSeenMutationOptions = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof experienceMapAiControllerMarkSeen>>, TError,{blockId: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof experienceMapAiControllerMarkSeen>>, TError,{blockId: string}, TContext> => {
+
+const mutationKey = ['experienceMapAiControllerMarkSeen'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof experienceMapAiControllerMarkSeen>>, {blockId: string}> = (props) => {
+          const {blockId} = props ?? {};
+
+          return  experienceMapAiControllerMarkSeen(blockId,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ExperienceMapAiControllerMarkSeenMutationResult = NonNullable<Awaited<ReturnType<typeof experienceMapAiControllerMarkSeen>>>
+    
+    export type ExperienceMapAiControllerMarkSeenMutationError = CommonResponse
+
+    /**
+ * @summary 활동 결과 확인 처리
+ */
+export const useExperienceMapAiControllerMarkSeen = <TError = CommonResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof experienceMapAiControllerMarkSeen>>, TError,{blockId: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof experienceMapAiControllerMarkSeen>>,
+        TError,
+        {blockId: string},
+        TContext
+      > => {
+      return useMutation(getExperienceMapAiControllerMarkSeenMutationOptions(options), queryClient);
+    }
+    
