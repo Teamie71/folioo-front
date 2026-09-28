@@ -10,7 +10,8 @@ type HoverTooltipProps = {
   label: string;
   children: React.ReactNode;
   placement?: Placement;
-  align?: 'center' | 'start';
+  align?: 'center' | 'start' | 'end';
+  gap?: number;
   className?: string;
   disabled?: boolean;
   wrapperClassName?: string;
@@ -40,6 +41,7 @@ export function HoverTooltip({
   children,
   placement = 'top',
   align: preferAlign = 'center',
+  gap = GAP,
   className,
   disabled = false,
   wrapperClassName,
@@ -143,7 +145,16 @@ export function HoverTooltip({
       const maxRight = vw - VIEWPORT_PAD;
 
       const top =
-        placement === 'top' ? rect.top - GAP - tipHeight : rect.bottom + GAP;
+        placement === 'top' ? rect.top - gap - tipHeight : rect.bottom + gap;
+
+      if (preferAlign === 'end') {
+        const left = Math.max(
+          minLeft,
+          Math.min(rect.right - tipWidth, maxRight - tipWidth),
+        );
+        setPos({ top, left, align: 'start' });
+        return;
+      }
 
       if (preferAlign === 'start') {
         let left = rect.left;
@@ -182,7 +193,7 @@ export function HoverTooltip({
       window.removeEventListener('scroll', update, true);
       window.removeEventListener('resize', update);
     };
-  }, [open, disabled, placement, label, preferAlign]);
+  }, [open, disabled, placement, label, preferAlign, gap]);
 
   const show = () => {
     if (disabled || blockedRef.current) return;

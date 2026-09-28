@@ -262,14 +262,22 @@ export function ExperienceListToolbar({
           </button>
         ) : null}
         {!agentOpen && (
-          <button
-            type='button'
-            onClick={toggleAgent}
-            className='flex size-[32px] cursor-pointer items-center justify-center rounded-[8px]'
-            aria-label='AI 에이전트 열기'
+          <HoverTooltip
+            label='클릭하여 에이전트 탭 열기'
+            placement='bottom'
+            align='end'
+            gap={8}
+            suppressUntilPointerLeave
           >
-            <SidebarPanelIcon className='size-[20px]' />
-          </button>
+            <button
+              type='button'
+              onClick={toggleAgent}
+              className='hover:bg-gray2 flex size-[32px] cursor-pointer items-center justify-center rounded-[8px]'
+              aria-label='AI 에이전트 열기'
+            >
+              <SidebarPanelIcon className='size-[20px]' />
+            </button>
+          </HoverTooltip>
         )}
       </div>
     </header>
