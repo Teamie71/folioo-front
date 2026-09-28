@@ -113,8 +113,12 @@ function describeApiError(error: unknown, context: string): Error {
 /** 임시 id로 시작된 작업이라도 서버 id로 바꿔서 요청한다. */
 function serverId(clientId: string): string {
   let id = clientId;
-  // 별칭이 연쇄될 일은 없지만, 방어적으로 끝까지 따라간다.
-  while (idAliases.has(id)) id = idAliases.get(id)!;
+  const visited = new Set<string>();
+  while (idAliases.has(id)) {
+    if (visited.has(id)) throw new Error(`블록 ID 별칭이 순환합니다: ${clientId}`);
+    visited.add(id);
+    id = idAliases.get(id)!;
+  }
   return id;
 }
 
@@ -539,9 +543,12 @@ export function syncRestoreHistory(from: HistoryTree, to: HistoryTree) {
 
     const serverUnclassified = initial.groups.find((group) => group.isUnclassified);
     const guestUnclassified = to.groups.find((group) => group.isUnclassified);
-    if (serverUnclassified && guestUnclassified) {
+    if (
+      serverUnclassified &&
+      guestUnclassified &&
+      guestUnclassified.id !== serverUnclassified.id
+    ) {
       idAliases.set(guestUnclassified.id, serverUnclassified.id);
-      existing.add(serverUnclassified.id);
     }
 
     // 부모를 먼저 만든다. 활동 생성 시 서버가 만드는 고정 섹션은 종류로 연결한다.
