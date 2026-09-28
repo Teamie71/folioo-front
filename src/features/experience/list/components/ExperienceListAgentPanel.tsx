@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
@@ -17,7 +17,8 @@ import {
   agentStatusLabel,
 } from '@/features/experience/list/components/AgentStatusIndicator';
 
-const PANEL_WIDTH = '400px';
+const PANEL_MIN_WIDTH = 400;
+const PANEL_MAX_WIDTH = 900;
 const PANEL_TRANSITION = { duration: 0.3, ease: [0.4, 0, 0.2, 1] as const };
 
 function AgentListExperienceRow({
@@ -127,20 +128,78 @@ export function ExperienceListAgentPanel({
   const [attachments, setAttachments] = useState<Record<string, File | null>>(
     {},
   );
+  const [panelWidth, setPanelWidth] = useState(PANEL_MIN_WIDTH);
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeStart = useRef<{ x: number; width: number } | null>(null);
+  const clampPanelWidth = (width: number) =>
+    Math.max(PANEL_MIN_WIDTH, Math.min(PANEL_MAX_WIDTH, width));
 
   return (
     <motion.aside
       initial={false}
       animate={{
-        width: open ? PANEL_WIDTH : 0,
+        width: open ? panelWidth : 0,
         opacity: open ? 1 : 0,
       }}
-      transition={PANEL_TRANSITION}
-      style={{ overflow: 'hidden' }}
+      transition={isResizing ? { duration: 0 } : PANEL_TRANSITION}
+      style={{ overflow: 'hidden', position: 'relative' }}
       className='border-gray3 flex h-full shrink-0 flex-col border-l bg-[#f7f7f8]'
       aria-hidden={!open}
     >
-      <div className='flex h-full min-h-0 w-[399px] flex-col' inert={!open}>
+      {open && (
+        <div
+          role='separator'
+          aria-label='AI 에이전트 패널 너비 조절'
+          aria-orientation='vertical'
+          aria-valuemin={PANEL_MIN_WIDTH}
+          aria-valuemax={PANEL_MAX_WIDTH}
+          aria-valuenow={panelWidth}
+          tabIndex={0}
+          className='absolute inset-y-0 left-0 z-20 w-[8px] cursor-col-resize touch-none select-none'
+          onPointerDown={(event) => {
+            if (event.button !== 0) return;
+            resizeStart.current = { x: event.clientX, width: panelWidth };
+            event.currentTarget.setPointerCapture(event.pointerId);
+            setIsResizing(true);
+            event.preventDefault();
+          }}
+          onPointerMove={(event) => {
+            if (!resizeStart.current) return;
+            setPanelWidth(
+              clampPanelWidth(
+                resizeStart.current.width +
+                  resizeStart.current.x -
+                  event.clientX,
+              ),
+            );
+          }}
+          onPointerUp={(event) => {
+            resizeStart.current = null;
+            event.currentTarget.releasePointerCapture(event.pointerId);
+            setIsResizing(false);
+          }}
+          onPointerCancel={() => {
+            resizeStart.current = null;
+            setIsResizing(false);
+          }}
+          onKeyDown={(event) => {
+            const step = event.shiftKey ? 50 : 10;
+            if (event.key === 'ArrowLeft')
+              setPanelWidth((width) => clampPanelWidth(width + step));
+            else if (event.key === 'ArrowRight')
+              setPanelWidth((width) => clampPanelWidth(width - step));
+            else if (event.key === 'Home') setPanelWidth(PANEL_MIN_WIDTH);
+            else if (event.key === 'End') setPanelWidth(PANEL_MAX_WIDTH);
+            else return;
+            event.preventDefault();
+          }}
+        />
+      )}
+      <div
+        className='flex h-full min-h-0 min-w-0 flex-col'
+        style={{ width: panelWidth - 1 }}
+        inert={!open}
+      >
         <header className='flex shrink-0 items-center gap-[6px] px-[20px] pt-[24px]'>
           <button
             type='button'

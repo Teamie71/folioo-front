@@ -82,6 +82,7 @@ function createInterpolator(from: VisualLayout, to: MapLayout) {
 export function useAnimatedMapLayout(
   target: MapLayout,
   detail: MapDetailLevel,
+  keepWheelAnchor = false,
 ) {
   const [frame, setFrame] = useState<VisualLayout | null>(null);
   const stable = useMemo<VisualLayout>(
@@ -104,6 +105,7 @@ export function useAnimatedMapLayout(
     // 표준 수준은 노드 수가 많으므로 프레임마다 React Flow 전체를 갱신하지 않는다.
     if (
       previousDetail === detail ||
+      keepWheelAnchor ||
       reducedMotion ||
       previousDetail === 'standard' ||
       detail === 'standard'
@@ -129,7 +131,7 @@ export function useAnimatedMapLayout(
     setFrame(from);
     frameId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frameId);
-  }, [detail, stable, target]);
+  }, [detail, keepWheelAnchor, stable, target]);
 
   return frame ?? stable;
 }
