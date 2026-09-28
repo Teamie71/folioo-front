@@ -28,6 +28,8 @@ import {
 import { useBlockNodeDnd } from '@/features/experience/list/hooks/useBlockNodeDnd';
 import type { Block } from '@/features/experience/list/types';
 import {
+  canDropAt,
+  findBlock,
   findBlockLocation,
   flattenBlocks,
   isMeaningfulDrop,
@@ -59,6 +61,7 @@ export function ExperienceListBlockNode({
   const deleteBlock = useExperienceListStore((s) => s.deleteBlock);
   const updateBlockText = useExperienceListStore((s) => s.updateBlockText);
   const splitBlockAt = useExperienceListStore((s) => s.splitBlockAt);
+  const moveBlock = useExperienceListStore((s) => s.moveBlock);
 
   const {
     dnd,
@@ -70,6 +73,30 @@ export function ExperienceListBlockNode({
     onDragOverInsideOnly,
     onDropInsideOnly,
   } = useBlockNodeDnd({ block, level, index });
+
+  const location = findBlockLocation(dnd.rootBlocks, block.id);
+  const siblings = location
+    ? location.parentId
+      ? findBlock(dnd.rootBlocks, location.parentId)?.children
+      : dnd.rootBlocks
+    : null;
+  const previousSibling =
+    location && location.index > 0 ? siblings?.[location.index - 1] : null;
+  const indentTargetId =
+    (level === 3 || level === 4) &&
+    previousSibling &&
+    canDropAt(dnd.rootBlocks, block.id, previousSibling.id, 'inside')
+      ? previousSibling.id
+      : null;
+
+  const indentBlock = (caret: number) => {
+    if (!indentTargetId) return;
+    moveBlock(dnd.experienceId, block.id, {
+      kind: 'inside',
+      targetId: indentTargetId,
+    });
+    dnd.setEditRequest({ id: block.id, caret });
+  };
 
   const canShowInsideHint =
     level === 4 &&
@@ -261,11 +288,21 @@ export function ExperienceListBlockNode({
               onCommit={(next) =>
                 updateBlockText(dnd.experienceId, block.id, next)
               }
+              onTab={indentTargetId ? indentBlock : undefined}
               onDeleteEmpty={
                 block.children.length === 0
                   ? () => deleteBlock(dnd.experienceId, block.id)
                   : undefined
               }
+              requestEdit={dnd.editRequest?.id === block.id}
+              requestEditCaret={
+                dnd.editRequest?.id === block.id ? dnd.editRequest.caret : 0
+              }
+              onRequestEditHandled={() => {
+                if (dnd.editRequest?.id === block.id) {
+                  dnd.setEditRequest(null);
+                }
+              }}
               className={cn(
                 'typo-b2-sb',
                 isDragging || !block.text ? 'text-gray5' : 'text-gray9',
@@ -406,6 +443,7 @@ export function ExperienceListBlockNode({
                     splitBlockAt(dnd.experienceId, block.id, left, sibling);
                     dnd.setEditRequest({ id: sibling.id, caret: 0 });
                   }}
+                  onTab={indentTargetId ? indentBlock : undefined}
                   onDeleteEmpty={
                     block.children.length > 0
                       ? undefined

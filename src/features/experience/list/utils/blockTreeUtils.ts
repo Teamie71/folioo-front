@@ -120,7 +120,13 @@ export function canDropAt(
   const targetLevel = kind === 'inside' ? targetLoc.level + 1 : targetLoc.level;
 
   if (draggedLoc.level === 3) {
-    if (kind === 'inside') return false;
+    if (kind === 'inside') {
+      return (
+        dragged.kind === 'free' &&
+        targetLoc.level === 3 &&
+        canMoveToLevel(dragged, 4)
+      );
+    }
     if (targetLoc.level !== 3) return false;
     return canMoveToLevel(dragged, 3);
   }
