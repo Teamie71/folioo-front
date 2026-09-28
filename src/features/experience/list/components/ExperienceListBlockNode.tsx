@@ -99,6 +99,21 @@ export function ExperienceListBlockNode({
     dnd.setEditRequest({ id: block.id, caret });
   };
 
+  const deleteEmptyBlock = () => {
+    const flat = flattenBlocks(dnd.rootBlocks);
+    const at = flat.findIndex((item) => item.id === block.id);
+    const prev = at > 0 ? flat[at - 1] : null;
+    const prevLevel = prev
+      ? findBlockLocation(dnd.rootBlocks, prev.id)?.level
+      : undefined;
+
+    deleteBlock(dnd.experienceId, block.id);
+
+    if (prev && prevLevel != null && prevLevel >= 4) {
+      dnd.setEditRequest({ id: prev.id, caret: prev.text.length });
+    }
+  };
+
   const canShowInsideHint =
     level === 4 &&
     hint === 'inside' &&
@@ -451,28 +466,14 @@ export function ExperienceListBlockNode({
                           outdentBlock(dnd.experienceId, block.id);
                           dnd.setEditRequest({ id: block.id, caret: 0 });
                         }
-                      : undefined
+                      : level === 4
+                        ? deleteEmptyBlock
+                        : undefined
                   }
                   onDeleteEmpty={
                     block.children.length > 0
                       ? undefined
-                      : () => {
-                          const flat = flattenBlocks(dnd.rootBlocks);
-                          const at = flat.findIndex((b) => b.id === block.id);
-                          const prev = at > 0 ? flat[at - 1] : null;
-                          const prevLevel = prev
-                            ? findBlockLocation(dnd.rootBlocks, prev.id)?.level
-                            : undefined;
-
-                          deleteBlock(dnd.experienceId, block.id);
-
-                          if (prev && prevLevel != null && prevLevel >= 4) {
-                            dnd.setEditRequest({
-                              id: prev.id,
-                              caret: prev.text.length,
-                            });
-                          }
-                        }
+                      : deleteEmptyBlock
                   }
                   requestEdit={dnd.editRequest?.id === block.id}
                   requestEditCaret={
