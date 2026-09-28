@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
@@ -9,12 +9,51 @@ import type { AgentConversation } from './ExperienceAgentConversation';
 import { ExperienceAgentMain } from './ExperienceAgentMain';
 import { useExperienceAgent } from '@/features/experience/list/hooks/useExperienceAgent';
 import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
+import type { Experience } from '@/features/experience/list/types';
+import { useAgentStatusStore } from '@/features/experience/list/model/agentStatusStore';
+import { useAuthStore } from '@/store/useAuthStore';
+import {
+  AgentStatusIndicator,
+  agentStatusLabel,
+} from '@/features/experience/list/components/AgentStatusIndicator';
 
 const PANEL_WIDTH = '400px';
 const PANEL_TRANSITION = { duration: 0.3, ease: [0.4, 0, 0.2, 1] as const };
 
+function AgentListExperienceRow({
+  item,
+  onSelect,
+}: {
+  item: Experience;
+  onSelect: (id: string) => void;
+}) {
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const currentStatus = useAgentStatusStore(
+    (state) => state.byExperienceId[item.id],
+  );
+  const kind = accessToken ? currentStatus?.kind : undefined;
+  const statusLabel = agentStatusLabel(kind);
+
+  return (
+    <li>
+      <button
+        type='button'
+        className='text-gray9 hover:bg-gray2 min-h-[36px] w-full cursor-pointer rounded-[4px] py-[6px] pl-[24px] text-left text-[16px] leading-[24px]'
+        aria-label={`${item.name}${statusLabel ? `, ${statusLabel}` : ''}`}
+        onClick={() => onSelect(item.id)}
+      >
+        <span className='inline-flex max-w-full items-center'>
+          <span className='min-w-0 break-words'>{item.name}</span>
+          <AgentStatusIndicator kind={kind} />
+        </span>
+      </button>
+    </li>
+  );
+}
+
 function ConnectedAgent({
   experienceId,
+  visible,
   view,
   conversationOverride,
   dailyChatCount,
@@ -24,6 +63,7 @@ function ConnectedAgent({
   onAttachmentChange,
 }: {
   experienceId: string;
+  visible: boolean;
   view: WorkspaceView;
   conversationOverride?: AgentConversation;
   dailyChatCount: number;
@@ -33,6 +73,16 @@ function ConnectedAgent({
   onAttachmentChange: (file: File | null) => void;
 }) {
   const agent = useExperienceAgent(experienceId, view);
+  const status = useAgentStatusStore(
+    (state) => state.byExperienceId[experienceId],
+  );
+  const acknowledge = useAgentStatusStore((state) => state.acknowledge);
+
+  useEffect(() => {
+    if (visible && agent.ready && status && status.kind !== 'working')
+      acknowledge(experienceId);
+  }, [visible, agent.ready, status, acknowledge, experienceId]);
+
   return (
     <ExperienceAgentMain
       conversation={conversationOverride ?? agent.conversation}
@@ -140,22 +190,18 @@ export function ExperienceListAgentPanel({
                     {experiences
                       .filter((item) => item.groupId === group.id)
                       .map((item) => (
-                        <li key={item.id}>
-                          <button
-                            type='button'
-                            className='text-gray9 hover:bg-gray2 min-h-[36px] w-full cursor-pointer rounded-[4px] py-[6px] pl-[24px] text-left text-[16px] leading-[24px] break-words'
-                            onClick={() => {
-                              selectExperience(item.id);
-                              window.dispatchEvent(
-                                new CustomEvent('experience-agent:focus', {
-                                  detail: item.id,
-                                }),
-                              );
-                            }}
-                          >
-                            {item.name}
-                          </button>
-                        </li>
+                        <AgentListExperienceRow
+                          key={item.id}
+                          item={item}
+                          onSelect={(id) => {
+                            selectExperience(id);
+                            window.dispatchEvent(
+                              new CustomEvent('experience-agent:focus', {
+                                detail: id,
+                              }),
+                            );
+                          }}
+                        />
                       ))}
                   </ul>
                 </div>
@@ -166,6 +212,7 @@ export function ExperienceListAgentPanel({
           <ConnectedAgent
             key={experience.id}
             experienceId={experience.id}
+            visible={open}
             view={view}
             conversationOverride={conversations[experience.id]}
             dailyChatCount={dailyChatCount}

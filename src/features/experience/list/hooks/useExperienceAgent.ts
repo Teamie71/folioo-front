@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   getExperienceMapAiControllerGetUsageQueryKey,
-  experienceMapAiControllerIssueReadTicket,
   experienceMapAiControllerIssueTicket,
   experienceMapAiControllerRevert,
   useExperienceMapAiControllerGetUsage,
@@ -26,6 +25,8 @@ import type {
 } from '@/features/experience/list/components/ExperienceAgentConversation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
+import { useAgentStatusStore } from '@/features/experience/list/model/agentStatusStore';
+import { issueAgentReadTicket } from '@/features/experience/list/api/experienceAgentStatus';
 import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -55,18 +56,6 @@ async function issueTicket(
     ticket: response.result.ticket,
     sessionId: response.result.session_id,
     requestId: response.result.request_id,
-  };
-}
-
-async function issueReadTicket(blockId: string): Promise<SessionAuth> {
-  const response = await experienceMapAiControllerIssueReadTicket({
-    block_id: blockId,
-  });
-  if (!response.result)
-    throw new Error('에이전트 조회용 티켓을 발급받지 못했어요.');
-  return {
-    ticket: response.result.ticket,
-    sessionId: response.result.session_id,
   };
 }
 
@@ -187,6 +176,9 @@ export function useExperienceAgent(
   const [pendingMessage, setPendingMessage] = useState<AgentChatMessage | null>(
     null,
   );
+  const startStatus = useAgentStatusStore((state) => state.start);
+  const finishStatus = useAgentStatusStore((state) => state.finish);
+  const clearStatus = useAgentStatusStore((state) => state.clear);
   const limitReached = usage
     ? usage.used >= usage.limit
     : agentLimitDayKst === todayKst();
@@ -217,36 +209,42 @@ export function useExperienceAgent(
     return () => window.clearTimeout(timeout);
   }, [accessToken, usage?.reset_at, refreshUsage]);
 
-  const refresh = useCallback(async (activeSession: SessionAuth) => {
-    const [history, state] = await Promise.all([
-      readAllMessages(activeSession),
-      getSessionStateApiV1ExperienceMapSessionsSessionIdStateGet(
-        activeSession.sessionId,
-        auth(activeSession.ticket),
-      ),
-    ]);
-    setItems(history);
-    setPendingMessage(null);
-    setWorkingRequestId(
-      state.status === 'running' ? (state.active_request_id ?? null) : null,
-    );
-    setFailedRequestId(
-      state.status === 'failed' && state.retryable
-        ? (state.active_request_id ?? history.at(-1)?.request_id ?? null)
-        : null,
-    );
-    setFailedNode(
-      state.status === 'failed' ? (state.failed_node ?? 'unknown') : null,
-    );
-    return state;
-  }, []);
+  const refresh = useCallback(
+    async (activeSession: SessionAuth) => {
+      const [history, state] = await Promise.all([
+        readAllMessages(activeSession),
+        getSessionStateApiV1ExperienceMapSessionsSessionIdStateGet(
+          activeSession.sessionId,
+          auth(activeSession.ticket),
+        ),
+      ]);
+      setItems(history);
+      setPendingMessage(null);
+      setWorkingRequestId(
+        state.status === 'running' ? (state.active_request_id ?? null) : null,
+      );
+      if (blockId && state.status === 'running' && state.active_request_id)
+        startStatus(blockId, state.active_request_id);
+      setFailedRequestId(
+        state.status === 'failed' && state.retryable
+          ? (state.active_request_id ?? history.at(-1)?.request_id ?? null)
+          : null,
+      );
+      setFailedNode(
+        state.status === 'failed' ? (state.failed_node ?? 'unknown') : null,
+      );
+      return state;
+    },
+    [blockId, startStatus],
+  );
 
   useEffect(() => {
     if (!blockId || !/^\d+$/.test(blockId) || !accessToken) return;
     let active = true;
     let ticketIssued = false;
+    let readAbort: AbortController | null = null;
     setReady(false);
-    issueReadTicket(blockId)
+    issueAgentReadTicket(blockId)
       .then(async (next) => {
         if (!active) return;
         ticketIssued = true;
@@ -255,6 +253,7 @@ export function useExperienceAgent(
         if (active) setReady(true);
         if (state.status === 'running' && state.active_request_id) {
           const controller = new AbortController();
+          readAbort = controller;
           abort.current = controller;
           const runningSession = {
             ...next,
@@ -266,6 +265,11 @@ export function useExperienceAgent(
           );
           if (!active) return;
           await refresh(next);
+          finishStatus(
+            blockId,
+            state.active_request_id,
+            result.status === 'completed' ? 'success' : 'error',
+          );
           if (result.status === 'completed') await loadExperienceMap();
           abort.current = null;
         }
@@ -281,9 +285,10 @@ export function useExperienceAgent(
       });
     return () => {
       active = false;
-      abort.current?.abort();
+      readAbort?.abort();
+      if (abort.current === readAbort) abort.current = null;
     };
-  }, [blockId, accessToken, refresh]);
+  }, [blockId, accessToken, refresh, finishStatus]);
 
   const send = useCallback(
     async (text: string, file: File | null, onAccepted: () => void) => {
@@ -305,6 +310,7 @@ export function useExperienceAgent(
       }
       setSession(next);
       setWorkingRequestId(next.requestId);
+      startStatus(blockId, next.requestId);
       setFailedRequestId(null);
       onAccepted();
       setPendingMessage({
@@ -332,11 +338,15 @@ export function useExperienceAgent(
           throw new Error(
             result.error?.message ?? '작업 중 오류가 발생했어요.',
           );
+        if (result.status === 'completed')
+          finishStatus(blockId, next.requestId, 'success');
         if (result.status === 'completed') await loadExperienceMap();
       } catch (cause) {
         if (!controller.signal.aborted) {
           try {
-            await refresh(next);
+            const state = await refresh(next);
+            if (state.status === 'failed')
+              finishStatus(blockId, next.requestId, 'error');
           } catch {
             setPendingMessage(null);
           }
@@ -358,6 +368,8 @@ export function useExperienceAgent(
       refresh,
       refreshUsage,
       setAgentLimitDayKst,
+      startStatus,
+      finishStatus,
     ],
   );
 
@@ -370,8 +382,9 @@ export function useExperienceAgent(
     );
     abort.current?.abort();
     setWorkingRequestId(null);
+    if (blockId) clearStatus(blockId);
     void refreshUsage();
-  }, [session, workingRequestId, refreshUsage]);
+  }, [session, workingRequestId, refreshUsage, blockId, clearStatus]);
 
   const retry = useCallback(
     async (requestId: string) => {
@@ -392,6 +405,7 @@ export function useExperienceAgent(
       void refreshUsage();
       setSession(next);
       setWorkingRequestId(requestId);
+      startStatus(blockId, requestId);
       setFailedRequestId(null);
       const controller = new AbortController();
       abort.current = controller;
@@ -407,9 +421,13 @@ export function useExperienceAgent(
         await refresh(next);
         if (result.status === 'failed')
           throw new Error(result.error?.message ?? '다시 시도하지 못했어요.');
+        if (result.status === 'completed')
+          finishStatus(blockId, requestId, 'success');
         if (result.status === 'completed') await loadExperienceMap();
       } catch (cause) {
-        await refresh(next);
+        const state = await refresh(next);
+        if (state.status === 'failed')
+          finishStatus(blockId, requestId, 'error');
         throw cause;
       } finally {
         setWorkingRequestId(null);
@@ -417,7 +435,15 @@ export function useExperienceAgent(
         void refreshUsage();
       }
     },
-    [blockId, accessToken, refresh, refreshUsage, setAgentLimitDayKst],
+    [
+      blockId,
+      accessToken,
+      refresh,
+      refreshUsage,
+      setAgentLimitDayKst,
+      startStatus,
+      finishStatus,
+    ],
   );
 
   const revert = useCallback(
