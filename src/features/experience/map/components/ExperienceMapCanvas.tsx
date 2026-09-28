@@ -69,6 +69,9 @@ const FIT_VIEW_OPTIONS = {
 };
 // 25%에서도 화면 한 폭 이상을 자유롭게 이동할 수 있도록 넓은 여백을 둔다.
 const PAN_BOUNDARY_MARGIN = 3000;
+const PAN_SCROLL_SPEED = 0.5;
+const WHEEL_ZOOM_SENSITIVITY = 0.06;
+const MAX_WHEEL_ZOOM_DELTA = 0.04;
 
 type CanvasProps = {
   /** 진입 직후 화면 중앙에 두고 표준 수준으로 확대할 활동 id. (모바일 진입용) */
@@ -85,10 +88,62 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
   const setBlockSelection = useExperienceListStore((s) => s.setBlockSelection);
   const selectExperience = useExperienceListStore((s) => s.selectExperience);
 
-  const { setCenter, fitView } = useReactFlow();
+  const { setCenter, fitView, getViewport, setViewport } = useReactFlow();
   const nodesInitialized = useNodesInitialized();
   const mapViewportRef = useRef<HTMLDivElement>(null);
   const didFitRef = useRef(false);
+
+  useEffect(() => {
+    const container = mapViewportRef.current;
+    if (!container) return;
+    const isMac = /Mac/.test(navigator.userAgent);
+    const onWheel = (event: WheelEvent) => {
+      if (
+        (!event.ctrlKey && !event.metaKey) ||
+        !(event.target instanceof Element)
+      )
+        return;
+      if (
+        !event.target.closest('.react-flow') ||
+        event.target.closest('.nowheel')
+      )
+        return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const { x, y, zoom } = getViewport();
+      const deltaUnit =
+        event.deltaMode === 1 ? 0.05 : event.deltaMode ? 1 : 0.002;
+      const delta = -event.deltaY * deltaUnit * (isMac ? 10 : 1);
+      const zoomDelta = Math.max(
+        -MAX_WHEEL_ZOOM_DELTA,
+        Math.min(MAX_WHEEL_ZOOM_DELTA, delta * WHEEL_ZOOM_SENSITIVITY),
+      );
+      const nextZoom = Math.min(
+        MAP_MAX_ZOOM,
+        Math.max(MAP_MIN_ZOOM, zoom * 2 ** zoomDelta),
+      );
+      if (nextZoom === zoom) return;
+
+      const bounds = container.getBoundingClientRect();
+      const pointerX = event.clientX - bounds.left;
+      const pointerY = event.clientY - bounds.top;
+      const ratio = nextZoom / zoom;
+      void setViewport({
+        x: pointerX - (pointerX - x) * ratio,
+        y: pointerY - (pointerY - y) * ratio,
+        zoom: nextZoom,
+      });
+    };
+
+    container.addEventListener('wheel', onWheel, {
+      capture: true,
+      passive: false,
+    });
+    return () => container.removeEventListener('wheel', onWheel, true);
+  }, [getViewport, setViewport]);
 
   const [detail, setDetail] = useState<MapDetailLevel>(DEFAULT_DETAIL);
   const [standardBoundary, setStandardBoundary] = useState(false);
@@ -495,9 +550,10 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
           /*
            * 피그마와 동일한 마우스 조작:
            * 휠 = 상하 스크롤, Shift + 휠 = 좌우 스크롤,
-           * Ctrl/Cmd + 휠 = 확대/축소 (zoomOnPinch가 ctrlKey 휠을 처리한다)
+           * Ctrl/Cmd + 휠 = 위의 별도 감도로 확대/축소
            */
           panOnScroll={!isCoarsePointer}
+          panOnScrollSpeed={PAN_SCROLL_SPEED}
           panOnScrollMode={PanOnScrollMode.Free}
           // 터치 기기: 한 손가락 드래그로 캔버스 이동, 두 손가락으로 확대/축소.
           // (데스크톱도 react-flow 기본값이 드래그 팬 허용이라 동작은 그대로다)
