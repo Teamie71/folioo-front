@@ -22,6 +22,7 @@ import {
   syncCreateGroup,
   syncDeleteBlocks,
   syncMoveBlock,
+  syncRestoreHistory,
   syncUpdateContent,
 } from '@/features/experience/list/api/experienceMapSync';
 import {
@@ -964,31 +965,31 @@ export const useExperienceListStore = create<ExperienceListState>()(
           ]);
         },
 
-        /*
-         * 실행 취소 / 다시 실행은 화면설계서대로 세션 기반 인메모리 히스토리다.
-         * 서버에는 되돌리기 API가 없어(AI 커밋 전용 revert만 존재한다) 화면 상태만 되돌린다.
-         */
-        undo: () =>
-          set((s) => {
-            if (s.past.length === 0) return {};
-            const prev = s.past[s.past.length - 1];
-            return {
-              ...prev,
-              past: s.past.slice(0, -1),
-              future: [snapshotOf(s), ...s.future],
-            };
-          }),
+        undo: () => {
+          const s = get();
+          if (s.past.length === 0) return;
+          const current = snapshotOf(s);
+          const prev = s.past[s.past.length - 1];
+          set({
+            ...prev,
+            past: s.past.slice(0, -1),
+            future: [current, ...s.future],
+          });
+          syncRestoreHistory(current, prev);
+        },
 
-        redo: () =>
-          set((s) => {
-            if (s.future.length === 0) return {};
-            const next = s.future[0];
-            return {
-              ...next,
-              past: [...s.past, snapshotOf(s)],
-              future: s.future.slice(1),
-            };
-          }),
+        redo: () => {
+          const s = get();
+          if (s.future.length === 0) return;
+          const current = snapshotOf(s);
+          const next = s.future[0];
+          set({
+            ...next,
+            past: [...s.past, current],
+            future: s.future.slice(1),
+          });
+          syncRestoreHistory(current, next);
+        },
       };
     },
     { name: 'experience-list-store' },
