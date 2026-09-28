@@ -120,7 +120,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
 
   const [detail, setDetail] = useState<MapDetailLevel>(DEFAULT_DETAIL);
   const [standardBoundary, setStandardBoundary] = useState(false);
-  const [wheelBoundaryAt, setWheelBoundaryAt] = useState(0);
+  const [anchoredBoundaryAt, setAnchoredBoundaryAt] = useState(0);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [fontVersion, setFontVersion] = useState(0);
@@ -132,10 +132,13 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
   }, [detail, standardBoundary]);
 
   useEffect(() => {
-    if (!wheelBoundaryAt) return;
-    const timer = window.setTimeout(() => setWheelBoundaryAt(0), 200);
+    if (!anchoredBoundaryAt) return;
+    const timer = window.setTimeout(
+      () => setAnchoredBoundaryAt(0),
+      Math.max(200, anchoredBoundaryAt - performance.now() + 200),
+    );
     return () => window.clearTimeout(timer);
-  }, [wheelBoundaryAt]);
+  }, [anchoredBoundaryAt]);
 
   // 폰트가 늦게 로드되면 canvas 측정값이 달라지므로 한 번 다시 계산한다.
   useEffect(() => {
@@ -179,6 +182,46 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
   );
   const layout = useMemo(() => getLayout(detail), [detail, getLayout]);
 
+  const zoomAtPoint = useCallback(
+    (nextZoom: number, pointerX: number, pointerY: number, duration = 0) => {
+      const { x, y, zoom } = getViewport();
+      if (nextZoom === zoom) return;
+      let flowX = (pointerX - x) / zoom;
+      let flowY = (pointerY - y) / zoom;
+      const fromDetail = detailForZoom(zoom);
+      const toDetail = detailForZoom(nextZoom);
+      if (fromDetail !== toDetail) {
+        setAnchoredBoundaryAt(performance.now() + duration);
+        const shift = layoutShiftAtPoint(
+          getLayout(fromDetail),
+          getLayout(toDetail),
+          flowX,
+          flowY,
+        );
+        flowX += shift.x;
+        flowY += shift.y;
+      }
+      void setViewport(
+        {
+          x: pointerX - flowX * nextZoom,
+          y: pointerY - flowY * nextZoom,
+          zoom: nextZoom,
+        },
+        { duration },
+      );
+    },
+    [getLayout, getViewport, setViewport],
+  );
+
+  const zoomFromController = useCallback(
+    (nextZoom: number, duration: number) => {
+      const bounds = mapViewportRef.current?.getBoundingClientRect();
+      if (!bounds) return;
+      zoomAtPoint(nextZoom, bounds.width / 2, bounds.height / 2, duration);
+    },
+    [zoomAtPoint],
+  );
+
   useEffect(() => {
     const container = mapViewportRef.current;
     if (!container) return;
@@ -199,7 +242,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       event.stopPropagation();
       event.stopImmediatePropagation();
 
-      const { x, y, zoom } = getViewport();
+      const { zoom } = getViewport();
       const deltaUnit =
         event.deltaMode === 1 ? 0.05 : event.deltaMode ? 1 : 0.002;
       const delta = -event.deltaY * deltaUnit * (isMac ? 10 : 1);
@@ -216,28 +259,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       const bounds = container.getBoundingClientRect();
       const pointerX = event.clientX - bounds.left;
       const pointerY = event.clientY - bounds.top;
-      let flowX = (pointerX - x) / zoom;
-      let flowY = (pointerY - y) / zoom;
-      const fromDetail = detailForZoom(zoom);
-      const toDetail = detailForZoom(nextZoom);
-      if (fromDetail !== toDetail) {
-        setWheelBoundaryAt(performance.now());
-        // 50%와 100% 경계에서는 기존 블록 자체의 좌표가 바뀐다.
-        // 포인터에 가장 가까운 공통 블록의 이동량만큼 기준 좌표를 옮긴다.
-        const shift = layoutShiftAtPoint(
-          getLayout(fromDetail),
-          getLayout(toDetail),
-          flowX,
-          flowY,
-        );
-        flowX += shift.x;
-        flowY += shift.y;
-      }
-      void setViewport({
-        x: pointerX - flowX * nextZoom,
-        y: pointerY - flowY * nextZoom,
-        zoom: nextZoom,
-      });
+      zoomAtPoint(nextZoom, pointerX, pointerY);
     };
 
     container.addEventListener('wheel', onWheel, {
@@ -245,7 +267,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       passive: false,
     });
     return () => container.removeEventListener('wheel', onWheel, true);
-  }, [getLayout, getViewport, setViewport]);
+  }, [getViewport, zoomAtPoint]);
   const panExtent = useMemo<CoordinateExtent | undefined>(() => {
     if (detail === 'standard' || layout.nodes.length === 0) return undefined;
 
@@ -297,7 +319,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
   const visual = useAnimatedMapLayout(
     targetLayout,
     detail,
-    wheelBoundaryAt !== 0,
+    anchoredBoundaryAt !== 0,
   );
   const nodeData = useMemo(
     () => new Map(layout.nodes.map((node) => [node.id, { node }])),
@@ -319,7 +341,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       style: {
         opacity: visual.nodeOpacity.get(node.id) ?? 1,
         transition:
-          standardBoundary && !wheelBoundaryAt && node.level <= 3
+          standardBoundary && !anchoredBoundaryAt && node.level <= 3
             ? 'transform 180ms ease-out'
             : undefined,
         animation:
@@ -357,7 +379,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
     }));
 
     return [...blockNodes, ...previewNodes];
-  }, [detail, nodeData, standardBoundary, visual, wheelBoundaryAt]);
+  }, [anchoredBoundaryAt, detail, nodeData, standardBoundary, visual]);
 
   const edges = useMemo<Edge[]>(
     () =>
@@ -627,7 +649,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
         </ReactFlow>
       </div>
       {dropTarget && <MapDropIndicator target={dropTarget} />}
-      <MapZoomController />
+      <MapZoomController onZoomChange={zoomFromController} />
       <MapActivityPreviewModal onClose={onPreviewClose} />
     </MapInteractionProvider>
   );

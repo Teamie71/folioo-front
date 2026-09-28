@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useReactFlow, useViewport } from '@xyflow/react';
+import { useViewport } from '@xyflow/react';
 import { MapZoomInIcon } from '@/components/icons/MapZoomInIcon';
 import { MapZoomOutIcon } from '@/components/icons/MapZoomOutIcon';
 import {
@@ -35,9 +35,12 @@ function positionToPercent(position: number) {
   return STOPS[index] + (STOPS[index + 1] - STOPS[index]) * (scaled - index);
 }
 
-export function MapZoomController() {
+export function MapZoomController({
+  onZoomChange,
+}: {
+  onZoomChange: (zoom: number, duration: number) => void;
+}) {
   const { zoom } = useViewport();
-  const { zoomTo } = useReactFlow();
   // 경계 직전 값(49.9%, 99.9%)이 다음 단계의 숫자로 보이지 않게 한다.
   const zoomPercent = percentForZoom(zoom);
   const percent = clampPercent(Math.floor(zoomPercent + 1e-9));
@@ -52,7 +55,7 @@ export function MapZoomController() {
   }, [editing, percent]);
 
   const apply = (value: number, duration = 0) => {
-    void zoomTo(zoomForPercent(clampPercent(value)), { duration });
+    onZoomChange(zoomForPercent(clampPercent(value)), duration);
   };
 
   const updateFromPointer = (clientY: number) => {
