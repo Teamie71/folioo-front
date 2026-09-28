@@ -29,8 +29,7 @@ export function createMapDragGhost(source: HTMLElement, x: number, y: number) {
   document.body.appendChild(wrapper);
 
   const move = (clientX: number, clientY: number) => {
-    wrapper.style.left = `${clientX - pointerOffsetX}px`;
-    wrapper.style.top = `${clientY - pointerOffsetY}px`;
+    wrapper.style.transform = `translate3d(${clientX - pointerOffsetX}px, ${clientY - pointerOffsetY}px, 0)`;
   };
   move(x, y);
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import {
   canDropAt,
@@ -47,6 +47,10 @@ export function useMapBlockDrag() {
   const dropTargetRef = useRef<MapDropTarget | null>(null);
   const ghostRef = useRef<ReturnType<typeof createMapDragGhost> | null>(null);
   const suppressClickRef = useRef(false);
+  const pressStartRef = useRef<(
+    node: MapLayoutNode,
+    event: React.PointerEvent<HTMLElement>,
+  ) => void>(() => {});
 
   useEffect(() => () => ghostRef.current?.remove(), []);
 
@@ -147,8 +151,10 @@ export function useMapBlockDrag() {
     );
 
     if (!el) {
-      dropTargetRef.current = null;
-      setDropTarget(null);
+      if (dropTargetRef.current) {
+        dropTargetRef.current = null;
+        setDropTarget(null);
+      }
       return;
     }
 
@@ -157,12 +163,16 @@ export function useMapBlockDrag() {
     const place = resolvePlace(dragged, targetId, rect, clientY);
 
     if (!place || !isValidDrop(dragged, targetId, place)) {
-      dropTargetRef.current = null;
-      setDropTarget(null);
+      if (dropTargetRef.current) {
+        dropTargetRef.current = null;
+        setDropTarget(null);
+      }
       return;
     }
 
     const next: MapDropTarget = { id: targetId, place, rect };
+    const previous = dropTargetRef.current;
+    if (previous?.id === next.id && previous.place === next.place) return;
     dropTargetRef.current = next;
     setDropTarget(next);
   };
@@ -222,19 +232,29 @@ export function useMapBlockDrag() {
   ) => {
     ghostRef.current = createMapDragGhost(source, point.x, point.y);
     setDraggingId(node.id);
+    let frameId: number | null = null;
+    let lastPoint = point;
 
     const onMove = (e: PointerEvent) => {
       ghostRef.current?.move(e.clientX, e.clientY);
-      updateDropTarget(node, e.clientX, e.clientY);
+      lastPoint = { x: e.clientX, y: e.clientY };
+      if (frameId != null) return;
+      frameId = requestAnimationFrame(() => {
+        frameId = null;
+        updateDropTarget(node, lastPoint.x, lastPoint.y);
+      });
     };
 
     const cleanup = () => {
+      if (frameId != null) cancelAnimationFrame(frameId);
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
       window.removeEventListener('pointercancel', onCancel);
       endDrag();
     };
-    const onUp = () => {
+    const onUp = (e: PointerEvent) => {
+      // 마지막 포인터 위치는 프레임 콜백보다 먼저 도착할 수 있다.
+      updateDropTarget(node, e.clientX, e.clientY);
       commitDrop(node);
       suppressClickRef.current = true;
       cleanup();
@@ -246,7 +266,7 @@ export function useMapBlockDrag() {
     window.addEventListener('pointercancel', onCancel);
   };
 
-  const onBlockPressStart = (
+  const pressStartImplementation = (
     node: MapLayoutNode,
     event: React.PointerEvent<HTMLElement>,
   ) => {
@@ -281,12 +301,22 @@ export function useMapBlockDrag() {
     window.addEventListener('pointerup', onEarlyUp);
   };
 
+  useEffect(() => {
+    pressStartRef.current = pressStartImplementation;
+  });
+
+  const onBlockPressStart = useCallback(
+    (node: MapLayoutNode, event: React.PointerEvent<HTMLElement>) =>
+      pressStartRef.current(node, event),
+    [],
+  );
+
   /** 드래그가 끝난 직후 뒤따라오는 click을 한 번 무시한다. */
-  const consumeSuppressedClick = (): boolean => {
+  const consumeSuppressedClick = useCallback((): boolean => {
     if (!suppressClickRef.current) return false;
     suppressClickRef.current = false;
     return true;
-  };
+  }, []);
 
   return { draggingId, dropTarget, onBlockPressStart, consumeSuppressedClick };
 }
