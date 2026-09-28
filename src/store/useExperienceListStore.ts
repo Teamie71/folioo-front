@@ -26,6 +26,7 @@ import {
 } from '@/features/experience/list/api/experienceMapSync';
 import {
   applyBlockMove,
+  applyBlockOutdent,
   findBlockLocation,
   type DropPosition,
 } from '@/features/experience/list/utils/blockTreeUtils';
@@ -286,6 +287,7 @@ interface ExperienceListState {
     draggedId: string,
     drop: DropPosition,
   ) => void;
+  outdentBlock: (experienceId: string, blockId: string) => void;
 
   startBlockSelection: () => void;
   cancelBlockSelection: () => void;
@@ -824,6 +826,27 @@ export const useExperienceListStore = create<ExperienceListState>()(
           );
           if (location) {
             syncMoveBlock(draggedId, location.position, location.parentId);
+          }
+        },
+
+        outdentBlock: (experienceId, blockId) => {
+          const s = get();
+          const exp = s.experiences.find((e) => e.id === experienceId);
+          if (!exp) return;
+          const result = applyBlockOutdent(exp.blocks, blockId);
+          if (!result) return;
+
+          commit({
+            experiences: s.experiences.map((e) =>
+              e.id === experienceId ? { ...e, blocks: result.blocks } : e,
+            ),
+          });
+
+          for (const id of [blockId, ...result.reparentedIds]) {
+            const location = serverPositionOf(result.blocks, id, experienceId);
+            if (location) {
+              syncMoveBlock(id, location.position, location.parentId);
+            }
           }
         },
 

@@ -14,6 +14,7 @@ type Props = {
   onCommit: (next: string) => void;
   onEnter?: (draft: string, start: number, end: number) => void;
   onTab?: (caret: number) => void;
+  onBackspaceEmpty?: () => void;
   onDeleteEmpty?: () => void;
   requestEdit?: boolean;
   requestEditCaret?: number;
@@ -69,6 +70,7 @@ export function EditableLabel({
   onCommit,
   onEnter,
   onTab,
+  onBackspaceEmpty,
   onDeleteEmpty,
   requestEdit = false,
   requestEditCaret = 0,
@@ -260,6 +262,22 @@ export function EditableLabel({
             e.preventDefault();
             if (e.shiftKey) redoFromSession();
             else undoFromSession();
+            return;
+          }
+
+          if (
+            e.key === 'Backspace' &&
+            onBackspaceEmpty &&
+            draft === '' &&
+            e.currentTarget.selectionStart === 0 &&
+            e.currentTarget.selectionEnd === 0
+          ) {
+            e.preventDefault();
+            skipBlurRef.current = true;
+            clearDraftHistory();
+            setEditing(false);
+            if (draft !== value) onCommit('');
+            onBackspaceEmpty();
             return;
           }
 

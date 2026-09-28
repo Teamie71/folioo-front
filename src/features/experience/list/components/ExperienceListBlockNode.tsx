@@ -62,6 +62,7 @@ export function ExperienceListBlockNode({
   const updateBlockText = useExperienceListStore((s) => s.updateBlockText);
   const splitBlockAt = useExperienceListStore((s) => s.splitBlockAt);
   const moveBlock = useExperienceListStore((s) => s.moveBlock);
+  const outdentBlock = useExperienceListStore((s) => s.outdentBlock);
 
   const {
     dnd,
@@ -444,6 +445,14 @@ export function ExperienceListBlockNode({
                     dnd.setEditRequest({ id: sibling.id, caret: 0 });
                   }}
                   onTab={indentTargetId ? indentBlock : undefined}
+                  onBackspaceEmpty={
+                    level === 5
+                      ? () => {
+                          outdentBlock(dnd.experienceId, block.id);
+                          dnd.setEditRequest({ id: block.id, caret: 0 });
+                        }
+                      : undefined
+                  }
                   onDeleteEmpty={
                     block.children.length > 0
                       ? undefined
