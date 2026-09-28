@@ -345,7 +345,7 @@ export function ExperienceAgentMain({
                 {scenario.title}
               </h3>
               <div className='border-gray4 ml-[4px] flex flex-col gap-[8px] border-l pl-[7px]'>
-                {scenario.prompts.map((prompt, index) => (
+                {scenario.prompts.map((prompt) => (
                   <button
                     key={prompt}
                     type='button'
@@ -356,7 +356,7 @@ export function ExperienceAgentMain({
                       textarea.current?.focus({ preventScroll: true });
                       if (scenario.file) fileInput.current?.click();
                     }}
-                    className={`border-gray3 text-gray7 cursor-pointer rounded-[12px] border p-[10px] text-left text-[14px] leading-[150%] font-normal tracking-normal ${!scenario.file && index === 0 ? 'bg-white' : 'bg-gray2'} focus-visible:outline-main focus-visible:outline-2`}
+                    className='border-gray3 text-gray7 bg-gray2 hover:bg-white cursor-pointer rounded-[12px] border p-[10px] text-left text-[14px] leading-[150%] font-normal tracking-normal transition-colors focus-visible:outline-main focus-visible:outline-2'
                   >
                     {prompt}
                   </button>
