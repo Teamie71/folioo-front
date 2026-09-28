@@ -6,6 +6,7 @@ import { PdfIcon } from '@/components/icons/PdfIcon';
 import { FileText } from 'lucide-react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import styles from '@/styles/experience-agent.module.css';
+import { AGENT_BUSY_MESSAGE } from '@/features/experience/list/model/agentStatusStore';
 
 export type AgentChatMessage = {
   id: string;
@@ -102,8 +103,10 @@ function AssistantResponse({
 
 function AgentFailure({
   failure,
+  onRetryBlocked,
 }: {
   failure: NonNullable<AgentConversation['failure']>;
+  onRetryBlocked?: (message: string) => void;
 }) {
   const [pending, setPending] = useState(false);
   const [retryFailed, setRetryFailed] = useState(false);
@@ -115,8 +118,10 @@ function AgentFailure({
     setRetryFailed(false);
     try {
       await failure.onRetry(failure.nodeId);
-    } catch {
-      setRetryFailed(true);
+    } catch (cause) {
+      if (cause instanceof Error && cause.message === AGENT_BUSY_MESSAGE)
+        onRetryBlocked?.(AGENT_BUSY_MESSAGE);
+      else setRetryFailed(true);
     } finally {
       inFlight.current = false;
       setPending(false);
@@ -152,7 +157,8 @@ export function ExperienceAgentConversation({
   isWorking = false,
   workingText = '입력 내용을 확인하고 있어요.',
   failure,
-}: AgentConversation) {
+  onRetryBlocked,
+}: AgentConversation & { onRetryBlocked?: (message: string) => void }) {
   return (
     <div className={styles.conversation}>
       <div
@@ -201,7 +207,11 @@ export function ExperienceAgentConversation({
         )}
       </div>
       {!isWorking && failure && (
-        <AgentFailure key={failure.nodeId} failure={failure} />
+        <AgentFailure
+          key={failure.nodeId}
+          failure={failure}
+          onRetryBlocked={onRetryBlocked}
+        />
       )}
       {isWorking && (
         <div role='status' aria-live='polite' className={styles.workingStatus}>

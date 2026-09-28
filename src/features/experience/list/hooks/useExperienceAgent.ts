@@ -25,7 +25,10 @@ import type {
 } from '@/features/experience/list/components/ExperienceAgentConversation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
-import { useAgentStatusStore } from '@/features/experience/list/model/agentStatusStore';
+import {
+  AGENT_BUSY_MESSAGE,
+  useAgentStatusStore,
+} from '@/features/experience/list/model/agentStatusStore';
 import { issueAgentReadTicket } from '@/features/experience/list/api/experienceAgentStatus';
 import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
 import { useQueryClient } from '@tanstack/react-query';
@@ -99,6 +102,7 @@ function describeError(cause: unknown) {
     return '에이전트에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.';
   if (status === 429)
     return '오늘 사용 가능한 10회를 모두 사용했어요. 내일 다시 이어서 도와드릴게요.';
+  if (status === 409) return AGENT_BUSY_MESSAGE;
   if (status === 404)
     return '이 활동의 에이전트를 찾을 수 없어요. 화면을 새로고침해 주세요.';
   if (
@@ -179,6 +183,8 @@ export function useExperienceAgent(
   const startStatus = useAgentStatusStore((state) => state.start);
   const finishStatus = useAgentStatusStore((state) => state.finish);
   const clearStatus = useAgentStatusStore((state) => state.clear);
+  const reserveStatus = useAgentStatusStore((state) => state.reserve);
+  const releaseStatus = useAgentStatusStore((state) => state.release);
   const limitReached = usage
     ? usage.used >= usage.limit
     : agentLimitDayKst === todayKst();
@@ -293,10 +299,12 @@ export function useExperienceAgent(
   const send = useCallback(
     async (text: string, file: File | null, onAccepted: () => void) => {
       if (!blockId || !accessToken || workingRequestId || limitReached) return;
+      if (!reserveStatus(blockId)) throw new Error(AGENT_BUSY_MESSAGE);
       setError(null);
       let next: SessionTicket;
       try {
         next = await issueTicket(blockId);
+        startStatus(blockId, next.requestId);
         void refreshUsage();
       } catch (cause) {
         if (
@@ -307,10 +315,12 @@ export function useExperienceAgent(
           void refreshUsage();
         }
         throw new Error(describeError(cause));
+      } finally {
+        // 티켓 요청 중복만 잠근다. 승인 뒤에는 작업 상태가 잠금을 이어받는다.
+        releaseStatus(blockId);
       }
       setSession(next);
       setWorkingRequestId(next.requestId);
-      startStatus(blockId, next.requestId);
       setFailedRequestId(null);
       onAccepted();
       setPendingMessage({
@@ -342,16 +352,21 @@ export function useExperienceAgent(
           finishStatus(blockId, next.requestId, 'success');
         if (result.status === 'completed') await loadExperienceMap();
       } catch (cause) {
+        const message = describeError(cause);
         if (!controller.signal.aborted) {
           try {
             const state = await refresh(next);
             if (state.status === 'failed')
               finishStatus(blockId, next.requestId, 'error');
+            else if (message === AGENT_BUSY_MESSAGE && state.status !== 'running')
+              clearStatus(blockId);
           } catch {
             setPendingMessage(null);
+            if (message === AGENT_BUSY_MESSAGE) clearStatus(blockId);
           }
-          setError(describeError(cause));
+          setError(message);
         }
+        if (message === AGENT_BUSY_MESSAGE) throw new Error(message);
         throw cause;
       } finally {
         setWorkingRequestId(null);
@@ -370,6 +385,9 @@ export function useExperienceAgent(
       setAgentLimitDayKst,
       startStatus,
       finishStatus,
+      clearStatus,
+      reserveStatus,
+      releaseStatus,
     ],
   );
 
@@ -389,9 +407,11 @@ export function useExperienceAgent(
   const retry = useCallback(
     async (requestId: string) => {
       if (!blockId || !accessToken) return;
+      if (!reserveStatus(blockId)) throw new Error(AGENT_BUSY_MESSAGE);
       let next: SessionTicket;
       try {
         next = await issueTicket(blockId, requestId);
+        startStatus(blockId, requestId);
       } catch (cause) {
         if (
           (cause as { response?: { status?: number } })?.response?.status ===
@@ -400,12 +420,13 @@ export function useExperienceAgent(
           setAgentLimitDayKst(todayKst());
           void refreshUsage();
         }
-        throw cause;
+        throw new Error(describeError(cause));
+      } finally {
+        releaseStatus(blockId);
       }
       void refreshUsage();
       setSession(next);
       setWorkingRequestId(requestId);
-      startStatus(blockId, requestId);
       setFailedRequestId(null);
       const controller = new AbortController();
       abort.current = controller;
@@ -425,9 +446,17 @@ export function useExperienceAgent(
           finishStatus(blockId, requestId, 'success');
         if (result.status === 'completed') await loadExperienceMap();
       } catch (cause) {
-        const state = await refresh(next);
-        if (state.status === 'failed')
-          finishStatus(blockId, requestId, 'error');
+        const message = describeError(cause);
+        try {
+          const state = await refresh(next);
+          if (state.status === 'failed')
+            finishStatus(blockId, requestId, 'error');
+          else if (message === AGENT_BUSY_MESSAGE && state.status !== 'running')
+            clearStatus(blockId);
+        } catch {
+          if (message === AGENT_BUSY_MESSAGE) clearStatus(blockId);
+        }
+        if (message === AGENT_BUSY_MESSAGE) throw new Error(message);
         throw cause;
       } finally {
         setWorkingRequestId(null);
@@ -443,6 +472,9 @@ export function useExperienceAgent(
       setAgentLimitDayKst,
       startStatus,
       finishStatus,
+      clearStatus,
+      reserveStatus,
+      releaseStatus,
     ],
   );
 

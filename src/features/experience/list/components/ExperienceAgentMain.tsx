@@ -148,7 +148,10 @@ export function ExperienceAgentMain({
       data-agent-main
     >
       {hasConversation && conversation ? (
-        <ExperienceAgentConversation {...conversation} />
+        <ExperienceAgentConversation
+          {...conversation}
+          onRetryBlocked={showNotice}
+        />
       ) : (
         <div className='flex flex-col items-center pt-[172px]'>
           <AgentIcon className='size-[48px] shrink-0' />

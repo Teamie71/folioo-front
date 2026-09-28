@@ -1,5 +1,8 @@
 import { create } from 'zustand/react';
 
+export const AGENT_BUSY_MESSAGE =
+  '현재 작업 중인 에이전트가 있어요. 작업이 완료되면 다시 시도해주세요.';
+
 export type AgentStatus = {
   kind: 'working' | 'success' | 'error';
   requestId: string;
@@ -34,6 +37,9 @@ function forgetSeenRequestId(experienceId: string) {
 
 type AgentStatusState = {
   byExperienceId: Record<string, AgentStatus>;
+  reservedExperienceId: string | null;
+  reserve: (experienceId: string) => boolean;
+  release: (experienceId: string) => void;
   start: (experienceId: string, requestId: string) => void;
   finish: (
     experienceId: string,
@@ -45,8 +51,27 @@ type AgentStatusState = {
   syncFromServer: (experienceId: string, status: AgentStatus | null) => void;
 };
 
-export const useAgentStatusStore = create<AgentStatusState>((set) => ({
+export const useAgentStatusStore = create<AgentStatusState>((set, get) => ({
   byExperienceId: {},
+  reservedExperienceId: null,
+  reserve: (experienceId) => {
+    const state = get();
+    if (
+      state.reservedExperienceId ||
+      Object.values(state.byExperienceId).some(
+        (status) => status.kind === 'working',
+      )
+    )
+      return false;
+    set({ reservedExperienceId: experienceId });
+    return true;
+  },
+  release: (experienceId) =>
+    set((state) =>
+      state.reservedExperienceId === experienceId
+        ? { reservedExperienceId: null }
+        : state,
+    ),
   start: (experienceId, requestId) => {
     forgetSeenRequestId(experienceId);
     set((state) => ({
