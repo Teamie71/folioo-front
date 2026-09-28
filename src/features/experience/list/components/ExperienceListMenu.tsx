@@ -31,6 +31,7 @@ const MENU_WIDTH = 120;
 const MENU_ITEM_HEIGHT = 32;
 const MENU_TITLE_HEIGHT = 18;
 const VIEWPORT_PAD = 8;
+const DRAG_GHOST_INSET = 4;
 
 const menuContentCls = cn(
   'z-[200] overflow-visible rounded-none border-0 bg-transparent p-0 shadow-none outline-none',
@@ -653,6 +654,42 @@ export function DragMenuButton({
     return { width: rect.width, height: rect.height };
   };
 
+  const setListDragImage = (event: React.DragEvent<HTMLButtonElement>) => {
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+
+    // 블록은 하위 트리 대신 실제로 잡은 제목/본문 한 줄만 복제한다.
+    const source =
+      payload.type === 'block'
+        ? trigger.closest('[data-block-row-dnd], [data-section-title-dnd]')
+        : trigger.closest(measureSelector);
+    if (!(source instanceof HTMLElement)) return;
+
+    const rect = source.getBoundingClientRect();
+    const ghost = source.cloneNode(true) as HTMLElement;
+    ghost.removeAttribute('id');
+    ghost.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
+    ghost.querySelectorAll('[data-no-dnd]').forEach((el) => el.remove());
+    ghost.style.position = 'fixed';
+    ghost.style.left = `${rect.left + DRAG_GHOST_INSET}px`;
+    ghost.style.top = `${rect.top}px`;
+    ghost.style.width = `${Math.max(rect.width - DRAG_GHOST_INSET * 2, 0)}px`;
+    ghost.style.margin = '0';
+    ghost.style.backgroundColor = 'var(--color-sub1)';
+    // 브라우저가 드래그 이미지를 반투명하게 렌더링하므로 여기서는 중복 적용하지 않는다.
+    ghost.style.opacity = '1';
+    ghost.style.pointerEvents = 'none';
+    ghost.style.zIndex = '300';
+    document.body.appendChild(ghost);
+
+    event.dataTransfer.setDragImage(
+      ghost,
+      event.clientX - rect.left - DRAG_GHOST_INSET,
+      event.clientY - rect.top,
+    );
+    requestAnimationFrame(() => ghost.remove());
+  };
+
   const gatePointer = !open;
 
   const button = (
@@ -683,17 +720,7 @@ export function DragMenuButton({
 
         const size = measureSize();
 
-        const empty = document.createElement('div');
-        empty.style.width = '1px';
-        empty.style.height = '1px';
-        empty.style.opacity = '0';
-        empty.style.position = 'fixed';
-        empty.style.top = '-9999px';
-        document.body.appendChild(empty);
-        e.dataTransfer.setDragImage(empty, 0, 0);
-        requestAnimationFrame(() => {
-          empty.remove();
-        });
+        setListDragImage(e);
 
         setDragPayload(e, payload);
         onDragBegin?.(size);
@@ -722,7 +749,10 @@ export function DragMenuButton({
         label='드래그해서 옮기기'
         align={tooltipAlign}
         disabled={open || dragging}
-        wrapperClassName={cn('cursor-grab', gatePointer && 'pointer-events-none')}
+        wrapperClassName={cn(
+          'cursor-grab',
+          gatePointer && 'pointer-events-none',
+        )}
       >
         {button}
       </HoverTooltip>
