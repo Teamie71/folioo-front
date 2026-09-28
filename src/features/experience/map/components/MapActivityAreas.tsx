@@ -5,11 +5,15 @@ import { useViewport } from '@xyflow/react';
 import { ACTIVITY_AREA_RADIUS } from '@/features/experience/map/constants';
 import type { MapLayoutArea } from '@/features/experience/map/utils/mapLayout';
 
-const AreaElements = memo(function AreaElements({ areas }: { areas: MapLayoutArea[] }) {
+const AreaElements = memo(function AreaElements({
+  areas,
+}: {
+  areas: MapLayoutArea[];
+}) {
   return areas.map((area) => (
     <div
       key={area.id}
-      className='absolute'
+      className='map-standard-reveal absolute'
       style={{
         left: area.x,
         top: area.y,

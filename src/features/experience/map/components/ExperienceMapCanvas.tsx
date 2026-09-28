@@ -30,6 +30,7 @@ import {
 } from '@/features/experience/map/model/mapZoom';
 import {
   buildMapLayout,
+  type MapLayout,
   type MapLayoutArea,
   type MapLayoutNode,
 } from '@/features/experience/map/utils/mapLayout';
@@ -43,6 +44,7 @@ import { MapListPreviewNode } from '@/features/experience/map/components/MapList
 import { MapZoomController } from '@/features/experience/map/components/MapZoomController';
 import { MapInteractionProvider } from '@/features/experience/map/components/MapInteractionContext';
 import { useMapBlockDrag } from '@/features/experience/map/hooks/useMapBlockDrag';
+import { useAnimatedMapLayout } from '@/features/experience/map/hooks/useAnimatedMapLayout';
 import { experienceNodeId } from '@/features/experience/map/model/mapNodeId';
 import { collectSelectionIds } from '@/features/experience/map/utils/mapSelection';
 
@@ -86,9 +88,16 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
   const didFitRef = useRef(false);
 
   const [detail, setDetail] = useState<MapDetailLevel>(DEFAULT_DETAIL);
+  const [standardBoundary, setStandardBoundary] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [fontVersion, setFontVersion] = useState(0);
+
+  useEffect(() => {
+    if (!standardBoundary) return;
+    const timer = window.setTimeout(() => setStandardBoundary(false), 200);
+    return () => window.clearTimeout(timer);
+  }, [detail, standardBoundary]);
 
   // 폰트가 늦게 로드되면 canvas 측정값이 달라지므로 한 번 다시 계산한다.
   useEffect(() => {
@@ -113,31 +122,88 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
     [],
   );
 
-  const layout = useMemo(
-    () => buildMapLayout(groups, experiences, maxVisibleLevel(detail)),
-    // fontVersion은 측정 캐시 무효화 신호다.
+  const layoutCache = useMemo(
+    () => new Map<MapDetailLevel, MapLayout>(),
+    // 폰트 또는 데이터가 바뀌면 세 표시 수준의 캐시를 모두 무효화한다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [groups, experiences, detail, fontVersion],
+    [groups, experiences, fontVersion],
+  );
+  const getLayout = useCallback(
+    (level: MapDetailLevel) => {
+      let next = layoutCache.get(level);
+      if (!next) {
+        next = buildMapLayout(groups, experiences, maxVisibleLevel(level));
+        layoutCache.set(level, next);
+      }
+      return next;
+    },
+    [groups, experiences, layoutCache],
+  );
+  const layout = useMemo(() => getLayout(detail), [detail, getLayout]);
+
+  // 현재 화면은 먼저 그리고, 나머지 표시 수준은 브라우저 유휴 시간에 한 단계씩 준비한다.
+  useEffect(() => {
+    const remaining = (
+      ['minimized', 'medium', 'standard'] as MapDetailLevel[]
+    ).filter((level) => !layoutCache.has(level));
+    let handle = 0;
+    const warm = () => {
+      const level = remaining.shift();
+      if (!level) return;
+      getLayout(level);
+      if (remaining.length) schedule();
+    };
+    const schedule = () => {
+      handle = window.requestIdleCallback
+        ? window.requestIdleCallback(warm)
+        : window.setTimeout(warm, 100);
+    };
+    if (remaining.length) schedule();
+    return () => {
+      if (window.cancelIdleCallback) window.cancelIdleCallback(handle);
+      else window.clearTimeout(handle);
+    };
+  }, [getLayout, layoutCache]);
+
+  const targetLayout = useMemo(
+    () => (detail === 'standard' ? layout : { ...layout, areas: EMPTY_AREAS }),
+    [detail, layout],
+  );
+  const visual = useAnimatedMapLayout(targetLayout, detail);
+  const nodeData = useMemo(
+    () => new Map(layout.nodes.map((node) => [node.id, { node }])),
+    [layout],
   );
 
   const nodes = useMemo<Node[]>(() => {
     // 크기를 미리 넘겨야 첫 렌더에서 fitView가 동작하고,
     // 측정 전 visibility:hidden 상태로 클릭이 막히지 않는다.
-    const blockNodes: Node[] = layout.nodes.map((node) => ({
+    const blockNodes: Node[] = visual.layout.nodes.map((node) => ({
       id: node.id,
       type: 'mapBlock',
       position: { x: node.x, y: node.y },
-      data: { node },
+      data: nodeData.get(node.id) ?? { node },
       draggable: false,
       selectable: false,
       initialWidth: node.width,
       initialHeight: node.height,
+      style: {
+        opacity: visual.nodeOpacity.get(node.id) ?? 1,
+        transition:
+          standardBoundary && node.level <= 3
+            ? 'transform 180ms ease-out'
+            : undefined,
+        animation:
+          standardBoundary && detail === 'standard' && node.level >= 4
+            ? 'map-standard-reveal 180ms ease-out both'
+            : undefined,
+      },
     }));
 
-    // '리스트로 확인하기'는 모든 블록이 보이는 표준 수준에서만 노출한다.
-    if (detail !== 'standard') return blockNodes;
+    // 표준 수준 진입·이탈 중에는 미리보기 버튼도 배경 영역과 함께 페이드한다.
+    if (visual.layout.areas.length === 0) return blockNodes;
 
-    const previewNodes: Node[] = layout.areas.map((area) => ({
+    const previewNodes: Node[] = visual.layout.areas.map((area) => ({
       id: `preview:${area.experienceId}`,
       type: 'listPreview',
       position: {
@@ -153,23 +219,36 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       selectable: false,
       initialWidth: LIST_PREVIEW_BUTTON_WIDTH,
       initialHeight: LIST_PREVIEW_BUTTON_HEIGHT,
+      style: {
+        animation:
+          standardBoundary && detail === 'standard'
+            ? 'map-standard-reveal 180ms ease-out both'
+            : undefined,
+      },
     }));
 
     return [...blockNodes, ...previewNodes];
-  }, [layout, detail]);
+  }, [detail, nodeData, standardBoundary, visual]);
 
   const edges = useMemo<Edge[]>(
     () =>
-      layout.edges.map((edge) => ({
+      visual.layout.edges.map((edge) => ({
         id: edge.id,
         source: edge.source,
         target: edge.target,
         // 문제해결 계열 블록에서 뻗는 선만 직각으로 꺾어 그린다.
         type: edge.orthogonal ? 'elbow' : 'straight',
         data: edge.branchX == null ? undefined : { branchX: edge.branchX },
-        style: EDGE_STYLE,
+        style: {
+          ...EDGE_STYLE,
+          opacity: visual.edgeOpacity.get(edge.id) ?? 1,
+          animation:
+            standardBoundary && detail === 'standard'
+              ? 'map-standard-reveal 140ms ease-out 80ms both'
+              : undefined,
+        },
       })),
-    [layout],
+    [detail, standardBoundary, visual],
   );
 
   /**
@@ -179,7 +258,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
    */
   const focusOnStandard = useCallback(
     (nodeId: string, alignLeft = false) => {
-      const standardLayout = buildMapLayout(groups, experiences, 5);
+      const standardLayout = getLayout('standard');
       const target = standardLayout.nodes.find((n) => n.id === nodeId);
       if (!target) return;
 
@@ -196,12 +275,13 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
         { zoom: FOCUS_ZOOM, duration: 300 },
       );
     },
-    [groups, experiences, setCenter],
+    [getLayout, setCenter],
   );
 
   useEffect(() => {
     const onAgentFocus = (event: Event) => {
       const experienceId = (event as CustomEvent<string>).detail;
+      setStandardBoundary(true);
       setDetail('standard');
       focusOnStandard(experienceNodeId(experienceId));
     };
@@ -217,6 +297,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
    */
   const onPreviewClose = useCallback(
     (lastExperienceId: string) => {
+      setStandardBoundary(true);
       setDetail('standard');
       focusOnStandard(experienceNodeId(lastExperienceId));
     },
@@ -230,10 +311,11 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
     didFitRef.current = true;
 
     if (focusExperienceId) {
-      const standardLayout = buildMapLayout(groups, experiences, 5);
+      const standardLayout = getLayout('standard');
       const targetId = experienceNodeId(focusExperienceId);
       const target = standardLayout.nodes.find((n) => n.id === targetId);
       if (target) {
+        setStandardBoundary(true);
         setDetail('standard');
         void setCenter(
           target.x + target.width / 2,
@@ -245,14 +327,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
     }
 
     void fitView(FIT_VIEW_OPTIONS);
-  }, [
-    nodesInitialized,
-    fitView,
-    focusExperienceId,
-    groups,
-    experiences,
-    setCenter,
-  ]);
+  }, [nodesInitialized, fitView, focusExperienceId, getLayout, setCenter]);
 
   const onBlockClick = useCallback(
     (node: MapLayoutNode) => {
@@ -274,6 +349,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
 
       // 최소화 · 중간 수준에서는 편집 대신 해당 블록을 중앙에 두고 표준 수준으로 확대한다.
       if (detail !== 'standard') {
+        setStandardBoundary(true);
         setDetail('standard');
         focusOnStandard(node.id, node.kind === 'experience');
         return;
@@ -310,10 +386,15 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
   );
 
   /** 휠·핀치·컨트롤러 모두 동일한 배율 경계에서 표시 단계를 변경한다. */
-  const onViewportChange = useCallback((zoom: number) => {
-    const next = detailForZoom(zoom);
-    setDetail((current) => (current === next ? current : next));
-  }, []);
+  const onViewportChange = useCallback(
+    (zoom: number) => {
+      const next = detailForZoom(zoom);
+      if (next === detail) return;
+      setStandardBoundary(next === 'standard' || detail === 'standard');
+      setDetail(next);
+    },
+    [detail],
+  );
 
   const onEditingChange = useCallback((id: string, editing: boolean) => {
     setEditingId((prev) => (editing ? id : prev === id ? null : prev));
@@ -408,12 +489,10 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
           // 캔버스를 움직이기 시작하면 열려 있는 블록 추가 드롭다운을 닫는다. (화면에 고정된 채로 어긋나 보이는 상태 방지)
           onMoveStart={handleMoveStart}
           onPaneClick={handlePaneClick}
-          className='bg-white'
+          className='experience-map-flow bg-white'
         >
           {/* 활동 배경은 모든 블록이 보이는 표준 수준에서만 표시한다. */}
-          <MapActivityAreas
-            areas={detail === 'standard' ? layout.areas : EMPTY_AREAS}
-          />
+          <MapActivityAreas areas={visual.layout.areas} />
         </ReactFlow>
       </div>
       {dropTarget && <MapDropIndicator target={dropTarget} />}
