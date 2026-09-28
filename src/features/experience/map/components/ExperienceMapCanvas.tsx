@@ -21,14 +21,11 @@ import {
 } from '@/features/experience/map/constants';
 import {
   DEFAULT_DETAIL,
-  DETAIL_RESET_ZOOM,
-  DETAIL_ZOOM_MAX,
-  DETAIL_ZOOM_MIN,
   FOCUS_ZOOM,
   MAP_MAX_ZOOM,
   MAP_MIN_ZOOM,
+  detailForZoom,
   maxVisibleLevel,
-  stepDetail,
   type MapDetailLevel,
 } from '@/features/experience/map/model/mapZoom';
 import {
@@ -43,6 +40,7 @@ import { MapBlockNode } from '@/features/experience/map/components/MapBlockNode'
 import { MapDropIndicator } from '@/features/experience/map/components/MapDropIndicator';
 import { MapElbowEdge } from '@/features/experience/map/components/MapElbowEdge';
 import { MapListPreviewNode } from '@/features/experience/map/components/MapListPreviewNode';
+import { MapZoomController } from '@/features/experience/map/components/MapZoomController';
 import { MapInteractionProvider } from '@/features/experience/map/components/MapInteractionContext';
 import { useMapBlockDrag } from '@/features/experience/map/hooks/useMapBlockDrag';
 import { experienceNodeId } from '@/features/experience/map/model/mapNodeId';
@@ -64,8 +62,7 @@ const EMPTY_AREAS: MapLayoutArea[] = [];
 
 const FIT_VIEW_OPTIONS = {
   padding: 0.2,
-  // 표시 수준 전환 범위 안에 머무르게 해서 진입 직후 수준이 다시 바뀌지 않도록 한다.
-  maxZoom: DETAIL_RESET_ZOOM,
+  maxZoom: 0.49,
 };
 
 type CanvasProps = {
@@ -83,12 +80,10 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
   const setBlockSelection = useExperienceListStore((s) => s.setBlockSelection);
   const selectExperience = useExperienceListStore((s) => s.selectExperience);
 
-  const { setCenter, fitView, zoomTo } = useReactFlow();
+  const { setCenter, fitView } = useReactFlow();
   const nodesInitialized = useNodesInitialized();
   const mapViewportRef = useRef<HTMLDivElement>(null);
   const didFitRef = useRef(false);
-  // 수준 전환 중 발생하는 onMove가 다시 전환을 유발하지 않도록 잠근다.
-  const steppingRef = useRef(false);
 
   const [detail, setDetail] = useState<MapDetailLevel>(DEFAULT_DETAIL);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -314,30 +309,11 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
     [blockSelectionMode, detail],
   );
 
-  /**
-   * 스크롤 확대/축소가 한 수준의 범위를 벗어나면 표시 단계를 옮기고 배율을 되돌린다.
-   * 최소화 수준에서는 더 축소해 전체를 조망할 수 있고,
-   * 표준 수준에서는 최대화(300%)까지 확대할 수 있다.
-   */
-  const onViewportChange = useCallback(
-    (zoom: number) => {
-      if (steppingRef.current) return;
-
-      const direction =
-        zoom < DETAIL_ZOOM_MIN ? -1 : zoom > DETAIL_ZOOM_MAX ? 1 : 0;
-      if (direction === 0) return;
-
-      const next = stepDetail(detail, direction);
-      if (!next) return;
-
-      steppingRef.current = true;
-      setDetail(next);
-      void zoomTo(DETAIL_RESET_ZOOM).finally(() => {
-        steppingRef.current = false;
-      });
-    },
-    [detail, zoomTo],
-  );
+  /** 휠·핀치·컨트롤러 모두 동일한 배율 경계에서 표시 단계를 변경한다. */
+  const onViewportChange = useCallback((zoom: number) => {
+    const next = detailForZoom(zoom);
+    setDetail((current) => (current === next ? current : next));
+  }, []);
 
   const onEditingChange = useCallback((id: string, editing: boolean) => {
     setEditingId((prev) => (editing ? id : prev === id ? null : prev));
@@ -441,6 +417,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
         </ReactFlow>
       </div>
       {dropTarget && <MapDropIndicator target={dropTarget} />}
+      <MapZoomController />
       <MapActivityPreviewModal onClose={onPreviewClose} />
     </MapInteractionProvider>
   );
