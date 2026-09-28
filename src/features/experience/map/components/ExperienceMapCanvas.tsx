@@ -7,6 +7,7 @@ import {
   ReactFlowProvider,
   useNodesInitialized,
   useReactFlow,
+  type CoordinateExtent,
   type Edge,
   type Node,
   type OnMove,
@@ -66,6 +67,8 @@ const FIT_VIEW_OPTIONS = {
   padding: 0.2,
   maxZoom: 0.49,
 };
+// 25%에서도 화면 한 폭 이상을 자유롭게 이동할 수 있도록 넓은 여백을 둔다.
+const PAN_BOUNDARY_MARGIN = 3000;
 
 type CanvasProps = {
   /** 진입 직후 화면 중앙에 두고 표준 수준으로 확대할 활동 id. (모바일 진입용) */
@@ -140,6 +143,25 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
     [groups, experiences, layoutCache],
   );
   const layout = useMemo(() => getLayout(detail), [detail, getLayout]);
+  const panExtent = useMemo<CoordinateExtent | undefined>(() => {
+    if (detail === 'standard' || layout.nodes.length === 0) return undefined;
+
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const node of layout.nodes) {
+      minX = Math.min(minX, node.x);
+      minY = Math.min(minY, node.y);
+      maxX = Math.max(maxX, node.x + node.width);
+      maxY = Math.max(maxY, node.y + node.height);
+    }
+
+    return [
+      [minX - PAN_BOUNDARY_MARGIN, minY - PAN_BOUNDARY_MARGIN],
+      [maxX + PAN_BOUNDARY_MARGIN, maxY + PAN_BOUNDARY_MARGIN],
+    ];
+  }, [detail, layout]);
 
   // 현재 화면은 먼저 그리고, 나머지 표시 수준은 브라우저 유휴 시간에 한 단계씩 준비한다.
   useEffect(() => {
@@ -466,6 +488,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
           edgeTypes={edgeTypes}
           minZoom={MAP_MIN_ZOOM}
           maxZoom={MAP_MAX_ZOOM}
+          translateExtent={panExtent}
           nodesDraggable={false}
           nodesConnectable={false}
           elementsSelectable={false}
