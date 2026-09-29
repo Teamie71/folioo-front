@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useQueryClient } from '@tanstack/react-query';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { SidebarPanelIcon } from '@/components/icons/SidebarPanelIcon';
@@ -12,6 +13,8 @@ import type { WorkspaceView } from '@/features/experience/workspace/model/worksp
 import type { Experience } from '@/features/experience/list/types';
 import { useAgentStatusStore } from '@/features/experience/list/model/agentStatusStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { markAgentStatusSeen } from '@/features/experience/list/api/experienceAgentStatus';
+import { getExperienceMapAiControllerGetActivityStatusesQueryKey } from '@/api/endpoints/experiencemap-ai-integration/experiencemap-ai-integration';
 import {
   AgentStatusIndicator,
   agentStatusLabel,
@@ -78,11 +81,40 @@ function ConnectedAgent({
     (state) => state.byExperienceId[experienceId],
   );
   const acknowledge = useAgentStatusStore((state) => state.acknowledge);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const queryClient = useQueryClient();
+  const markedOpen = useRef(false);
+  const markedRequestId = useRef<string | null>(null);
 
   useEffect(() => {
-    if (visible && agent.ready && status && status.kind !== 'working')
-      acknowledge(experienceId);
-  }, [visible, agent.ready, status, acknowledge, experienceId]);
+    if (!visible) {
+      markedOpen.current = false;
+      return;
+    }
+    if (!accessToken) return;
+    const terminal = status && status.kind !== 'working';
+    if (terminal) {
+      if (markedRequestId.current === status.requestId) return;
+      markedRequestId.current = status.requestId;
+      markedOpen.current = true;
+    } else {
+      if (markedOpen.current) return;
+      markedOpen.current = true;
+    }
+    void markAgentStatusSeen(experienceId)
+      .then(() => {
+        if (terminal) {
+          acknowledge(experienceId, status.requestId);
+          void queryClient.invalidateQueries({
+            queryKey: getExperienceMapAiControllerGetActivityStatusesQueryKey(),
+          });
+        }
+      })
+      .catch(() => {
+        if (terminal) markedRequestId.current = null;
+        else markedOpen.current = false;
+      });
+  }, [visible, accessToken, status, acknowledge, experienceId, queryClient]);
 
   return (
     <ExperienceAgentMain

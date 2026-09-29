@@ -87,8 +87,7 @@ export function AgentCompletionToastHost() {
           pathnameRef.current === '/experience/workspace' &&
           list.agentOpen &&
           list.selection?.kind === 'experience' &&
-          list.selection.id === experienceId &&
-          document.hasFocus();
+          list.selection.id === experienceId;
         if (alreadyViewing) continue;
 
         const experience = list.experiences.find(

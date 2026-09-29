@@ -1,4 +1,5 @@
 import { create } from 'zustand/react';
+import type { ActivityStatusResDTO } from '@/api/models/activityStatusResDTO';
 
 export const AGENT_BUSY_MESSAGE =
   '현재 작업 중인 에이전트가 있어요. 작업이 완료되면 다시 시도해주세요.';
@@ -8,36 +9,12 @@ export type AgentStatus = {
   requestId: string;
 };
 
-const seenKey = (experienceId: string) =>
-  `folioo:agent-status-seen:${experienceId}`;
-
-function seenRequestId(experienceId: string) {
-  try {
-    return localStorage.getItem(seenKey(experienceId));
-  } catch {
-    return null;
-  }
-}
-
-function saveSeenRequestId(experienceId: string, requestId: string) {
-  try {
-    localStorage.setItem(seenKey(experienceId), requestId);
-  } catch {
-    // 저장소를 사용할 수 없어도 현재 화면에서는 확인 처리를 유지한다.
-  }
-}
-
-function forgetSeenRequestId(experienceId: string) {
-  try {
-    localStorage.removeItem(seenKey(experienceId));
-  } catch {
-    // 저장소를 사용할 수 없어도 작업 상태는 표시한다.
-  }
-}
-
 type AgentStatusState = {
   byExperienceId: Record<string, AgentStatus>;
+  acknowledgedRequestIds: Record<string, string>;
+  locallyStartedRequestIds: Record<string, string>;
   reservedExperienceId: string | null;
+  reset: () => void;
   reserve: (experienceId: string) => boolean;
   release: (experienceId: string) => void;
   start: (experienceId: string, requestId: string) => void;
@@ -47,13 +24,22 @@ type AgentStatusState = {
     kind: 'success' | 'error',
   ) => void;
   clear: (experienceId: string) => void;
-  acknowledge: (experienceId: string) => void;
-  syncFromServer: (experienceId: string, status: AgentStatus | null) => void;
+  acknowledge: (experienceId: string, requestId: string) => void;
+  syncFromServer: (statuses: ActivityStatusResDTO[]) => void;
 };
 
 export const useAgentStatusStore = create<AgentStatusState>((set, get) => ({
   byExperienceId: {},
+  acknowledgedRequestIds: {},
+  locallyStartedRequestIds: {},
   reservedExperienceId: null,
+  reset: () =>
+    set({
+      byExperienceId: {},
+      acknowledgedRequestIds: {},
+      locallyStartedRequestIds: {},
+      reservedExperienceId: null,
+    }),
   reserve: (experienceId) => {
     const state = get();
     if (
@@ -73,20 +59,28 @@ export const useAgentStatusStore = create<AgentStatusState>((set, get) => ({
         : state,
     ),
   start: (experienceId, requestId) => {
-    forgetSeenRequestId(experienceId);
-    set((state) => ({
-      byExperienceId: {
-        ...state.byExperienceId,
-        [experienceId]: { kind: 'working', requestId },
-      },
-    }));
+    set((state) => {
+      const acknowledgedRequestIds = { ...state.acknowledgedRequestIds };
+      delete acknowledgedRequestIds[experienceId];
+      return {
+        acknowledgedRequestIds,
+        locallyStartedRequestIds: {
+          ...state.locallyStartedRequestIds,
+          [experienceId]: requestId,
+        },
+        byExperienceId: {
+          ...state.byExperienceId,
+          [experienceId]: { kind: 'working', requestId },
+        },
+      };
+    });
   },
   finish: (experienceId, requestId, kind) =>
     set((state) => {
       const current = state.byExperienceId[experienceId];
       if (current?.kind !== 'working' || current.requestId !== requestId)
         return state;
-      if (seenRequestId(experienceId) === requestId) {
+      if (state.acknowledgedRequestIds[experienceId] === requestId) {
         const next = { ...state.byExperienceId };
         delete next[experienceId];
         return { byExperienceId: next };
@@ -102,53 +96,87 @@ export const useAgentStatusStore = create<AgentStatusState>((set, get) => ({
     set((state) => {
       if (!state.byExperienceId[experienceId]) return state;
       const next = { ...state.byExperienceId };
+      const locallyStartedRequestIds = { ...state.locallyStartedRequestIds };
       delete next[experienceId];
-      return { byExperienceId: next };
+      delete locallyStartedRequestIds[experienceId];
+      return { byExperienceId: next, locallyStartedRequestIds };
     }),
-  acknowledge: (experienceId) =>
+  acknowledge: (experienceId, requestId) =>
     set((state) => {
       const current = state.byExperienceId[experienceId];
-      if (!current || current.kind === 'working') return state;
-      saveSeenRequestId(experienceId, current.requestId);
+      if (
+        !current ||
+        current.kind === 'working' ||
+        current.requestId !== requestId
+      )
+        return state;
       const next = { ...state.byExperienceId };
       delete next[experienceId];
-      return { byExperienceId: next };
-    }),
-  syncFromServer: (experienceId, status) =>
-    set((state) => {
-      const current = state.byExperienceId[experienceId];
-      // 조회 중 새 요청이 시작됐다면 오래된 서버 응답으로 덮어쓰지 않는다.
-      if (
-        current?.kind === 'working' &&
-        current.requestId !== status?.requestId
-      )
-        return state;
-      if (
-        current &&
-        status &&
-        current.requestId === status.requestId &&
-        current.kind !== 'working' &&
-        status.kind === 'working'
-      )
-        return state;
-      if (!status) return state;
-      if (status.kind === 'working') forgetSeenRequestId(experienceId);
-      if (
-        status.kind !== 'working' &&
-        seenRequestId(experienceId) === status.requestId
-      ) {
-        if (!current) return state;
-        const next = { ...state.byExperienceId };
-        delete next[experienceId];
-        return { byExperienceId: next };
-      }
-      if (
-        current?.requestId === status.requestId &&
-        current.kind === status.kind
-      )
-        return state;
       return {
-        byExperienceId: { ...state.byExperienceId, [experienceId]: status },
+        byExperienceId: next,
+        acknowledgedRequestIds: {
+          ...state.acknowledgedRequestIds,
+          [experienceId]: current.requestId,
+        },
       };
+    }),
+  syncFromServer: (statuses) =>
+    set((state) => {
+      const next: Record<string, AgentStatus> = {};
+      const locallyStartedRequestIds = { ...state.locallyStartedRequestIds };
+      const serverById = new Map(statuses.map((item) => [item.block_id, item]));
+      for (const [experienceId, current] of Object.entries(
+        state.byExperienceId,
+      )) {
+        const server = serverById.get(experienceId);
+        // 티켓 발급 직후 이전 요청이 조회되면 새 작업의 표시를 유지한다.
+        if (
+          locallyStartedRequestIds[experienceId] === current.requestId &&
+          (!server || server.request_id !== current.requestId)
+        )
+          next[experienceId] = current;
+      }
+      for (const item of statuses) {
+        const current = state.byExperienceId[item.block_id];
+        if (next[item.block_id]) continue;
+        if (locallyStartedRequestIds[item.block_id] === item.request_id)
+          delete locallyStartedRequestIds[item.block_id];
+        if (
+          current?.requestId === item.request_id &&
+          current.kind !== 'working' &&
+          item.status === 'running'
+        ) {
+          next[item.block_id] = current;
+          continue;
+        }
+        if (item.status === 'running') {
+          next[item.block_id] = {
+            kind: 'working',
+            requestId: item.request_id,
+          };
+        } else if (
+          !item.seen &&
+          state.acknowledgedRequestIds[item.block_id] !== item.request_id &&
+          (item.status === 'completed' || item.status === 'failed')
+        ) {
+          next[item.block_id] = {
+            kind: item.status === 'completed' ? 'success' : 'error',
+            requestId: item.request_id,
+          };
+        }
+      }
+      const before = state.byExperienceId;
+      if (
+        Object.keys(before).length === Object.keys(next).length &&
+        Object.entries(next).every(
+          ([id, status]) =>
+            before[id]?.kind === status.kind &&
+            before[id]?.requestId === status.requestId,
+        ) &&
+        Object.keys(locallyStartedRequestIds).length ===
+          Object.keys(state.locallyStartedRequestIds).length
+      )
+        return state;
+      return { byExperienceId: next, locallyStartedRequestIds };
     }),
 }));
