@@ -434,7 +434,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       const experienceId = (event as CustomEvent<string>).detail;
       setStandardBoundary(true);
       setDetail('standard');
-      focusOnStandard(experienceNodeId(experienceId));
+      focusOnStandard(experienceNodeId(experienceId), true);
     };
     window.addEventListener('experience-agent:focus', onAgentFocus);
     return () =>

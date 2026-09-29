@@ -71,6 +71,13 @@ export function ExperienceListSidebarExperience({
 
   const isExpDragging = draggingId === item.id;
 
+  const focusExperience = () => {
+    selectExperience(item.id);
+    window.dispatchEvent(
+      new CustomEvent('experience-agent:focus', { detail: item.id }),
+    );
+  };
+
   /** 케밥 메뉴의 '이름 변경'으로 인라인 편집을 켠다. */
   const [requestRename, setRequestRename] = useState(false);
 
@@ -168,14 +175,14 @@ export function ExperienceListSidebarExperience({
         <div
           role='button'
           tabIndex={0}
-          onClick={() => selectExperience(item.id)}
+          onClick={focusExperience}
           onKeyDown={(e) => {
             if (
               (e.key === 'Enter' || e.key === ' ') &&
               !(e.target instanceof HTMLInputElement)
             ) {
               e.preventDefault();
-              selectExperience(item.id);
+              focusExperience();
             }
           }}
           className='w-full min-w-0 flex-1 cursor-pointer text-left'
