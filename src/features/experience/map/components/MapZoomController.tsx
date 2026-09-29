@@ -155,7 +155,7 @@ export function MapZoomController({
             className='gradient-sub2 absolute inset-x-0 bottom-0 rounded-[100px]'
             style={{ height: `${position}%` }}
           />
-          {[1, 2, 3].map((stop) => (
+          {[1, 2].map((stop) => (
             <span
               key={stop}
               aria-hidden
