@@ -1,188 +1,238 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import {
-  MOCK_AGENT_MESSAGES,
-  type MockAgentMessage,
-} from '@/features/experience/list/mock';
-import {
-  AGENT_COMING_SOON_COPY,
-  AGENT_PANEL_MODE,
-} from '@/features/experience/list/constants';
+import { useQueryClient } from '@tanstack/react-query';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
-import { AttachIcon } from '@/components/icons/AttachIcon';
-import { SendArrowIcon } from '@/components/icons/SendArrowIcon';
 import { SidebarPanelIcon } from '@/components/icons/SidebarPanelIcon';
+import type { AgentConversation } from './ExperienceAgentConversation';
+import { ExperienceAgentMain } from './ExperienceAgentMain';
+import { useExperienceAgent } from '@/features/experience/list/hooks/useExperienceAgent';
+import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
+import type { Experience } from '@/features/experience/list/types';
+import { useAgentStatusStore } from '@/features/experience/list/model/agentStatusStore';
+import { useAuthStore } from '@/store/useAuthStore';
+import { markAgentStatusSeen } from '@/features/experience/list/api/experienceAgentStatus';
+import { getExperienceMapAiControllerGetActivityStatusesQueryKey } from '@/api/endpoints/experiencemap-ai-integration/experiencemap-ai-integration';
+import {
+  AgentStatusIndicator,
+  agentStatusLabel,
+} from '@/features/experience/list/components/AgentStatusIndicator';
 
-const PANEL_WIDTH = '400px';
+const PANEL_MIN_WIDTH = 400;
+const PANEL_MAX_WIDTH = 900;
 const PANEL_TRANSITION = { duration: 0.3, ease: [0.4, 0, 0.2, 1] as const };
 
-function AgentComingSoonBody() {
-  return (
-    <div className='flex flex-1 flex-col items-center justify-center px-[24px] text-center'>
-      <p className='typo-b1-sb text-gray9'>
-        {AGENT_COMING_SOON_COPY.titleFirstLine}
-        <br />
-        {AGENT_COMING_SOON_COPY.titleSecondLine}
-      </p>
-      <p className='typo-c2 text-gray9 mt-[20px]'>
-        {AGENT_COMING_SOON_COPY.feedbackLead}
-        <br />
-        <Link
-          href='/feedback'
-          className='text-main underline underline-offset-2'
-        >
-          {AGENT_COMING_SOON_COPY.feedbackLinkLabel}
-        </Link>
-        {AGENT_COMING_SOON_COPY.feedbackTail}
-        <br />
-        {AGENT_COMING_SOON_COPY.feedbackClosing}
-      </p>
-    </div>
-  );
-}
-
-function AgentChatBody({
-  messages,
-  panelOpen,
+function AgentListExperienceRow({
+  item,
+  onSelect,
 }: {
-  messages: MockAgentMessage[];
-  panelOpen: boolean;
+  item: Experience;
+  onSelect: (id: string) => void;
 }) {
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const currentStatus = useAgentStatusStore(
+    (state) => state.byExperienceId[item.id],
+  );
+  const kind = accessToken ? currentStatus?.kind : undefined;
+  const statusLabel = agentStatusLabel(kind);
+
   return (
-    <div
-      className='flex flex-1 flex-col gap-[16px] overflow-y-auto px-[19px] pb-[16px]'
-      aria-hidden={!panelOpen}
-    >
-      {messages.length === 0 ? (
-        <p className='typo-b2 text-gray6'>경험 정리에 대해 질문해 보세요.</p>
-      ) : (
-        messages.map((message) =>
-          message.role === 'user' ? (
-            <div key={message.id} className='flex justify-end'>
-              <div className='max-w-[calc(100%-60px)] rounded-tl-[10px] rounded-tr-[10px] rounded-br-[2px] rounded-bl-[10px] bg-white py-[4px] pr-[4px] pl-[10px]'>
-                <p className='typo-b2 text-gray9'>{message.content}</p>
-              </div>
-            </div>
-          ) : (
-            <p
-              key={message.id}
-              className='typo-b2 text-gray9 max-w-[calc(100%-60px)]'
-            >
-              {message.content}
-            </p>
-          ),
-        )
-      )}
-    </div>
+    <li>
+      <button
+        type='button'
+        className='text-gray9 hover:bg-gray2 min-h-[36px] w-full cursor-pointer rounded-[4px] py-[6px] pl-[24px] text-left text-[16px] leading-[24px]'
+        aria-label={`${item.name}${statusLabel ? `, ${statusLabel}` : ''}`}
+        onClick={() => onSelect(item.id)}
+      >
+        <span className='inline-flex max-w-full items-center'>
+          <span className='min-w-0 break-words'>{item.name}</span>
+          <AgentStatusIndicator kind={kind} />
+        </span>
+      </button>
+    </li>
   );
 }
 
-function AgentComposer({
-  enabled,
-  panelOpen,
+function ConnectedAgent({
+  experienceId,
+  visible,
+  view,
+  conversationOverride,
+  dailyChatCount,
   input,
   onInputChange,
-  onSend,
+  attachment,
+  onAttachmentChange,
 }: {
-  enabled: boolean;
-  panelOpen: boolean;
+  experienceId: string;
+  visible: boolean;
+  view: WorkspaceView;
+  conversationOverride?: AgentConversation;
+  dailyChatCount: number;
   input: string;
   onInputChange: (value: string) => void;
-  onSend: () => void;
+  attachment: File | null;
+  onAttachmentChange: (file: File | null) => void;
 }) {
-  const tabIndex = panelOpen && enabled ? 0 : -1;
+  const agent = useExperienceAgent(experienceId, view);
+  const status = useAgentStatusStore(
+    (state) => state.byExperienceId[experienceId],
+  );
+  const acknowledge = useAgentStatusStore((state) => state.acknowledge);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const queryClient = useQueryClient();
+  const markedOpen = useRef(false);
+  const markedRequestId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!visible) {
+      markedOpen.current = false;
+      return;
+    }
+    if (!accessToken) return;
+    const terminal = status && status.kind !== 'working';
+    if (terminal) {
+      if (markedRequestId.current === status.requestId) return;
+      markedRequestId.current = status.requestId;
+      markedOpen.current = true;
+    } else {
+      if (markedOpen.current) return;
+      markedOpen.current = true;
+    }
+    void markAgentStatusSeen(experienceId)
+      .then(() => {
+        if (terminal) {
+          acknowledge(experienceId, status.requestId);
+          void queryClient.invalidateQueries({
+            queryKey: getExperienceMapAiControllerGetActivityStatusesQueryKey(),
+          });
+        }
+      })
+      .catch(() => {
+        if (terminal) markedRequestId.current = null;
+        else markedOpen.current = false;
+      });
+  }, [visible, accessToken, status, acknowledge, experienceId, queryClient]);
 
   return (
-    <div className='shrink-0 px-[20px] pt-[8px] pb-[24px]'>
-      <div className='relative flex h-[48px] w-full items-center rounded-[32px] bg-white shadow-[0px_1px_4px_0px_rgba(0,0,0,0.1)]'>
-        <div
-          aria-hidden
-          className='pointer-events-none absolute inset-0 rounded-[32px] shadow-[inset_0px_2px_4px_0px_rgba(0,0,0,0.25)]'
-        />
-        <input
-          type='text'
-          value={input}
-          disabled={!enabled}
-          onChange={(e) => onInputChange(e.target.value)}
-          onKeyDown={(e) => {
-            if (!enabled) return;
-            if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-              e.preventDefault();
-              onSend();
-            }
-          }}
-          placeholder='내용 또는 파일을 추가해 주세요.'
-          tabIndex={tabIndex}
-          className='typo-b2 text-gray9 placeholder:text-gray5 relative z-10 h-full min-w-0 flex-1 bg-transparent pr-[8px] pl-[24px] outline-none disabled:cursor-not-allowed'
-        />
-        <button
-          type='button'
-          disabled={!enabled}
-          tabIndex={tabIndex}
-          className='relative z-10 mr-[8px] flex size-[28px] shrink-0 items-center justify-center disabled:cursor-not-allowed disabled:opacity-60'
-          aria-label='파일 첨부'
-        >
-          <AttachIcon className='h-[23px] w-[20px]' />
-        </button>
-        <button
-          type='button'
-          disabled={!enabled}
-          onClick={onSend}
-          tabIndex={tabIndex}
-          className='bg-main relative z-10 mr-[8px] flex size-[32px] shrink-0 items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-60'
-          aria-label='전송'
-        >
-          <SendArrowIcon className='h-[17px] w-[14px]' />
-        </button>
-      </div>
-    </div>
+    <ExperienceAgentMain
+      conversation={conversationOverride ?? agent.conversation}
+      dailyChatCount={
+        agent.limitReached ? 10 : (agent.dailyChatCount ?? dailyChatCount)
+      }
+      input={input}
+      onInputChange={onInputChange}
+      attachment={attachment}
+      onAttachmentChange={onAttachmentChange}
+      onSend={agent.send}
+      onStop={agent.stop}
+      ready={agent.ready}
+      isWorking={agent.isWorking}
+      error={agent.error}
+    />
   );
 }
 
-export function ExperienceListAgentPanel() {
+export function ExperienceListAgentPanel({
+  conversations = {},
+  dailyChatCount = 0,
+  view = 'list',
+}: {
+  conversations?: Readonly<Record<string, AgentConversation>>;
+  /** 로그인 사용자 전체 활동의 서버 기준 일일 합산 횟수 */
+  dailyChatCount?: number;
+  view?: WorkspaceView;
+}) {
   const open = useExperienceListStore((s) => s.agentOpen);
   const onToggle = useExperienceListStore((s) => s.toggleAgent);
-  const isChat = AGENT_PANEL_MODE === 'chat';
-  const [input, setInput] = useState('');
-  const [messages, setMessages] =
-    useState<MockAgentMessage[]>(MOCK_AGENT_MESSAGES);
-
-  const send = () => {
-    if (!isChat) return;
-    const text = input.trim();
-    if (!text) return;
-    const userMsg: MockAgentMessage = {
-      id: `u-${Date.now()}`,
-      role: 'user',
-      content: text,
-    };
-    const aiMsg: MockAgentMessage = {
-      id: `a-${Date.now()}`,
-      role: 'ai',
-      content:
-        '지금은 와이어프레임 목업이에요. 실제 AI 응답은 이후 연동에서 연결됩니다.',
-    };
-    setMessages((prev) => [...prev, userMsg, aiMsg]);
-    setInput('');
-  };
+  const groups = useExperienceListStore((s) => s.groups);
+  const experiences = useExperienceListStore((s) => s.experiences);
+  const selection = useExperienceListStore((s) => s.selection);
+  const selectExperience = useExperienceListStore((s) => s.selectExperience);
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const experience =
+    selection?.kind === 'experience'
+      ? experiences.find((item) => item.id === selection.id)
+      : undefined;
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [attachments, setAttachments] = useState<Record<string, File | null>>(
+    {},
+  );
+  const [panelWidth, setPanelWidth] = useState(PANEL_MIN_WIDTH);
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeStart = useRef<{ x: number; width: number } | null>(null);
+  const clampPanelWidth = (width: number) =>
+    Math.max(PANEL_MIN_WIDTH, Math.min(PANEL_MAX_WIDTH, width));
 
   return (
     <motion.aside
       initial={false}
       animate={{
-        width: open ? PANEL_WIDTH : 0,
+        width: open ? panelWidth : 0,
         opacity: open ? 1 : 0,
       }}
-      transition={PANEL_TRANSITION}
-      style={{ overflow: 'hidden' }}
+      transition={isResizing ? { duration: 0 } : PANEL_TRANSITION}
+      style={{ overflow: 'hidden', position: 'relative' }}
       className='border-gray3 flex h-full shrink-0 flex-col border-l bg-[#f7f7f8]'
       aria-hidden={!open}
     >
-      <div className='flex h-full w-[400px] flex-col'>
-        <header className='flex h-[79px] shrink-0 items-center gap-[12px] px-[20px]'>
+      {open && (
+        <div
+          role='separator'
+          aria-label='AI 에이전트 패널 너비 조절'
+          aria-orientation='vertical'
+          aria-valuemin={PANEL_MIN_WIDTH}
+          aria-valuemax={PANEL_MAX_WIDTH}
+          aria-valuenow={panelWidth}
+          tabIndex={0}
+          className='absolute inset-y-0 left-0 z-20 w-[8px] cursor-col-resize touch-none select-none'
+          onPointerDown={(event) => {
+            if (event.button !== 0) return;
+            resizeStart.current = { x: event.clientX, width: panelWidth };
+            event.currentTarget.setPointerCapture(event.pointerId);
+            setIsResizing(true);
+            event.preventDefault();
+          }}
+          onPointerMove={(event) => {
+            if (!resizeStart.current) return;
+            setPanelWidth(
+              clampPanelWidth(
+                resizeStart.current.width +
+                  resizeStart.current.x -
+                  event.clientX,
+              ),
+            );
+          }}
+          onPointerUp={(event) => {
+            resizeStart.current = null;
+            event.currentTarget.releasePointerCapture(event.pointerId);
+            setIsResizing(false);
+          }}
+          onPointerCancel={() => {
+            resizeStart.current = null;
+            setIsResizing(false);
+          }}
+          onKeyDown={(event) => {
+            const step = event.shiftKey ? 50 : 10;
+            if (event.key === 'ArrowLeft')
+              setPanelWidth((width) => clampPanelWidth(width + step));
+            else if (event.key === 'ArrowRight')
+              setPanelWidth((width) => clampPanelWidth(width - step));
+            else if (event.key === 'Home') setPanelWidth(PANEL_MIN_WIDTH);
+            else if (event.key === 'End') setPanelWidth(PANEL_MAX_WIDTH);
+            else return;
+            event.preventDefault();
+          }}
+        />
+      )}
+      <div
+        className='flex h-full min-h-0 min-w-0 flex-col'
+        style={{ width: panelWidth - 1 }}
+        inert={!open}
+      >
+        <header className='flex shrink-0 items-center gap-[6px] px-[20px] pt-[24px]'>
           <button
             type='button'
             onClick={onToggle}
@@ -192,24 +242,81 @@ export function ExperienceListAgentPanel() {
           >
             <SidebarPanelIcon className='size-[20px]' />
           </button>
-          {isChat ? (
-            <h2 className='typo-b2-b text-gray9'>AI 에이전트</h2>
-          ) : null}
+          <h2 className='text-gray9 min-w-0 text-[16px] leading-[24px] font-semibold tracking-normal break-words'>
+            {experience
+              ? `${experience.name} AI 에이전트`
+              : 'AI 에이전트를 선택해 주세요.'}
+          </h2>
         </header>
 
-        {isChat ? (
-          <AgentChatBody messages={messages} panelOpen={open} />
+        {!experience ? (
+          <nav
+            aria-label='활동별 AI 에이전트'
+            className='mt-[24px] min-h-0 flex-1 overflow-y-auto pr-[20px] pb-[24px] pl-[52px]'
+          >
+            {groups.map((group) => {
+              const isCollapsed = collapsed[group.id] ?? false;
+              const Chevron = isCollapsed ? ChevronRight : ChevronDown;
+              return (
+                <div key={group.id} className='mb-[8px]'>
+                  <button
+                    type='button'
+                    aria-expanded={!isCollapsed}
+                    aria-controls={`agent-group-${group.id}`}
+                    onClick={() =>
+                      setCollapsed((prev) => ({
+                        ...prev,
+                        [group.id]: !prev[group.id],
+                      }))
+                    }
+                    className='text-gray9 flex min-h-[36px] w-full cursor-pointer items-center gap-[8px] text-left text-[16px] leading-[24px]'
+                  >
+                    <Chevron
+                      aria-hidden
+                      className='text-gray5 size-[16px] shrink-0'
+                    />
+                    <span className='break-words'>{group.name}</span>
+                  </button>
+                  <ul id={`agent-group-${group.id}`} hidden={isCollapsed}>
+                    {experiences
+                      .filter((item) => item.groupId === group.id)
+                      .map((item) => (
+                        <AgentListExperienceRow
+                          key={item.id}
+                          item={item}
+                          onSelect={(id) => {
+                            selectExperience(id);
+                            window.dispatchEvent(
+                              new CustomEvent('experience-agent:focus', {
+                                detail: id,
+                              }),
+                            );
+                          }}
+                        />
+                      ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </nav>
         ) : (
-          <AgentComingSoonBody />
+          <ConnectedAgent
+            key={experience.id}
+            experienceId={experience.id}
+            visible={open}
+            view={view}
+            conversationOverride={conversations[experience.id]}
+            dailyChatCount={dailyChatCount}
+            input={drafts[experience.id] ?? ''}
+            onInputChange={(value) =>
+              setDrafts((prev) => ({ ...prev, [experience.id]: value }))
+            }
+            attachment={attachments[experience.id] ?? null}
+            onAttachmentChange={(file) =>
+              setAttachments((prev) => ({ ...prev, [experience.id]: file }))
+            }
+          />
         )}
-
-        <AgentComposer
-          enabled={isChat}
-          panelOpen={open}
-          input={input}
-          onInputChange={setInput}
-          onSend={send}
-        />
       </div>
     </motion.aside>
   );

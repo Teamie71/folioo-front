@@ -13,6 +13,8 @@ type Props = {
   editable: boolean;
   onCommit: (next: string) => void;
   onEnter?: (draft: string, start: number, end: number) => void;
+  onTab?: (caret: number) => void;
+  onBackspaceEmpty?: () => void;
   onDeleteEmpty?: () => void;
   requestEdit?: boolean;
   requestEditCaret?: number;
@@ -67,6 +69,8 @@ export function EditableLabel({
   editable,
   onCommit,
   onEnter,
+  onTab,
+  onBackspaceEmpty,
   onDeleteEmpty,
   requestEdit = false,
   requestEditCaret = 0,
@@ -102,6 +106,7 @@ export function EditableLabel({
 
   useEffect(() => {
     if (!requestEdit || !editable) return;
+    skipBlurRef.current = false;
     selectAllRef.current = requestEditSelectAll;
     caretRef.current = requestEditSelectAll ? null : requestEditCaret;
     clearDraftHistory();
@@ -261,6 +266,22 @@ export function EditableLabel({
           }
 
           if (
+            e.key === 'Backspace' &&
+            onBackspaceEmpty &&
+            draft === '' &&
+            e.currentTarget.selectionStart === 0 &&
+            e.currentTarget.selectionEnd === 0
+          ) {
+            e.preventDefault();
+            skipBlurRef.current = true;
+            clearDraftHistory();
+            setEditing(false);
+            if (draft !== value) onCommit('');
+            onBackspaceEmpty();
+            return;
+          }
+
+          if (
             (e.key === 'Backspace' || e.key === 'Delete') &&
             onDeleteEmpty &&
             draft === '' &&
@@ -288,6 +309,14 @@ export function EditableLabel({
               skipBlurRef.current = true;
               commit();
             }
+            return;
+          }
+          if (e.key === 'Tab' && !e.shiftKey && onTab) {
+            e.preventDefault();
+            const caret = e.currentTarget.selectionStart ?? draft.length;
+            skipBlurRef.current = true;
+            commit();
+            onTab(caret);
             return;
           }
           if (e.key === 'Escape') {

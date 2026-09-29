@@ -113,8 +113,12 @@ function describeApiError(error: unknown, context: string): Error {
 /** 임시 id로 시작된 작업이라도 서버 id로 바꿔서 요청한다. */
 function serverId(clientId: string): string {
   let id = clientId;
-  // 별칭이 연쇄될 일은 없지만, 방어적으로 끝까지 따라간다.
-  while (idAliases.has(id)) id = idAliases.get(id)!;
+  const visited = new Set<string>();
+  while (idAliases.has(id)) {
+    if (visited.has(id)) throw new Error(`블록 ID 별칭이 순환합니다: ${clientId}`);
+    visited.add(id);
+    id = idAliases.get(id)!;
+  }
   return id;
 }
 
@@ -471,4 +475,186 @@ export function syncMoveBlock(
   parentId?: string,
 ) {
   enqueue(() => moveBlockTo(blockId, position, parentId));
+}
+
+type HistoryTree = { groups: Group[]; experiences: Experience[] };
+
+type HistoryNode = {
+  id: string;
+  parentId?: string;
+  position: number;
+  text: string;
+  type: 'group' | 'experience' | 'block';
+  block?: Block;
+  isUnclassified?: boolean;
+};
+
+function historyNodes(tree: HistoryTree): HistoryNode[] {
+  const nodes: HistoryNode[] = tree.groups.map((group, position) => ({
+    id: group.id,
+    position,
+    text: group.name,
+    type: 'group',
+    isUnclassified: group.isUnclassified,
+  }));
+
+  const visitBlocks = (blocks: Block[], parentId: string) => {
+    blocks.forEach((block, position) => {
+      nodes.push({
+        id: block.id,
+        parentId,
+        position,
+        text: block.text,
+        type: 'block',
+        block,
+      });
+      visitBlocks(block.children, block.id);
+    });
+  };
+
+  for (const group of tree.groups) {
+    tree.experiences
+      .filter((experience) => experience.groupId === group.id)
+      .forEach((experience, position) => {
+        nodes.push({
+          id: experience.id,
+          parentId: group.id,
+          position,
+          text: experience.name,
+          type: 'experience',
+        });
+        visitBlocks(experience.blocks, experience.id);
+      });
+  }
+  return nodes;
+}
+
+/**
+ * 실행 취소/다시 실행의 대상 트리를 서버에도 반영한다.
+ * 한 단계의 변경분만 보내고, 큐에 남은 원래 쓰기가 끝난 뒤 실행한다.
+ */
+export function syncRestoreHistory(from: HistoryTree, to: HistoryTree) {
+  enqueue(async () => {
+    const before = historyNodes(from);
+    const wanted = historyNodes(to);
+    const beforeById = new Map(before.map((node) => [serverId(node.id), node]));
+    const initial = await fetchMap();
+    const existing = new Set(historyNodes(initial).map((node) => node.id));
+
+    const serverUnclassified = initial.groups.find((group) => group.isUnclassified);
+    const guestUnclassified = to.groups.find((group) => group.isUnclassified);
+    if (
+      serverUnclassified &&
+      guestUnclassified &&
+      guestUnclassified.id !== serverUnclassified.id
+    ) {
+      idAliases.set(guestUnclassified.id, serverUnclassified.id);
+    }
+
+    // 부모를 먼저 만든다. 활동 생성 시 서버가 만드는 고정 섹션은 종류로 연결한다.
+    for (const node of wanted.filter((item) => item.type === 'group')) {
+      if (node.isUnclassified || existing.has(serverId(node.id))) continue;
+      await createBlock({
+        clientId: node.id,
+        kind: BlockResDTOKind.GROUP,
+        content: node.text,
+      });
+      existing.add(serverId(node.id));
+    }
+
+    for (const node of wanted.filter((item) => item.type === 'experience')) {
+      if (existing.has(serverId(node.id))) continue;
+      await createBlock({
+        clientId: node.id,
+        kind: BlockResDTOKind.EXPERIENCE,
+        parentId: node.parentId,
+        content: node.text,
+      });
+      const afterCreate = await fetchMap();
+      const created = afterCreate.experiences.find(
+        (experience) => experience.id === serverId(node.id),
+      );
+      if (!created) throw new Error('복원한 활동을 다시 조회하지 못했습니다.');
+      existing.add(created.id);
+      const restored = to.experiences.find(
+        (experience) => experience.id === node.id,
+      );
+      // 활동 생성 API가 기본 자식 블록을 함께 만든다. 이전 활동의 내용을
+      // 복원할 때는 그 자식을 제거한 후 히스토리의 자식 블록을 다시 만든다.
+      if (restored?.blocks.length) {
+        for (const section of created.blocks) {
+          for (const child of section.children) {
+            await write((expectedMapVersion) =>
+              experienceMapControllerDeleteBlock(child.id, {
+                expectedMapVersion,
+              }),
+            );
+          }
+        }
+      }
+      for (const section of created.blocks) {
+        existing.add(section.id);
+        const original = restored?.blocks.find(
+            (block) => !block.editable && block.kind === section.kind,
+          );
+        if (original) idAliases.set(original.id, section.id);
+      }
+    }
+
+    for (const node of wanted.filter((item) => item.type === 'block')) {
+      if (existing.has(serverId(node.id)) || !node.block) continue;
+      await createBlock({
+        clientId: node.id,
+        kind: createKindOf(node.block),
+        parentId: node.parentId,
+        content: node.block.editable ? node.text || null : null,
+      });
+      existing.add(serverId(node.id));
+    }
+
+    for (const node of wanted) {
+      const old = beforeById.get(serverId(node.id));
+      if (!old) continue;
+      if (node.type === 'group' && node.isUnclassified) continue;
+      if (node.type === 'block' && !node.block?.editable) continue;
+      if (old.text === node.text) continue;
+      await write((expectedMapVersion) =>
+        experienceMapControllerUpdateBlockContent(serverId(node.id), {
+          content: toContentPayload<UpdateBlockContentReqDTOContent>(node.text),
+          expectedMapVersion,
+        }),
+      );
+    }
+
+    for (const node of wanted) {
+      if (node.type === 'group' && node.isUnclassified) continue;
+      const old = beforeById.get(serverId(node.id));
+      if (
+        old &&
+        old.position === node.position &&
+        (old.parentId ? serverId(old.parentId) : undefined) ===
+          (node.parentId ? serverId(node.parentId) : undefined)
+      ) {
+        continue;
+      }
+      await moveBlockTo(node.id, node.position, node.parentId);
+    }
+
+    const wantedIds = new Set(wanted.map((node) => serverId(node.id)));
+    const removed = before.filter(
+      (node) => !wantedIds.has(serverId(node.id)) && !node.isUnclassified,
+    );
+    const removedIds = new Set(removed.map((node) => serverId(node.id)));
+    for (const type of ['block', 'experience', 'group'] as const) {
+      for (const node of removed) {
+        if (node.type !== type || !existing.has(serverId(node.id))) continue;
+        if (node.parentId && removedIds.has(serverId(node.parentId))) continue;
+        await write((expectedMapVersion) =>
+          experienceMapControllerDeleteBlock(serverId(node.id), {
+            expectedMapVersion,
+          }),
+        );
+      }
+    }
+  });
 }

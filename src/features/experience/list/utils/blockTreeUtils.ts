@@ -119,23 +119,10 @@ export function canDropAt(
 
   const targetLevel = kind === 'inside' ? targetLoc.level + 1 : targetLoc.level;
 
-  if (draggedLoc.level === 3) {
-    if (kind === 'inside') return false;
-    if (targetLoc.level !== 3) return false;
-    return canMoveToLevel(dragged, 3);
-  }
-
-  if (targetLoc.level === 3 && kind !== 'inside') return false;
-
   if (kind === 'inside' && targetLoc.level >= 5) return false;
-
-  if (
-    kind === 'inside' &&
-    targetLoc.level === 4 &&
-    dragged.children.length > 0
-  ) {
+  // 고정 섹션은 3단계에 남겨 둔다. 자유 블록만 위계를 바꿀 수 있다.
+  if (draggedLoc.level === 3 && dragged.kind !== 'free' && targetLevel !== 3)
     return false;
-  }
 
   return canMoveToLevel(dragged, targetLevel);
 }
@@ -209,5 +196,59 @@ export function applyBlockMove(
     }
   }
 
-  return insertBlockAt(without, parentId, adjustedIndex, extracted);
+  const targetLevel = drop.kind === 'inside' ? targetLoc.level + 1 : targetLoc.level;
+  const parent = parentId ? findBlock(without, parentId) : null;
+  const sectionKind = targetLevel === 4 ? parent?.kind : null;
+  const normalize = (block: Block, level: number): Block => ({
+    ...block,
+    kind:
+      level === 4 && (sectionKind === 'duty' || sectionKind === 'problem')
+        ? sectionKind
+        : 'free',
+    editable: true,
+    children: block.children.map((child) => normalize(child, level + 1)),
+  });
+  const moved =
+    extracted.editable ? normalize(extracted, targetLevel) : extracted;
+
+  return insertBlockAt(without, parentId, adjustedIndex, moved);
+}
+
+/** 5단계 블록을 4단계로 올리면서 화면의 블록 순서를 유지한다. */
+export function applyBlockOutdent(
+  blocks: Block[],
+  blockId: string,
+): { blocks: Block[]; reparentedIds: string[] } | null {
+  const location = findBlockLocation(blocks, blockId);
+  if (location?.level !== 5 || !location.parentId) return null;
+
+  const parent = findBlock(blocks, location.parentId);
+  if (!parent) return null;
+  const block = parent.children[location.index];
+  if (!block || block.id !== blockId) return null;
+
+  const trailing = parent.children.slice(location.index + 1);
+  const promoted: Block = {
+    ...block,
+    kind:
+      parent.kind === 'duty' || parent.kind === 'problem'
+        ? parent.kind
+        : 'free',
+    children: trailing,
+  };
+
+  const promoteWithin = (siblings: Block[]): Block[] =>
+    siblings.flatMap((sibling) =>
+      sibling.id === parent.id
+        ? [
+            { ...sibling, children: sibling.children.slice(0, location.index) },
+            promoted,
+          ]
+        : [{ ...sibling, children: promoteWithin(sibling.children) }],
+    );
+
+  return {
+    blocks: promoteWithin(blocks),
+    reparentedIds: trailing.map((child) => child.id),
+  };
 }

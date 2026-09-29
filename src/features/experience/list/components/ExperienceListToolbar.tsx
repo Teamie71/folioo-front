@@ -4,8 +4,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { cn } from '@/utils/utils';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { HoverTooltip } from '@/components/HoverTooltip';
-// 임시 조치: 맵 뷰 비활성화. 복구 시 아래 import 주석을 해제한다.
-// import { ExperienceListViewSwitchToggle } from '@/features/experience/list/components/ExperienceListViewSwitchToggle';
+import { ExperienceListViewSwitchToggle } from '@/features/experience/list/components/ExperienceListViewSwitchToggle';
 import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
 import {
   editSessionCanRedo,
@@ -160,19 +159,18 @@ export function ExperienceListToolbar({
           </HoverTooltip>
         )}
 
-        {/*
-          임시 조치: 맵 뷰 토글을 내리고 리스트 뷰만 지원한다.
-          복구 시 아래 주석을 해제한다. (workspaceView.ts의 DEFAULT_WORKSPACE_VIEW /
-          parseWorkspaceView도 함께 되돌려야 한다)
-        */}
-        {/* <ExperienceListViewSwitchToggle
+        <ExperienceListViewSwitchToggle
           value={view}
           onValueChange={onViewChange}
           onOptionIntent={onViewIntent}
-        /> */}
+        />
 
         <div className='flex items-center gap-[4px]'>
-          <HoverTooltip label='실행 취소 (Ctrl + Z)'>
+          <HoverTooltip
+            label='실행 취소 (Ctrl + Z)'
+            placement='bottom'
+            align='end'
+          >
             <button
               type='button'
               onClick={() => runListUndo(undo)}
@@ -183,7 +181,11 @@ export function ExperienceListToolbar({
               <UndoIcon className='size-[20px]' />
             </button>
           </HoverTooltip>
-          <HoverTooltip label='다시 실행 (Ctrl + Shift + Z)'>
+          <HoverTooltip
+            label='다시 실행 (Ctrl + Shift + Z)'
+            placement='bottom'
+            align='end'
+          >
             <button
               type='button'
               onClick={() => runListRedo(redo)}
@@ -233,43 +235,57 @@ export function ExperienceListToolbar({
               </button>
             </>
           ) : (
-            <HoverTooltip label='여러 개의 블록을 선택하여 한 번에 삭제'>
-              <button
-                type='button'
-                onClick={startBlockSelection}
-                className='border-gray4 hover:bg-gray2 flex h-[38px] cursor-pointer items-center gap-[4px] rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors'
-              >
-                <ListDeleteIcon className='size-[20px]' />
-                <span className='typo-b2 text-gray9 text-center'>
-                  블록 선택 삭제
-                </span>
-              </button>
-            </HoverTooltip>
+            <button
+              type='button'
+              onClick={startBlockSelection}
+              className='border-gray4 hover:bg-gray2 flex h-[38px] cursor-pointer items-center gap-[4px] rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors'
+            >
+              <ListDeleteIcon className='size-[20px]' />
+              <span className='typo-b2 text-gray9 text-center'>
+                블록 선택 삭제
+              </span>
+            </button>
           )
         ) : experienceId ? (
-          <button
-            type='button'
-            onClick={() =>
-              openModal({
-                type: 'experience-delete',
-                experienceId,
-              })
-            }
-            className='border-gray4 hover:bg-gray2 flex h-[38px] cursor-pointer items-center gap-[4px] rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors'
+          <HoverTooltip
+            label='클릭하여 이 활동 삭제'
+            placement='bottom'
+            align='end'
           >
-            <ListDeleteIcon className='size-[20px]' />
-            <span className='typo-b2 text-gray9 text-center'>이 활동 삭제</span>
-          </button>
+            <button
+              type='button'
+              onClick={() =>
+                openModal({
+                  type: 'experience-delete',
+                  experienceId,
+                })
+              }
+              className='border-gray4 hover:bg-gray2 flex h-[38px] cursor-pointer items-center gap-[4px] rounded-[6px] border bg-white px-[12px] py-[6px] transition-colors'
+            >
+              <ListDeleteIcon className='size-[20px]' />
+              <span className='typo-b2 text-gray9 text-center'>
+                이 활동 삭제
+              </span>
+            </button>
+          </HoverTooltip>
         ) : null}
         {!agentOpen && (
-          <button
-            type='button'
-            onClick={toggleAgent}
-            className='flex size-[32px] cursor-pointer items-center justify-center rounded-[8px]'
-            aria-label='AI 에이전트 열기'
+          <HoverTooltip
+            label='클릭하여 에이전트 탭 열기'
+            placement='bottom'
+            align='end'
+            gap={8}
+            suppressUntilPointerLeave
           >
-            <SidebarPanelIcon className='size-[20px]' />
-          </button>
+            <button
+              type='button'
+              onClick={toggleAgent}
+              className='hover:bg-gray2 flex size-[32px] cursor-pointer items-center justify-center rounded-[8px]'
+              aria-label='AI 에이전트 열기'
+            >
+              <SidebarPanelIcon className='size-[20px]' />
+            </button>
+          </HoverTooltip>
         )}
       </div>
     </header>

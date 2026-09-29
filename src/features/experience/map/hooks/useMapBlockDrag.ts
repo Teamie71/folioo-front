@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import {
   canDropAt,
@@ -8,6 +8,7 @@ import {
 } from '@/features/experience/list/utils/blockTreeUtils';
 import { parseMapNodeId } from '@/features/experience/map/model/mapNodeId';
 import type { MapLayoutNode } from '@/features/experience/map/utils/mapLayout';
+import { createMapDragGhost } from '@/features/experience/map/components/MapDragGhost';
 
 const LONG_PRESS_MS = 350;
 /** 이 거리 이상 움직이면 long press를 취소하고 일반 클릭으로 처리한다. */
@@ -19,12 +20,6 @@ export type MapDropTarget = {
   id: string;
   place: MapDropPlace;
   rect: DOMRect;
-};
-
-export type MapDragGhost = {
-  x: number;
-  y: number;
-  text: string;
 };
 
 /**
@@ -49,10 +44,15 @@ export function useMapBlockDrag() {
 
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<MapDropTarget | null>(null);
-  const [ghost, setGhost] = useState<MapDragGhost | null>(null);
-
   const dropTargetRef = useRef<MapDropTarget | null>(null);
+  const ghostRef = useRef<ReturnType<typeof createMapDragGhost> | null>(null);
   const suppressClickRef = useRef(false);
+  const pressStartRef = useRef<(
+    node: MapLayoutNode,
+    event: React.PointerEvent<HTMLElement>,
+  ) => void>(() => {});
+
+  useEffect(() => () => ghostRef.current?.remove(), []);
 
   const isCandidate = (dragged: MapLayoutNode, el: HTMLElement): boolean => {
     const id = el.getAttribute('data-id');
@@ -64,7 +64,9 @@ export function useMapBlockDrag() {
     if (dragged.kind === 'experience') {
       return parsed.kind === 'experience' || parsed.kind === 'group';
     }
-    return parsed.kind === 'block' && parsed.experienceId === dragged.experienceId;
+    return (
+      parsed.kind === 'block' && parsed.experienceId === dragged.experienceId
+    );
   };
 
   const resolvePlace = (
@@ -121,11 +123,15 @@ export function useMapBlockDrag() {
 
     if (dragged.kind === 'experience') {
       if (parsed.kind === 'group') return true;
-      if (parsed.kind === 'experience') return parsed.experienceId !== dragged.refId;
+      if (parsed.kind === 'experience')
+        return parsed.experienceId !== dragged.refId;
       return false;
     }
 
-    if (parsed.kind !== 'block' || parsed.experienceId !== dragged.experienceId) {
+    if (
+      parsed.kind !== 'block' ||
+      parsed.experienceId !== dragged.experienceId
+    ) {
       return false;
     }
     const experience = experiences.find((e) => e.id === dragged.experienceId);
@@ -145,8 +151,10 @@ export function useMapBlockDrag() {
     );
 
     if (!el) {
-      dropTargetRef.current = null;
-      setDropTarget(null);
+      if (dropTargetRef.current) {
+        dropTargetRef.current = null;
+        setDropTarget(null);
+      }
       return;
     }
 
@@ -155,12 +163,16 @@ export function useMapBlockDrag() {
     const place = resolvePlace(dragged, targetId, rect, clientY);
 
     if (!place || !isValidDrop(dragged, targetId, place)) {
-      dropTargetRef.current = null;
-      setDropTarget(null);
+      if (dropTargetRef.current) {
+        dropTargetRef.current = null;
+        setDropTarget(null);
+      }
       return;
     }
 
     const next: MapDropTarget = { id: targetId, place, rect };
+    const previous = dropTargetRef.current;
+    if (previous?.id === next.id && previous.place === next.place) return;
     dropTargetRef.current = next;
     setDropTarget(next);
   };
@@ -193,7 +205,11 @@ export function useMapBlockDrag() {
       return;
     }
 
-    if (dragged.kind === 'block' && parsed.kind === 'block' && dragged.experienceId) {
+    if (
+      dragged.kind === 'block' &&
+      parsed.kind === 'block' &&
+      dragged.experienceId
+    ) {
       moveBlock(dragged.experienceId, dragged.refId, {
         kind: target.place,
         targetId: parsed.blockId,
@@ -205,42 +221,65 @@ export function useMapBlockDrag() {
     dropTargetRef.current = null;
     setDraggingId(null);
     setDropTarget(null);
-    setGhost(null);
+    ghostRef.current?.remove();
+    ghostRef.current = null;
   };
 
-  const activateDrag = (node: MapLayoutNode, point: { x: number; y: number }) => {
+  const activateDrag = (
+    node: MapLayoutNode,
+    source: HTMLElement,
+    point: { x: number; y: number },
+  ) => {
+    ghostRef.current = createMapDragGhost(source, point.x, point.y);
     setDraggingId(node.id);
-    setGhost({ x: point.x, y: point.y, text: node.text || node.placeholder || '' });
+    let frameId: number | null = null;
+    let lastPoint = point;
 
     const onMove = (e: PointerEvent) => {
-      setGhost((g) => (g ? { ...g, x: e.clientX, y: e.clientY } : g));
-      updateDropTarget(node, e.clientX, e.clientY);
+      ghostRef.current?.move(e.clientX, e.clientY);
+      lastPoint = { x: e.clientX, y: e.clientY };
+      if (frameId != null) return;
+      frameId = requestAnimationFrame(() => {
+        frameId = null;
+        updateDropTarget(node, lastPoint.x, lastPoint.y);
+      });
     };
 
-    const onUp = () => {
+    const cleanup = () => {
+      if (frameId != null) cancelAnimationFrame(frameId);
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
-      commitDrop(node);
-      suppressClickRef.current = true;
+      window.removeEventListener('pointercancel', onCancel);
       endDrag();
     };
+    const onUp = (e: PointerEvent) => {
+      // 마지막 포인터 위치는 프레임 콜백보다 먼저 도착할 수 있다.
+      updateDropTarget(node, e.clientX, e.clientY);
+      commitDrop(node);
+      suppressClickRef.current = true;
+      cleanup();
+    };
+    const onCancel = () => cleanup();
 
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onCancel);
   };
 
-  const onBlockPressStart = (
+  const pressStartImplementation = (
     node: MapLayoutNode,
     event: React.PointerEvent<HTMLElement>,
   ) => {
     if (event.button !== 0) return;
 
     const start = { x: event.clientX, y: event.clientY };
+    const source = event.currentTarget;
+    const isTouch = event.pointerType === 'touch';
     let timer: ReturnType<typeof setTimeout> | null = setTimeout(() => {
       timer = null;
       window.removeEventListener('pointermove', onEarlyMove);
       window.removeEventListener('pointerup', onEarlyUp);
-      activateDrag(node, start);
+      activateDrag(node, source, start);
     }, LONG_PRESS_MS);
 
     const cancelPress = () => {
@@ -253,7 +292,14 @@ export function useMapBlockDrag() {
     function onEarlyMove(e: PointerEvent) {
       const dx = e.clientX - start.x;
       const dy = e.clientY - start.y;
-      if (Math.hypot(dx, dy) > MOVE_CANCEL_PX) cancelPress();
+      if (Math.hypot(dx, dy) <= MOVE_CANCEL_PX) return;
+      cancelPress();
+      // 마우스·펜은 일반적인 드래그 동작으로 바로 시작한다.
+      // 터치는 스크롤과 충돌하지 않도록 기존 길게 누르기를 유지한다.
+      if (!isTouch) {
+        activateDrag(node, source, start);
+        ghostRef.current?.move(e.clientX, e.clientY);
+      }
     }
     function onEarlyUp() {
       cancelPress();
@@ -263,12 +309,22 @@ export function useMapBlockDrag() {
     window.addEventListener('pointerup', onEarlyUp);
   };
 
+  useEffect(() => {
+    pressStartRef.current = pressStartImplementation;
+  });
+
+  const onBlockPressStart = useCallback(
+    (node: MapLayoutNode, event: React.PointerEvent<HTMLElement>) =>
+      pressStartRef.current(node, event),
+    [],
+  );
+
   /** 드래그가 끝난 직후 뒤따라오는 click을 한 번 무시한다. */
-  const consumeSuppressedClick = (): boolean => {
+  const consumeSuppressedClick = useCallback((): boolean => {
     if (!suppressClickRef.current) return false;
     suppressClickRef.current = false;
     return true;
-  };
+  }, []);
 
-  return { draggingId, dropTarget, ghost, onBlockPressStart, consumeSuppressedClick };
+  return { draggingId, dropTarget, onBlockPressStart, consumeSuppressedClick };
 }

@@ -5,16 +5,14 @@
  * API document of Folioo Development
  * OpenAPI spec version: 1.0.0
  */
-import type { ExperienceMetaResDTOContributionRate } from './experienceMetaResDTOContributionRate';
-import type { ExperienceMetaResDTOExperienceId } from './experienceMetaResDTOExperienceId';
 import type { ExperienceMetaResDTOSourceType } from './experienceMetaResDTOSourceType';
 import type { ExperienceMetaResDTOStatus } from './experienceMetaResDTOStatus';
 
 export interface ExperienceMetaResDTO {
   /** @nullable */
-  contributionRate?: ExperienceMetaResDTOContributionRate;
+  contributionRate?: number | null;
   sourceType: ExperienceMetaResDTOSourceType;
   status: ExperienceMetaResDTOStatus;
   /** @nullable */
-  experienceId?: ExperienceMetaResDTOExperienceId;
+  experienceId?: number | null;
 }

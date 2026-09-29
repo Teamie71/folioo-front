@@ -22,10 +22,12 @@ import {
   syncCreateGroup,
   syncDeleteBlocks,
   syncMoveBlock,
+  syncRestoreHistory,
   syncUpdateContent,
 } from '@/features/experience/list/api/experienceMapSync';
 import {
   applyBlockMove,
+  applyBlockOutdent,
   findBlockLocation,
   type DropPosition,
 } from '@/features/experience/list/utils/blockTreeUtils';
@@ -39,6 +41,8 @@ function createInitialListState() {
     experienceCounter: 0,
     selection: null as Selection,
     mapVersion: null as string | null,
+    revertibleRequestId: null as string | null,
+    agentLimitDayKst: null as string | null,
     syncError: null as unknown,
     sidebarOpen: true,
     agentOpen: true,
@@ -192,6 +196,9 @@ interface ExperienceListState {
 
   /** 서버 낙관적 잠금 버전. 쓰기 동기화 계층이 관리한다. */
   mapVersion: string | null;
+  revertibleRequestId: string | null;
+  agentLimitDayKst: string | null;
+  setAgentLimitDayKst: (day: string | null) => void;
   /** 마지막 동기화 실패. 실패 후에는 서버 상태로 되돌린다. */
   syncError: unknown;
 
@@ -281,6 +288,7 @@ interface ExperienceListState {
     draggedId: string,
     drop: DropPosition,
   ) => void;
+  outdentBlock: (experienceId: string, blockId: string) => void;
 
   startBlockSelection: () => void;
   cancelBlockSelection: () => void;
@@ -325,6 +333,8 @@ export const useExperienceListStore = create<ExperienceListState>()(
       return {
         ...createInitialListState(),
 
+        setAgentLimitDayKst: (day) => set({ agentLimitDayKst: day }),
+
         hydrateFromServer: (snapshot) =>
           set((s) => {
             /*
@@ -361,6 +371,7 @@ export const useExperienceListStore = create<ExperienceListState>()(
               groups: orderedGroups,
               experiences: snapshot.experiences,
               mapVersion: snapshot.mapVersion,
+              revertibleRequestId: snapshot.revertibleRequestId,
               isContentLoading: false,
               // 이름 카운터는 서버에 저장되지 않으므로 현재 이름에서 이어 받는다.
               groupCounter: Math.max(
@@ -819,6 +830,27 @@ export const useExperienceListStore = create<ExperienceListState>()(
           }
         },
 
+        outdentBlock: (experienceId, blockId) => {
+          const s = get();
+          const exp = s.experiences.find((e) => e.id === experienceId);
+          if (!exp) return;
+          const result = applyBlockOutdent(exp.blocks, blockId);
+          if (!result) return;
+
+          commit({
+            experiences: s.experiences.map((e) =>
+              e.id === experienceId ? { ...e, blocks: result.blocks } : e,
+            ),
+          });
+
+          for (const id of [blockId, ...result.reparentedIds]) {
+            const location = serverPositionOf(result.blocks, id, experienceId);
+            if (location) {
+              syncMoveBlock(id, location.position, location.parentId);
+            }
+          }
+        },
+
         startBlockSelection: () =>
           set({ blockSelectionMode: true, selectedBlockIds: {} }),
 
@@ -933,31 +965,31 @@ export const useExperienceListStore = create<ExperienceListState>()(
           ]);
         },
 
-        /*
-         * 실행 취소 / 다시 실행은 화면설계서대로 세션 기반 인메모리 히스토리다.
-         * 서버에는 되돌리기 API가 없어(AI 커밋 전용 revert만 존재한다) 화면 상태만 되돌린다.
-         */
-        undo: () =>
-          set((s) => {
-            if (s.past.length === 0) return {};
-            const prev = s.past[s.past.length - 1];
-            return {
-              ...prev,
-              past: s.past.slice(0, -1),
-              future: [snapshotOf(s), ...s.future],
-            };
-          }),
+        undo: () => {
+          const s = get();
+          if (s.past.length === 0) return;
+          const current = snapshotOf(s);
+          const prev = s.past[s.past.length - 1];
+          set({
+            ...prev,
+            past: s.past.slice(0, -1),
+            future: [current, ...s.future],
+          });
+          syncRestoreHistory(current, prev);
+        },
 
-        redo: () =>
-          set((s) => {
-            if (s.future.length === 0) return {};
-            const next = s.future[0];
-            return {
-              ...next,
-              past: [...s.past, snapshotOf(s)],
-              future: s.future.slice(1),
-            };
-          }),
+        redo: () => {
+          const s = get();
+          if (s.future.length === 0) return;
+          const current = snapshotOf(s);
+          const next = s.future[0];
+          set({
+            ...next,
+            past: [...s.past, current],
+            future: s.future.slice(1),
+          });
+          syncRestoreHistory(current, next);
+        },
       };
     },
     { name: 'experience-list-store' },

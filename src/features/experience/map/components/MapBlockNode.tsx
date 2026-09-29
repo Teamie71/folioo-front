@@ -37,7 +37,6 @@ function MapBlockNodeComponent({ data }: NodeProps) {
     activeId,
     editingId,
     onEditingChange,
-    menuCloseSignal,
     draggingId,
     onBlockPressStart,
   } = useMapInteraction();
@@ -220,7 +219,7 @@ function MapBlockNodeComponent({ data }: NodeProps) {
             variant='block'
             menuPlacement='right-bottom'
             anchorRef={containerRef}
-            closeSignal={menuCloseSignal}
+            closeOnMapMove
             menuTitle='템플릿 선택'
             className={cn(
               controlButtonCls,

@@ -12,4 +12,5 @@ export type CommitItemReqDTOAction = typeof CommitItemReqDTOAction[keyof typeof 
 export const CommitItemReqDTOAction = {
   add: 'add',
   update: 'update',
+  delete: 'delete',
 } as const;

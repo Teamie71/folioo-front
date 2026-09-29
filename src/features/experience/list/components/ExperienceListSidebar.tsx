@@ -4,12 +4,14 @@ import { motion } from 'framer-motion';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { ExperienceListSidebarGroup } from '@/features/experience/list/components/ExperienceListSidebarGroup';
 import { useSidebarDnd } from '@/features/experience/list/hooks/useSidebarDnd';
+import { useAgentSidebarStatuses } from '@/features/experience/list/hooks/useAgentSidebarStatuses';
 import { ListViewIcon } from '@/components/icons/ListViewIcon';
 
 const PANEL_WIDTH = '240px';
 const PANEL_TRANSITION = { duration: 0.3, ease: [0.4, 0, 0.2, 1] as const };
 
 export function ExperienceListSidebar() {
+  useAgentSidebarStatuses();
   const open = useExperienceListStore((s) => s.sidebarOpen);
   const groups = useExperienceListStore((s) => s.groups);
   const experiences = useExperienceListStore((s) => s.experiences);
@@ -59,7 +61,9 @@ export function ExperienceListSidebar() {
               key={group.id}
               group={group}
               groups={groups}
-              groupExperiences={experiences.filter((e) => e.groupId === group.id)}
+              groupExperiences={experiences.filter(
+                (e) => e.groupId === group.id,
+              )}
               collapsed={collapsedGroups[group.id] ?? false}
               selectedGroupId={selectedGroupId}
               selectedExperienceId={selectedExperienceId}

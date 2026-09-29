@@ -26,6 +26,12 @@ import {
 import type { SidebarDndState } from '@/features/experience/list/hooks/useSidebarDnd';
 import type { Experience, Group } from '@/features/experience/list/types';
 import { ListPlusIcon } from '@/components/icons/ListPlusIcon';
+import {
+  AgentStatusIndicator,
+  agentStatusLabel,
+} from '@/features/experience/list/components/AgentStatusIndicator';
+import { useAgentStatusStore } from '@/features/experience/list/model/agentStatusStore';
+import { useAuthStore } from '@/store/useAuthStore';
 
 type Props = {
   item: Experience;
@@ -58,8 +64,19 @@ export function ExperienceListSidebarExperience({
   );
   const reorderExperience = useExperienceListStore((s) => s.reorderExperience);
   const openModal = useExperienceListStore((s) => s.openModal);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const currentStatus = useAgentStatusStore((s) => s.byExperienceId[item.id]);
+  const agentStatus = accessToken ? currentStatus : undefined;
+  const statusLabel = agentStatusLabel(agentStatus?.kind);
 
   const isExpDragging = draggingId === item.id;
+
+  const focusExperience = () => {
+    selectExperience(item.id);
+    window.dispatchEvent(
+      new CustomEvent('experience-agent:focus', { detail: item.id }),
+    );
+  };
 
   /** 케밥 메뉴의 '이름 변경'으로 인라인 편집을 켠다. */
   const [requestRename, setRequestRename] = useState(false);
@@ -158,30 +175,37 @@ export function ExperienceListSidebarExperience({
         <div
           role='button'
           tabIndex={0}
-          onClick={() => selectExperience(item.id)}
+          onClick={focusExperience}
           onKeyDown={(e) => {
             if (
               (e.key === 'Enter' || e.key === ' ') &&
               !(e.target instanceof HTMLInputElement)
             ) {
               e.preventDefault();
-              selectExperience(item.id);
+              focusExperience();
             }
           }}
           className='w-full min-w-0 flex-1 cursor-pointer text-left'
+          aria-label={`${item.name}${statusLabel ? `, ${statusLabel}` : ''}`}
         >
-          <EditableLabel
-            value={item.name}
-            placeholder={EXPERIENCE_NAME_PLACEHOLDER}
-            editable
-            maxLength={20}
-            onCommit={(next) => renameExperience(item.id, next)}
-            requestEdit={requestRename}
-            requestEditSelectAll
-            onRequestEditHandled={() => setRequestRename(false)}
-            className={selected ? sidebarLabelClsSelected : sidebarLabelCls}
-            inputClassName={sidebarLabelInputCls}
-          />
+          <span className='inline-flex max-w-full items-center'>
+            <EditableLabel
+              value={item.name}
+              placeholder={EXPERIENCE_NAME_PLACEHOLDER}
+              editable
+              maxLength={20}
+              onCommit={(next) => renameExperience(item.id, next)}
+              requestEdit={requestRename}
+              requestEditSelectAll
+              onRequestEditHandled={() => setRequestRename(false)}
+              className={cn(
+                selected ? sidebarLabelClsSelected : sidebarLabelCls,
+                'min-w-0',
+              )}
+              inputClassName={sidebarLabelInputCls}
+            />
+            <AgentStatusIndicator kind={agentStatus?.kind} />
+          </span>
         </div>
 
         <HoverTooltip label='클릭하여 활동 추가'>
