@@ -50,6 +50,7 @@ function createInitialListState() {
     modal: null as ModalState,
     // 서버에서 맵을 받아오기 전까지는 스켈레톤을 보여준다.
     isContentLoading: true,
+    pendingExperienceDeletes: {} as Record<string, true>,
     blockSelectionMode: false,
     selectedBlockIds: {} as Record<string, true>,
     past: [] as Snapshot[],
@@ -207,6 +208,7 @@ interface ExperienceListState {
   collapsedGroups: Record<string, boolean>;
   modal: ModalState;
   isContentLoading: boolean;
+  pendingExperienceDeletes: Record<string, true>;
 
   /** 맵 뷰 '블록 선택 삭제' 모드 (3) */
   blockSelectionMode: boolean;
@@ -577,13 +579,28 @@ export const useExperienceListStore = create<ExperienceListState>()(
 
         deleteExperience: (id) => {
           const s = get();
+          if (!s.experiences.some((experience) => experience.id === id)) return;
           const experiences = s.experiences.filter((e) => e.id !== id);
           const selection: Selection =
             s.selection?.kind === 'experience' && s.selection.id === id
               ? null
               : s.selection;
+          set((state) => ({
+            pendingExperienceDeletes: {
+              ...state.pendingExperienceDeletes,
+              [id]: true,
+            },
+          }));
           commit({ experiences, selection });
-          syncDeleteBlocks([id]);
+          const clearPending = () =>
+            set((state) => {
+              const pendingExperienceDeletes = {
+                ...state.pendingExperienceDeletes,
+              };
+              delete pendingExperienceDeletes[id];
+              return { pendingExperienceDeletes };
+            });
+          void syncDeleteBlocks([id]).then(clearPending, clearPending);
         },
 
         moveExperienceToGroup: (experienceId, groupId) => {

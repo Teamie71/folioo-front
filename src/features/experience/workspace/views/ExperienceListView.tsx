@@ -28,6 +28,9 @@ export function ExperienceListView() {
   const groups = useExperienceListStore((s) => s.groups);
   const experiences = useExperienceListStore((s) => s.experiences);
   const isContentLoading = useExperienceListStore((s) => s.isContentLoading);
+  const isDeletingExperience = useExperienceListStore(
+    (s) => Object.keys(s.pendingExperienceDeletes).length > 0,
+  );
   const selectExperience = useExperienceListStore((s) => s.selectExperience);
   const selectGroup = useExperienceListStore((s) => s.selectGroup);
   const renameExperience = useExperienceListStore((s) => s.renameExperience);
@@ -44,7 +47,12 @@ export function ExperienceListView() {
     (selection?.kind === 'group' ? undefined : firstExperience);
 
   useEffect(() => {
-    if (isContentLoading || selection?.kind === 'group' || selectedExperience)
+    if (
+      isContentLoading ||
+      isDeletingExperience ||
+      selection?.kind === 'group' ||
+      selectedExperience
+    )
       return;
     if (firstExperience) selectExperience(firstExperience.id);
     else if (groups[0]) selectGroup(groups[0].id);
@@ -52,13 +60,14 @@ export function ExperienceListView() {
     firstExperience,
     groups,
     isContentLoading,
+    isDeletingExperience,
     selectedExperience,
     selection,
     selectExperience,
     selectGroup,
   ]);
 
-  if (isContentLoading) {
+  if (isContentLoading || isDeletingExperience) {
     return (
       <div className={MAIN_SCROLL_CLS}>
         <ExperienceListContentSkeleton />
