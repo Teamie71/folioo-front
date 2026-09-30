@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { cn } from '@/utils/utils';
+import { ListChevronIcon } from '@/components/icons/ListChevronIcon';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { SidebarPanelIcon } from '@/components/icons/SidebarPanelIcon';
 import type { AgentConversation } from './ExperienceAgentConversation';
@@ -39,10 +40,10 @@ function AgentListExperienceRow({
   const statusLabel = agentStatusLabel(kind);
 
   return (
-    <li>
+    <li className='ml-[24px] w-[calc(100%-24px)]'>
       <button
         type='button'
-        className='text-gray9 hover:bg-gray2 min-h-[36px] w-full cursor-pointer rounded-[4px] py-[6px] pl-[24px] text-left text-[16px] leading-[24px]'
+        className='text-gray9 hover:bg-gray3 min-h-[32px] w-full cursor-pointer rounded-[8px] py-[4px] pr-[4px] pl-[12px] text-left text-[16px] leading-[24px]'
         aria-label={`${item.name}${statusLabel ? `, ${statusLabel}` : ''}`}
         onClick={() => onSelect(item.id)}
       >
@@ -252,13 +253,17 @@ export function ExperienceListAgentPanel({
         {!experience ? (
           <nav
             aria-label='활동별 AI 에이전트'
-            className='mt-[24px] min-h-0 flex-1 overflow-y-auto pr-[20px] pb-[24px] pl-[52px]'
+            className='mt-[24px] min-h-0 flex-1 overflow-y-auto pr-[20px] pb-[24px] pl-[44px]'
           >
             {groups.map((group) => {
               const isCollapsed = collapsed[group.id] ?? false;
-              const Chevron = isCollapsed ? ChevronRight : ChevronDown;
+              const selectedGroup =
+                selection?.kind === 'group' && selection.id === group.id;
               return (
-                <div key={group.id} className='mb-[8px]'>
+                <div
+                  key={group.id}
+                  className='mb-[4px] flex flex-col gap-[4px]'
+                >
                   <button
                     type='button'
                     aria-expanded={!isCollapsed}
@@ -269,15 +274,29 @@ export function ExperienceListAgentPanel({
                         [group.id]: !prev[group.id],
                       }))
                     }
-                    className='text-gray9 flex min-h-[36px] w-full cursor-pointer items-center gap-[8px] text-left text-[16px] leading-[24px]'
+                    className={cn(
+                      'text-gray9 flex min-h-[32px] w-full cursor-pointer items-center gap-[8px] rounded-[8px] py-[4px] pr-[8px] pl-[8px] text-left text-[16px] leading-[24px]',
+                      selectedGroup
+                        ? 'bg-gray3'
+                        : !group.isUnclassified && 'hover:bg-gray3',
+                    )}
                   >
-                    <Chevron
+                    <ListChevronIcon
                       aria-hidden
-                      className='text-gray5 size-[16px] shrink-0'
+                      className={cn(
+                        'size-[16px] shrink-0 transition-transform',
+                        isCollapsed ? 'rotate-90' : 'rotate-180',
+                      )}
                     />
                     <span className='break-words'>{group.name}</span>
                   </button>
-                  <ul id={`agent-group-${group.id}`} hidden={isCollapsed}>
+                  <ul
+                    id={`agent-group-${group.id}`}
+                    hidden={isCollapsed}
+                    className={
+                      isCollapsed ? 'hidden' : 'flex flex-col gap-[4px]'
+                    }
+                  >
                     {experiences
                       .filter((item) => item.groupId === group.id)
                       .map((item) => (
