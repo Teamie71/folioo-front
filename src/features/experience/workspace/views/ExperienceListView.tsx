@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { EditableLabel } from '@/features/experience/list/components/EditableLabel';
 import { EXPERIENCE_NAME_PLACEHOLDER } from '@/features/experience/list/constants';
@@ -24,14 +25,38 @@ const CONTENT_CLS =
 
 export function ExperienceListView() {
   const selection = useExperienceListStore((s) => s.selection);
+  const groups = useExperienceListStore((s) => s.groups);
   const experiences = useExperienceListStore((s) => s.experiences);
   const isContentLoading = useExperienceListStore((s) => s.isContentLoading);
+  const selectExperience = useExperienceListStore((s) => s.selectExperience);
+  const selectGroup = useExperienceListStore((s) => s.selectGroup);
   const renameExperience = useExperienceListStore((s) => s.renameExperience);
 
-  const experience =
+  const selectedExperience =
     selection?.kind === 'experience'
       ? experiences.find((e) => e.id === selection.id)
       : undefined;
+  const firstExperience = groups
+    .map((group) => experiences.find((item) => item.groupId === group.id))
+    .find((item) => item !== undefined);
+  const experience =
+    selectedExperience ??
+    (selection?.kind === 'group' ? undefined : firstExperience);
+
+  useEffect(() => {
+    if (isContentLoading || selection?.kind === 'group' || selectedExperience)
+      return;
+    if (firstExperience) selectExperience(firstExperience.id);
+    else if (groups[0]) selectGroup(groups[0].id);
+  }, [
+    firstExperience,
+    groups,
+    isContentLoading,
+    selectedExperience,
+    selection,
+    selectExperience,
+    selectGroup,
+  ]);
 
   if (isContentLoading) {
     return (
@@ -50,6 +75,13 @@ export function ExperienceListView() {
   }
 
   if (!experience) {
+    if (groups[0]) {
+      return (
+        <div className={MAIN_SCROLL_CLS}>
+          <EmptyGroupState groupId={groups[0].id} />
+        </div>
+      );
+    }
     return (
       <div className='px-[60px] pt-[44px]'>
         <p className='typo-b2 text-gray6'>활동을 선택해 주세요.</p>

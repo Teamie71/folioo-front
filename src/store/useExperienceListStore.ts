@@ -359,6 +359,11 @@ export const useExperienceListStore = create<ExperienceListState>()(
               const bi = prevOrder.get(b.id) ?? Number.MAX_SAFE_INTEGER;
               return ai - bi;
             });
+            const firstExperience = orderedGroups
+              .map((group) =>
+                snapshot.experiences.find((item) => item.groupId === group.id),
+              )
+              .find((item) => item !== undefined);
 
             const selectionAlive =
               selection?.kind === 'experience'
@@ -396,10 +401,10 @@ export const useExperienceListStore = create<ExperienceListState>()(
                */
               selection: selectionAlive
                 ? selection
-                : snapshot.experiences[0]
+                : firstExperience
                   ? {
                       kind: 'experience' as const,
-                      id: snapshot.experiences[0].id,
+                      id: firstExperience.id,
                     }
                   : orderedGroups[0]
                     ? { kind: 'group' as const, id: orderedGroups[0].id }
