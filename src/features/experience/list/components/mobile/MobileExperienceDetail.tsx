@@ -26,6 +26,9 @@ export function MobileExperienceDetail({ experienceId, onBack }: Props) {
   );
   const openModal = useExperienceListStore((s) => s.openModal);
   const isContentLoading = useExperienceListStore((s) => s.isContentLoading);
+  const isCreatingExperience = useExperienceListStore((s) =>
+    Boolean(s.pendingExperienceCreates[experienceId]),
+  );
   const cancelBlockSelection = useExperienceListStore(
     (s) => s.cancelBlockSelection,
   );
@@ -95,7 +98,7 @@ export function MobileExperienceDetail({ experienceId, onBack }: Props) {
       </div>
 
       <div className='mt-[16px] flex min-h-0 flex-1 flex-col overflow-y-auto px-[16px] pb-[96px]'>
-        {isContentLoading ? (
+        {isContentLoading || isCreatingExperience ? (
           <MobileExperienceContentSkeleton />
         ) : experience.blocks.length === 0 ? (
           <EmptyExperienceState experienceId={experience.id} />

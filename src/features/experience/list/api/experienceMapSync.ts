@@ -346,7 +346,7 @@ export function syncCreateExperience(
 ) {
   // EXPERIENCE를 만들면 서버가 5종 SECTION을 함께 만든다.
   // 응답에는 포함되지 않으므로 enqueue의 맵 재조회로 받아온다.
-  enqueue(() =>
+  return enqueue(() =>
     createBlock({
       clientId,
       kind: BlockResDTOKind.EXPERIENCE,
@@ -475,7 +475,7 @@ export function syncMoveBlock(
   position: number,
   parentId?: string,
 ) {
-  enqueue(() => moveBlockTo(blockId, position, parentId));
+  return enqueue(() => moveBlockTo(blockId, position, parentId));
 }
 
 type HistoryTree = { groups: Group[]; experiences: Experience[] };
