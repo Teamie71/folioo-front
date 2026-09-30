@@ -73,9 +73,8 @@ export function ExperienceAgentMain({
       conversation.isWorking ||
       conversation.failure),
   );
-  const [inputStarted, setInputStarted] = useState(false);
-  const docked =
-    inputStarted || Boolean(input || attachment || hasConversation);
+  const [sentOnce, setSentOnce] = useState(false);
+  const docked = sentOnce || hasConversation;
   const usedCount = Math.max(0, Math.min(10, Math.floor(dailyChatCount)));
   const showCount = usedCount >= 7;
   const limitReached = usedCount >= 10;
@@ -84,9 +83,26 @@ export function ExperienceAgentMain({
   const fileInput = useRef<HTMLInputElement>(null);
   const textarea = useRef<HTMLTextAreaElement>(null);
   const composer = useRef<HTMLDivElement>(null);
+  const composerBeforeDock = useRef<DOMRect | null>(null);
   const measure = useRef<HTMLDivElement>(null);
   const composerContent = useRef<HTMLDivElement>(null);
   const [composerHeight, setComposerHeight] = useState(48);
+  useLayoutEffect(() => {
+    if (!docked || !composerBeforeDock.current || !composer.current) return;
+    const before = composerBeforeDock.current;
+    composerBeforeDock.current = null;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const after = composer.current.getBoundingClientRect();
+    composer.current.animate(
+      [
+        {
+          transform: `translate(${before.left - after.left}px, ${before.top - after.top}px)`,
+        },
+        { transform: 'translate(0, 0)' },
+      ],
+      { duration: 400, easing: 'cubic-bezier(0.4, 0, 0.2, 1)' },
+    );
+  }, [docked]);
   useLayoutEffect(() => {
     const container = composer.current;
     const content = composerContent.current;
@@ -133,6 +149,11 @@ export function ExperienceAgentMain({
     setSubmitting(true);
     try {
       await onSend(input, attachment, () => {
+        if (!docked) {
+          composerBeforeDock.current =
+            composer.current?.getBoundingClientRect() ?? null;
+          setSentOnce(true);
+        }
         onInputChange('');
         onAttachmentChange(null);
       });
@@ -242,7 +263,6 @@ export function ExperienceAgentMain({
                 }
                 if (limitReached) showNotice(limitMessage);
                 else setNotice(null);
-                if (value) setInputStarted(true);
                 onInputChange(value);
               }}
               onKeyDown={(event) => {
@@ -281,7 +301,6 @@ export function ExperienceAgentMain({
               }
               if (limitReached) showNotice(limitMessage);
               else setNotice(null);
-              setInputStarted(true);
               onAttachmentChange(file);
             }}
           />
@@ -368,7 +387,6 @@ export function ExperienceAgentMain({
                     key={prompt}
                     type='button'
                     onClick={() => {
-                      setInputStarted(true);
                       onInputChange(prompt);
                       if (limitReached) showNotice(limitMessage);
                       else setNotice(null);
