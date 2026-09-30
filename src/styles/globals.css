@@ -306,33 +306,22 @@ body[data-banner-dismissed='true'] .banner-beta {
   }
 }
 
-/* 로딩 프로그레스바 채움 (prefers-reduced-motion 시 정적 표시)
-   끝에서 opacity를 떨어뜨려 0%로 되감기는 순간이 튀지 않게 한다. */
+/* 로딩 프로그레스바는 한 번만 채우고 완료 상태를 유지한다. */
 @keyframes progress-fill {
-  0% {
+  from {
     width: 0%;
-    opacity: 1;
   }
-  75% {
-    width: 88%;
-    opacity: 1;
-  }
-  95% {
+  to {
     width: 100%;
-    opacity: 1;
-  }
-  100% {
-    width: 100%;
-    opacity: 0;
   }
 }
 .animate-progress-fill {
   width: 0%;
-  animation: progress-fill 0.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: progress-fill 3s linear forwards;
 }
 @media (prefers-reduced-motion: reduce) {
   .animate-progress-fill {
-    width: 60%;
+    width: 100%;
     animation: none;
   }
 }

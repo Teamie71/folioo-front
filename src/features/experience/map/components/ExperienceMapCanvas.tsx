@@ -5,16 +5,17 @@ import {
   PanOnScrollMode,
   ReactFlow,
   ReactFlowProvider,
-  useNodesInitialized,
   useReactFlow,
   type CoordinateExtent,
   type Edge,
   type Node,
   type OnMove,
+  type Viewport,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import { useExperienceListStore } from '@/store/useExperienceListStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import {
   LIST_PREVIEW_BUTTON_HEIGHT,
   LIST_PREVIEW_BUTTON_INSET,
@@ -63,10 +64,10 @@ const PRO_OPTIONS = { hideAttribution: true };
 
 const EMPTY_AREAS: MapLayoutArea[] = [];
 
-const FIT_VIEW_OPTIONS = {
-  padding: 0.2,
-  maxZoom: 0.49,
-};
+const INITIAL_FIT_PADDING = 0.2;
+const INITIAL_MAX_ZOOM = 0.49;
+const INITIAL_VIEWPORT = { x: 0, y: 0, zoom: MAP_MIN_ZOOM };
+const VIEWPORT_STORAGE_KEY = 'folioo:experience-map:viewport:v1';
 // 25%에서도 화면 한 폭 이상을 자유롭게 이동할 수 있도록 넓은 여백을 둔다.
 const PAN_BOUNDARY_MARGIN = 3000;
 const PAN_SCROLL_SPEED = 0.5;
@@ -98,6 +99,86 @@ function layoutShiftAtPoint(
   return closest ?? { x: 0, y: 0 };
 }
 
+function initialViewportForLayout(
+  layout: MapLayout,
+  width: number,
+  height: number,
+): Viewport {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const node of layout.nodes) {
+    minX = Math.min(minX, node.x);
+    minY = Math.min(minY, node.y);
+    maxX = Math.max(maxX, node.x + node.width);
+    maxY = Math.max(maxY, node.y + node.height);
+  }
+  const contentWidth = Math.max(1, maxX - minX);
+  const contentHeight = Math.max(1, maxY - minY);
+  const fitZoom = Math.min(
+    INITIAL_MAX_ZOOM,
+    width / (contentWidth * (1 + INITIAL_FIT_PADDING * 2)),
+    height / (contentHeight * (1 + INITIAL_FIT_PADDING * 2)),
+  );
+  const zoom = Math.max(MAP_MIN_ZOOM, fitZoom);
+
+  // 최소 배율로도 전체가 들어오지 않으면 첫 그룹부터 탐색할 수 있게 둔다.
+  if (fitZoom < MAP_MIN_ZOOM) {
+    const firstGroup = layout.nodes.find((node) => node.kind === 'group');
+    if (firstGroup)
+      return {
+        x: width * 0.35 - (firstGroup.x + firstGroup.width / 2) * zoom,
+        y: height * 0.35 - (firstGroup.y + firstGroup.height / 2) * zoom,
+        zoom,
+      };
+  }
+
+  return {
+    x: (width - contentWidth * zoom) / 2 - minX * zoom,
+    y: (height - contentHeight * zoom) / 2 - minY * zoom,
+    zoom,
+  };
+}
+
+function readSavedViewport(ownerKey: string | undefined): Viewport | null {
+  if (!ownerKey || typeof window === 'undefined') return null;
+  try {
+    const raw = window.sessionStorage.getItem(VIEWPORT_STORAGE_KEY);
+    if (!raw) return null;
+    const saved = JSON.parse(raw) as {
+      ownerKey?: string;
+      viewport?: Partial<Viewport>;
+    };
+    const viewport = saved.viewport;
+    if (
+      saved.ownerKey !== ownerKey ||
+      !viewport ||
+      !Number.isFinite(viewport.x) ||
+      !Number.isFinite(viewport.y) ||
+      !Number.isFinite(viewport.zoom) ||
+      viewport.zoom! < MAP_MIN_ZOOM ||
+      viewport.zoom! > MAP_MAX_ZOOM
+    )
+      return null;
+    return viewport as Viewport;
+  } catch {
+    return null;
+  }
+}
+
+function saveViewport(ownerKey: string | undefined, viewport: Viewport) {
+  if (!ownerKey || typeof window === 'undefined') return;
+  try {
+    window.sessionStorage.setItem(
+      VIEWPORT_STORAGE_KEY,
+      JSON.stringify({ ownerKey, viewport }),
+    );
+  } catch {
+    // 저장소 사용이 막혀도 맵 조작은 계속 가능해야 한다.
+  }
+}
+
 type CanvasProps = {
   /** 진입 직후 화면 중앙에 두고 표준 수준으로 확대할 활동 id. (모바일 진입용) */
   focusExperienceId?: string;
@@ -106,6 +187,12 @@ type CanvasProps = {
 function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
   const groups = useExperienceListStore((s) => s.groups);
   const experiences = useExperienceListStore((s) => s.experiences);
+  const isContentLoading = useExperienceListStore((s) => s.isContentLoading);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const ownerKey = accessToken
+    ? groups.find((group) => group.isUnclassified)?.id
+    : 'guest';
+  const savedViewport = useMemo(() => readSavedViewport(ownerKey), [ownerKey]);
   const blockSelectionMode = useExperienceListStore(
     (s) => s.blockSelectionMode,
   );
@@ -113,12 +200,15 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
   const setBlockSelection = useExperienceListStore((s) => s.setBlockSelection);
   const selectExperience = useExperienceListStore((s) => s.selectExperience);
 
-  const { setCenter, fitView, getViewport, setViewport } = useReactFlow();
-  const nodesInitialized = useNodesInitialized();
+  const { setCenter, getViewport, setViewport } = useReactFlow();
   const mapViewportRef = useRef<HTMLDivElement>(null);
   const didFitRef = useRef(false);
+  const [flowReady, setFlowReady] = useState(false);
+  const [viewportReady, setViewportReady] = useState(false);
 
-  const [detail, setDetail] = useState<MapDetailLevel>(DEFAULT_DETAIL);
+  const [detail, setDetail] = useState<MapDetailLevel>(() =>
+    savedViewport ? detailForZoom(savedViewport.zoom) : DEFAULT_DETAIL,
+  );
   const [standardBoundary, setStandardBoundary] = useState(false);
   const [anchoredBoundaryAt, setAnchoredBoundaryAt] = useState(0);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -455,11 +545,24 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
     [focusOnStandard],
   );
 
-  // 노드 크기가 잡힌 뒤 한 번만 화면에 맞춘다. (이후 확대/축소는 사용자 조작을 따른다)
+  // 맵 데이터와 React Flow 캔버스가 준비된 뒤 한 번만 초기 위치를 정한다.
+  // 노드 측정 상태에 의존하면 초기 fitView가 누락되어 기본 원점에 남을 수 있다.
   // focusExperienceId가 있으면(모바일 진입) 전체 맞춤 대신 해당 활동을 중앙에 두고 확대한다.
   useEffect(() => {
-    if (!nodesInitialized || didFitRef.current) return;
-    didFitRef.current = true;
+    if (
+      isContentLoading ||
+      layout.nodes.length === 0 ||
+      !flowReady ||
+      didFitRef.current
+    )
+      return;
+    const container = mapViewportRef.current;
+    if (
+      !container ||
+      container.clientWidth === 0 ||
+      container.clientHeight === 0
+    )
+      return;
 
     if (focusExperienceId) {
       const standardLayout = getLayout('standard');
@@ -472,13 +575,31 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
           target.x + target.width / 2,
           target.y + target.height / 2,
           { zoom: FOCUS_ZOOM },
-        );
+        ).then(() => setViewportReady(true));
+        didFitRef.current = true;
         return;
       }
     }
 
-    void fitView(FIT_VIEW_OPTIONS);
-  }, [nodesInitialized, fitView, focusExperienceId, getLayout, setCenter]);
+    void setViewport(
+      savedViewport ??
+        initialViewportForLayout(
+          layout,
+          container.clientWidth,
+          container.clientHeight,
+        ),
+    ).then(() => setViewportReady(true));
+    didFitRef.current = true;
+  }, [
+    isContentLoading,
+    layout,
+    flowReady,
+    focusExperienceId,
+    getLayout,
+    savedViewport,
+    setCenter,
+    setViewport,
+  ]);
 
   const onBlockClick = useCallback(
     (node: MapLayoutNode) => {
@@ -597,6 +718,13 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
     [onViewportChange],
   );
 
+  const handleMoveEnd = useCallback<OnMove>(
+    (_, viewport) => {
+      if (viewportReady) saveViewport(ownerKey, viewport);
+    },
+    [ownerKey, viewportReady],
+  );
+
   const handleMoveStart = useCallback(() => {
     window.dispatchEvent(new Event('experience-map:move-start'));
   }, []);
@@ -617,6 +745,8 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
           edgeTypes={edgeTypes}
           minZoom={MAP_MIN_ZOOM}
           maxZoom={MAP_MAX_ZOOM}
+          defaultViewport={INITIAL_VIEWPORT}
+          onInit={() => setFlowReady(true)}
           translateExtent={panExtent}
           nodesDraggable={false}
           nodesConnectable={false}
@@ -639,6 +769,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
           onNodeClick={handleNodeClick}
           onNodeDoubleClick={handleNodeDoubleClick}
           onMove={handleMove}
+          onMoveEnd={handleMoveEnd}
           // 캔버스를 움직이기 시작하면 열려 있는 블록 추가 드롭다운을 닫는다. (화면에 고정된 채로 어긋나 보이는 상태 방지)
           onMoveStart={handleMoveStart}
           onPaneClick={handlePaneClick}
@@ -649,7 +780,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
         </ReactFlow>
       </div>
       {dropTarget && <MapDropIndicator target={dropTarget} />}
-      <MapZoomController onZoomChange={zoomFromController} />
+      {viewportReady && <MapZoomController onZoomChange={zoomFromController} />}
       <MapActivityPreviewModal onClose={onPreviewClose} />
     </MapInteractionProvider>
   );

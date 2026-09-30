@@ -24,7 +24,7 @@ const ExperienceMapView = dynamic(
     ),
   {
     ssr: false,
-    loading: () => <MapViewSkeleton />,
+    loading: () => null,
   },
 );
 
@@ -37,9 +37,11 @@ export function ExperienceWorkspaceShell() {
   const [mapFocusExperienceId, setMapFocusExperienceId] = useState<
     string | undefined
   >();
+  const [mapReady, setMapReady] = useState(false);
+  const markMapReady = useCallback(() => setMapReady(true), []);
 
   // GET /experience-map 으로 그룹·활동·블록 트리를 채운다. (비로그인은 기본 제공 데이터)
-  const { isGuest } = useExperienceMap();
+  const { isGuest, isLoading } = useExperienceMap();
   const guest = useGuestExperienceMode(isGuest);
 
   // 툴바의 "활동 삭제" 노출 조건. 원시값만 구독해 shell 리렌더를 최소화한다.
@@ -90,7 +92,19 @@ export function ExperienceWorkspaceShell() {
           </div>
 
           {view === 'map' ? (
-            <ExperienceMapView focusExperienceId={mapFocusExperienceId} />
+            <div className='relative flex min-h-0 flex-1 flex-col'>
+              {!isLoading && (
+                <ExperienceMapView
+                  focusExperienceId={mapFocusExperienceId}
+                  onReady={markMapReady}
+                />
+              )}
+              {!mapReady && (
+                <div className='absolute inset-0 z-10 flex flex-col bg-white'>
+                  <MapViewSkeleton />
+                </div>
+              )}
+            </div>
           ) : (
             <ExperienceListView />
           )}
