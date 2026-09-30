@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { ExperienceMapCanvas } from '@/features/experience/map/components/ExperienceMapCanvas';
 
 /**
@@ -11,9 +12,14 @@ import { ExperienceMapCanvas } from '@/features/experience/map/components/Experi
 type Props = {
   /** 진입 직후 화면 중앙에 두고 표준 수준으로 확대할 활동 id. (모바일 진입용) */
   focusExperienceId?: string;
+  onReady?: () => void;
 };
 
-export function ExperienceMapView({ focusExperienceId }: Props = {}) {
+export function ExperienceMapView({ focusExperienceId, onReady }: Props = {}) {
+  useEffect(() => {
+    onReady?.();
+  }, [onReady]);
+
   return (
     <div className='relative min-h-0 flex-1'>
       <ExperienceMapCanvas focusExperienceId={focusExperienceId} />

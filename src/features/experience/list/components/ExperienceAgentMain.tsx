@@ -73,6 +73,8 @@ export function ExperienceAgentMain({
       conversation.isWorking ||
       conversation.failure),
   );
+  const [sentOnce, setSentOnce] = useState(false);
+  const docked = sentOnce || hasConversation;
   const usedCount = Math.max(0, Math.min(10, Math.floor(dailyChatCount)));
   const showCount = usedCount >= 7;
   const limitReached = usedCount >= 10;
@@ -81,14 +83,34 @@ export function ExperienceAgentMain({
   const fileInput = useRef<HTMLInputElement>(null);
   const textarea = useRef<HTMLTextAreaElement>(null);
   const composer = useRef<HTMLDivElement>(null);
+  const composerBeforeDock = useRef<DOMRect | null>(null);
   const measure = useRef<HTMLDivElement>(null);
   const composerContent = useRef<HTMLDivElement>(null);
+  const [composerHeight, setComposerHeight] = useState(48);
+  useLayoutEffect(() => {
+    if (!docked || !composerBeforeDock.current || !composer.current) return;
+    const before = composerBeforeDock.current;
+    composerBeforeDock.current = null;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const after = composer.current.getBoundingClientRect();
+    composer.current.animate(
+      [
+        {
+          transform: `translate(${before.left - after.left}px, ${before.top - after.top}px)`,
+        },
+        { transform: 'translate(0, 0)' },
+      ],
+      { duration: 400, easing: 'cubic-bezier(0.4, 0, 0.2, 1)' },
+    );
+  }, [docked]);
   useLayoutEffect(() => {
     const container = composer.current;
     const content = composerContent.current;
     if (!container || !content) return;
     const updateHeight = () => {
-      container.style.height = `${content.getBoundingClientRect().height}px`;
+      const height = content.getBoundingClientRect().height;
+      container.style.height = `${height}px`;
+      setComposerHeight(height);
     };
     updateHeight();
     const observer = new ResizeObserver(updateHeight);
@@ -127,6 +149,11 @@ export function ExperienceAgentMain({
     setSubmitting(true);
     try {
       await onSend(input, attachment, () => {
+        if (!docked) {
+          composerBeforeDock.current =
+            composer.current?.getBoundingClientRect() ?? null;
+          setSentOnce(true);
+        }
         onInputChange('');
         onAttachmentChange(null);
       });
@@ -144,7 +171,8 @@ export function ExperienceAgentMain({
 
   return (
     <div
-      className='min-h-0 flex-1 overflow-y-auto px-[20px] pb-[32px]'
+      className={`${styles.mainScroll} min-h-0 flex-1 overflow-y-auto px-[20px]`}
+      style={{ paddingBottom: docked ? composerHeight + 44 : 32 }}
       data-agent-main
     >
       {hasConversation && conversation ? (
@@ -164,8 +192,9 @@ export function ExperienceAgentMain({
       )}
       <div
         ref={composer}
-        className={`${styles.composer} ${hasConversation ? 'mt-[28px]' : 'mt-[100px]'}`}
+        className={`${styles.composer} ${docked ? styles.dockedComposer : hasConversation ? 'mt-[28px]' : 'mt-[100px]'}`}
         data-agent-composer
+        data-agent-docked={docked}
       >
         <div
           ref={composerContent}
@@ -333,6 +362,14 @@ export function ExperienceAgentMain({
         </div>
       </div>
 
+      {docked && (
+        <div
+          aria-hidden
+          className={styles.dockedComposerBackdrop}
+          style={{ height: composerHeight + 44 }}
+        />
+      )}
+
       {!hasConversation && (
         <div className='mt-[20px] flex flex-col gap-[8px]'>
           {SCENARIOS.map((scenario) => (
@@ -356,7 +393,7 @@ export function ExperienceAgentMain({
                       textarea.current?.focus({ preventScroll: true });
                       if (scenario.file) fileInput.current?.click();
                     }}
-                    className='border-gray3 text-gray7 bg-gray2 hover:bg-white cursor-pointer rounded-[12px] border p-[10px] text-left text-[14px] leading-[150%] font-normal tracking-normal transition-colors focus-visible:outline-main focus-visible:outline-2'
+                    className='border-gray3 text-gray7 bg-gray2 focus-visible:outline-main cursor-pointer rounded-[12px] border p-[10px] text-left text-[14px] leading-[150%] font-normal tracking-normal transition-colors hover:bg-white focus-visible:outline-2'
                   >
                     {prompt}
                   </button>

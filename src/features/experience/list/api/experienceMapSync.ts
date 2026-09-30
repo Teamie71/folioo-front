@@ -175,9 +175,9 @@ export async function loadExperienceMap(): Promise<ListStateFromServer> {
  * 사용자 조작 한 번(=낙관적 반영 한 번)에 대응하는 서버 작업을 큐에 넣는다.
  * 작업이 끝나면 성공·실패와 무관하게 맵을 다시 읽어 화면을 서버 상태로 맞춘다.
  */
-function enqueue(run: () => Promise<void>) {
+function enqueue(run: () => Promise<void>): Promise<void> {
   // 비로그인 편집은 서버에 저장하지 않는다.
-  if (guestMode) return;
+  if (guestMode) return Promise.resolve();
   pending += 1;
   queue = queue
     .then(run)
@@ -210,6 +210,7 @@ function enqueue(run: () => Promise<void>) {
    * "만들고 곧바로 옮기기"처럼 한 조작이 여러 작업으로 나뉘는 경우가 있어,
    * 뒤따르는 작업이 아직 임시 id를 들고 있을 수 있다. (페이지 재진입 시 한 번에 비운다)
    */
+  return queue;
 }
 
 async function createBlock(params: {
@@ -345,7 +346,7 @@ export function syncCreateExperience(
 ) {
   // EXPERIENCE를 만들면 서버가 5종 SECTION을 함께 만든다.
   // 응답에는 포함되지 않으므로 enqueue의 맵 재조회로 받아온다.
-  enqueue(() =>
+  return enqueue(() =>
     createBlock({
       clientId,
       kind: BlockResDTOKind.EXPERIENCE,
@@ -391,7 +392,7 @@ export function syncUpdateContent(blockId: string, text: string) {
 }
 
 export function syncDeleteBlocks(blockIds: string[]) {
-  enqueue(async () => {
+  return enqueue(async () => {
     for (const blockId of blockIds) {
       await write((expectedMapVersion) =>
         experienceMapControllerDeleteBlock(serverId(blockId), {
@@ -474,7 +475,7 @@ export function syncMoveBlock(
   position: number,
   parentId?: string,
 ) {
-  enqueue(() => moveBlockTo(blockId, position, parentId));
+  return enqueue(() => moveBlockTo(blockId, position, parentId));
 }
 
 type HistoryTree = { groups: Group[]; experiences: Experience[] };

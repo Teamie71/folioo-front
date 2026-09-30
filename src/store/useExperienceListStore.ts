@@ -50,6 +50,8 @@ function createInitialListState() {
     modal: null as ModalState,
     // 서버에서 맵을 받아오기 전까지는 스켈레톤을 보여준다.
     isContentLoading: true,
+    pendingExperienceCreates: {} as Record<string, true>,
+    pendingExperienceDeletes: {} as Record<string, true>,
     blockSelectionMode: false,
     selectedBlockIds: {} as Record<string, true>,
     past: [] as Snapshot[],
@@ -207,6 +209,8 @@ interface ExperienceListState {
   collapsedGroups: Record<string, boolean>;
   modal: ModalState;
   isContentLoading: boolean;
+  pendingExperienceCreates: Record<string, true>;
+  pendingExperienceDeletes: Record<string, true>;
 
   /** 맵 뷰 '블록 선택 삭제' 모드 (3) */
   blockSelectionMode: boolean;
@@ -359,6 +363,11 @@ export const useExperienceListStore = create<ExperienceListState>()(
               const bi = prevOrder.get(b.id) ?? Number.MAX_SAFE_INTEGER;
               return ai - bi;
             });
+            const firstExperience = orderedGroups
+              .map((group) =>
+                snapshot.experiences.find((item) => item.groupId === group.id),
+              )
+              .find((item) => item !== undefined);
 
             const selectionAlive =
               selection?.kind === 'experience'
@@ -370,6 +379,12 @@ export const useExperienceListStore = create<ExperienceListState>()(
             return {
               groups: orderedGroups,
               experiences: snapshot.experiences,
+              pendingExperienceCreates: Object.fromEntries(
+                Object.keys(s.pendingExperienceCreates).map((id) => [
+                  resolveSyncedId(id),
+                  true as const,
+                ]),
+              ),
               mapVersion: snapshot.mapVersion,
               revertibleRequestId: snapshot.revertibleRequestId,
               isContentLoading: false,
@@ -396,10 +411,10 @@ export const useExperienceListStore = create<ExperienceListState>()(
                */
               selection: selectionAlive
                 ? selection
-                : snapshot.experiences[0]
+                : firstExperience
                   ? {
                       kind: 'experience' as const,
-                      id: snapshot.experiences[0].id,
+                      id: firstExperience.id,
                     }
                   : orderedGroups[0]
                     ? { kind: 'group' as const, id: orderedGroups[0].id }
@@ -546,6 +561,10 @@ export const useExperienceListStore = create<ExperienceListState>()(
               ...prev.collapsedGroups,
               [targetGroupId]: false,
             },
+            pendingExperienceCreates: {
+              ...prev.pendingExperienceCreates,
+              [newExperience.id]: true,
+            },
           }));
           commit({
             experiences,
@@ -554,7 +573,7 @@ export const useExperienceListStore = create<ExperienceListState>()(
           });
 
           // 활동을 만들면 서버가 5종 SECTION을 함께 만들어 준다. (맵 재조회로 받아온다)
-          syncCreateExperience(
+          const create = syncCreateExperience(
             newExperience.id,
             targetGroupId,
             newExperience.name,
@@ -567,18 +586,47 @@ export const useExperienceListStore = create<ExperienceListState>()(
           const isLast =
             position ===
             experiences.filter((e) => e.groupId === targetGroupId).length - 1;
-          if (!isLast) syncMoveBlock(newExperience.id, position);
+          const move = !isLast
+            ? syncMoveBlock(newExperience.id, position)
+            : Promise.resolve();
+          const clearPending = () =>
+            set((state) => {
+              const pendingExperienceCreates = {
+                ...state.pendingExperienceCreates,
+              };
+              delete pendingExperienceCreates[newExperience.id];
+              delete pendingExperienceCreates[
+                resolveSyncedId(newExperience.id)
+              ];
+              return { pendingExperienceCreates };
+            });
+          void Promise.all([create, move]).then(clearPending, clearPending);
         },
 
         deleteExperience: (id) => {
           const s = get();
+          if (!s.experiences.some((experience) => experience.id === id)) return;
           const experiences = s.experiences.filter((e) => e.id !== id);
           const selection: Selection =
             s.selection?.kind === 'experience' && s.selection.id === id
               ? null
               : s.selection;
+          set((state) => ({
+            pendingExperienceDeletes: {
+              ...state.pendingExperienceDeletes,
+              [id]: true,
+            },
+          }));
           commit({ experiences, selection });
-          syncDeleteBlocks([id]);
+          const clearPending = () =>
+            set((state) => {
+              const pendingExperienceDeletes = {
+                ...state.pendingExperienceDeletes,
+              };
+              delete pendingExperienceDeletes[id];
+              return { pendingExperienceDeletes };
+            });
+          void syncDeleteBlocks([id]).then(clearPending, clearPending);
         },
 
         moveExperienceToGroup: (experienceId, groupId) => {

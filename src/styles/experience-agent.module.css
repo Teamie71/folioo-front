@@ -1,3 +1,11 @@
+.mainScroll {
+  scrollbar-width: none;
+}
+
+.mainScroll::-webkit-scrollbar {
+  display: none;
+}
+
 .composer {
   position: relative;
   height: 48px;
@@ -6,6 +14,24 @@
   background: white;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   transition: height 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dockedComposer {
+  position: absolute;
+  right: 20px;
+  bottom: 28px;
+  left: 20px;
+  z-index: 10;
+  margin-top: 0;
+}
+
+.dockedComposerBackdrop {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 9;
+  background: #f7f7f8;
 }
 
 @media (prefers-reduced-motion: reduce) {
