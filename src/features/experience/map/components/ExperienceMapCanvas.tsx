@@ -628,6 +628,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       }
 
       setActiveId(node.id);
+      if (node.editable) setEditingId(node.id);
     },
     [
       blockSelectionMode,
@@ -639,22 +640,6 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       detail,
       focusOnStandard,
     ],
-  );
-
-  /**
-   * 리스트 뷰와 동일하게 더블클릭으로 제목/본문 편집을 시작한다.
-   * 표준 수준에서 편집 가능한 블록만 대상으로 하며,
-   * 선택 삭제 모드에서는 무시한다.
-   */
-  const onBlockDoubleClick = useCallback(
-    (node: MapLayoutNode) => {
-      if (blockSelectionMode) return;
-      if (detail !== 'standard') return;
-      if (!node.editable) return;
-      setActiveId(node.id);
-      setEditingId(node.id);
-    },
-    [blockSelectionMode, detail],
   );
 
   /** 휠·핀치·컨트롤러 모두 동일한 배율 경계에서 표시 단계를 변경한다. */
@@ -703,14 +688,6 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       if (payload.node) onBlockClick(payload.node);
     },
     [consumeSuppressedClick, onBlockClick],
-  );
-
-  const handleNodeDoubleClick = useCallback(
-    (_: React.MouseEvent, flowNode: Node) => {
-      const payload = flowNode.data as { node?: MapLayoutNode };
-      if (payload.node) onBlockDoubleClick(payload.node);
-    },
-    [onBlockDoubleClick],
   );
 
   const handleMove = useCallback<OnMove>(
@@ -767,7 +744,6 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
           zoomOnDoubleClick={false}
           proOptions={PRO_OPTIONS}
           onNodeClick={handleNodeClick}
-          onNodeDoubleClick={handleNodeDoubleClick}
           onMove={handleMove}
           onMoveEnd={handleMoveEnd}
           // 캔버스를 움직이기 시작하면 열려 있는 블록 추가 드롭다운을 닫는다. (화면에 고정된 채로 어긋나 보이는 상태 방지)
