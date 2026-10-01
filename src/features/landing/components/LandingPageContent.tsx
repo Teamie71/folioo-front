@@ -737,6 +737,8 @@ function FeatureMedia({
 
 function CorrectionWorkflow() {
   const [activeStep, setActiveStep] = useState(0);
+  const activeStepRef = useRef(0);
+  const pendingStepRef = useRef<number | null>(null);
   const mobileMediaScrollRef = useRef<HTMLDivElement>(null);
   const desktopMediaScrollRef = useRef<HTMLDivElement>(null);
   const step = correctionSteps[activeStep];
@@ -744,6 +746,8 @@ function CorrectionWorkflow() {
   const scrollToStep = (index: number) => {
     const nextStep = Math.min(Math.max(index, 0), correctionSteps.length - 1);
 
+    activeStepRef.current = nextStep;
+    pendingStepRef.current = nextStep;
     setActiveStep(nextStep);
 
     [mobileMediaScrollRef, desktopMediaScrollRef].forEach(({ current }) => {
@@ -757,19 +761,34 @@ function CorrectionWorkflow() {
   };
 
   const moveStep = (direction: -1 | 1) => {
-    scrollToStep(activeStep + direction);
+    scrollToStep(activeStepRef.current + direction);
+  };
+
+  const handleMediaInteraction = () => {
+    // 직접 스와이프하거나 스크롤하면 사용자가 이동 단계를 다시 결정한다.
+    pendingStepRef.current = null;
   };
 
   const handleMediaScroll = (event: UIEvent<HTMLDivElement>) => {
     const { clientWidth, scrollLeft } = event.currentTarget;
     if (clientWidth === 0) return;
 
+    // 부드러운 이동 중 지나가는 단계가 탭/화살표의 목표 단계를 덮어쓰지 않게 한다.
+    if (pendingStepRef.current !== null) {
+      const targetLeft = pendingStepRef.current * clientWidth;
+      if (Math.abs(scrollLeft - targetLeft) > 1) return;
+      pendingStepRef.current = null;
+    }
+
     const nextStep = Math.min(
       Math.max(Math.round(scrollLeft / clientWidth), 0),
       correctionSteps.length - 1,
     );
 
-    if (nextStep !== activeStep) setActiveStep(nextStep);
+    if (nextStep !== activeStepRef.current) {
+      activeStepRef.current = nextStep;
+      setActiveStep(nextStep);
+    }
   };
   const hasPreviousStep = activeStep > 0;
   const hasNextStep = activeStep < correctionSteps.length - 1;
@@ -857,6 +876,10 @@ function CorrectionWorkflow() {
           ref={mobileMediaScrollRef}
           className='absolute top-[13.625rem] left-4 flex h-[11.5rem] w-[calc(100%-2rem)] snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
           onScroll={handleMediaScroll}
+          onPointerDown={handleMediaInteraction}
+          onTouchStart={handleMediaInteraction}
+          onWheel={handleMediaInteraction}
+          onKeyDown={handleMediaInteraction}
         >
           {correctionSteps.map((item) => (
             <div
@@ -936,6 +959,10 @@ function CorrectionWorkflow() {
             ref={desktopMediaScrollRef}
             className='flex !h-[15rem] !w-full snap-x snap-mandatory overflow-x-auto !rounded-none [scrollbar-width:none] sm:!h-[37.125rem] [&::-webkit-scrollbar]:hidden'
             onScroll={handleMediaScroll}
+            onPointerDown={handleMediaInteraction}
+            onTouchStart={handleMediaInteraction}
+            onWheel={handleMediaInteraction}
+            onKeyDown={handleMediaInteraction}
           >
             {correctionSteps.map((item) => (
               <div
