@@ -16,6 +16,7 @@ import {
 import type { MessageItem } from '@/api/ai/models';
 import { loadExperienceMap } from '@/features/experience/list/api/experienceMapSync';
 import {
+  getAgentWorkingPhrase,
   streamExperienceAgentChat,
   streamExperienceAgentRetry,
 } from '@/features/experience/list/api/experienceAgentStream';
@@ -174,6 +175,7 @@ export function useExperienceAgent(
   const [ready, setReady] = useState(false);
   const [items, setItems] = useState<MessageItem[]>([]);
   const [workingRequestId, setWorkingRequestId] = useState<string | null>(null);
+  const [workingText, setWorkingText] = useState<string | undefined>();
   const [failedRequestId, setFailedRequestId] = useState<string | null>(null);
   const [failedNode, setFailedNode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -250,6 +252,7 @@ export function useExperienceAgent(
     let ticketIssued = false;
     let readAbort: AbortController | null = null;
     setReady(false);
+    setWorkingText(undefined);
     issueAgentReadTicket(blockId)
       .then(async (next) => {
         if (!active) return;
@@ -320,6 +323,7 @@ export function useExperienceAgent(
         releaseStatus(blockId);
       }
       setSession(next);
+      setWorkingText(undefined);
       setWorkingRequestId(next.requestId);
       setFailedRequestId(null);
       onAccepted();
@@ -340,7 +344,10 @@ export function useExperienceAgent(
           view,
           signal: controller.signal,
           body: { request: text, ...(file ? { files: [file] } : {}) },
-          onEvent: () => {},
+          onEvent: (event) => {
+            const phrase = getAgentWorkingPhrase(event.data);
+            if (phrase && !controller.signal.aborted) setWorkingText(phrase);
+          },
         });
         const result = await waitForRequest(next, controller.signal);
         await refresh(next);
@@ -358,7 +365,10 @@ export function useExperienceAgent(
             const state = await refresh(next);
             if (state.status === 'failed')
               finishStatus(blockId, next.requestId, 'error');
-            else if (message === AGENT_BUSY_MESSAGE && state.status !== 'running')
+            else if (
+              message === AGENT_BUSY_MESSAGE &&
+              state.status !== 'running'
+            )
               clearStatus(blockId);
           } catch {
             setPendingMessage(null);
@@ -370,6 +380,7 @@ export function useExperienceAgent(
         throw cause;
       } finally {
         setWorkingRequestId(null);
+        setWorkingText(undefined);
         abort.current = null;
         void refreshUsage();
       }
@@ -400,6 +411,7 @@ export function useExperienceAgent(
     );
     abort.current?.abort();
     setWorkingRequestId(null);
+    setWorkingText(undefined);
     if (blockId) clearStatus(blockId);
     void refreshUsage();
   }, [session, workingRequestId, refreshUsage, blockId, clearStatus]);
@@ -426,6 +438,7 @@ export function useExperienceAgent(
       }
       void refreshUsage();
       setSession(next);
+      setWorkingText(undefined);
       setWorkingRequestId(requestId);
       setFailedRequestId(null);
       const controller = new AbortController();
@@ -436,7 +449,10 @@ export function useExperienceAgent(
           ticket: next.ticket,
           signal: controller.signal,
           body: { request_id: requestId },
-          onEvent: () => {},
+          onEvent: (event) => {
+            const phrase = getAgentWorkingPhrase(event.data);
+            if (phrase && !controller.signal.aborted) setWorkingText(phrase);
+          },
         });
         const result = await waitForRequest(next, controller.signal);
         await refresh(next);
@@ -460,6 +476,7 @@ export function useExperienceAgent(
         throw cause;
       } finally {
         setWorkingRequestId(null);
+        setWorkingText(undefined);
         abort.current = null;
         void refreshUsage();
       }
@@ -510,6 +527,7 @@ export function useExperienceAgent(
   const conversation: AgentConversation = {
     messages,
     isWorking: Boolean(workingRequestId),
+    workingText,
     ...(failedNode
       ? {
           failure: {

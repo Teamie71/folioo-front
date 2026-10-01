@@ -128,7 +128,14 @@
   animation: agent-dot-pulse 800ms ease-in-out infinite alternate;
 }
 
+.workingTextTrack {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+
 .workingText {
+  display: block;
   background-image: linear-gradient(
     90deg,
     var(--color-gray6) 0%,

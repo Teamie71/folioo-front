@@ -1,5 +1,6 @@
 import type {
   BodyChatStreamApiV1ExperienceMapSessionsSessionIdChatStreamPost,
+  NodeStatusEvent,
   RetryStreamRequest,
 } from '@/api/ai/models';
 import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
@@ -12,6 +13,13 @@ type StreamEvent = {
   event: string;
   data: unknown;
 };
+
+export function getAgentWorkingPhrase(data: unknown): string | null {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return null;
+  const event = data as Partial<NodeStatusEvent>;
+  if (event.type !== 'node_status' || event.status !== 'running') return null;
+  return typeof event.phrase === 'string' ? event.phrase.trim() || null : null;
+}
 
 type StreamOptions = {
   sessionId: string;
