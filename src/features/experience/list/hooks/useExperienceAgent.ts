@@ -33,6 +33,7 @@ import {
 import { issueAgentReadTicket } from '@/features/experience/list/api/experienceAgentStatus';
 import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
 import { useQueryClient } from '@tanstack/react-query';
+import { AGENT_DAILY_LIMIT } from '@/features/experience/list/model/agentUsage';
 
 type SessionAuth = {
   ticket: string;
@@ -102,7 +103,7 @@ function describeError(cause: unknown) {
   if (status === 401 || status === 403)
     return '에이전트에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.';
   if (status === 429)
-    return '오늘 사용 가능한 10회를 모두 사용했어요. 내일 다시 이어서 도와드릴게요.';
+    return `오늘 사용 가능한 ${AGENT_DAILY_LIMIT}회를 모두 사용했어요. 내일 다시 이어서 도와드릴게요.`;
   if (status === 409) return AGENT_BUSY_MESSAGE;
   if (status === 404)
     return '이 활동의 에이전트를 찾을 수 없어요. 화면을 새로고침해 주세요.';
@@ -195,9 +196,9 @@ export function useExperienceAgent(
   const clearStatus = useAgentStatusStore((state) => state.clear);
   const reserveStatus = useAgentStatusStore((state) => state.reserve);
   const releaseStatus = useAgentStatusStore((state) => state.release);
-  const limitReached = usage
-    ? usage.used >= usage.limit
-    : agentLimitDayKst === todayKst();
+  const limitReached =
+    agentLimitDayKst === todayKst() ||
+    Boolean(usage && usage.used >= usage.limit);
   const abort = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -564,6 +565,7 @@ export function useExperienceAgent(
     isWorking: Boolean(workingRequestId),
     limitReached,
     dailyChatCount: usage?.used,
+    dailyChatLimit: usage?.limit ?? AGENT_DAILY_LIMIT,
     error,
   };
 }

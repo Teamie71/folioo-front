@@ -121,8 +121,11 @@ function ConnectedAgent({
     <ExperienceAgentMain
       conversation={conversationOverride ?? agent.conversation}
       dailyChatCount={
-        agent.limitReached ? 10 : (agent.dailyChatCount ?? dailyChatCount)
+        agent.limitReached
+          ? agent.dailyChatLimit
+          : (agent.dailyChatCount ?? dailyChatCount)
       }
+      dailyChatLimit={agent.dailyChatLimit}
       input={input}
       onInputChange={onInputChange}
       attachment={attachment}
