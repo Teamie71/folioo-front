@@ -7,14 +7,17 @@
  */
 
 /**
- * 메인 서버가 티켓 발급 과정에서 호출한다.
-
-세션은 활동(`block_id`) 단위다 — 같은 사용자라도 활동마다 별도 세션을
-가진다. 메인 서버 변경사항(2026-09-20)으로 `block_id`가 추가됐다.
+ * 세션 생성 요청
  */
 export interface CreateSessionRequest {
-  /** 십진 문자열 사용자 ID */
+  /**
+   * 사용자 ID
+   * @minLength 1
+   */
   user_id: string;
-  /** 십진 문자열 활동(level 2) block ID */
-  block_id: string;
+  /**
+   * 정리할 경험/프로젝트 이름
+   * @minLength 1
+   */
+  experience_name: string;
 }
