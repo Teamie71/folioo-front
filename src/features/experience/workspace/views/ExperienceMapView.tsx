@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { memo, useEffect } from 'react';
 import { ExperienceMapCanvas } from '@/features/experience/map/components/ExperienceMapCanvas';
 
 /**
@@ -15,7 +15,10 @@ type Props = {
   onReady?: () => void;
 };
 
-export function ExperienceMapView({ focusExperienceId, onReady }: Props = {}) {
+export const ExperienceMapView = memo(function ExperienceMapView({
+  focusExperienceId,
+  onReady,
+}: Props = {}) {
   useEffect(() => {
     onReady?.();
   }, [onReady]);
@@ -25,6 +28,6 @@ export function ExperienceMapView({ focusExperienceId, onReady }: Props = {}) {
       <ExperienceMapCanvas focusExperienceId={focusExperienceId} />
     </div>
   );
-}
+});
 
 export default ExperienceMapView;

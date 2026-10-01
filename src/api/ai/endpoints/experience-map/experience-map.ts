@@ -25,10 +25,11 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  AppSchemasExperienceMapCreateSessionResponse,
+  AppSchemasExperienceMapCreateSessionRequest,
   AppSchemasExperienceMapSessionStateResponse,
   BodyChatStreamApiV1ExperienceMapSessionsSessionIdChatStreamPost,
-  CreateSessionRequest,
+  CreateSessionResponse,
+  ExperienceMapStreamEvent,
   GetMessagesApiV1ExperienceMapSessionsSessionIdMessagesGetParams,
   HTTPValidationError,
   MessagesResponse,
@@ -47,15 +48,15 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  * @summary 세션 생성
  */
 export const createSessionApiV1ExperienceMapSessionsPost = (
-    createSessionRequest: CreateSessionRequest,
+    appSchemasExperienceMapCreateSessionRequest: AppSchemasExperienceMapCreateSessionRequest,
  options?: SecondParameter<typeof aiCustomInstance>,signal?: AbortSignal
 ) => {
       
       
-      return aiCustomInstance<AppSchemasExperienceMapCreateSessionResponse>(
+      return aiCustomInstance<CreateSessionResponse>(
       {url: `/api/v1/experience-map/sessions`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: createSessionRequest, signal
+      data: appSchemasExperienceMapCreateSessionRequest, signal
     },
       options);
     }
@@ -63,8 +64,8 @@ export const createSessionApiV1ExperienceMapSessionsPost = (
 
 
 export const getCreateSessionApiV1ExperienceMapSessionsPostMutationOptions = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSessionApiV1ExperienceMapSessionsPost>>, TError,{data: CreateSessionRequest}, TContext>, request?: SecondParameter<typeof aiCustomInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof createSessionApiV1ExperienceMapSessionsPost>>, TError,{data: CreateSessionRequest}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSessionApiV1ExperienceMapSessionsPost>>, TError,{data: AppSchemasExperienceMapCreateSessionRequest}, TContext>, request?: SecondParameter<typeof aiCustomInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof createSessionApiV1ExperienceMapSessionsPost>>, TError,{data: AppSchemasExperienceMapCreateSessionRequest}, TContext> => {
 
 const mutationKey = ['createSessionApiV1ExperienceMapSessionsPost'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -76,7 +77,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSessionApiV1ExperienceMapSessionsPost>>, {data: CreateSessionRequest}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSessionApiV1ExperienceMapSessionsPost>>, {data: AppSchemasExperienceMapCreateSessionRequest}> = (props) => {
           const {data} = props ?? {};
 
           return  createSessionApiV1ExperienceMapSessionsPost(data,requestOptions)
@@ -90,18 +91,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type CreateSessionApiV1ExperienceMapSessionsPostMutationResult = NonNullable<Awaited<ReturnType<typeof createSessionApiV1ExperienceMapSessionsPost>>>
-    export type CreateSessionApiV1ExperienceMapSessionsPostMutationBody = CreateSessionRequest
+    export type CreateSessionApiV1ExperienceMapSessionsPostMutationBody = AppSchemasExperienceMapCreateSessionRequest
     export type CreateSessionApiV1ExperienceMapSessionsPostMutationError = HTTPValidationError
 
     /**
  * @summary 세션 생성
  */
 export const useCreateSessionApiV1ExperienceMapSessionsPost = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSessionApiV1ExperienceMapSessionsPost>>, TError,{data: CreateSessionRequest}, TContext>, request?: SecondParameter<typeof aiCustomInstance>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSessionApiV1ExperienceMapSessionsPost>>, TError,{data: AppSchemasExperienceMapCreateSessionRequest}, TContext>, request?: SecondParameter<typeof aiCustomInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof createSessionApiV1ExperienceMapSessionsPost>>,
         TError,
-        {data: CreateSessionRequest},
+        {data: AppSchemasExperienceMapCreateSessionRequest},
         TContext
       > => {
       return useMutation(getCreateSessionApiV1ExperienceMapSessionsPostMutationOptions(options), queryClient);
@@ -473,7 +474,7 @@ if(bodyChatStreamApiV1ExperienceMapSessionsSessionIdChatStreamPost.files !== und
  bodyChatStreamApiV1ExperienceMapSessionsSessionIdChatStreamPost.files.forEach(value => formData.append(`files`, value));
  }
 
-      return aiCustomInstance<unknown>(
+      return aiCustomInstance<ExperienceMapStreamEvent>(
       {url: `/api/v1/experience-map/sessions/${sessionId}/chat/stream`, method: 'POST',
        data: formData, signal
     },
@@ -536,7 +537,7 @@ export const retryStreamApiV1ExperienceMapSessionsSessionIdRetryStreamPost = (
 ) => {
       
       
-      return aiCustomInstance<unknown>(
+      return aiCustomInstance<ExperienceMapStreamEvent>(
       {url: `/api/v1/experience-map/sessions/${sessionId}/retry/stream`, method: 'POST', signal
     },
       options);

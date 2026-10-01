@@ -6,6 +6,7 @@ import {
   ReactFlow,
   ReactFlowProvider,
   useReactFlow,
+  useStoreApi,
   type CoordinateExtent,
   type Edge,
   type Node,
@@ -73,6 +74,7 @@ const PAN_BOUNDARY_MARGIN = 3000;
 const PAN_SCROLL_SPEED = 0.5;
 const WHEEL_ZOOM_SENSITIVITY = 0.06;
 const MAX_WHEEL_ZOOM_DELTA = 0.04;
+const ACTIVITY_FOCUS_LEFT_OFFSET_RATIO = 0.2;
 
 function layoutShiftAtPoint(
   from: MapLayout,
@@ -201,7 +203,9 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
   const selectExperience = useExperienceListStore((s) => s.selectExperience);
 
   const { setCenter, getViewport, setViewport } = useReactFlow();
+  const flowStore = useStoreApi();
   const mapViewportRef = useRef<HTMLDivElement>(null);
+  const sidebarPanFrame = useRef<number | null>(null);
   const didFitRef = useRef(false);
   const [flowReady, setFlowReady] = useState(false);
   const [viewportReady, setViewportReady] = useState(false);
@@ -507,29 +511,80 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       // flow 좌표로 변환해 뷰포트 크기와 배율이 달라도 같은 비율로 정렬한다.
       const viewportWidth = mapViewportRef.current?.clientWidth ?? 0;
       const horizontalOffset = alignLeft
-        ? (viewportWidth * 0.2) / FOCUS_ZOOM
+        ? (viewportWidth * ACTIVITY_FOCUS_LEFT_OFFSET_RATIO) / FOCUS_ZOOM
         : 0;
 
       void setCenter(
         target.x + target.width / 2 + horizontalOffset,
         target.y + target.height / 2,
-        { zoom: FOCUS_ZOOM, duration: 300 },
+        { zoom: FOCUS_ZOOM, duration: 300, interpolate: 'linear' },
       );
     },
     [getLayout, setCenter],
   );
 
   useEffect(() => {
+    const onSidebarFocus = (event: Event) => {
+      const experienceId = (event as CustomEvent<string>).detail;
+      const zoom = getViewport().zoom;
+      const currentLayout = getLayout(detailForZoom(zoom));
+      const target = currentLayout.nodes.find(
+        (node) => node.id === experienceNodeId(experienceId),
+      );
+      if (!target) return;
+      const container = mapViewportRef.current;
+      if (!container) return;
+      if (sidebarPanFrame.current !== null)
+        cancelAnimationFrame(sidebarPanFrame.current);
+      const start = getViewport();
+      const destinationX =
+        container.clientWidth * 0.3 - (target.x + target.width / 2) * zoom;
+      const destinationY =
+        container.clientHeight / 2 - (target.y + target.height / 2) * zoom;
+      const reducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches;
+      const duration = reducedMotion ? 0 : 300;
+      const startedAt = performance.now();
+
+      // panBy는 현재 배율을 건드리지 않는다. 매 프레임 위치 차이만 적용한다.
+      const move = (now: number) => {
+        const progress =
+          duration === 0 ? 1 : Math.min(1, (now - startedAt) / duration);
+        const eased = 1 - (1 - progress) ** 3;
+        const current = getViewport();
+        void flowStore.getState().panBy({
+          x: start.x + (destinationX - start.x) * eased - current.x,
+          y: start.y + (destinationY - start.y) * eased - current.y,
+        });
+        sidebarPanFrame.current =
+          progress < 1 ? requestAnimationFrame(move) : null;
+      };
+      sidebarPanFrame.current = requestAnimationFrame(move);
+    };
+    window.addEventListener('experience-map:focus', onSidebarFocus);
+    return () => {
+      window.removeEventListener('experience-map:focus', onSidebarFocus);
+      if (sidebarPanFrame.current !== null)
+        cancelAnimationFrame(sidebarPanFrame.current);
+    };
+  }, [flowStore, getLayout, getViewport]);
+
+  useEffect(() => {
     const onAgentFocus = (event: Event) => {
       const experienceId = (event as CustomEvent<string>).detail;
-      setStandardBoundary(true);
-      setDetail('standard');
+      // 이미 표준 단계라면 레이아웃/노드 등장 효과를 다시 시작하지 않고
+      // 기존 캔버스의 뷰포트만 선택한 활동으로 이동한다.
+      if (detail !== 'standard') {
+        setStandardBoundary(true);
+        setDetail('standard');
+      }
       focusOnStandard(experienceNodeId(experienceId), true);
     };
     window.addEventListener('experience-agent:focus', onAgentFocus);
     return () =>
       window.removeEventListener('experience-agent:focus', onAgentFocus);
-  }, [focusOnStandard]);
+  }, [detail, focusOnStandard]);
 
   /**
    * 활동 미리보기 모달을 닫을 때, 화살표로 마지막까지 보고 있던 활동으로 확대한다.
@@ -547,7 +602,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
 
   // 맵 데이터와 React Flow 캔버스가 준비된 뒤 한 번만 초기 위치를 정한다.
   // 노드 측정 상태에 의존하면 초기 fitView가 누락되어 기본 원점에 남을 수 있다.
-  // focusExperienceId가 있으면(모바일 진입) 전체 맞춤 대신 해당 활동을 중앙에 두고 확대한다.
+  // focusExperienceId가 있으면 전체 맞춤 대신 해당 활동을 세로 중앙, 가로 왼쪽에 두고 확대한다.
   useEffect(() => {
     if (
       isContentLoading ||
@@ -572,7 +627,10 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
         setStandardBoundary(true);
         setDetail('standard');
         void setCenter(
-          target.x + target.width / 2,
+          target.x +
+            target.width / 2 +
+            (container.clientWidth * ACTIVITY_FOCUS_LEFT_OFFSET_RATIO) /
+              FOCUS_ZOOM,
           target.y + target.height / 2,
           { zoom: FOCUS_ZOOM },
         ).then(() => setViewportReady(true));
@@ -722,7 +780,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
           edgeTypes={edgeTypes}
           minZoom={MAP_MIN_ZOOM}
           maxZoom={MAP_MAX_ZOOM}
-          defaultViewport={INITIAL_VIEWPORT}
+          defaultViewport={savedViewport ?? INITIAL_VIEWPORT}
           onInit={() => setFlowReady(true)}
           translateExtent={panExtent}
           nodesDraggable={false}

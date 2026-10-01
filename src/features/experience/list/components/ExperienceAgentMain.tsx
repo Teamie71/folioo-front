@@ -13,6 +13,10 @@ import { PdfIcon } from '@/components/icons/PdfIcon';
 import { FileText, Square, X } from 'lucide-react';
 import { SendArrowIcon } from '@/components/icons/SendArrowIcon';
 import { useAuthStore } from '@/store/useAuthStore';
+import {
+  AGENT_DAILY_LIMIT,
+  AGENT_LIMIT_DISPLAY_REMAINING,
+} from '@/features/experience/list/model/agentUsage';
 
 const SCENARIOS = [
   {
@@ -36,6 +40,7 @@ const SCENARIOS = [
 type Props = {
   conversation?: AgentConversation;
   dailyChatCount?: number;
+  dailyChatLimit?: number;
   input: string;
   onInputChange: (value: string) => void;
   attachment: File | null;
@@ -47,6 +52,7 @@ type Props = {
   ) => Promise<void>;
   onStop?: () => Promise<void>;
   ready?: boolean;
+  historyLoading?: boolean;
   isWorking?: boolean;
   error?: string | null;
 };
@@ -54,6 +60,7 @@ type Props = {
 export function ExperienceAgentMain({
   conversation,
   dailyChatCount = 0,
+  dailyChatLimit = AGENT_DAILY_LIMIT,
   input,
   onInputChange,
   attachment,
@@ -61,6 +68,7 @@ export function ExperienceAgentMain({
   onSend,
   onStop,
   ready = true,
+  historyLoading = false,
   isWorking = false,
   error,
 }: Props) {
@@ -75,11 +83,11 @@ export function ExperienceAgentMain({
   );
   const [sentOnce, setSentOnce] = useState(false);
   const docked = sentOnce || hasConversation;
-  const usedCount = Math.max(0, Math.min(10, Math.floor(dailyChatCount)));
-  const showCount = usedCount >= 7;
-  const limitReached = usedCount >= 10;
-  const limitMessage =
-    '오늘 사용 가능한 10회를 모두 사용했어요. 내일 다시 이어서 도와드릴게요.';
+  const limit = Math.max(1, Math.floor(dailyChatLimit));
+  const usedCount = Math.max(0, Math.min(limit, Math.floor(dailyChatCount)));
+  const showCount = usedCount >= limit - AGENT_LIMIT_DISPLAY_REMAINING;
+  const limitReached = usedCount >= limit;
+  const limitMessage = `오늘 사용 가능한 ${limit}회를 모두 사용했어요. 내일 다시 이어서 도와드릴게요.`;
   const fileInput = useRef<HTMLInputElement>(null);
   const textarea = useRef<HTMLTextAreaElement>(null);
   const composer = useRef<HTMLDivElement>(null);
@@ -116,7 +124,7 @@ export function ExperienceAgentMain({
     const observer = new ResizeObserver(updateHeight);
     observer.observe(content);
     return () => observer.disconnect();
-  }, []);
+  }, [historyLoading]);
   const [multiline, setMultiline] = useState(false);
   const expanded = Boolean(attachment) || multiline;
   useLayoutEffect(() => {
@@ -128,7 +136,7 @@ export function ExperienceAgentMain({
     if (measure.current) observer.observe(measure.current);
     update();
     return () => observer.disconnect();
-  }, [input]);
+  }, [historyLoading, input]);
   const [notice, setNotice] = useState<{ message: string; id: number } | null>(
     null,
   );
@@ -169,9 +177,19 @@ export function ExperienceAgentMain({
     }
   };
 
+  if (historyLoading) {
+    return (
+      <div
+        className='min-h-0 flex-1'
+        aria-busy='true'
+        aria-label='대화 내역 불러오는 중'
+      />
+    );
+  }
+
   return (
     <div
-      className={`${styles.mainScroll} min-h-0 flex-1 overflow-y-auto px-[20px]`}
+      className={`${styles.mainScroll} ${styles.contentFadeIn} min-h-0 flex-1 overflow-y-auto px-[20px]`}
       style={{ paddingBottom: docked ? composerHeight + 44 : 32 }}
       data-agent-main
     >
@@ -312,10 +330,10 @@ export function ExperienceAgentMain({
         <div className='absolute right-0 bottom-[8px] z-10 flex items-center'>
           {showCount && (
             <span
-              aria-label={`오늘 채팅 ${usedCount}회 사용, 최대 10회`}
+              aria-label={`오늘 채팅 ${usedCount}회 사용, 최대 ${limit}회`}
               className={`${styles.dailyCount} ${limitReached ? styles.dailyCountLimit : ''}`}
             >
-              {usedCount}/10
+              {usedCount}/{limit}
             </span>
           )}
           <button

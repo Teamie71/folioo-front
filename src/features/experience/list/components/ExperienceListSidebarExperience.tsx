@@ -74,7 +74,7 @@ export function ExperienceListSidebarExperience({
   const focusExperience = () => {
     selectExperience(item.id);
     window.dispatchEvent(
-      new CustomEvent('experience-agent:focus', { detail: item.id }),
+      new CustomEvent('experience-map:focus', { detail: item.id }),
     );
   };
 

@@ -5,9 +5,9 @@
  * 포트폴리오 정리를 도와주는 AI 인터뷰 에이전트 API
  * OpenAPI spec version: 0.1.0
  */
-import type { CreateSessionResponseStatus } from './createSessionResponseStatus';
+import { ProcessingStartedEventType } from './processingStartedEventType';
 
-export interface CreateSessionResponse {
-  session_id: string;
-  status: CreateSessionResponseStatus;
+export interface ProcessingStartedEvent {
+  type: ProcessingStartedEventType;
+  request_id: string;
 }

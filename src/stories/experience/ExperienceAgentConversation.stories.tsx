@@ -139,7 +139,7 @@ export const RevertFailed: Story = {
 
 export const Failed: Story = {
   args: {
-    dailyChatCount: 7,
+    dailyChatCount: 37,
     conversations: {
       preview: {
         messages: [
@@ -161,5 +161,5 @@ export const Failed: Story = {
     },
   },
 };
-export const LimitReached: Story = { args: { dailyChatCount: 10 } };
-export const BeforeLimitDisplay: Story = { args: { dailyChatCount: 6 } };
+export const LimitReached: Story = { args: { dailyChatCount: 40 } };
+export const BeforeLimitDisplay: Story = { args: { dailyChatCount: 36 } };

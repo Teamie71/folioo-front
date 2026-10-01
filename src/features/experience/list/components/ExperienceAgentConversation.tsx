@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { PdfIcon } from '@/components/icons/PdfIcon';
 import { FileText } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import styles from '@/styles/experience-agent.module.css';
 import { AGENT_BUSY_MESSAGE } from '@/features/experience/list/model/agentStatusStore';
@@ -152,6 +153,29 @@ function AgentFailure({
   );
 }
 
+function WorkingPhrase({ text }: { text: string }) {
+  const reducedMotion = useReducedMotion();
+
+  return (
+    <span className={styles.workingTextTrack}>
+      <span className='sr-only'>{text}</span>
+      <AnimatePresence initial={false} mode='popLayout'>
+        <motion.span
+          key={text}
+          aria-hidden='true'
+          className={styles.workingText}
+          initial={reducedMotion ? false : { opacity: 0, x: -12 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={reducedMotion ? { opacity: 0 } : { opacity: 0, x: 12 }}
+          transition={{ duration: reducedMotion ? 0 : 0.24, ease: 'easeInOut' }}
+        >
+          {text}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+}
+
 export function ExperienceAgentConversation({
   messages,
   isWorking = false,
@@ -218,7 +242,7 @@ export function ExperienceAgentConversation({
           <span aria-hidden className={styles.workingDotSlot}>
             <span className={styles.workingDot} />
           </span>
-          <span className={styles.workingText}>{workingText}</span>
+          <WorkingPhrase text={workingText} />
         </div>
       )}
     </div>

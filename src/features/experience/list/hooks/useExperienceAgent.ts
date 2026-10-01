@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   getExperienceMapAiControllerGetUsageQueryKey,
   experienceMapAiControllerIssueTicket,
@@ -16,6 +16,7 @@ import {
 import type { MessageItem } from '@/api/ai/models';
 import { loadExperienceMap } from '@/features/experience/list/api/experienceMapSync';
 import {
+  getAgentWorkingPhrase,
   streamExperienceAgentChat,
   streamExperienceAgentRetry,
 } from '@/features/experience/list/api/experienceAgentStream';
@@ -32,6 +33,7 @@ import {
 import { issueAgentReadTicket } from '@/features/experience/list/api/experienceAgentStatus';
 import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
 import { useQueryClient } from '@tanstack/react-query';
+import { AGENT_DAILY_LIMIT } from '@/features/experience/list/model/agentUsage';
 
 type SessionAuth = {
   ticket: string;
@@ -101,7 +103,7 @@ function describeError(cause: unknown) {
   if (status === 401 || status === 403)
     return '에이전트에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.';
   if (status === 429)
-    return '오늘 사용 가능한 10회를 모두 사용했어요. 내일 다시 이어서 도와드릴게요.';
+    return `오늘 사용 가능한 ${AGENT_DAILY_LIMIT}회를 모두 사용했어요. 내일 다시 이어서 도와드릴게요.`;
   if (status === 409) return AGENT_BUSY_MESSAGE;
   if (status === 404)
     return '이 활동의 에이전트를 찾을 수 없어요. 화면을 새로고침해 주세요.';
@@ -150,6 +152,11 @@ export function useExperienceAgent(
 ) {
   const accessToken = useAuthStore((state) => state.accessToken);
   const queryClient = useQueryClient();
+  const historyKey = useMemo(
+    () => ['experience-agent-messages', accessToken, blockId],
+    [accessToken, blockId],
+  );
+  const cachedHistory = queryClient.getQueryData<MessageItem[]>(historyKey);
   const usageQuery = useExperienceMapAiControllerGetUsage({
     query: { enabled: Boolean(accessToken), refetchOnWindowFocus: true },
   });
@@ -172,8 +179,12 @@ export function useExperienceAgent(
   );
   const [session, setSession] = useState<SessionAuth | null>(null);
   const [ready, setReady] = useState(false);
-  const [items, setItems] = useState<MessageItem[]>([]);
+  const [items, setItems] = useState<MessageItem[]>(cachedHistory ?? []);
+  const [historyLoaded, setHistoryLoaded] = useState(
+    cachedHistory !== undefined,
+  );
   const [workingRequestId, setWorkingRequestId] = useState<string | null>(null);
+  const [workingText, setWorkingText] = useState<string | undefined>();
   const [failedRequestId, setFailedRequestId] = useState<string | null>(null);
   const [failedNode, setFailedNode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -185,9 +196,9 @@ export function useExperienceAgent(
   const clearStatus = useAgentStatusStore((state) => state.clear);
   const reserveStatus = useAgentStatusStore((state) => state.reserve);
   const releaseStatus = useAgentStatusStore((state) => state.release);
-  const limitReached = usage
-    ? usage.used >= usage.limit
-    : agentLimitDayKst === todayKst();
+  const limitReached =
+    agentLimitDayKst === todayKst() ||
+    Boolean(usage && usage.used >= usage.limit);
   const abort = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -225,6 +236,8 @@ export function useExperienceAgent(
         ),
       ]);
       setItems(history);
+      queryClient.setQueryData(historyKey, history);
+      setHistoryLoaded(true);
       setPendingMessage(null);
       setWorkingRequestId(
         state.status === 'running' ? (state.active_request_id ?? null) : null,
@@ -241,7 +254,7 @@ export function useExperienceAgent(
       );
       return state;
     },
-    [blockId, startStatus],
+    [blockId, historyKey, queryClient, startStatus],
   );
 
   useEffect(() => {
@@ -249,7 +262,12 @@ export function useExperienceAgent(
     let active = true;
     let ticketIssued = false;
     let readAbort: AbortController | null = null;
+    const cached = queryClient.getQueryData<MessageItem[]>(historyKey);
+    setItems(cached ?? []);
+    setHistoryLoaded(cached !== undefined);
     setReady(false);
+    setError(null);
+    setWorkingText(undefined);
     issueAgentReadTicket(blockId)
       .then(async (next) => {
         if (!active) return;
@@ -286,6 +304,7 @@ export function useExperienceAgent(
           !(cause instanceof DOMException && cause.name === 'AbortError')
         ) {
           if (ticketIssued) setReady(true);
+          setHistoryLoaded(true);
           setError(describeError(cause));
         }
       });
@@ -294,7 +313,7 @@ export function useExperienceAgent(
       readAbort?.abort();
       if (abort.current === readAbort) abort.current = null;
     };
-  }, [blockId, accessToken, refresh, finishStatus]);
+  }, [blockId, accessToken, refresh, finishStatus, historyKey, queryClient]);
 
   const send = useCallback(
     async (text: string, file: File | null, onAccepted: () => void) => {
@@ -320,6 +339,7 @@ export function useExperienceAgent(
         releaseStatus(blockId);
       }
       setSession(next);
+      setWorkingText(undefined);
       setWorkingRequestId(next.requestId);
       setFailedRequestId(null);
       onAccepted();
@@ -340,7 +360,10 @@ export function useExperienceAgent(
           view,
           signal: controller.signal,
           body: { request: text, ...(file ? { files: [file] } : {}) },
-          onEvent: () => {},
+          onEvent: (event) => {
+            const phrase = getAgentWorkingPhrase(event.data);
+            if (phrase && !controller.signal.aborted) setWorkingText(phrase);
+          },
         });
         const result = await waitForRequest(next, controller.signal);
         await refresh(next);
@@ -358,7 +381,10 @@ export function useExperienceAgent(
             const state = await refresh(next);
             if (state.status === 'failed')
               finishStatus(blockId, next.requestId, 'error');
-            else if (message === AGENT_BUSY_MESSAGE && state.status !== 'running')
+            else if (
+              message === AGENT_BUSY_MESSAGE &&
+              state.status !== 'running'
+            )
               clearStatus(blockId);
           } catch {
             setPendingMessage(null);
@@ -370,6 +396,7 @@ export function useExperienceAgent(
         throw cause;
       } finally {
         setWorkingRequestId(null);
+        setWorkingText(undefined);
         abort.current = null;
         void refreshUsage();
       }
@@ -400,6 +427,7 @@ export function useExperienceAgent(
     );
     abort.current?.abort();
     setWorkingRequestId(null);
+    setWorkingText(undefined);
     if (blockId) clearStatus(blockId);
     void refreshUsage();
   }, [session, workingRequestId, refreshUsage, blockId, clearStatus]);
@@ -426,6 +454,7 @@ export function useExperienceAgent(
       }
       void refreshUsage();
       setSession(next);
+      setWorkingText(undefined);
       setWorkingRequestId(requestId);
       setFailedRequestId(null);
       const controller = new AbortController();
@@ -436,7 +465,10 @@ export function useExperienceAgent(
           ticket: next.ticket,
           signal: controller.signal,
           body: { request_id: requestId },
-          onEvent: () => {},
+          onEvent: (event) => {
+            const phrase = getAgentWorkingPhrase(event.data);
+            if (phrase && !controller.signal.aborted) setWorkingText(phrase);
+          },
         });
         const result = await waitForRequest(next, controller.signal);
         await refresh(next);
@@ -460,6 +492,7 @@ export function useExperienceAgent(
         throw cause;
       } finally {
         setWorkingRequestId(null);
+        setWorkingText(undefined);
         abort.current = null;
         void refreshUsage();
       }
@@ -510,6 +543,7 @@ export function useExperienceAgent(
   const conversation: AgentConversation = {
     messages,
     isWorking: Boolean(workingRequestId),
+    workingText,
     ...(failedNode
       ? {
           failure: {
@@ -527,9 +561,11 @@ export function useExperienceAgent(
     send,
     stop,
     ready,
+    historyLoaded,
     isWorking: Boolean(workingRequestId),
     limitReached,
     dailyChatCount: usage?.used,
+    dailyChatLimit: usage?.limit ?? AGENT_DAILY_LIMIT,
     error,
   };
 }

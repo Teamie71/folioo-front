@@ -1,0 +1,2 @@
+export const AGENT_DAILY_LIMIT = 40;
+export const AGENT_LIMIT_DISPLAY_REMAINING = 3;
