@@ -47,6 +47,7 @@ type Props = {
   ) => Promise<void>;
   onStop?: () => Promise<void>;
   ready?: boolean;
+  historyLoading?: boolean;
   isWorking?: boolean;
   error?: string | null;
 };
@@ -61,6 +62,7 @@ export function ExperienceAgentMain({
   onSend,
   onStop,
   ready = true,
+  historyLoading = false,
   isWorking = false,
   error,
 }: Props) {
@@ -116,7 +118,7 @@ export function ExperienceAgentMain({
     const observer = new ResizeObserver(updateHeight);
     observer.observe(content);
     return () => observer.disconnect();
-  }, []);
+  }, [historyLoading]);
   const [multiline, setMultiline] = useState(false);
   const expanded = Boolean(attachment) || multiline;
   useLayoutEffect(() => {
@@ -128,7 +130,7 @@ export function ExperienceAgentMain({
     if (measure.current) observer.observe(measure.current);
     update();
     return () => observer.disconnect();
-  }, [input]);
+  }, [historyLoading, input]);
   const [notice, setNotice] = useState<{ message: string; id: number } | null>(
     null,
   );
@@ -169,9 +171,19 @@ export function ExperienceAgentMain({
     }
   };
 
+  if (historyLoading) {
+    return (
+      <div
+        className='min-h-0 flex-1'
+        aria-busy='true'
+        aria-label='대화 내역 불러오는 중'
+      />
+    );
+  }
+
   return (
     <div
-      className={`${styles.mainScroll} min-h-0 flex-1 overflow-y-auto px-[20px]`}
+      className={`${styles.mainScroll} ${styles.contentFadeIn} min-h-0 flex-1 overflow-y-auto px-[20px]`}
       style={{ paddingBottom: docked ? composerHeight + 44 : 32 }}
       data-agent-main
     >

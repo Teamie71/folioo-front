@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   getExperienceMapAiControllerGetUsageQueryKey,
   experienceMapAiControllerIssueTicket,
@@ -151,6 +151,11 @@ export function useExperienceAgent(
 ) {
   const accessToken = useAuthStore((state) => state.accessToken);
   const queryClient = useQueryClient();
+  const historyKey = useMemo(
+    () => ['experience-agent-messages', accessToken, blockId],
+    [accessToken, blockId],
+  );
+  const cachedHistory = queryClient.getQueryData<MessageItem[]>(historyKey);
   const usageQuery = useExperienceMapAiControllerGetUsage({
     query: { enabled: Boolean(accessToken), refetchOnWindowFocus: true },
   });
@@ -173,7 +178,10 @@ export function useExperienceAgent(
   );
   const [session, setSession] = useState<SessionAuth | null>(null);
   const [ready, setReady] = useState(false);
-  const [items, setItems] = useState<MessageItem[]>([]);
+  const [items, setItems] = useState<MessageItem[]>(cachedHistory ?? []);
+  const [historyLoaded, setHistoryLoaded] = useState(
+    cachedHistory !== undefined,
+  );
   const [workingRequestId, setWorkingRequestId] = useState<string | null>(null);
   const [workingText, setWorkingText] = useState<string | undefined>();
   const [failedRequestId, setFailedRequestId] = useState<string | null>(null);
@@ -227,6 +235,8 @@ export function useExperienceAgent(
         ),
       ]);
       setItems(history);
+      queryClient.setQueryData(historyKey, history);
+      setHistoryLoaded(true);
       setPendingMessage(null);
       setWorkingRequestId(
         state.status === 'running' ? (state.active_request_id ?? null) : null,
@@ -243,7 +253,7 @@ export function useExperienceAgent(
       );
       return state;
     },
-    [blockId, startStatus],
+    [blockId, historyKey, queryClient, startStatus],
   );
 
   useEffect(() => {
@@ -251,7 +261,11 @@ export function useExperienceAgent(
     let active = true;
     let ticketIssued = false;
     let readAbort: AbortController | null = null;
+    const cached = queryClient.getQueryData<MessageItem[]>(historyKey);
+    setItems(cached ?? []);
+    setHistoryLoaded(cached !== undefined);
     setReady(false);
+    setError(null);
     setWorkingText(undefined);
     issueAgentReadTicket(blockId)
       .then(async (next) => {
@@ -289,6 +303,7 @@ export function useExperienceAgent(
           !(cause instanceof DOMException && cause.name === 'AbortError')
         ) {
           if (ticketIssued) setReady(true);
+          setHistoryLoaded(true);
           setError(describeError(cause));
         }
       });
@@ -297,7 +312,7 @@ export function useExperienceAgent(
       readAbort?.abort();
       if (abort.current === readAbort) abort.current = null;
     };
-  }, [blockId, accessToken, refresh, finishStatus]);
+  }, [blockId, accessToken, refresh, finishStatus, historyKey, queryClient]);
 
   const send = useCallback(
     async (text: string, file: File | null, onAccepted: () => void) => {
@@ -545,6 +560,7 @@ export function useExperienceAgent(
     send,
     stop,
     ready,
+    historyLoaded,
     isWorking: Boolean(workingRequestId),
     limitReached,
     dailyChatCount: usage?.used,
