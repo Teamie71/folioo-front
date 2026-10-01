@@ -9,6 +9,7 @@ import { CommonButton } from '@/components/CommonButton';
 import Footer from '@/components/Footer';
 import { ChevronColorLeftIcon } from '@/components/icons/ChevronColorLeftIcon';
 import { useAuthStore } from '@/store/useAuthStore';
+import { CANONICAL_WORKSPACE_HREF } from '@/features/experience/workspace/model/workspaceView';
 import { LandingVideo } from './LandingVideo';
 import { PortfoliloPoints } from './PortfolioPoints';
 import { StartCorrectionButton } from './StartCorrectionButton';
@@ -1108,7 +1109,7 @@ export function LandingPageContent() {
                 '흩어진 경험의 기록을 모아\n취업 준비의 핵심 자산으로'
               }
               buttonText='경험 정리하기'
-              onClick={() => router.push('/experience/workspace')}
+              onClick={() => router.push(CANONICAL_WORKSPACE_HREF)}
               onCardClick={() =>
                 scrollToIntroduction('experience-organization-introduction')
               }
@@ -1204,7 +1205,7 @@ export function LandingPageContent() {
             px='2.25rem'
             py='0.75rem'
             className='mt-10 sm:mt-8'
-            onClick={() => router.push('/experience/workspace')}
+            onClick={() => router.push(CANONICAL_WORKSPACE_HREF)}
           >
             경험 정리하기 →
           </CommonButton>

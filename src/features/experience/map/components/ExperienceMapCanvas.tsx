@@ -74,6 +74,7 @@ const PAN_BOUNDARY_MARGIN = 3000;
 const PAN_SCROLL_SPEED = 0.5;
 const WHEEL_ZOOM_SENSITIVITY = 0.06;
 const MAX_WHEEL_ZOOM_DELTA = 0.04;
+const ACTIVITY_FOCUS_LEFT_OFFSET_RATIO = 0.2;
 
 function layoutShiftAtPoint(
   from: MapLayout,
@@ -510,7 +511,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       // flow 좌표로 변환해 뷰포트 크기와 배율이 달라도 같은 비율로 정렬한다.
       const viewportWidth = mapViewportRef.current?.clientWidth ?? 0;
       const horizontalOffset = alignLeft
-        ? (viewportWidth * 0.2) / FOCUS_ZOOM
+        ? (viewportWidth * ACTIVITY_FOCUS_LEFT_OFFSET_RATIO) / FOCUS_ZOOM
         : 0;
 
       void setCenter(
@@ -601,7 +602,7 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
 
   // 맵 데이터와 React Flow 캔버스가 준비된 뒤 한 번만 초기 위치를 정한다.
   // 노드 측정 상태에 의존하면 초기 fitView가 누락되어 기본 원점에 남을 수 있다.
-  // focusExperienceId가 있으면(모바일 진입) 전체 맞춤 대신 해당 활동을 중앙에 두고 확대한다.
+  // focusExperienceId가 있으면 전체 맞춤 대신 해당 활동을 세로 중앙, 가로 왼쪽에 두고 확대한다.
   useEffect(() => {
     if (
       isContentLoading ||
@@ -626,7 +627,10 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
         setStandardBoundary(true);
         setDetail('standard');
         void setCenter(
-          target.x + target.width / 2,
+          target.x +
+            target.width / 2 +
+            (container.clientWidth * ACTIVITY_FOCUS_LEFT_OFFSET_RATIO) /
+              FOCUS_ZOOM,
           target.y + target.height / 2,
           { zoom: FOCUS_ZOOM },
         ).then(() => setViewportReady(true));
