@@ -16,6 +16,7 @@ import {
 } from '@/features/experience/list/api/experienceMapMapper';
 import {
   configureExperienceMapSync,
+  isExperienceMapGuestMode,
   resolveSyncedId,
   syncCreateBlocks,
   syncCreateExperience,
@@ -32,6 +33,10 @@ import {
   type DropPosition,
 } from '@/features/experience/list/utils/blockTreeUtils';
 import { parseMapNodeId } from '@/features/experience/map/model/mapNodeId';
+import {
+  readExperienceSelection,
+  type ExperienceSelection,
+} from '@/features/experience/list/model/experienceSelectionStorage';
 
 function createInitialListState() {
   return {
@@ -165,10 +170,7 @@ function appendChildrenInTree(
   );
 }
 
-type Selection =
-  | { kind: 'experience'; id: string }
-  | { kind: 'group'; id: string }
-  | null;
+type Selection = ExperienceSelection;
 
 type ModalState =
   | { type: 'group-delete'; groupId: string }
@@ -345,8 +347,21 @@ export const useExperienceListStore = create<ExperienceListState>()(
              * 방금 만든 항목은 아직 임시 id를 들고 있을 수 있다.
              * 서버 id로 바꿔서 선택 상태를 잃지 않게 한다.
              */
-            const selection: Selection = s.selection
-              ? { ...s.selection, id: resolveSyncedId(s.selection.id) }
+            const savedSelection =
+              s.isContentLoading && s.groups.length === 0
+                ? readExperienceSelection(
+                    isExperienceMapGuestMode()
+                      ? 'guest'
+                      : unclassifiedGroupId(snapshot.groups),
+                  )
+                : undefined;
+            const previousSelection =
+              savedSelection !== undefined ? savedSelection : s.selection;
+            const selection: Selection = previousSelection
+              ? {
+                  ...previousSelection,
+                  id: resolveSyncedId(previousSelection.id),
+                }
               : null;
             /*
              * 그룹 순서는 화면에서 편집한 로컬 순서를 유지한다.
@@ -411,14 +426,16 @@ export const useExperienceListStore = create<ExperienceListState>()(
                */
               selection: selectionAlive
                 ? selection
-                : firstExperience
-                  ? {
-                      kind: 'experience' as const,
-                      id: firstExperience.id,
-                    }
-                  : orderedGroups[0]
-                    ? { kind: 'group' as const, id: orderedGroups[0].id }
-                    : null,
+                : savedSelection === null
+                  ? null
+                  : firstExperience
+                    ? {
+                        kind: 'experience' as const,
+                        id: firstExperience.id,
+                      }
+                    : orderedGroups[0]
+                      ? { kind: 'group' as const, id: orderedGroups[0].id }
+                      : null,
             };
           }),
 

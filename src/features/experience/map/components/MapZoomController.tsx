@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useViewport } from '@xyflow/react';
+import { useStore } from '@xyflow/react';
 import { MapZoomInIcon } from '@/components/icons/MapZoomInIcon';
 import { MapZoomOutIcon } from '@/components/icons/MapZoomOutIcon';
 import {
@@ -40,7 +40,8 @@ export function MapZoomController({
 }: {
   onZoomChange: (zoom: number, duration: number) => void;
 }) {
-  const { zoom } = useViewport();
+  // 위치만 이동할 때는 컨트롤러와 퍼센트 입력을 다시 렌더링하지 않는다.
+  const zoom = useStore((state) => state.transform[2]);
   // 경계 직전 값(49.9%, 99.9%)이 다음 단계의 숫자로 보이지 않게 한다.
   const zoomPercent = percentForZoom(zoom);
   const percent = clampPercent(Math.floor(zoomPercent + 1e-9));

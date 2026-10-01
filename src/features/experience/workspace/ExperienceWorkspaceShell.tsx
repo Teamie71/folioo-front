@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { ExperienceListSidebar } from '@/features/experience/list/components/ExperienceListSidebar';
 import { ExperienceListAgentPanel } from '@/features/experience/list/components/ExperienceListAgentPanel';
@@ -16,6 +16,8 @@ import { GuestLeaveGuardModal } from '@/features/experience/list/components/Gues
 import { useWorkspaceView } from '@/features/experience/workspace/hooks/useWorkspaceView';
 import { usePreloadMapView } from '@/features/experience/workspace/hooks/usePreloadMapView';
 import { preloadExperienceMapView } from '@/features/experience/workspace/model/mapViewLoader';
+import { saveExperienceSelection } from '@/features/experience/list/model/experienceSelectionStorage';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const ExperienceMapView = dynamic(
   () =>
@@ -43,6 +45,31 @@ export function ExperienceWorkspaceShell() {
   // GET /experience-map 으로 그룹·활동·블록 트리를 채운다. (비로그인은 기본 제공 데이터)
   const { isGuest, isLoading } = useExperienceMap();
   const guest = useGuestExperienceMode(isGuest);
+
+  useEffect(() => {
+    let lastSelection = useExperienceListStore.getState().selection;
+    let lastOwnerKey: string | undefined;
+    let persisted = false;
+    const persistSelection = () => {
+      const state = useExperienceListStore.getState();
+      if (state.isContentLoading || state.groups.length === 0) return;
+      const ownerKey = useAuthStore.getState().accessToken
+        ? state.groups.find((group) => group.isUnclassified)?.id
+        : 'guest';
+      if (
+        persisted &&
+        lastSelection === state.selection &&
+        lastOwnerKey === ownerKey
+      )
+        return;
+      saveExperienceSelection(ownerKey, state.selection);
+      lastSelection = state.selection;
+      lastOwnerKey = ownerKey;
+      persisted = true;
+    };
+    persistSelection();
+    return useExperienceListStore.subscribe(persistSelection);
+  }, []);
 
   // 툴바의 "활동 삭제" 노출 조건. 원시값만 구독해 shell 리렌더를 최소화한다.
   const experienceId = useExperienceListStore((s) => {
