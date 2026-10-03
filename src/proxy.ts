@@ -93,6 +93,8 @@ export function proxy(request: NextRequest) {
     '/marketing',
     '/login',
     '/login/callback',
+    '/kakao-channel/link',
+    '/kakao-channel/link/result',
     '/verify',
     '/withdraw',
     '/error',

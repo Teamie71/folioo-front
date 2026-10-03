@@ -26,14 +26,14 @@ import type {
 
 import type {
   AppSchemasExperienceMapCreateSessionRequest,
-  AppSchemasExperienceMapSessionStateResponse,
+  AppSchemasExperienceMapCreateSessionResponse,
   BodyChatStreamApiV1ExperienceMapSessionsSessionIdChatStreamPost,
-  CreateSessionResponse,
   ExperienceMapStreamEvent,
   GetMessagesApiV1ExperienceMapSessionsSessionIdMessagesGetParams,
   HTTPValidationError,
   MessagesResponse,
-  RequestStateResponse
+  RequestStateResponse,
+  SessionStateResponse
 } from '../../models';
 
 import { aiCustomInstance } from '../../../../lib/aiAxios';
@@ -53,7 +53,7 @@ export const createSessionApiV1ExperienceMapSessionsPost = (
 ) => {
       
       
-      return aiCustomInstance<CreateSessionResponse>(
+      return aiCustomInstance<AppSchemasExperienceMapCreateSessionResponse>(
       {url: `/api/v1/experience-map/sessions`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: appSchemasExperienceMapCreateSessionRequest, signal
@@ -117,7 +117,7 @@ export const getSessionStateApiV1ExperienceMapSessionsSessionIdStateGet = (
 ) => {
       
       
-      return aiCustomInstance<AppSchemasExperienceMapSessionStateResponse>(
+      return aiCustomInstance<SessionStateResponse>(
       {url: `/api/v1/experience-map/sessions/${sessionId}/state`, method: 'GET', signal
     },
       options);

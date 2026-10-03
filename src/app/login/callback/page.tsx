@@ -5,6 +5,7 @@ import { refreshAccessToken } from '@/services/auth';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
+import { rememberKakaoLinkAfterSignup } from '@/features/experience/list/lib/kakaoLinkReturn';
 
 /* 백엔드가 리다이렉트할 때 쿼리로 넘기는 access_token 키 */
 const ACCESS_TOKEN_PARAM = 'access_token';
@@ -48,6 +49,10 @@ function LoginCallbackContent() {
             ? redirectFromParamsOrStorage
             : '/'
           : redirectFromParamsOrStorage;
+
+    if (isNewUser === 'true') {
+      rememberKakaoLinkAfterSignup(redirectFromParamsOrStorage);
+    }
 
     if (typeof window !== 'undefined') {
       try {

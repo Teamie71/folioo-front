@@ -13,6 +13,8 @@ export type AgentChatMessage = {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  /** 서버가 카카오톡 전송 출처를 제공하면 표시한다. */
+  source?: 'kakao';
   attachment?: { name: string; size?: number };
   /** 성공 응답에만 제공. 실제 복원이 성공한 뒤 resolve해야 한다. */
   onRevert?: () => Promise<void>;
@@ -217,6 +219,9 @@ export function ExperienceAgentConversation({
               )}
               {message.content && (
                 <p className={styles.userBubble}>{message.content}</p>
+              )}
+              {message.source === 'kakao' && (
+                <span className={styles.kakaoSource}>카카오톡에서 전송</span>
               )}
             </div>
           ) : (

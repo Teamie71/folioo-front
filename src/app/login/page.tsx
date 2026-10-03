@@ -8,12 +8,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
+import { isKakaoLinkPath } from '@/features/experience/list/lib/kakaoLinkReturn';
 
 const LOGIN_REDIRECT_TO_KEY = 'login_redirect_to';
 
 /* 이미 로그인된 상태에서 로그인 페이지 진입 시 이전 페이지로 리다이렉트 */
 function useRedirectIfLoggedIn() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const accessToken = useAuthStore((s) => s.accessToken);
   const sessionRestoreAttempted = useAuthStore(
     (s) => s.sessionRestoreAttempted,
@@ -22,12 +24,18 @@ function useRedirectIfLoggedIn() {
   useEffect(() => {
     if (!sessionRestoreAttempted || accessToken == null) return;
 
+    const redirectTo = searchParams.get('redirect_to');
+    if (redirectTo && isKakaoLinkPath(redirectTo)) {
+      router.replace(redirectTo);
+      return;
+    }
+
     if (typeof window !== 'undefined' && window.history.length > 1) {
       router.back();
     } else {
       router.replace('/');
     }
-  }, [sessionRestoreAttempted, accessToken, router]);
+  }, [sessionRestoreAttempted, accessToken, router, searchParams]);
 }
 
 function LoginContent() {
