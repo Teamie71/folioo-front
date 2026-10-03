@@ -16,6 +16,9 @@ import { useAgentStatusStore } from '@/features/experience/list/model/agentStatu
 import { useAuthStore } from '@/store/useAuthStore';
 import { markAgentStatusSeen } from '@/features/experience/list/api/experienceAgentStatus';
 import { getExperienceMapAiControllerGetActivityStatusesQueryKey } from '@/api/endpoints/experiencemap-ai-integration/experiencemap-ai-integration';
+import Image from 'next/image';
+import { KakaoMoveModal } from './KakaoMoveModal';
+import { HoverTooltip } from '@/components/HoverTooltip';
 import {
   AgentStatusIndicator,
   agentStatusLabel,
@@ -157,6 +160,7 @@ export function ExperienceListAgentPanel({
   const selection = useExperienceListStore((s) => s.selection);
   const selectExperience = useExperienceListStore((s) => s.selectExperience);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const [kakaoModalOpen, setKakaoModalOpen] = useState(false);
   const experience =
     selection?.kind === 'experience'
       ? experiences.find((item) => item.id === selection.id)
@@ -248,11 +252,33 @@ export function ExperienceListAgentPanel({
           >
             <SidebarPanelIcon className='size-[20px]' />
           </button>
-          <h2 className='text-gray9 min-w-0 text-[16px] leading-[24px] font-semibold tracking-normal break-words'>
+          <h2 className='text-gray9 min-w-0 flex-1 text-[16px] leading-[24px] font-semibold tracking-normal break-words'>
             {experience
               ? `${experience.name} AI 에이전트`
               : 'AI 에이전트를 선택해 주세요.'}
           </h2>
+          {experience && (
+            <HoverTooltip
+              label='카카오톡으로 이용하기'
+              placement='bottom'
+              align='end'
+              gap={6}
+            >
+              <button
+                type='button'
+                onClick={() => setKakaoModalOpen(true)}
+                aria-label='카카오톡으로 이용하기'
+                className='flex size-[28px] shrink-0 cursor-pointer items-center justify-center rounded-[4px]'
+              >
+                <Image
+                  src='/KakaoAgentIcon.svg'
+                  alt=''
+                  width={28}
+                  height={28}
+                />
+              </button>
+            </HoverTooltip>
+          )}
         </header>
 
         <AnimatePresence mode='wait' initial={false}>
@@ -353,6 +379,7 @@ export function ExperienceListAgentPanel({
           </motion.div>
         </AnimatePresence>
       </div>
+      <KakaoMoveModal open={kakaoModalOpen} onOpenChange={setKakaoModalOpen} />
     </motion.aside>
   );
 }

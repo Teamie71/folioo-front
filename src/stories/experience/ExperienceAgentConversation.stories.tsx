@@ -76,6 +76,24 @@ export const Idle: Story = {
   },
 };
 
+export const KakaoMessage: Story = {
+  args: {
+    conversations: {
+      preview: {
+        messages: [
+          {
+            id: 'kakao-user',
+            role: 'user',
+            content: '고객 문의를 분석하고 안내 문구를 개선했어.',
+            source: 'kakao',
+          },
+        ],
+        isWorking: true,
+      },
+    },
+  },
+};
+
 const successContent =
   '내용을 분석하여 경험을 정리했어요.\n• 문제해결 아래 1개의 블록 수정\n• 담당업무 아래 2개의 블록 생성';
 export const Success: Story = {
