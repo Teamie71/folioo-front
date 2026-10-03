@@ -25,15 +25,15 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  AppSchemasInterviewCreateSessionResponse,
+  AppSchemasInterviewSessionStateResponse,
   BodyChatApiV1InterviewSessionsSessionIdChatPost,
   BodyChatStreamApiV1InterviewSessionsSessionIdChatStreamPost,
   ChatResponse,
   CreateSessionRequest,
+  CreateSessionResponse,
   ErrorResponse,
   ExtendSessionResponse,
   HTTPValidationError,
-  SessionStateResponse,
   SessionStatusResponse
 } from '../../models';
 
@@ -54,7 +54,7 @@ export const createSessionApiV1InterviewSessionsPost = (
 ) => {
       
       
-      return aiCustomInstance<AppSchemasInterviewCreateSessionResponse>(
+      return aiCustomInstance<CreateSessionResponse>(
       {url: `/api/v1/interview/sessions`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: createSessionRequest, signal
@@ -471,7 +471,7 @@ export const getSessionStateApiV1InterviewSessionsSessionIdStateGet = (
 ) => {
       
       
-      return aiCustomInstance<SessionStateResponse>(
+      return aiCustomInstance<AppSchemasInterviewSessionStateResponse>(
       {url: `/api/v1/interview/sessions/${sessionId}/state`, method: 'GET', signal
     },
       options);
