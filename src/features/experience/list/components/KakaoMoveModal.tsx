@@ -7,12 +7,18 @@ type KakaoMoveModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   accountConnectionRequired?: boolean;
+  onPrimaryClick?: () => void;
+  pending?: boolean;
+  error?: string;
 };
 
 export function KakaoMoveModal({
   open,
   onOpenChange,
   accountConnectionRequired = false,
+  onPrimaryClick,
+  pending = false,
+  error,
 }: KakaoMoveModalProps) {
   return (
     <CommonModal
@@ -38,12 +44,18 @@ export function KakaoMoveModal({
       <div className='flex w-full flex-col items-center text-center'>
         <button
           type='button'
-          disabled
+          onClick={onPrimaryClick}
+          disabled={!onPrimaryClick || pending}
           className='mt-[20px] flex h-[40px] w-[304px] cursor-pointer items-center justify-center gap-[8px] rounded-[10px] bg-[#FEE500] px-[16px] text-[16px] leading-[20px] font-semibold text-black/85 disabled:opacity-100'
         >
           <KakaoLogo />
-          카카오톡에서 정리하기
+          {pending ? '연결 확인 중...' : '카카오톡에서 정리하기'}
         </button>
+        {error && (
+          <p role='alert' className='mt-[12px] text-[14px] text-red-600'>
+            {error}
+          </p>
+        )}
         <button
           type='button'
           onClick={() => onOpenChange(false)}

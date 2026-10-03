@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/utils/utils';
@@ -19,6 +20,13 @@ import { getExperienceMapAiControllerGetActivityStatusesQueryKey } from '@/api/e
 import Image from 'next/image';
 import { KakaoMoveModal } from './KakaoMoveModal';
 import { HoverTooltip } from '@/components/HoverTooltip';
+import { LoginRequiredModal } from '@/components/LoginRequiredModal';
+import {
+  getKakaoAuthorizeUrl,
+  getKakaoLinkStatus,
+  KAKAO_CHANNEL_CHAT_URL,
+} from '@/features/experience/list/api/kakaoChannelLink';
+import { KAKAO_LINK_RETURN_TO_CHANNEL_KEY } from '@/features/experience/list/lib/kakaoLinkReturn';
 import {
   AgentStatusIndicator,
   agentStatusLabel,
@@ -161,6 +169,82 @@ export function ExperienceListAgentPanel({
   const selectExperience = useExperienceListStore((s) => s.selectExperience);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [kakaoModalOpen, setKakaoModalOpen] = useState(false);
+  const [loginRequiredOpen, setLoginRequiredOpen] = useState(false);
+  const [kakaoLinked, setKakaoLinked] = useState<boolean | null>(null);
+  const [kakaoPending, setKakaoPending] = useState(false);
+  const [kakaoError, setKakaoError] = useState('');
+  const router = useRouter();
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const sessionRestoreAttempted = useAuthStore(
+    (state) => state.sessionRestoreAttempted,
+  );
+
+  useEffect(() => {
+    if (!loginRequiredOpen) return;
+    const timer = window.setTimeout(() => {
+      router.push(
+        `/login?redirect_to=${encodeURIComponent('/kakao-channel/link')}`,
+      );
+    }, 2000);
+    return () => window.clearTimeout(timer);
+  }, [loginRequiredOpen, router]);
+
+  useEffect(() => {
+    if (!kakaoModalOpen || !accessToken) return;
+    setKakaoPending(true);
+    setKakaoError('');
+    void getKakaoLinkStatus()
+      .then(setKakaoLinked)
+      .catch(() =>
+        setKakaoError('연결 상태를 확인하지 못했어요. 다시 시도해 주세요.'),
+      )
+      .finally(() => setKakaoPending(false));
+  }, [kakaoModalOpen, accessToken]);
+
+  const openKakaoModal = () => {
+    if (!sessionRestoreAttempted) return;
+    if (!accessToken) {
+      setLoginRequiredOpen(true);
+      return;
+    }
+    setKakaoLinked(null);
+    setKakaoModalOpen(true);
+  };
+
+  const enterKakao = async () => {
+    if (kakaoPending) return;
+    setKakaoPending(true);
+    setKakaoError('');
+    let popup: Window | null = null;
+    try {
+      const linked = kakaoLinked ?? (await getKakaoLinkStatus());
+      setKakaoLinked(linked);
+      if (linked) {
+        window.location.assign(KAKAO_CHANNEL_CHAT_URL);
+        return;
+      }
+      // 클릭과 같은 이벤트 안에서 창을 먼저 열어 팝업 차단을 피한다.
+      // 상태 조회가 필요하면 새 창을 열 수 없으므로 현재 창에서 인증한다.
+      popup =
+        kakaoLinked === false
+          ? window.open('', '_blank', 'width=520,height=720')
+          : null;
+      const authorizeUrl = await getKakaoAuthorizeUrl();
+      if (popup && !popup.closed) {
+        popup.sessionStorage.setItem(KAKAO_LINK_RETURN_TO_CHANNEL_KEY, '1');
+        popup.location.replace(authorizeUrl);
+      } else {
+        sessionStorage.setItem(KAKAO_LINK_RETURN_TO_CHANNEL_KEY, '1');
+        window.location.assign(authorizeUrl);
+      }
+    } catch {
+      popup?.close();
+      setKakaoError(
+        '카카오 계정 연결을 시작하지 못했어요. 다시 시도해 주세요.',
+      );
+      setKakaoPending(false);
+    }
+  };
   const experience =
     selection?.kind === 'experience'
       ? experiences.find((item) => item.id === selection.id)
@@ -266,7 +350,7 @@ export function ExperienceListAgentPanel({
             >
               <button
                 type='button'
-                onClick={() => setKakaoModalOpen(true)}
+                onClick={openKakaoModal}
                 aria-label='카카오톡으로 이용하기'
                 className='flex size-[28px] shrink-0 cursor-pointer items-center justify-center rounded-[4px]'
               >
@@ -379,7 +463,18 @@ export function ExperienceListAgentPanel({
           </motion.div>
         </AnimatePresence>
       </div>
-      <KakaoMoveModal open={kakaoModalOpen} onOpenChange={setKakaoModalOpen} />
+      <KakaoMoveModal
+        open={kakaoModalOpen}
+        onOpenChange={setKakaoModalOpen}
+        accountConnectionRequired={kakaoLinked === false}
+        onPrimaryClick={enterKakao}
+        pending={kakaoPending}
+        error={kakaoError}
+      />
+      <LoginRequiredModal
+        open={loginRequiredOpen}
+        onOpenChange={setLoginRequiredOpen}
+      />
     </motion.aside>
   );
 }

@@ -15,6 +15,7 @@ import Image from 'next/image';
 import { ButtonSpinnerIcon } from '@/components/icons/ButtonSpinnerIcon';
 import { DropdownIcon } from '@/components/icons/DropdownIcon';
 import { resolveRecommendationPostSignupPath } from '@/features/recommendation/lib/recommendationPostAuth';
+import { takeKakaoLinkAfterSignup } from '@/features/experience/list/lib/kakaoLinkReturn';
 import { useAuthStore } from '@/store/useAuthStore';
 import { cn } from '@/utils/utils';
 import { isTopupMobileUserAgent } from '@/utils/device';
@@ -54,7 +55,9 @@ function TermsPageContent({ variant }: { variant: 'desktop' | 'mobile' }) {
           queryClient.invalidateQueries({
             queryKey: getUserControllerGetProfileQueryKey(),
           });
-          router.replace(resolveRecommendationPostSignupPath());
+          router.replace(
+            takeKakaoLinkAfterSignup() ?? resolveRecommendationPostSignupPath(),
+          );
         },
         onError: () => {
           window.alert(
