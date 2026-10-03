@@ -20,6 +20,8 @@ export function GoogleAnalyticsPageView() {
     }
     window.gtag('event', 'page_view', {
       page_path: pathname,
+      // OAuth 콜백의 link_token 등 URL 쿼리를 분석 이벤트에 남기지 않는다.
+      page_location: `${window.location.origin}${pathname}`,
       page_title: typeof document !== 'undefined' ? document.title : '',
     });
   }, [pathname]);

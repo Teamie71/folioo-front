@@ -7,8 +7,7 @@ import { AuthProvider } from '@/contexts/AuthProvider';
 import { QueryProvider } from '@/contexts/QueryProvider';
 import { SITE_URL } from '@/constants/seo';
 
-const GA_MEASUREMENT_ID =
-  process.env.NEXT_PUBLIC_GA_ID ?? 'G-ZSXFDE6Q13';
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID ?? 'G-ZSXFDE6Q13';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -44,7 +43,7 @@ export default function RootLayout({
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', '${GA_MEASUREMENT_ID}');
+    gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });
   `;
 
   return (
