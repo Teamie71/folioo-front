@@ -5,22 +5,9 @@
  * 포트폴리오 정리를 도와주는 AI 인터뷰 에이전트 API
  * OpenAPI spec version: 0.1.0
  */
-import type { StageProgressSchema } from './stageProgressSchema';
+import type { CreateSessionResponseStatus } from './createSessionResponseStatus';
 
-/**
- * 세션 생성 응답
- */
 export interface CreateSessionResponse {
-  /** 생성된 세션 ID */
   session_id: string;
-  /** AI의 첫 질문 */
-  first_question: string;
-  /**
-   * 현재 단계
-   * @minimum 1
-   * @maximum 4
-   */
-  current_stage: number;
-  /** 단계 진행 상황 */
-  stage_progress: StageProgressSchema;
+  status: CreateSessionResponseStatus;
 }

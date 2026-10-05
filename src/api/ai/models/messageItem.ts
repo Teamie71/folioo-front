@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { MessageAttachment } from './messageAttachment';
+import type { MessageItemChannel } from './messageItemChannel';
 import type { MessageItemStatus } from './messageItemStatus';
 
 /**
@@ -26,5 +27,7 @@ export interface MessageItem {
   status?: MessageItemStatus;
   /** 커밋 시점에 되돌리기가 가능했는지. 실패한 턴은 null. 그 뒤 실제로 되돌렸는지는 메인 서버(POST /revert)만 알아 여기서 추적하지 않는다. */
   can_revert?: boolean | null;
+  /** 메시지를 남긴 채널. 카톡 메시지의 AI 응답은 카톡으로 보낸 요약이다. */
+  channel?: MessageItemChannel;
   created_at: string;
 }

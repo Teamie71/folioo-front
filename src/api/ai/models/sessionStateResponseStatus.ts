@@ -6,14 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-/**
- * 세션 생성 상태
- */
 export type SessionStateResponseStatus = typeof SessionStateResponseStatus[keyof typeof SessionStateResponseStatus];
 
 
 export const SessionStateResponseStatus = {
-  generating: 'generating',
-  completed: 'completed',
+  ready: 'ready',
+  running: 'running',
   failed: 'failed',
 } as const;

@@ -7,6 +7,7 @@ export type WorkspaceView = (typeof WORKSPACE_VIEWS)[number];
 export const DEFAULT_WORKSPACE_VIEW: WorkspaceView = 'list';
 
 export const WORKSPACE_VIEW_PARAM = 'view';
+export const WORKSPACE_ACTIVITY_PARAM = 'block_id';
 
 export function isWorkspaceView(value: unknown): value is WorkspaceView {
   return WORKSPACE_VIEWS.includes(value as WorkspaceView);
@@ -24,6 +25,15 @@ export function buildWorkspaceHref(
   view: WorkspaceView = DEFAULT_WORKSPACE_VIEW,
 ): string {
   return `${WORKSPACE_PATH}?${WORKSPACE_VIEW_PARAM}=${view}`;
+}
+
+/** 카카오톡 AI 답변에서 활동의 웹 에이전트 대화를 여는 주소. */
+export function buildExperienceAgentHref(blockId: string): string {
+  const params = new URLSearchParams({
+    [WORKSPACE_VIEW_PARAM]: 'list',
+    [WORKSPACE_ACTIVITY_PARAM]: blockId,
+  });
+  return `${WORKSPACE_PATH}?${params.toString()}`;
 }
 
 /**
