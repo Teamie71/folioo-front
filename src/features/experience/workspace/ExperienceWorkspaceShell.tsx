@@ -14,6 +14,7 @@ import { useGuestExperienceMode } from '@/features/experience/list/hooks/useGues
 import { GuestLoginSnackbar } from '@/features/experience/list/components/GuestLoginSnackbar';
 import { GuestLeaveGuardModal } from '@/features/experience/list/components/GuestLeaveGuardModal';
 import { useWorkspaceView } from '@/features/experience/workspace/hooks/useWorkspaceView';
+import { useExperienceAgentDeepLink } from '@/features/experience/workspace/hooks/useExperienceAgentDeepLink';
 import { usePreloadMapView } from '@/features/experience/workspace/hooks/usePreloadMapView';
 import { preloadExperienceMapView } from '@/features/experience/workspace/model/mapViewLoader';
 import { saveExperienceSelection } from '@/features/experience/list/model/experienceSelectionStorage';
@@ -44,6 +45,11 @@ export function ExperienceWorkspaceShell() {
 
   // GET /experience-map 으로 그룹·활동·블록 트리를 채운다. (비로그인은 기본 제공 데이터)
   const { isGuest, isLoading } = useExperienceMap();
+  const openLinkedAgent = useCallback(() => {
+    const state = useExperienceListStore.getState();
+    if (!state.agentOpen) state.toggleAgent();
+  }, []);
+  useExperienceAgentDeepLink(isLoading, openLinkedAgent);
   const guest = useGuestExperienceMode(isGuest);
 
   useEffect(() => {

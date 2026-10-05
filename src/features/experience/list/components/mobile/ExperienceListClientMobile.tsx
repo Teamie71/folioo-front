@@ -8,6 +8,7 @@ import { MobileExperienceDetail } from '@/features/experience/list/components/mo
 import { MobileGroupDetail } from '@/features/experience/list/components/mobile/MobileGroupDetail';
 import { useSidebarDnd } from '@/features/experience/list/hooks/useSidebarDnd';
 import { useExperienceMap } from '@/features/experience/list/hooks/useExperienceMap';
+import { useExperienceAgentDeepLink } from '@/features/experience/workspace/hooks/useExperienceAgentDeepLink';
 import { useGuestExperienceMode } from '@/features/experience/list/hooks/useGuestExperienceMode';
 import { GuestLoginSnackbar } from '@/features/experience/list/components/GuestLoginSnackbar';
 import { GuestLeaveGuardModal } from '@/features/experience/list/components/GuestLeaveGuardModal';
@@ -18,7 +19,7 @@ import {
 
 export default function ExperienceListClientMobile() {
   // GET /experience-map 으로 그룹·활동·블록 트리를 채운다. (비로그인은 기본 제공 데이터)
-  const { isGuest } = useExperienceMap();
+  const { isGuest, isLoading } = useExperienceMap();
   const guest = useGuestExperienceMode(isGuest);
 
   const groups = useExperienceListStore((s) => s.groups);
@@ -41,6 +42,8 @@ export default function ExperienceListClientMobile() {
     },
     [selectExperience],
   );
+
+  useExperienceAgentDeepLink(isLoading, openDetail);
 
   const closeDetail = useCallback(() => {
     setDetailExperienceId(null);

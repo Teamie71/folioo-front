@@ -128,6 +128,7 @@ function toChatMessages(items: MessageItem[]): AgentChatMessage[] {
         id: `${item.request_id}:user`,
         role: 'user',
         content: item.user_message ?? '',
+        source: item.channel === 'KAKAO' ? 'kakao' : undefined,
         attachment: item.attachments?.[0]
           ? { name: item.attachments[0].filename }
           : undefined,
