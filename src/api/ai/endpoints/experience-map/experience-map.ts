@@ -25,15 +25,15 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  AppSchemasExperienceMapCreateSessionResponse,
-  AppSchemasExperienceMapSessionStateResponse,
   BodyChatStreamApiV1ExperienceMapSessionsSessionIdChatStreamPost,
   CreateSessionRequest,
+  CreateSessionResponse,
   ExperienceMapStreamEvent,
   GetMessagesApiV1ExperienceMapSessionsSessionIdMessagesGetParams,
   HTTPValidationError,
   MessagesResponse,
-  RequestStateResponse
+  RequestStateResponse,
+  SessionStateResponse
 } from '../../models';
 
 import { aiCustomInstance } from '../../../../lib/aiAxios';
@@ -53,7 +53,7 @@ export const createSessionApiV1ExperienceMapSessionsPost = (
 ) => {
       
       
-      return aiCustomInstance<AppSchemasExperienceMapCreateSessionResponse>(
+      return aiCustomInstance<CreateSessionResponse>(
       {url: `/api/v1/experience-map/sessions`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: createSessionRequest, signal
@@ -117,7 +117,7 @@ export const getSessionStateApiV1ExperienceMapSessionsSessionIdStateGet = (
 ) => {
       
       
-      return aiCustomInstance<AppSchemasExperienceMapSessionStateResponse>(
+      return aiCustomInstance<SessionStateResponse>(
       {url: `/api/v1/experience-map/sessions/${sessionId}/state`, method: 'GET', signal
     },
       options);
