@@ -12,11 +12,13 @@ import { ExperienceMapCanvas } from '@/features/experience/map/components/Experi
 type Props = {
   /** 진입 직후 화면 중앙에 두고 표준 수준으로 확대할 활동 id. (모바일 진입용) */
   focusExperienceId?: string;
+  showZoomController?: boolean;
   onReady?: () => void;
 };
 
 export const ExperienceMapView = memo(function ExperienceMapView({
   focusExperienceId,
+  showZoomController,
   onReady,
 }: Props = {}) {
   useEffect(() => {
@@ -25,7 +27,10 @@ export const ExperienceMapView = memo(function ExperienceMapView({
 
   return (
     <div className='relative min-h-0 flex-1'>
-      <ExperienceMapCanvas focusExperienceId={focusExperienceId} />
+      <ExperienceMapCanvas
+        focusExperienceId={focusExperienceId}
+        showZoomController={showZoomController}
+      />
     </div>
   );
 });
