@@ -135,6 +135,8 @@ export function MobileExperienceDetail({ experienceId, onBack }: Props) {
       <MobileExperienceAgentSheet
         open={agentOpen}
         onOpenChange={setAgentOpen}
+        experienceId={experience.id}
+        view={view}
       />
     </div>
   );
