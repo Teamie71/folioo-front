@@ -12,6 +12,7 @@ import { MobileExperienceAgentSheet } from '@/features/experience/list/component
 import { MobileExperienceListDetailHeader } from '@/features/experience/list/components/mobile/MobileExperienceListDetailHeader';
 import { MobileAgentFab } from '@/features/experience/list/components/mobile/MobileAgentFab';
 import { MobileExperienceMapView } from '@/features/experience/list/components/mobile/MobileExperienceMapView';
+import { MobileSelectionDeleteBar } from '@/features/experience/list/components/mobile/MobileSelectionDeleteBar';
 import { ExperienceListViewSwitchToggle } from '@/features/experience/list/components/ExperienceListViewSwitchToggle';
 import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
 
@@ -35,6 +36,12 @@ export function MobileExperienceDetail({ experienceId, onBack }: Props) {
   const cancelBlockSelection = useExperienceListStore(
     (s) => s.cancelBlockSelection,
   );
+  const startBlockSelection = useExperienceListStore(
+    (s) => s.startBlockSelection,
+  );
+  const blockSelectionMode = useExperienceListStore(
+    (s) => s.blockSelectionMode,
+  );
 
   const [agentOpen, setAgentOpen] = useState(false);
   const [view, setView] = useState<WorkspaceView>('list');
@@ -51,7 +58,7 @@ export function MobileExperienceDetail({ experienceId, onBack }: Props) {
   useEffect(() => {
     cancelBlockSelection();
     return cancelBlockSelection;
-  }, [cancelBlockSelection]);
+  }, [cancelBlockSelection, experienceId]);
 
   const changeView = (nextView: WorkspaceView) => {
     if (nextView === 'list') cancelBlockSelection();
@@ -72,6 +79,15 @@ export function MobileExperienceDetail({ experienceId, onBack }: Props) {
           onSelect: () => moveExperienceToGroup(experience.id, g.id),
         })),
     },
+    ...(view === 'map' && !blockSelectionMode
+      ? [
+          {
+            key: 'selection-delete',
+            label: '블록 선택 삭제',
+            onSelect: startBlockSelection,
+          },
+        ]
+      : []),
     {
       key: 'delete',
       label: '활동 삭제',
@@ -103,11 +119,20 @@ export function MobileExperienceDetail({ experienceId, onBack }: Props) {
           className='typo-b2-sb text-gray9'
           inputClassName='typo-b2-sb text-gray9'
         />
-        <div className='mt-[20px]'>
+        <div className='relative mt-[20px] flex h-[29px] items-center'>
           <ExperienceListViewSwitchToggle
             value={view}
             onValueChange={changeView}
           />
+          {view === 'map' && blockSelectionMode && (
+            <button
+              type='button'
+              onClick={cancelBlockSelection}
+              className='border-gray4 text-gray9 typo-b2 absolute top-1/2 right-0 -translate-y-1/2 cursor-pointer rounded-[6px] border bg-white px-[12px] py-[6px]'
+            >
+              삭제 취소
+            </button>
+          )}
         </div>
       </div>
 
@@ -129,6 +154,8 @@ export function MobileExperienceDetail({ experienceId, onBack }: Props) {
           )}
         </div>
       )}
+
+      {view === 'map' && blockSelectionMode && <MobileSelectionDeleteBar />}
 
       {!agentOpen && <MobileAgentFab onClick={() => setAgentOpen(true)} />}
 

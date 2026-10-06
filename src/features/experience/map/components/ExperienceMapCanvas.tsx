@@ -666,6 +666,22 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
         const ids = collectSelectionIds(groups, experiences, node.id);
         if (ids.length === 0) return;
         setBlockSelection(ids, !selectedBlockIds[node.id]);
+        if (focusExperienceId) {
+          const container = mapViewportRef.current;
+          if (container) {
+            const viewport = getViewport();
+            const overflow =
+              (node.y + node.height) * viewport.zoom +
+              viewport.y -
+              (container.clientHeight - 24);
+            if (overflow > 0) {
+              void setViewport(
+                { ...viewport, y: viewport.y - overflow },
+                { duration: 200 },
+              );
+            }
+          }
+        }
         return;
       }
 
@@ -694,6 +710,9 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       experiences,
       selectedBlockIds,
       setBlockSelection,
+      focusExperienceId,
+      getViewport,
+      setViewport,
       selectExperience,
       detail,
       focusOnStandard,
