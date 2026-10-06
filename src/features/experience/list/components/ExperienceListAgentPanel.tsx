@@ -10,6 +10,7 @@ import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { SidebarPanelIcon } from '@/components/icons/SidebarPanelIcon';
 import type { AgentConversation } from './ExperienceAgentConversation';
 import { ExperienceAgentMain } from './ExperienceAgentMain';
+import { ExperienceAgentSkeleton } from './ExperienceAgentSkeleton';
 import { useExperienceAgent } from '@/features/experience/list/hooks/useExperienceAgent';
 import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
 import type { Experience } from '@/features/experience/list/types';
@@ -94,6 +95,9 @@ function ConnectedAgent({
   );
   const acknowledge = useAgentStatusStore((state) => state.acknowledge);
   const accessToken = useAuthStore((state) => state.accessToken);
+  const sessionRestoreAttempted = useAuthStore(
+    (state) => state.sessionRestoreAttempted,
+  );
   const queryClient = useQueryClient();
   const markedOpen = useRef(false);
   const markedRequestId = useRef<string | null>(null);
@@ -144,7 +148,10 @@ function ConnectedAgent({
       onSend={agent.send}
       onStop={agent.stop}
       ready={agent.ready}
-      historyLoading={Boolean(accessToken) && !agent.historyLoaded}
+      historyLoading={
+        !sessionRestoreAttempted ||
+        (Boolean(accessToken) && !agent.historyLoaded)
+      }
       isWorking={agent.isWorking}
       error={agent.error}
     />
@@ -166,6 +173,7 @@ export function ExperienceListAgentPanel({
   const groups = useExperienceListStore((s) => s.groups);
   const experiences = useExperienceListStore((s) => s.experiences);
   const selection = useExperienceListStore((s) => s.selection);
+  const isContentLoading = useExperienceListStore((s) => s.isContentLoading);
   const selectExperience = useExperienceListStore((s) => s.selectExperience);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [kakaoModalOpen, setKakaoModalOpen] = useState(false);
@@ -249,6 +257,7 @@ export function ExperienceListAgentPanel({
     selection?.kind === 'experience'
       ? experiences.find((item) => item.id === selection.id)
       : undefined;
+  const showInitialSkeleton = !sessionRestoreAttempted || isContentLoading;
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [attachments, setAttachments] = useState<Record<string, File | null>>(
     {},
@@ -337,9 +346,11 @@ export function ExperienceListAgentPanel({
             <SidebarPanelIcon className='size-[20px]' />
           </button>
           <h2 className='text-gray9 min-w-0 flex-1 text-[16px] leading-[24px] font-semibold tracking-normal break-words'>
-            {experience
-              ? `${experience.name} AI 에이전트`
-              : 'AI 에이전트를 선택해 주세요.'}
+            {showInitialSkeleton
+              ? 'AI 에이전트'
+              : experience
+                ? `${experience.name} AI 에이전트`
+                : 'AI 에이전트를 선택해 주세요.'}
           </h2>
           {experience && (
             <HoverTooltip
@@ -365,103 +376,110 @@ export function ExperienceListAgentPanel({
           )}
         </header>
 
-        <AnimatePresence mode='wait' initial={false}>
-          <motion.div
-            key={experience?.id ?? 'agent-list'}
-            className='flex min-h-0 flex-1 flex-col'
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 0.16 }}
-          >
-            {!experience ? (
-              <nav
-                aria-label='활동별 AI 에이전트'
-                className='mt-[24px] min-h-0 flex-1 overflow-y-auto pr-[20px] pb-[24px] pl-[44px]'
-              >
-                {groups.map((group) => {
-                  const isCollapsed = collapsed[group.id] ?? false;
-                  const selectedGroup =
-                    selection?.kind === 'group' && selection.id === group.id;
-                  return (
-                    <div
-                      key={group.id}
-                      className='mb-[4px] flex flex-col gap-[4px]'
-                    >
-                      <button
-                        type='button'
-                        aria-expanded={!isCollapsed}
-                        aria-controls={`agent-group-${group.id}`}
-                        onClick={() =>
-                          setCollapsed((prev) => ({
-                            ...prev,
-                            [group.id]: !prev[group.id],
-                          }))
-                        }
-                        className={cn(
-                          'text-gray9 flex min-h-[32px] w-full cursor-pointer items-center gap-[8px] rounded-[8px] py-[4px] pr-[8px] pl-[8px] text-left text-[16px] leading-[24px]',
-                          selectedGroup
-                            ? 'bg-gray3'
-                            : !group.isUnclassified && 'hover:bg-gray3',
-                        )}
+        {showInitialSkeleton ? (
+          <ExperienceAgentSkeleton />
+        ) : (
+          <AnimatePresence mode='wait' initial={false}>
+            <motion.div
+              key={experience?.id ?? 'agent-list'}
+              className='flex min-h-0 flex-1 flex-col'
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: reduceMotion ? 0 : 0.16 }}
+            >
+              {!experience ? (
+                <nav
+                  aria-label='활동별 AI 에이전트'
+                  className='mt-[24px] min-h-0 flex-1 overflow-y-auto pr-[20px] pb-[24px] pl-[44px]'
+                >
+                  {groups.map((group) => {
+                    const isCollapsed = collapsed[group.id] ?? false;
+                    const selectedGroup =
+                      selection?.kind === 'group' && selection.id === group.id;
+                    return (
+                      <div
+                        key={group.id}
+                        className='mb-[4px] flex flex-col gap-[4px]'
                       >
-                        <ListChevronIcon
-                          aria-hidden
+                        <button
+                          type='button'
+                          aria-expanded={!isCollapsed}
+                          aria-controls={`agent-group-${group.id}`}
+                          onClick={() =>
+                            setCollapsed((prev) => ({
+                              ...prev,
+                              [group.id]: !prev[group.id],
+                            }))
+                          }
                           className={cn(
-                            'size-[16px] shrink-0 transition-transform',
-                            isCollapsed ? 'rotate-90' : 'rotate-180',
+                            'text-gray9 flex min-h-[32px] w-full cursor-pointer items-center gap-[8px] rounded-[8px] py-[4px] pr-[8px] pl-[8px] text-left text-[16px] leading-[24px]',
+                            selectedGroup
+                              ? 'bg-gray3'
+                              : !group.isUnclassified && 'hover:bg-gray3',
                           )}
-                        />
-                        <span className='break-words'>{group.name}</span>
-                      </button>
-                      <ul
-                        id={`agent-group-${group.id}`}
-                        hidden={isCollapsed}
-                        className={
-                          isCollapsed ? 'hidden' : 'flex flex-col gap-[4px]'
-                        }
-                      >
-                        {experiences
-                          .filter((item) => item.groupId === group.id)
-                          .map((item) => (
-                            <AgentListExperienceRow
-                              key={item.id}
-                              item={item}
-                              onSelect={(id) => {
-                                selectExperience(id);
-                                window.dispatchEvent(
-                                  new CustomEvent('experience-agent:focus', {
-                                    detail: id,
-                                  }),
-                                );
-                              }}
-                            />
-                          ))}
-                      </ul>
-                    </div>
-                  );
-                })}
-              </nav>
-            ) : (
-              <ConnectedAgent
-                key={experience.id}
-                experienceId={experience.id}
-                visible={open}
-                view={view}
-                conversationOverride={conversations[experience.id]}
-                dailyChatCount={dailyChatCount}
-                input={drafts[experience.id] ?? ''}
-                onInputChange={(value) =>
-                  setDrafts((prev) => ({ ...prev, [experience.id]: value }))
-                }
-                attachment={attachments[experience.id] ?? null}
-                onAttachmentChange={(file) =>
-                  setAttachments((prev) => ({ ...prev, [experience.id]: file }))
-                }
-              />
-            )}
-          </motion.div>
-        </AnimatePresence>
+                        >
+                          <ListChevronIcon
+                            aria-hidden
+                            className={cn(
+                              'size-[16px] shrink-0 transition-transform',
+                              isCollapsed ? 'rotate-90' : 'rotate-180',
+                            )}
+                          />
+                          <span className='break-words'>{group.name}</span>
+                        </button>
+                        <ul
+                          id={`agent-group-${group.id}`}
+                          hidden={isCollapsed}
+                          className={
+                            isCollapsed ? 'hidden' : 'flex flex-col gap-[4px]'
+                          }
+                        >
+                          {experiences
+                            .filter((item) => item.groupId === group.id)
+                            .map((item) => (
+                              <AgentListExperienceRow
+                                key={item.id}
+                                item={item}
+                                onSelect={(id) => {
+                                  selectExperience(id);
+                                  window.dispatchEvent(
+                                    new CustomEvent('experience-agent:focus', {
+                                      detail: id,
+                                    }),
+                                  );
+                                }}
+                              />
+                            ))}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                </nav>
+              ) : (
+                <ConnectedAgent
+                  key={experience.id}
+                  experienceId={experience.id}
+                  visible={open}
+                  view={view}
+                  conversationOverride={conversations[experience.id]}
+                  dailyChatCount={dailyChatCount}
+                  input={drafts[experience.id] ?? ''}
+                  onInputChange={(value) =>
+                    setDrafts((prev) => ({ ...prev, [experience.id]: value }))
+                  }
+                  attachment={attachments[experience.id] ?? null}
+                  onAttachmentChange={(file) =>
+                    setAttachments((prev) => ({
+                      ...prev,
+                      [experience.id]: file,
+                    }))
+                  }
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        )}
       </div>
       <KakaoMoveModal
         open={kakaoModalOpen}

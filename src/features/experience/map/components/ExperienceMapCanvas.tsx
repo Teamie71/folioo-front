@@ -184,9 +184,13 @@ function saveViewport(ownerKey: string | undefined, viewport: Viewport) {
 type CanvasProps = {
   /** 진입 직후 화면 중앙에 두고 표준 수준으로 확대할 활동 id. (모바일 진입용) */
   focusExperienceId?: string;
+  showZoomController?: boolean;
 };
 
-function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
+function ExperienceMapCanvasInner({
+  focusExperienceId,
+  showZoomController = true,
+}: CanvasProps) {
   const groups = useExperienceListStore((s) => s.groups);
   const experiences = useExperienceListStore((s) => s.experiences);
   const isContentLoading = useExperienceListStore((s) => s.isContentLoading);
@@ -666,6 +670,22 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
         const ids = collectSelectionIds(groups, experiences, node.id);
         if (ids.length === 0) return;
         setBlockSelection(ids, !selectedBlockIds[node.id]);
+        if (focusExperienceId) {
+          const container = mapViewportRef.current;
+          if (container) {
+            const viewport = getViewport();
+            const overflow =
+              (node.y + node.height) * viewport.zoom +
+              viewport.y -
+              (container.clientHeight - 24);
+            if (overflow > 0) {
+              void setViewport(
+                { ...viewport, y: viewport.y - overflow },
+                { duration: 200 },
+              );
+            }
+          }
+        }
         return;
       }
 
@@ -694,6 +714,9 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
       experiences,
       selectedBlockIds,
       setBlockSelection,
+      focusExperienceId,
+      getViewport,
+      setViewport,
       selectExperience,
       detail,
       focusOnStandard,
@@ -814,16 +837,24 @@ function ExperienceMapCanvasInner({ focusExperienceId }: CanvasProps) {
         </ReactFlow>
       </div>
       {dropTarget && <MapDropIndicator target={dropTarget} />}
-      {viewportReady && <MapZoomController onZoomChange={zoomFromController} />}
+      {viewportReady && showZoomController && (
+        <MapZoomController onZoomChange={zoomFromController} />
+      )}
       <MapActivityPreviewModal onClose={onPreviewClose} />
     </MapInteractionProvider>
   );
 }
 
-export function ExperienceMapCanvas({ focusExperienceId }: CanvasProps = {}) {
+export function ExperienceMapCanvas({
+  focusExperienceId,
+  showZoomController,
+}: CanvasProps = {}) {
   return (
     <ReactFlowProvider>
-      <ExperienceMapCanvasInner focusExperienceId={focusExperienceId} />
+      <ExperienceMapCanvasInner
+        focusExperienceId={focusExperienceId}
+        showZoomController={showZoomController}
+      />
     </ReactFlowProvider>
   );
 }

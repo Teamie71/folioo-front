@@ -1,22 +1,15 @@
 'use client';
 
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
-import Link from 'next/link';
 import { cn } from '@/utils/utils';
-import {
-  AGENT_COMING_SOON_COPY,
-  AGENT_PANEL_MODE,
-} from '@/features/experience/list/constants';
-import {
-  MOCK_AGENT_MESSAGES,
-  type MockAgentMessage,
-} from '@/features/experience/list/mock';
-import { AttachIcon } from '@/components/icons/AttachIcon';
-import { SendArrowIcon } from '@/components/icons/SendArrowIcon';
+import { MobileConnectedAgent } from '@/features/experience/list/components/mobile/MobileConnectedAgent';
+import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  experienceId?: string;
+  view?: WorkspaceView;
 };
 
 const HALF_VH = 52;
@@ -27,120 +20,12 @@ const FLICK_VELOCITY = 0.45;
 
 type Snap = 'half' | 'full';
 
-function AgentComingSoon() {
-  return (
-    <div className='flex flex-1 flex-col items-center justify-center px-[24px] text-center'>
-      <p className='typo-b1-sb text-gray9'>
-        {AGENT_COMING_SOON_COPY.titleFirstLine}
-        <br />
-        {AGENT_COMING_SOON_COPY.titleSecondLine}
-      </p>
-      <p className='typo-c2 text-gray9 mt-[20px]'>
-        {AGENT_COMING_SOON_COPY.feedbackLead}
-        <br />
-        <Link
-          href='/feedback'
-          className='text-main underline underline-offset-2'
-        >
-          {AGENT_COMING_SOON_COPY.feedbackLinkLabel}
-        </Link>
-        {AGENT_COMING_SOON_COPY.feedbackTail}
-      </p>
-    </div>
-  );
-}
-
-function AgentMessages({ messages }: { messages: MockAgentMessage[] }) {
-  const endRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  return (
-    <div className='flex min-h-0 flex-1 flex-col gap-[16px] overflow-y-auto px-[16px] pt-[12px] pb-[8px]'>
-      {messages.length === 0 ? (
-        <p className='typo-b2 text-gray6'>경험 정리에 대해 질문해 보세요.</p>
-      ) : (
-        messages.map((message) =>
-          message.role === 'user' ? (
-            <div key={message.id} className='flex justify-end'>
-              <div className='max-w-[calc(100%-60px)] rounded-tl-[10px] rounded-tr-[10px] rounded-br-[2px] rounded-bl-[10px] bg-white px-[10px] py-[4px]'>
-                <p className='typo-b2 text-gray9'>{message.content}</p>
-              </div>
-            </div>
-          ) : (
-            <p key={message.id} className='typo-b2 text-gray9 w-full'>
-              {message.content}
-            </p>
-          ),
-        )
-      )}
-      <div ref={endRef} />
-    </div>
-  );
-}
-
-function AgentComposer({
-  enabled,
-  input,
-  onInputChange,
-  onSend,
-}: {
-  enabled: boolean;
-  input: string;
-  onInputChange: (value: string) => void;
-  onSend: () => void;
-}) {
-  return (
-    <div className='shrink-0 px-[16px] pt-[8px] pb-[calc(24px+env(safe-area-inset-bottom))]'>
-      <div className='relative flex h-[48px] w-full items-center rounded-[32px] bg-white shadow-[0px_1px_4px_0px_rgba(0,0,0,0.1)]'>
-        <div
-          aria-hidden
-          className='pointer-events-none absolute inset-0 rounded-[32px] shadow-[inset_0px_2px_4px_0px_rgba(0,0,0,0.25)]'
-        />
-        <input
-          type='text'
-          value={input}
-          disabled={!enabled}
-          onChange={(e) => onInputChange(e.target.value)}
-          onKeyDown={(e) => {
-            if (!enabled) return;
-            if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-              e.preventDefault();
-              onSend();
-            }
-          }}
-          placeholder='내용 또는 파일을 추가해 주세요.'
-          className='typo-b2 text-gray9 placeholder:text-gray5 relative z-10 h-full min-w-0 flex-1 bg-transparent pr-[8px] pl-[24px] outline-none disabled:cursor-not-allowed'
-        />
-        <button
-          type='button'
-          disabled={!enabled}
-          className='relative z-10 mr-[8px] flex size-[28px] shrink-0 items-center justify-center disabled:cursor-not-allowed disabled:opacity-60'
-          aria-label='파일 첨부'
-        >
-          <AttachIcon className='h-[23px] w-[20px]' />
-        </button>
-        <button
-          type='button'
-          disabled={!enabled || !input.trim()}
-          onClick={onSend}
-          className='bg-main relative z-10 mr-[8px] flex size-[32px] shrink-0 items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-60'
-          aria-label='전송'
-        >
-          <SendArrowIcon className='h-[17px] w-[14px]' />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-export function MobileExperienceAgentSheet({ open, onOpenChange }: Props) {
-  const isChat = AGENT_PANEL_MODE === 'chat';
-  const [input, setInput] = useState('');
-  const [messages, setMessages] =
-    useState<MockAgentMessage[]>(MOCK_AGENT_MESSAGES);
+export function MobileExperienceAgentSheet({
+  open,
+  onOpenChange,
+  experienceId,
+  view = 'list',
+}: Props) {
   const [snap, setSnap] = useState<Snap>('half');
   const [dragY, setDragY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -268,25 +153,6 @@ export function MobileExperienceAgentSheet({ open, onOpenChange }: Props) {
     window.setTimeout(() => onOpenChange(false), 200);
   };
 
-  const send = () => {
-    if (!isChat) return;
-    const text = input.trim();
-    if (!text) return;
-    const userMsg: MockAgentMessage = {
-      id: `u-${Date.now()}`,
-      role: 'user',
-      content: text,
-    };
-    const aiMsg: MockAgentMessage = {
-      id: `a-${Date.now()}`,
-      role: 'ai',
-      content:
-        '지금은 와이어프레임 목업이에요. 실제 AI 응답은 이후 연동에서 연결됩니다.',
-    };
-    setMessages((prev) => [...prev, userMsg, aiMsg]);
-    setInput('');
-  };
-
   if (!open) return null;
 
   return (
@@ -312,7 +178,7 @@ export function MobileExperienceAgentSheet({ open, onOpenChange }: Props) {
           })`,
         }}
       >
-        <div className='flex h-full min-h-0 flex-col overflow-hidden rounded-t-[20px] bg-[#f7f7f8]'>
+        <div className='relative flex h-full min-h-0 flex-col overflow-hidden rounded-t-[20px] bg-[#f7f7f8]'>
           <div
             className='flex h-[56px] shrink-0 touch-none flex-col items-center pt-[16px] active:cursor-grabbing'
             onPointerDown={handlePointerDown}
@@ -324,14 +190,17 @@ export function MobileExperienceAgentSheet({ open, onOpenChange }: Props) {
             <p className='typo-c1-b text-gray9 mt-[8px]'>AI 에이전트</p>
           </div>
 
-          {isChat ? <AgentMessages messages={messages} /> : <AgentComingSoon />}
-
-          <AgentComposer
-            enabled={isChat}
-            input={input}
-            onInputChange={setInput}
-            onSend={send}
-          />
+          {experienceId ? (
+            <MobileConnectedAgent
+              key={experienceId}
+              experienceId={experienceId}
+              view={view}
+            />
+          ) : (
+            <p className='typo-b2 text-gray6 flex flex-1 items-center justify-center'>
+              활동을 선택해 주세요.
+            </p>
+          )}
         </div>
       </div>
     </>

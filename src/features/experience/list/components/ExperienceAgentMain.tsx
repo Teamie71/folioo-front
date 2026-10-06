@@ -13,6 +13,7 @@ import { PdfIcon } from '@/components/icons/PdfIcon';
 import { FileText, Square, X } from 'lucide-react';
 import { SendArrowIcon } from '@/components/icons/SendArrowIcon';
 import { useAuthStore } from '@/store/useAuthStore';
+import { ExperienceAgentSkeleton } from './ExperienceAgentSkeleton';
 import {
   AGENT_DAILY_LIMIT,
   AGENT_LIMIT_DISPLAY_REMAINING,
@@ -55,6 +56,7 @@ type Props = {
   historyLoading?: boolean;
   isWorking?: boolean;
   error?: string | null;
+  mobile?: boolean;
 };
 
 export function ExperienceAgentMain({
@@ -71,6 +73,7 @@ export function ExperienceAgentMain({
   historyLoading = false,
   isWorking = false,
   error,
+  mobile = false,
 }: Props) {
   const accessToken = useAuthStore((state) => state.accessToken);
   const [submitting, setSubmitting] = useState(false);
@@ -178,19 +181,19 @@ export function ExperienceAgentMain({
   };
 
   if (historyLoading) {
-    return (
-      <div
-        className='min-h-0 flex-1'
-        aria-busy='true'
-        aria-label='대화 내역 불러오는 중'
-      />
-    );
+    return <ExperienceAgentSkeleton mobile={mobile} />;
   }
 
   return (
     <div
-      className={`${styles.mainScroll} ${styles.contentFadeIn} min-h-0 flex-1 overflow-y-auto px-[20px]`}
-      style={{ paddingBottom: docked ? composerHeight + 44 : 32 }}
+      className={`${styles.mainScroll} ${styles.contentFadeIn} min-h-0 flex-1 overflow-y-auto ${mobile ? 'px-[16px]' : 'px-[20px]'}`}
+      style={{
+        paddingBottom: docked
+          ? mobile
+            ? `calc(${composerHeight + 44}px + env(safe-area-inset-bottom))`
+            : composerHeight + 44
+          : 32,
+      }}
       data-agent-main
     >
       {hasConversation && conversation ? (
@@ -199,7 +202,9 @@ export function ExperienceAgentMain({
           onRetryBlocked={showNotice}
         />
       ) : (
-        <div className='flex flex-col items-center pt-[172px]'>
+        <div
+          className={`flex flex-col items-center ${mobile ? 'pt-[40px]' : 'pt-[172px]'}`}
+        >
           <AgentIcon className='size-[48px] shrink-0' />
           <p className='text-gray9 mt-[20px] text-center text-[18px] leading-[130%] font-semibold tracking-normal'>
             편하게 활동 내용을 알려주시면,
@@ -210,7 +215,7 @@ export function ExperienceAgentMain({
       )}
       <div
         ref={composer}
-        className={`${styles.composer} ${docked ? styles.dockedComposer : hasConversation ? 'mt-[28px]' : 'mt-[100px]'}`}
+        className={`${styles.composer} ${docked ? `${styles.dockedComposer} ${mobile ? styles.mobileDockedComposer : ''}` : hasConversation ? 'mt-[28px]' : mobile ? 'mt-[48px]' : 'mt-[100px]'}`}
         data-agent-composer
         data-agent-docked={docked}
       >
@@ -383,8 +388,12 @@ export function ExperienceAgentMain({
       {docked && (
         <div
           aria-hidden
-          className={styles.dockedComposerBackdrop}
-          style={{ height: composerHeight + 44 }}
+          className={`${styles.dockedComposerBackdrop} ${mobile ? styles.mobileDockedComposerBackdrop : ''}`}
+          style={{
+            height: mobile
+              ? `calc(${composerHeight + 44}px + env(safe-area-inset-bottom))`
+              : composerHeight + 44,
+          }}
         />
       )}
 

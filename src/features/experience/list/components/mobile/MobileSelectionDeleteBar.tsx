@@ -30,9 +30,9 @@ export function MobileSelectionDeleteBar() {
               : 'selection-delete',
           })
         }
-        className='bg-error-sub border-gray4 pointer-events-auto flex h-[44px] cursor-pointer items-center rounded-[8px] border px-[20px] shadow-[0px_4px_16px_0px_rgba(0,0,0,0.12)] transition-opacity disabled:pointer-events-none disabled:opacity-50'
+        className='bg-error-sub border-gray4 pointer-events-auto max-w-[calc(100%-96px)] cursor-pointer rounded-[6px] border px-[12px] py-[6px] shadow-[0px_4px_16px_0px_rgba(0,0,0,0.12)] transition-opacity disabled:pointer-events-none disabled:opacity-50'
       >
-        <span className='typo-b2 text-gray9 text-center whitespace-nowrap'>
+        <span className='typo-b2 text-gray9 text-center break-keep'>
           선택한 {selectedCount}개의 블록 삭제
         </span>
       </button>

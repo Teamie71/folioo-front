@@ -11,8 +11,8 @@ type Props = {
 };
 
 const OPTIONS: Array<{ label: string; value: WorkspaceView }> = [
-  { label: '맵 뷰', value: 'map' },
   { label: '리스트 뷰', value: 'list' },
+  { label: '맵 뷰', value: 'map' },
 ];
 
 export function ExperienceListViewSwitchToggle({
@@ -30,7 +30,7 @@ export function ExperienceListViewSwitchToggle({
         aria-hidden
         className={cn(
           'bg-main pointer-events-none absolute inset-y-0 left-0 w-[79px] rounded-[6px] transition-transform duration-200 ease-in-out',
-          value === 'map' ? 'translate-x-0' : 'translate-x-full',
+          value === 'list' ? 'translate-x-0' : 'translate-x-full',
         )}
       />
       {OPTIONS.map((option) => {
