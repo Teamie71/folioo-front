@@ -1,6 +1,7 @@
 'use client';
 
 import { cn } from '@/utils/utils';
+import skeletonStyles from '@/styles/experience-skeleton.module.css';
 
 export type TextSkeletonTypo = 'h5' | 'b2-sb' | 'text-field';
 
@@ -42,7 +43,10 @@ export function ExperienceListTextSkeleton({
       aria-hidden
     >
       <div
-        className='bg-gray2 max-w-full shrink-0 rounded-[4px]'
+        className={cn(
+          'bg-gray2 max-w-full shrink-0 rounded-[4px]',
+          skeletonStyles.shimmer,
+        )}
         style={{ height: barHeight, width: barWidth }}
       />
     </div>

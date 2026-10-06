@@ -18,6 +18,9 @@ type Props = {
 export function MobileConnectedAgent({ experienceId, view }: Props) {
   const agent = useExperienceAgent(experienceId, view);
   const accessToken = useAuthStore((state) => state.accessToken);
+  const sessionRestoreAttempted = useAuthStore(
+    (state) => state.sessionRestoreAttempted,
+  );
   const status = useAgentStatusStore(
     (state) => state.byExperienceId[experienceId],
   );
@@ -67,7 +70,10 @@ export function MobileConnectedAgent({ experienceId, view }: Props) {
       onSend={agent.send}
       onStop={agent.stop}
       ready={agent.ready}
-      historyLoading={Boolean(accessToken) && !agent.historyLoaded}
+      historyLoading={
+        !sessionRestoreAttempted ||
+        (Boolean(accessToken) && !agent.historyLoaded)
+      }
       isWorking={agent.isWorking}
       error={agent.error}
     />

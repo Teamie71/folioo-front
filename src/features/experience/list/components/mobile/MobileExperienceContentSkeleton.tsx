@@ -3,6 +3,7 @@
 import { cn } from '@/utils/utils';
 import { ExperienceListTextSkeleton } from '@/features/experience/list/components/ExperienceListTextSkeleton';
 import { ListChevronIcon } from '@/components/icons/ListChevronIcon';
+import skeletonStyles from '@/styles/experience-skeleton.module.css';
 
 type ContentLine = {
   chars: number;
@@ -66,7 +67,12 @@ export function MobileExperienceContentSkeleton({ variant = 'bars' }: Props) {
         const expanded = index === 0;
         return (
           <div key={section.label} className='flex flex-col gap-[8px]'>
-            <div className='bg-gray2 flex w-full items-center justify-between rounded-[8px] px-[10px] py-[8px]'>
+            <div
+              className={cn(
+                'bg-gray2 flex w-full items-center justify-between rounded-[8px] px-[10px] py-[8px]',
+                !labeled && skeletonStyles.shimmer,
+              )}
+            >
               <div className='flex min-w-0 items-center gap-[4px]'>
                 <ListChevronIcon
                   className={cn(
