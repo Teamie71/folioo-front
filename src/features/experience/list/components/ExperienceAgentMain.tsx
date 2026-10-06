@@ -13,6 +13,7 @@ import { PdfIcon } from '@/components/icons/PdfIcon';
 import { FileText, Square, X } from 'lucide-react';
 import { SendArrowIcon } from '@/components/icons/SendArrowIcon';
 import { useAuthStore } from '@/store/useAuthStore';
+import { ExperienceAgentSkeleton } from './ExperienceAgentSkeleton';
 import {
   AGENT_DAILY_LIMIT,
   AGENT_LIMIT_DISPLAY_REMAINING,
@@ -180,13 +181,7 @@ export function ExperienceAgentMain({
   };
 
   if (historyLoading) {
-    return (
-      <div
-        className='min-h-0 flex-1'
-        aria-busy='true'
-        aria-label='대화 내역 불러오는 중'
-      />
-    );
+    return <ExperienceAgentSkeleton mobile={mobile} />;
   }
 
   return (
