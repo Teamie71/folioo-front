@@ -155,6 +155,7 @@
   justify-content: center;
   width: 12px;
   height: 12px;
+  opacity: 0.6;
 }
 
 .workingDot {
