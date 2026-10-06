@@ -11,6 +11,9 @@ import { MobileExperienceContentSkeleton } from '@/features/experience/list/comp
 import { MobileExperienceAgentSheet } from '@/features/experience/list/components/mobile/MobileExperienceAgentSheet';
 import { MobileExperienceListDetailHeader } from '@/features/experience/list/components/mobile/MobileExperienceListDetailHeader';
 import { MobileAgentFab } from '@/features/experience/list/components/mobile/MobileAgentFab';
+import { MobileExperienceMapView } from '@/features/experience/list/components/mobile/MobileExperienceMapView';
+import { ExperienceListViewSwitchToggle } from '@/features/experience/list/components/ExperienceListViewSwitchToggle';
+import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
 
 type Props = {
   experienceId: string;
@@ -34,6 +37,7 @@ export function MobileExperienceDetail({ experienceId, onBack }: Props) {
   );
 
   const [agentOpen, setAgentOpen] = useState(false);
+  const [view, setView] = useState<WorkspaceView>('list');
 
   const experience = experiences.find((e) => e.id === experienceId);
   const group = experience
@@ -44,11 +48,15 @@ export function MobileExperienceDetail({ experienceId, onBack }: Props) {
     if (!experience) onBack();
   }, [experience, onBack]);
 
-  // PC와 동일하게 리스트 뷰만 제공하므로 맵 전용 선택 상태를 정리한다.
   useEffect(() => {
     cancelBlockSelection();
     return cancelBlockSelection;
   }, [cancelBlockSelection]);
+
+  const changeView = (nextView: WorkspaceView) => {
+    if (nextView === 'list') cancelBlockSelection();
+    setView(nextView);
+  };
 
   if (!experience) return null;
 
@@ -95,20 +103,32 @@ export function MobileExperienceDetail({ experienceId, onBack }: Props) {
           className='typo-b2-sb text-gray9'
           inputClassName='typo-b2-sb text-gray9'
         />
+        <div className='mt-[20px]'>
+          <ExperienceListViewSwitchToggle
+            value={view}
+            onValueChange={changeView}
+          />
+        </div>
       </div>
 
-      <div className='mt-[16px] flex min-h-0 flex-1 flex-col overflow-y-auto px-[16px] pb-[96px]'>
-        {isContentLoading || isCreatingExperience ? (
-          <MobileExperienceContentSkeleton />
-        ) : experience.blocks.length === 0 ? (
-          <EmptyExperienceState experienceId={experience.id} />
-        ) : (
-          <MobileExperienceBlockTree
-            experienceId={experience.id}
-            blocks={experience.blocks}
-          />
-        )}
-      </div>
+      {view === 'map' ? (
+        <div className='mt-[16px] flex min-h-0 flex-1 flex-col'>
+          <MobileExperienceMapView focusExperienceId={experience.id} />
+        </div>
+      ) : (
+        <div className='mt-[16px] flex min-h-0 flex-1 flex-col overflow-y-auto px-[16px] pb-[96px]'>
+          {isContentLoading || isCreatingExperience ? (
+            <MobileExperienceContentSkeleton />
+          ) : experience.blocks.length === 0 ? (
+            <EmptyExperienceState experienceId={experience.id} />
+          ) : (
+            <MobileExperienceBlockTree
+              experienceId={experience.id}
+              blocks={experience.blocks}
+            />
+          )}
+        </div>
+      )}
 
       {!agentOpen && <MobileAgentFab onClick={() => setAgentOpen(true)} />}
 
