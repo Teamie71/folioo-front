@@ -34,6 +34,10 @@ function clearRefreshTokenCookie() {
 // 인증 스토어 인터페이스
 interface AuthStore {
   accessToken: string | null;
+  sessionExpired: boolean;
+  authVersion: number;
+  sessionVersion: number;
+  expireSession: () => void;
   /* 앱 로드 후 refresh로 세션 복원 시도 완료 여부 */
   sessionRestoreAttempted: boolean;
   setSessionRestoreAttempted: (attempted: boolean) => void;
@@ -49,10 +53,26 @@ export const useAuthStore = create<AuthStore>()(
   devtools(
     (set) => ({
       accessToken: null,
+      sessionExpired: false,
+      authVersion: 0,
+      sessionVersion: 0,
+      expireSession: () =>
+        set((s) => ({
+          accessToken: null,
+          sessionExpired: true,
+          authVersion: s.authVersion + 1,
+          sessionVersion: s.sessionVersion + 1,
+        })),
       sessionRestoreAttempted: false,
 
       // accessToken 설정
-      setAccessToken: (token) => set({ accessToken: token }),
+      setAccessToken: (token) =>
+        set((s) => ({
+          accessToken: token,
+          sessionExpired: false,
+          authVersion: s.authVersion + 1,
+          sessionVersion: s.sessionVersion + (s.accessToken == null ? 1 : 0),
+        })),
 
       // 세션 복원 시도 완료 여부 설정
       setSessionRestoreAttempted: (attempted) =>
@@ -71,7 +91,12 @@ export const useAuthStore = create<AuthStore>()(
         clearRefreshTokenCookie();
         // 이전 사용자의 개인정보가 다음 화면이나 계정에 남지 않도록 캐시를 비운다.
         queryClient.clear();
-        set({ accessToken: null });
+        set((s) => ({
+          accessToken: null,
+          sessionExpired: false,
+          authVersion: s.authVersion + 1,
+          sessionVersion: s.sessionVersion + 1,
+        }));
       },
     }),
     { name: 'auth-store' },

@@ -39,7 +39,9 @@ export function useExperienceMap() {
   const sessionRestoreAttempted = useAuthStore(
     (s) => s.sessionRestoreAttempted,
   );
-  const isGuest = sessionRestoreAttempted && accessToken == null;
+  const sessionExpired = useAuthStore((s) => s.sessionExpired);
+  const isGuest =
+    sessionRestoreAttempted && accessToken == null && !sessionExpired;
 
   const syncError = useExperienceListStore((s) => s.syncError);
   const isContentLoading = useExperienceListStore((s) => s.isContentLoading);
@@ -57,7 +59,7 @@ export function useExperienceMap() {
   const templates = useTemplateControllerGetTemplates({
     query: {
       // 카탈로그도 로그인해야 읽을 수 있다. 비로그인은 기본 문구를 쓴다.
-      enabled: !isGuest && sessionRestoreAttempted,
+      enabled: !isGuest && !sessionExpired && sessionRestoreAttempted,
       staleTime: Infinity,
       refetchOnWindowFocus: false,
       retry: 1,
@@ -72,7 +74,11 @@ export function useExperienceMap() {
     queryKey: getExperienceMapControllerGetMapQueryKey(),
     queryFn: () => loadExperienceMap(),
     // 세션 복원이 끝나고, 카탈로그 조회가 끝난(성공/실패 무관) 뒤에 트리를 읽는다.
-    enabled: sessionRestoreAttempted && !isGuest && !templates.isPending,
+    enabled:
+      sessionRestoreAttempted &&
+      !isGuest &&
+      !sessionExpired &&
+      !templates.isPending,
     // 스토어가 원본이라 캐시를 다시 읽어 화면을 덮어쓸 필요가 없다.
     staleTime: Infinity,
     refetchOnWindowFocus: false,
@@ -93,13 +99,13 @@ export function useExperienceMap() {
    */
   const mapLoaded = !isContentLoading;
   useEffect(() => {
-    if (isGuest || !mapLoaded) return;
+    if (isGuest || sessionExpired || !mapLoaded) return;
     const draft = readGuestDraft();
     if (!draft) return;
     // 한 번만 시도한다. 실패해도 다시 시도하지 않는다. (중복 생성 방지)
     clearGuestDraft();
     syncImportGuestDraft(draft);
-  }, [isGuest, mapLoaded]);
+  }, [isGuest, sessionExpired, mapLoaded]);
 
   // 조회에 실패하면 스켈레톤에 머무르지 않고 빈 상태를 보여준다.
   // 화면에는 빈 상태와 구분이 안 되므로 실패 사실은 콘솔에 남긴다.

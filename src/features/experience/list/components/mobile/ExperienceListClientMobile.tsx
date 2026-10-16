@@ -1,5 +1,6 @@
 'use client';
 
+import { ExperienceSaveNotice } from '@/features/experience/list/components/ExperienceSaveNotice';
 import { useCallback, useEffect, useState } from 'react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { MobileExperienceListGroup } from '@/features/experience/list/components/mobile/MobileExperienceListGroup';
@@ -113,6 +114,7 @@ export default function ExperienceListClientMobile() {
         />
       )}
 
+      <ExperienceSaveNotice />
       <MobileExperienceListModals />
 
       {/* 로그인 안내 스낵바 (0-1) — 하단 기준 40px 위 */}

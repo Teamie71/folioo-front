@@ -1,3 +1,4 @@
+import { saveRecoveryDraft } from '@/features/experience/list/api/recoveryDraft';
 import { create } from 'zustand/react';
 import { devtools } from 'zustand/middleware';
 import {
@@ -1070,6 +1071,8 @@ configureExperienceMapSync({
     useExperienceListStore.getState().hydrateFromServer(snapshot),
   onError: (error) => {
     // 실패한 조작은 곧바로 이어지는 맵 재조회로 서버 상태에 맞춰 되돌아간다.
+    const { groups, experiences } = useExperienceListStore.getState();
+    saveRecoveryDraft({ groups, experiences });
     console.error('[experience-map] 동기화 실패', error);
     useExperienceListStore.getState().setSyncError(error);
   },
