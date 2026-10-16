@@ -1,5 +1,6 @@
 'use client';
 
+import { ExperienceSaveNotice } from '@/features/experience/list/components/ExperienceSaveNotice';
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useState } from 'react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
@@ -154,6 +155,7 @@ export function ExperienceWorkspaceShell() {
         <ExperienceListAgentPanel view={view} />
       </div>
 
+      <ExperienceSaveNotice />
       <ExperienceListModals />
 
       {/* 이탈 방지 모달 (0-2) */}
