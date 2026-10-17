@@ -12,6 +12,10 @@
     "api:gen": "orval",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "test:storybook": "vitest run --project storybook",
+    "test:e2e": "playwright test",
+    "test:e2e:smoke": "playwright test --grep @smoke",
+    "test:e2e:full": "playwright test --grep @full",
     "chromatic": "npx chromatic --project-token=chpt_f6f9e8af0711958"
   },
   "dependencies": {
@@ -58,8 +62,10 @@
     "zustand": "^5.0.10"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@chromatic-com/storybook": "^5.0.1",
     "@next/env": "16.1.6",
+    "@playwright/test": "1.58.2",
     "@storybook/addon-a11y": "^10.2.19",
     "@storybook/addon-docs": "^10.2.19",
     "@storybook/addon-onboarding": "^10.2.19",
