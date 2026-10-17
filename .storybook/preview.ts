@@ -1,8 +1,10 @@
+/// <reference path="../src/types/css.d.ts" />
 import type { Preview } from '@storybook/nextjs-vite';
 import React, { useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from '../src/store/useAuthStore';
 import '../src/styles/globals.css';
+import './fonts.css';
 
 // Create a client for Storybook
 const queryClient = new QueryClient({
