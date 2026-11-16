@@ -1,0 +1,42 @@
+{
+  "$comment": "Playwright smoke/full 영향 판정용 경로 규칙. 목록이 비어 있을 때는 알아서 판단하지 않고 아래 conservative 정책만 쓴다.",
+  "version": 1,
+  "commands": {
+    "smoke": "pnpm test:e2e:smoke",
+    "full": "pnpm test:e2e:full"
+  },
+  "conservativePolicy": {
+    "description": "경로 목록 확정 전 초기 정책: 웹 실행 코드 변경 → smoke. full은 e2e/설정이 바뀌었거나 담당자가 명시 요청할 때만.",
+    "webRuntimeGlobs": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "src/**/*.js",
+      "src/**/*.jsx"
+    ],
+    "webRuntimeExcludeGlobs": [
+      "src/**/*.d.ts",
+      "src/**/*.test.ts",
+      "src/**/*.test.tsx",
+      "src/**/*.spec.ts",
+      "src/**/*.spec.tsx",
+      "src/**/*.stories.ts",
+      "src/**/*.stories.tsx"
+    ],
+    "fullWhenTestCodeGlobs": [
+      "e2e/**",
+      "playwright.config.ts",
+      "qa/playwright-path-rules.json"
+    ],
+    "explicitFullEnv": "PLAYWRIGHT_FULL"
+  },
+  "highRiskWebPaths": {
+    "description": "회원가입·인증·콘텐츠 생성/저장 등 핵심 여정 경로. 여기 매칭되면 Web 변경 시 Playwright-full 추가. 디렉터리/모노레포 경로 확정 전까지 비움.",
+    "globs": []
+  },
+  "commonInteractionPaths": {
+    "description": "Dew 내비·입력·오버레이 등 공통 상호작용. 매칭 시 Playwright-smoke 추가. criticalJourneyLinked가 true이거나 linkedHighRiskGlobs에 해당하면 full도 추가. Dew 패키지 경로 확정 전까지 비움.",
+    "globs": [],
+    "criticalJourneyLinked": false,
+    "linkedHighRiskGlobs": []
+  }
+}
