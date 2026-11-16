@@ -51,7 +51,7 @@ function createInitialListState() {
     agentLimitDayKst: null as string | null,
     syncError: null as unknown,
     sidebarOpen: true,
-    agentOpen: true,
+    agentOpen: false,
     collapsedGroups: {} as Record<string, boolean>,
     modal: null as ModalState,
     // 서버에서 맵을 받아오기 전까지는 스켈레톤을 보여준다.

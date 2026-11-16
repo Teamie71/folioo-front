@@ -1,8 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/utils/utils';
+import { AgentComingSoon } from '@/features/experience/list/components/AgentPreparing';
 import { MobileConnectedAgent } from '@/features/experience/list/components/mobile/MobileConnectedAgent';
+import { AGENT_PANEL_MODE } from '@/features/experience/list/constants';
 import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
 
 type Props = {
@@ -153,13 +156,13 @@ export function MobileExperienceAgentSheet({
     window.setTimeout(() => onOpenChange(false), 200);
   };
 
-  if (!open) return null;
+  if (!open || typeof document === 'undefined') return null;
 
-  return (
+  return createPortal(
     <>
       <div
         className={cn(
-          'fixed inset-0 z-[80] bg-black/20 transition-opacity duration-200',
+          'fixed inset-0 z-[90] bg-black/20 transition-opacity duration-200',
           entered ? 'opacity-100' : 'opacity-0',
         )}
         onClick={close}
@@ -167,7 +170,7 @@ export function MobileExperienceAgentSheet({
 
       <div
         className={cn(
-          'fixed right-0 bottom-0 left-0 z-[80] flex flex-col will-change-transform',
+          'fixed right-0 bottom-0 left-0 z-[90] flex flex-col will-change-transform',
           !isDragging && 'transition-[transform,height] duration-200 ease-out',
         )}
         style={{
@@ -190,7 +193,9 @@ export function MobileExperienceAgentSheet({
             <p className='typo-c1-b text-gray9 mt-[8px]'>AI 에이전트</p>
           </div>
 
-          {experienceId ? (
+          {AGENT_PANEL_MODE === 'comingSoon' ? (
+            <AgentComingSoon />
+          ) : experienceId ? (
             <MobileConnectedAgent
               key={experienceId}
               experienceId={experienceId}
@@ -203,6 +208,7 @@ export function MobileExperienceAgentSheet({
           )}
         </div>
       </div>
-    </>
+    </>,
+    document.body,
   );
 }

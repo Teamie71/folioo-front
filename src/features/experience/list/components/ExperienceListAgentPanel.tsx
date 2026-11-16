@@ -11,6 +11,11 @@ import { SidebarPanelIcon } from '@/components/icons/SidebarPanelIcon';
 import type { AgentConversation } from './ExperienceAgentConversation';
 import { ExperienceAgentMain } from './ExperienceAgentMain';
 import { ExperienceAgentSkeleton } from './ExperienceAgentSkeleton';
+import { AgentComingSoon } from './AgentPreparing';
+import {
+  AGENT_PANEL_MODE,
+  type AgentPanelMode,
+} from '@/features/experience/list/constants';
 import { useExperienceAgent } from '@/features/experience/list/hooks/useExperienceAgent';
 import type { WorkspaceView } from '@/features/experience/workspace/model/workspaceView';
 import type { Experience } from '@/features/experience/list/types';
@@ -162,12 +167,15 @@ export function ExperienceListAgentPanel({
   conversations = {},
   dailyChatCount = 0,
   view = 'list',
+  mode = AGENT_PANEL_MODE,
 }: {
   conversations?: Readonly<Record<string, AgentConversation>>;
   /** 로그인 사용자 전체 활동의 서버 기준 일일 합산 횟수 */
   dailyChatCount?: number;
   view?: WorkspaceView;
+  mode?: AgentPanelMode;
 }) {
+  const isComingSoon = mode === 'comingSoon';
   const open = useExperienceListStore((s) => s.agentOpen);
   const onToggle = useExperienceListStore((s) => s.toggleAgent);
   const groups = useExperienceListStore((s) => s.groups);
@@ -346,13 +354,13 @@ export function ExperienceListAgentPanel({
             <SidebarPanelIcon className='size-[20px]' />
           </button>
           <h2 className='text-gray9 min-w-0 flex-1 text-[16px] leading-[24px] font-semibold tracking-normal break-words'>
-            {showInitialSkeleton
+            {isComingSoon || showInitialSkeleton
               ? 'AI 에이전트'
               : experience
                 ? `${experience.name} AI 에이전트`
                 : 'AI 에이전트를 선택해 주세요.'}
           </h2>
-          {experience && (
+          {!isComingSoon && experience && (
             <HoverTooltip
               label='카카오톡으로 이용하기'
               placement='bottom'
@@ -376,7 +384,9 @@ export function ExperienceListAgentPanel({
           )}
         </header>
 
-        {showInitialSkeleton ? (
+        {isComingSoon ? (
+          open && <AgentComingSoon />
+        ) : showInitialSkeleton ? (
           <ExperienceAgentSkeleton />
         ) : (
           <AnimatePresence mode='wait' initial={false}>
@@ -481,18 +491,22 @@ export function ExperienceListAgentPanel({
           </AnimatePresence>
         )}
       </div>
-      <KakaoMoveModal
-        open={kakaoModalOpen}
-        onOpenChange={setKakaoModalOpen}
-        accountConnectionRequired={kakaoLinked === false}
-        onPrimaryClick={enterKakao}
-        pending={kakaoPending}
-        error={kakaoError}
-      />
-      <LoginRequiredModal
-        open={loginRequiredOpen}
-        onOpenChange={setLoginRequiredOpen}
-      />
+      {!isComingSoon && (
+        <>
+          <KakaoMoveModal
+            open={kakaoModalOpen}
+            onOpenChange={setKakaoModalOpen}
+            accountConnectionRequired={kakaoLinked === false}
+            onPrimaryClick={enterKakao}
+            pending={kakaoPending}
+            error={kakaoError}
+          />
+          <LoginRequiredModal
+            open={loginRequiredOpen}
+            onOpenChange={setLoginRequiredOpen}
+          />
+        </>
+      )}
     </motion.aside>
   );
 }

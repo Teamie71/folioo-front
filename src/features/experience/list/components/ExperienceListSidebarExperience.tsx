@@ -8,7 +8,10 @@ import {
   type MenuItem,
 } from '@/features/experience/list/components/ExperienceListMenu';
 import { EditableLabel } from '@/features/experience/list/components/EditableLabel';
-import { EXPERIENCE_NAME_PLACEHOLDER } from '@/features/experience/list/constants';
+import {
+  AGENT_PANEL_MODE,
+  EXPERIENCE_NAME_PLACEHOLDER,
+} from '@/features/experience/list/constants';
 import { HoverTooltip } from '@/components/HoverTooltip';
 import {
   DropIndicator,
@@ -66,7 +69,8 @@ export function ExperienceListSidebarExperience({
   const openModal = useExperienceListStore((s) => s.openModal);
   const accessToken = useAuthStore((s) => s.accessToken);
   const currentStatus = useAgentStatusStore((s) => s.byExperienceId[item.id]);
-  const agentStatus = accessToken ? currentStatus : undefined;
+  const agentStatus =
+    AGENT_PANEL_MODE === 'chat' && accessToken ? currentStatus : undefined;
   const statusLabel = agentStatusLabel(agentStatus?.kind);
 
   const isExpDragging = draggingId === item.id;

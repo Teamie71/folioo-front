@@ -46,11 +46,7 @@ export function ExperienceWorkspaceShell() {
 
   // GET /experience-map 으로 그룹·활동·블록 트리를 채운다. (비로그인은 기본 제공 데이터)
   const { isGuest, isLoading } = useExperienceMap();
-  const openLinkedAgent = useCallback(() => {
-    const state = useExperienceListStore.getState();
-    if (!state.agentOpen) state.toggleAgent();
-  }, []);
-  useExperienceAgentDeepLink(isLoading, openLinkedAgent);
+  useExperienceAgentDeepLink(isLoading);
   const guest = useGuestExperienceMode(isGuest);
 
   useEffect(() => {
