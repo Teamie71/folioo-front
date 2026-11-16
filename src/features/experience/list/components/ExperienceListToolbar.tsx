@@ -17,7 +17,6 @@ import {
 import { ListDeleteIcon } from '@/components/icons/ListDeleteIcon';
 import { ListViewIcon } from '@/components/icons/ListViewIcon';
 import { RedoIcon } from '@/components/icons/RedoIcon';
-import { SidebarPanelIcon } from '@/components/icons/SidebarPanelIcon';
 import { UndoIcon } from '@/components/icons/UndoIcon';
 
 const SIDEBAR_CLOSE_MS = 300;
@@ -44,9 +43,7 @@ export function ExperienceListToolbar({
   overlay = false,
 }: Props) {
   const sidebarOpen = useExperienceListStore((s) => s.sidebarOpen);
-  const agentOpen = useExperienceListStore((s) => s.agentOpen);
   const toggleSidebar = useExperienceListStore((s) => s.toggleSidebar);
-  const toggleAgent = useExperienceListStore((s) => s.toggleAgent);
   const openModal = useExperienceListStore((s) => s.openModal);
   const undo = useExperienceListStore((s) => s.undo);
   const redo = useExperienceListStore((s) => s.redo);
@@ -269,6 +266,7 @@ export function ExperienceListToolbar({
             </button>
           </HoverTooltip>
         ) : null}
+        {/* FO-130 에이전트 패널을 숨기는 동안 진입 버튼도 숨긴다.
         {!agentOpen && (
           <HoverTooltip
             label='클릭하여 에이전트 탭 열기'
@@ -287,6 +285,7 @@ export function ExperienceListToolbar({
             </button>
           </HoverTooltip>
         )}
+        */}
       </div>
     </header>
   );

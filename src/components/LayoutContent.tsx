@@ -8,7 +8,6 @@ import Sidebar from '@/components/Sidebar';
 import { OBTBannerMobile } from '@/components/OBT/OBTBannerMobile';
 import { BannerBeta } from '@/components/OBT/OBTBanner';
 import { cn } from '@/utils/utils';
-import { AgentCompletionToastHost } from '@/features/experience/list/components/AgentCompletionToastHost';
 
 function isCorrectionNewPath(pathname: string) {
   return /^\/correction\/new\/?$/.test(pathname);
@@ -144,7 +143,9 @@ export default function LayoutContent({
 
   return (
     <>
+      {/* FO-130 완료 알림의 에이전트 진입 동작을 일시적으로 숨긴다.
       <AgentCompletionToastHost />
+      */}
       {showDesktopSidebar ? (
         <div className='flex min-h-[100dvh] w-full'>
           <Sidebar />

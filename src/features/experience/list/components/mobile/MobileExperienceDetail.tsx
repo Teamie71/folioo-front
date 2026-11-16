@@ -8,9 +8,7 @@ import { EXPERIENCE_NAME_PLACEHOLDER } from '@/features/experience/list/constant
 import { EmptyExperienceState } from '@/features/experience/list/components/ExperienceListEmptyStates';
 import { MobileExperienceBlockTree } from '@/features/experience/list/components/mobile/MobileExperienceBlockTree';
 import { MobileExperienceContentSkeleton } from '@/features/experience/list/components/mobile/MobileExperienceContentSkeleton';
-import { MobileExperienceAgentSheet } from '@/features/experience/list/components/mobile/MobileExperienceAgentSheet';
 import { MobileExperienceListDetailHeader } from '@/features/experience/list/components/mobile/MobileExperienceListDetailHeader';
-import { MobileAgentFab } from '@/features/experience/list/components/mobile/MobileAgentFab';
 import { MobileExperienceMapView } from '@/features/experience/list/components/mobile/MobileExperienceMapView';
 import { MobileSelectionDeleteBar } from '@/features/experience/list/components/mobile/MobileSelectionDeleteBar';
 import { ExperienceListViewSwitchToggle } from '@/features/experience/list/components/ExperienceListViewSwitchToggle';
@@ -43,7 +41,6 @@ export function MobileExperienceDetail({ experienceId, onBack }: Props) {
     (s) => s.blockSelectionMode,
   );
 
-  const [agentOpen, setAgentOpen] = useState(false);
   const [view, setView] = useState<WorkspaceView>('list');
 
   const experience = experiences.find((e) => e.id === experienceId);
@@ -141,7 +138,7 @@ export function MobileExperienceDetail({ experienceId, onBack }: Props) {
           <MobileExperienceMapView focusExperienceId={experience.id} />
         </div>
       ) : (
-        <div className='mt-[16px] flex min-h-0 flex-1 flex-col overflow-y-auto px-[16px] pb-[96px]'>
+        <div className='mt-[16px] flex min-h-0 flex-1 flex-col overflow-y-auto px-[16px] pb-[16px]'>
           {isContentLoading || isCreatingExperience ? (
             <MobileExperienceContentSkeleton />
           ) : experience.blocks.length === 0 ? (
@@ -157,6 +154,7 @@ export function MobileExperienceDetail({ experienceId, onBack }: Props) {
 
       {view === 'map' && blockSelectionMode && <MobileSelectionDeleteBar />}
 
+      {/* FO-130 활동 상세의 에이전트 버튼과 시트를 일시적으로 숨긴다.
       {!agentOpen && <MobileAgentFab onClick={() => setAgentOpen(true)} />}
 
       <MobileExperienceAgentSheet
@@ -165,6 +163,7 @@ export function MobileExperienceDetail({ experienceId, onBack }: Props) {
         experienceId={experience.id}
         view={view}
       />
+      */}
     </div>
   );
 }
