@@ -8,7 +8,10 @@ import {
   type MenuItem,
 } from '@/features/experience/list/components/ExperienceListMenu';
 import { EditableLabel } from '@/features/experience/list/components/EditableLabel';
-import { EXPERIENCE_NAME_PLACEHOLDER } from '@/features/experience/list/constants';
+import {
+  AGENT_PANEL_MODE,
+  EXPERIENCE_NAME_PLACEHOLDER,
+} from '@/features/experience/list/constants';
 import { HoverTooltip } from '@/components/HoverTooltip';
 import {
   DropIndicator,
@@ -26,6 +29,12 @@ import {
 import type { SidebarDndState } from '@/features/experience/list/hooks/useSidebarDnd';
 import type { Experience, Group } from '@/features/experience/list/types';
 import { ListPlusIcon } from '@/components/icons/ListPlusIcon';
+import {
+  AgentStatusIndicator,
+  agentStatusLabel,
+} from '@/features/experience/list/components/AgentStatusIndicator';
+import { useAgentStatusStore } from '@/features/experience/list/model/agentStatusStore';
+import { useAuthStore } from '@/store/useAuthStore';
 
 type Props = {
   item: Experience;
@@ -58,6 +67,11 @@ export function ExperienceListSidebarExperience({
   );
   const reorderExperience = useExperienceListStore((s) => s.reorderExperience);
   const openModal = useExperienceListStore((s) => s.openModal);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const currentStatus = useAgentStatusStore((s) => s.byExperienceId[item.id]);
+  const agentStatus =
+    AGENT_PANEL_MODE === 'chat' && accessToken ? currentStatus : undefined;
+  const statusLabel = agentStatusLabel(agentStatus?.kind);
 
   const isExpDragging = draggingId === item.id;
 
@@ -176,7 +190,7 @@ export function ExperienceListSidebarExperience({
             }
           }}
           className='w-full min-w-0 flex-1 cursor-pointer text-left'
-          aria-label={item.name}
+          aria-label={`${item.name}${statusLabel ? `, ${statusLabel}` : ''}`}
         >
           <span className='inline-flex max-w-full items-center'>
             <EditableLabel
@@ -194,7 +208,7 @@ export function ExperienceListSidebarExperience({
               )}
               inputClassName={sidebarLabelInputCls}
             />
-            {/* FO-130 <AgentStatusIndicator kind={agentStatus?.kind} /> */}
+            <AgentStatusIndicator kind={agentStatus?.kind} />
           </span>
         </div>
 

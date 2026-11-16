@@ -1,8 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { EmptyGroupState } from '@/features/experience/list/components/ExperienceListEmptyStates';
 import { MobileExperienceListDetailHeader } from '@/features/experience/list/components/mobile/MobileExperienceListDetailHeader';
+import { MobileExperienceAgentSheet } from '@/features/experience/list/components/mobile/MobileExperienceAgentSheet';
+import { MobileAgentFab } from '@/features/experience/list/components/mobile/MobileAgentFab';
 import type { MenuItem } from '@/features/experience/list/components/ExperienceListMenu';
 
 type Props = {
@@ -18,6 +21,7 @@ export function MobileGroupDetail({
 }: Props) {
   const groups = useExperienceListStore((s) => s.groups);
   const openModal = useExperienceListStore((s) => s.openModal);
+  const [agentOpen, setAgentOpen] = useState(false);
 
   const group = groups.find((g) => g.id === groupId);
   if (!group) return null;
@@ -41,7 +45,7 @@ export function MobileGroupDetail({
         menuAriaLabel='그룹 메뉴'
       />
 
-      <div className='flex min-h-0 flex-1 flex-col overflow-y-auto px-[16px] pb-[16px]'>
+      <div className='flex min-h-0 flex-1 flex-col overflow-y-auto px-[16px] pb-[96px]'>
         <p className='typo-c1 text-gray6'>{group.name} &gt;</p>
 
         <EmptyGroupState
@@ -52,14 +56,12 @@ export function MobileGroupDetail({
         />
       </div>
 
-      {/* FO-130 그룹 상세의 에이전트 버튼과 시트를 일시적으로 숨긴다.
       {!agentOpen && <MobileAgentFab onClick={() => setAgentOpen(true)} />}
 
       <MobileExperienceAgentSheet
         open={agentOpen}
         onOpenChange={setAgentOpen}
       />
-      */}
     </div>
   );
 }

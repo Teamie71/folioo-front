@@ -5,6 +5,7 @@ import { useExperienceListStore } from '@/store/useExperienceListStore';
 const meta = {
   title: 'Experience/Agent/Conversation',
   component: ExperienceListAgentPanel,
+  args: { mode: 'chat' },
   parameters: { layout: 'centered' },
   beforeEach: () => {
     const previous = useExperienceListStore.getState();

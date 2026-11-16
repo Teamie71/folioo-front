@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useState } from 'react';
 import { useExperienceListStore } from '@/store/useExperienceListStore';
 import { ExperienceListSidebar } from '@/features/experience/list/components/ExperienceListSidebar';
+import { ExperienceListAgentPanel } from '@/features/experience/list/components/ExperienceListAgentPanel';
 import { ExperienceListModals } from '@/features/experience/list/components/ExperienceListModals';
 import { ExperienceListToolbar } from '@/features/experience/list/components/ExperienceListToolbar';
 import { ExperienceListView } from '@/features/experience/workspace/views/ExperienceListView';
@@ -32,7 +33,7 @@ const ExperienceMapView = dynamic(
 );
 
 /**
- * 사이드바 / 툴바 / 모달은 계속 마운트한 상태로 두고,
+ * 사이드바 / 툴바 / AI 패널 / 모달은 계속 마운트한 상태로 두고,
  * 중앙 뷰만 URL의 view 값에 따라 교체한다.
  */
 export function ExperienceWorkspaceShell() {
@@ -147,9 +148,7 @@ export function ExperienceWorkspaceShell() {
           )}
         </section>
 
-        {/* FO-130 경험 정리에서 에이전트 패널을 일시적으로 숨긴다.
         <ExperienceListAgentPanel view={view} />
-        */}
       </div>
 
       <ExperienceSaveNotice />

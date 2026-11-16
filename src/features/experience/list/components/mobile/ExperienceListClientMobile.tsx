@@ -117,12 +117,16 @@ export default function ExperienceListClientMobile() {
       <ExperienceSaveNotice />
       <MobileExperienceListModals />
 
-      {/* 로그인 안내 스낵바 (0-1) — 하단 기준 40px 위 */}
+      {/* 상세 화면에서는 에이전트 버튼 위에 로그인 안내를 표시한다. */}
       {guest.snackbarOpen && (
         <GuestLoginSnackbar
           onLogin={guest.goToLogin}
           onDismiss={guest.dismissSnackbar}
-          className='fixed'
+          className={
+            detailExperienceId || detailGroupId
+              ? 'fixed bottom-[84px]'
+              : 'fixed'
+          }
         />
       )}
 
